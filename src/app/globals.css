@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.text-secondary {
+    @apply text-gray-500 dark:text-gray-400;
+}
