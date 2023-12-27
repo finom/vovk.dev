@@ -13,6 +13,9 @@ const SyntaxHighlighter = ({ children }: Props) => {
   useEffect(() => {
     if (codeRef.current) {
       codeRef.current.querySelectorAll('code').forEach((block) => {
+        if (block.dataset.highlighted) {
+          return;
+        }
         hljs.highlightBlock(block);
       });
     }
@@ -23,7 +26,7 @@ const SyntaxHighlighter = ({ children }: Props) => {
       <style jsx>{`
         :global(.hljs) {
           background: transparent;
-          padding: 0;
+          padding: 0 !important;
         }
       `}</style>
 

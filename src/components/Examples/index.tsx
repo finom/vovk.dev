@@ -85,28 +85,26 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       // /src/vovk/hello/HelloState.ts - the front-end
       import { clientizeController } from 'vovk/client';
       import type HelloController from './HelloController';
-      import metadata from '../vovk-metadata.json' assert { type: 'json' };
+      import metadata from '../vovk-metadata.json';
 
       const controller = clientizeController<typeof HelloController>(
         metadata.HelloController
       );
 
-      const helloState = {
-          postSomeData: async (hello: string, foo: string) => {
-              /*
-                typeof postSomeData == ({
-                  body: { hello: number },
-                  query: { foo: string },
-                }) => Promise<{ hello: number; foo: string; someParam: string }>
-              */
-              const result = await controller.postSomeData({
-                  body: { hello: 42 },
-                  query: { foo: 'baz' },
-              });
+      export async function postSomeData(hello: string, foo: string) {
+        /*
+          typeof controller.postSomeData == ({
+            body: { hello: number },
+            query: { foo: string },
+          }) => Promise<{ hello: number; foo: string; someParam: string }>
+        */
+        const result = await controller.postSomeData({
+            body: { hello: 42 },
+            query: { foo: 'baz' },
+        });
 
-              // typeof result == { hello: string; foo: string; someParam: string }
-              return result;
-          }
+        // typeof result == { hello: string; foo: string; someParam: string }
+        return result;
       }
       `,
     ],
@@ -115,7 +113,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     badge: 'Response Streaming',
     title: 'Stream response from the server using async generators',
     children: `
-        Modern AI applications relay heaviily on an old but forgotten syntax of generators. Vovk.js implements an elegant abstraction over generators and async generators applying required workarounds protecting the client from data collisions.
+        Modern AI applications relay heaviily on an old but forgotten syntax of generators. Vovk.ts implements an elegant abstraction over generators and async generators applying required workarounds protecting the client from data collisions.
       `,
     code: [
       `
@@ -144,7 +142,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       import HelloService from './HelloService';
       
       export default class HelloController {
-        static controllerName = 'StreamingController';
+        static controllerName = 'HelloController';
       
         private static helloService = HelloService;
       
@@ -160,28 +158,22 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       import { clientizeController } from 'vovk/client';
       import type HelloController from './HelloController';
       import type { Token } from './HelloService';
-      import metadata from '../vovk-metadata.json' assert { type: 'json' };
+      import metadata from '../vovk-metadata.json';
 
-      type HelloControllerType = typeof HelloController;
-
-      const controller = clientizeController<HelloControllerType>(
+      const controller = clientizeController<typeof HelloController>(
         metadata.HelloController
       );
 
-      export default class HelloState {
-          static async streamTokens() {
-              const resp = await controller.streamTokens({
-                  body: { hello: 'world' },
-                  isStream: true, // !
-              });
+      export async function streamTokens() {
+        const resp = await controller.streamTokens({
+            body: { hello: 'world' },
+            isStream: true, // !
+        });
 
-              for await (const token of resp) {
-                  console.log(token satisfies Token);
-              }
-          }
+        for await (const token of resp) {
+            console.log(token satisfies Token);
+        }
       }
-
-      export default HelloState;
 `,
     ],
   },
@@ -192,7 +184,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       <>
         Since client-side can retrieve information about controller using metadata, it also can validate outcoming
         requests before they are sent to the server. Check out{' '}
-        <a href="https://github.com/finom/vovk-zod" target="_blank">
+        <a href="https://github.com/finom/vovk-zod" className="link" target="_blank">
           vovk-zod
         </a>{' '}
         library that utilises Zod to for isomorphic validation.
@@ -223,7 +215,10 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
           @put()
           @vovkZod(UpdateUserModel, UpdateUserQueryModel)
           static updateUser(
-              req: VovkRequest<z.infer<typeof UpdateUserModel>, z.infer<typeof UpdateUserQueryModel>>
+              req: VovkRequest<
+                z.infer<typeof UpdateUserModel>, 
+                z.infer<typeof UpdateUserQueryModel>
+              >
           ) {
               const { name, email } = await req.json();
               const id = req.nextUrl.searchParams.get('id');
@@ -234,22 +229,24 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
 `,
       `
     // /src/vovk/user/UserState.ts
-    import { clientizeController, type DefaultFetcherOptions } from 'vovk/client';
+    import { clientizeController } from 'vovk/client';
     import { zodValidateOnClient } from 'vovk-zod';
     import type UserController from './UserController';
     import metadata from '../vovk-metadata.json';
 
-    export default class UserState {
-        private static controller = clientizeController<typeof StreamingController>(metadata.UserController, {
-            validateOnClient: zodValidateOnClient,
-        });
+    const controller = clientizeController<typeof StreamingController>(
+      metadata.UserController, 
+      { validateOnClient: zodValidateOnClient }
+    );
 
-        static updateUser(id: string, { name, email }: { name: string; email: string }) {
-            return this.controller.updateUser({
-                query: { id },
-                body: { name, email },
-            });
-        }
+    export function updateUser(
+      id: string, 
+      { name, email }: { name: string; email: string }
+    ) {
+        return controller.updateUser({
+            query: { id },
+            body: { name, email },
+        });
     }
 `,
     ],
@@ -259,7 +256,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     title: 'Seamless usage of Web Workers',
     children: (
       <>
-        Vovk.js provides world-first seamless integration of Web Workers into your code. You can delegate any heavy
+        Vovk.ts provides world-first seamless integration of Web Workers into your code. You can delegate any heavy
         calculations and data manipulation to the worker and get the result back in a few lines of code.
       </>
     ),
@@ -282,16 +279,18 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       `
       // /src/vovk/hello/HelloState.ts
       import type HelloWorkerService from './HelloWorkerService';
-      import metadata from '../vovk-metadata.json' assert { type: 'json' };
+      import metadata from '../vovk-metadata.json';
 
-      // ...
       const worker = promisifyWorker<typeof HelloWorkerService>(
           new Worker(new URL('./HelloWorkerService.ts', import.meta.url)),
           metadata.workers.HelloWorkerService
       );
 
-      const result = await worker.heavyCalculation(100_000_000);
-      // ...
+      export async function heavyCalculation() {
+        const result = await worker.heavyCalculation(100_000_000);
+
+        return result;
+      }
 `,
     ],
   },
@@ -300,7 +299,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     title: 'Stream data from the worker using generators',
     children: (
       <>
-        Besides one-shot Web Worker calls Vovk.js also supports streaming data from the worker using generators and
+        Besides one-shot Web Worker calls Vovk.ts also supports streaming data from the worker using generators and
         async generators. It is perfect for continiuos data processing when you need to continiuosly send data to
         components without iterrupting the calculations.
       </>
