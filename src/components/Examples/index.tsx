@@ -1,16 +1,3 @@
-/*
-
-    Sections:
-    - x Service-Controller pattern on back-end
-    - x "Clientization" using `import type` and JSON metadata.
-    - "Promisification" of Worker
-    - x Response streaming
-    - Worker streaming
-    - The Vovk Pattern
-    - x Isomorphic validation
-    
-*/
-
 import Example, { ExampleProps } from './Example';
 
 const examples: Omit<ExampleProps, 'reverse'>[] = [
@@ -57,7 +44,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         "fetcher" to make requests to the server which can be re-defined to be tightly injected in your application
         state logic.
         <br />
-        ///// Jump to controller gif
+        [[[[[[[[[ Jump to controller gif ]]]]]]]]]
       </>
     ),
     code: [
