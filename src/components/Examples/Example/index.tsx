@@ -34,7 +34,7 @@ const Example = ({ code, badge, title, children, reverse }: ExampleProps) => {
       }`}
     >
       <div className="flex-1 lg:w-1/2 flex flex-col">
-        <ExampleInfo badge={badge} title={title} reverse={reverse}>
+        <ExampleInfo badge={badge} title={title}>
           {children}
         </ExampleInfo>
         {code.length === 3 && (

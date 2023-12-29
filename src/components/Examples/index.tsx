@@ -39,12 +39,11 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     title: '"Clientize" controller in a few lines of code',
     children: (
       <>
-        Turn your controller into a client-side API library for free. Thanks to \`import type\` and the new JSON
-        metadata mechanism Vovk.ts creates well-typed "bridge" between front-end and back-end. It uses so-called
+        Turn your controller into a client-side API library for free. Thanks to <code>import type</code> and the new
+        JSON metadata approach Vovk.ts creates well-typed "bridge" between front-end and back-end. It uses so-called
         "fetcher" to make requests to the server which can be re-defined to be tightly injected in your application
-        state logic.
-        <br />
-        [[[[[[[[[ Jump to controller gif ]]]]]]]]]
+        state logic. In VSCode you can jump thraight to the controller from the client-side.
+        <video className="mt-4 rounded-xl shadow-xl" src="/jump-to-controller.mp4" loop autoPlay muted />
       </>
     ),
     code: [
@@ -244,7 +243,9 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     children: (
       <>
         Vovk.ts provides world-first seamless integration of Web Workers into your code. You can delegate any heavy
-        calculations and data manipulation to the worker and get the result back in a few lines of code.
+        calculations and data manipulation to the worker and get the result back in a few lines of code. In VSCode you
+        can jump straight to the Worker implementation as well as you did with the Controller.
+        <video className="mt-4 rounded-xl shadow-xl" src="/jump-to-controller.mp4" loop autoPlay muted />
       </>
     ),
     code: [

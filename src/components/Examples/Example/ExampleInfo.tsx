@@ -3,11 +3,10 @@ import { ReactNode } from 'react';
 export interface Props {
   badge: string;
   title: string;
-  reverse: boolean;
   children: ReactNode;
 }
 
-const ExampleInfo = ({ reverse, title, badge, children }: Props) => {
+const ExampleInfo = ({ title, badge, children }: Props) => {
   return (
     <div className="flex items-center flex-wrap flex-1">
       <div>
@@ -16,10 +15,7 @@ const ExampleInfo = ({ reverse, title, badge, children }: Props) => {
         </span>
         <h2 className="font-semibold text-2xl mt-3">{title}</h2>
         <div className="mt-2 text-secondary">{children}</div>
-        <a
-          className="inline-flex items-center gap-2 border-b text-rose-500 text-sm mt-3 hover:border-rose-500"
-          href="/docs"
-        >
+        <a className="link link-docs" href="/docs">
           <span>Read Docs</span>{' '}
           <svg width={15} height={15} viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path

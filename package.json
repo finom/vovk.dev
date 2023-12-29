@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "deploy-to-git"
+    "deploy": "rm -rf dist && deploy-to-git"
   },
   "config": {
     "deployToGit": {
