@@ -200,7 +200,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       export default class UserController {
           static controllerName = 'UserController';
 
-          static userService = UserService;
+          private static userService = UserService;
 
           @put()
           @vovkZod(UpdateUserModel, UpdateUserQueryModel)
