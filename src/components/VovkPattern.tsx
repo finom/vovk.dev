@@ -1,16 +1,18 @@
 import Image from 'next/image';
 import WindowAlike from './WindowAlike';
+import DocsLink from './DocsLink';
 
 const VovkPattern = () => {
   return (
     <div className="mt-32 px-5">
-      <div className="text-center">
+      <div className="text-center mb-4">
         <h2 className="font-semibold text-3xl">The Vovk Pattern</h2>
-        <p className="max-w-3xl mx-auto mt-2 text-secondary mb-4">
+        <p className="max-w-3xl mx-auto mt-2 text-secondary">
           Vovk.ts introduces the new paradigm in full-stack development, thanks to the work made by Next.js and all the
           people who worked on the JavaScript ecosystem. 99% of Vovk.ts can do is achieved thanks to the open-source
           community that brought us to the current day.
         </p>
+        <DocsLink href="https://docs.vovk.dev/docs/vovk-pattern" />
       </div>
       <WindowAlike className="max-w-screen-xl mx-auto">
         <Image src="/vovk-pattern.svg" width={1281} height={466.33} alt="The Vovk Pattern" />

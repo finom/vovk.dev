@@ -2,6 +2,7 @@ import Example, { ExampleProps } from './Example';
 
 const examples: Omit<ExampleProps, 'reverse'>[] = [
   {
+    docsLink: 'https://docs.vovk.dev/docs/service-controller',
     badge: 'Controller to Service',
     title: 'Inspired by NestJS',
     children:
@@ -35,6 +36,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     ],
   },
   {
+    docsLink: 'https://docs.vovk.dev/docs/client',
     badge: 'State to Controller',
     title: '"Clientize" controller in a few lines of code',
     children: (
@@ -96,6 +98,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     ],
   },
   {
+    docsLink: 'https://docs.vovk.dev/docs/streaming',
     badge: 'Response Streaming',
     title: 'Stream response from the server using async generators',
     children: `
@@ -164,6 +167,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     ],
   },
   {
+    docsLink: 'https://docs.vovk.dev/docs/validation',
     badge: 'Client-side Validation',
     title: 'Isomorphic validation',
     children: (
@@ -238,6 +242,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     ],
   },
   {
+    docsLink: 'https://docs.vovk.dev/docs/worker',
     badge: 'Worker Controller',
     title: 'Seamless usage of Web Workers',
     children: (
@@ -283,6 +288,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     ],
   },
   {
+    docsLink: 'https://docs.vovk.dev/docs/worker',
     badge: 'Worker Streaming',
     title: 'Stream data from the worker using generators',
     children: (

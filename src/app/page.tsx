@@ -83,7 +83,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div className="border-t border-gray-500 dark:border-gray-600 mt-20">
+      <div className="border-t border-gray-200 dark:border-gray-600 mt-20">
         <footer>
           <div className="flex flex-col md:flex-row gap-3 items-center justify-between py-10 max-w-screen-xl mx-auto text-sm px-5 text-secondary">
             <p>

@@ -7,6 +7,7 @@ export interface ExampleProps {
   badge: string;
   title: string;
   reverse: boolean;
+  docsLink: string;
   children: ReactNode;
 }
 
@@ -25,7 +26,7 @@ const Arrow = ({ className }: { className: string }) => (
   </svg>
 );
 
-const Example = ({ code, badge, title, children, reverse }: ExampleProps) => {
+const Example = ({ code, badge, title, docsLink, children, reverse }: ExampleProps) => {
   const codeArr = code.length === 3 ? code.slice(0, 2) : code;
   return (
     <div
@@ -34,13 +35,13 @@ const Example = ({ code, badge, title, children, reverse }: ExampleProps) => {
       }`}
     >
       <div className="flex-1 lg:w-1/2 flex flex-col">
-        <ExampleInfo badge={badge} title={title}>
+        <ExampleInfo badge={badge} title={title} docsLink={docsLink}>
           {children}
         </ExampleInfo>
         {code.length === 3 && (
           <>
             <div>
-              <div className="flex justify-center py-6 relative">
+              <div className="justify-center py-6 relative hidden lg:flex">
                 <Arrow className="rotate-[270deg] absolute -right-10 top-96" />
               </div>
               <CodeSection code={[code[2]]} />

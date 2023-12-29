@@ -3,7 +3,7 @@ import WindowAlike from './WindowAlike';
 
 const BasicDiagram = () => {
   return (
-    <div className="mt-32">
+    <div className="mt-32 px-5">
       <div className="text-center">
         <h2 className="font-semibold text-3xl">Meta-isomorphic paradigm</h2>
         <p className="max-w-3xl mx-auto mt-2 text-secondary mb-4">
