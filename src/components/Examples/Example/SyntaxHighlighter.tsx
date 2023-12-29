@@ -5,9 +5,10 @@ import 'highlight.js/styles/github.css';
 
 interface Props {
   children: string[];
+  language?: 'typescript' | 'json';
 }
 
-const SyntaxHighlighter = ({ children }: Props) => {
+const SyntaxHighlighter = ({ children, language = 'typescript' }: Props) => {
   const codeRef = useRef<HTMLPreElement>(null);
 
   useEffect(() => {
@@ -57,7 +58,7 @@ const SyntaxHighlighter = ({ children }: Props) => {
               index !== children.length - 1 ? 'border-b border-gray-200 dark:border-gray-300 mb-4 pb-4' : ''
             }`}
           >
-            <code className={`language-typescript`}>{code}</code>
+            <code className={`language-${language}`}>{code}</code>
           </div>
         );
       })}

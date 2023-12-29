@@ -8,9 +8,10 @@ const VovkPattern = () => {
       <div className="text-center mb-4">
         <h2 className="font-semibold text-3xl">The Vovk Pattern</h2>
         <p className="max-w-3xl mx-auto mt-2 text-secondary">
-          Vovk.ts introduces the new paradigm in full-stack development, thanks to the work made by Next.js and all the
-          people who worked on the JavaScript ecosystem. 99% of Vovk.ts can do is achieved thanks to the open-source
-          community that brought us to the current day.
+          Vovk.ts represents a groundbreaking shift in full-stack development, building upon the innovative foundations
+          laid by Next.js and the collective efforts of the JavaScript community. Its capabilities, nearly all of which
+          are owed to the open-source movement, showcase the remarkable progress and collaboration that have defined the
+          modern era of software development.
         </p>
         <DocsLink href="https://docs.vovk.dev/docs/vovk-pattern" />
       </div>
