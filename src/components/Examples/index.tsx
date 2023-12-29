@@ -45,7 +45,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         JSON metadata approach Vovk.ts creates well-typed "bridge" between front-end and back-end. It uses so-called
         "fetcher" to make requests to the server which can be re-defined to be tightly injected in your application
         state logic. In VSCode you can jump thraight to the controller from the client-side.
-        <video className="mt-4 rounded-xl shadow-xl" src="/jump-to-controller.mp4" loop autoPlay muted />
+        <video className="mt-4 rounded-xl shadow-xl" src="/jump-to-controller.mp4" loop autoPlay muted controls />
       </>
     ),
     code: [
@@ -250,7 +250,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         Vovk.ts provides world-first seamless integration of Web Workers into your code. You can delegate any heavy
         calculations and data manipulation to the worker and get the result back in a few lines of code. In VSCode you
         can jump straight to the Worker implementation as well as you did with the Controller.
-        <video className="mt-4 rounded-xl shadow-xl" src="/jump-to-controller.mp4" loop autoPlay muted />
+        <video className="mt-4 rounded-xl shadow-xl" src="/jump-to-controller.mp4" loop autoPlay muted controls />
       </>
     ),
     code: [
