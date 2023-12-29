@@ -8,6 +8,7 @@ import Examples from '@/components/Examples';
 import WindowAlike from '@/components/WindowAlike';
 import BasicDiagram from '@/components/BasicDiagram';
 import VovkPattern from '@/components/VovkPattern';
+import CostDiagram from '@/components/CostDiagram';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -64,6 +65,7 @@ const Home = () => {
 
       <Jumbotron />
       <SolvedProblems />
+      <CostDiagram />
       <BasicDiagram />
       <Examples />
       <VovkPattern />
