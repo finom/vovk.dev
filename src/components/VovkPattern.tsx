@@ -20,10 +20,10 @@ const VovkPattern = () => {
       </WindowAlike>
       <div className="max-w-4xl mx-auto px-5 mt-20">
         <div className="text-center">
-          <h2 className="font-semibold text-3xl">Introducing a "thing"</h2>
-          <p className="max-w-xl mx-auto mt-2 text-secondary mb-4">
-            A Vovk.ts application is split into so-called "things" that gives (almost) the final answer on how to
-            structure a full-stack application.
+          <h2 className="font-semibold text-3xl">Modules</h2>
+          <p className="max-w-2xl mx-auto mt-2 text-secondary mb-4">
+            A Vovk.ts application is split into virtual modules (that don't have an export entry point) that gives
+            (almost) the final answer on how to structure a full-stack application.
           </p>
         </div>
         <WindowAlike>
@@ -64,8 +64,8 @@ const VovkPattern = () => {
           </pre>
         </WindowAlike>
         <p className="max-w-2xl mx-auto mt-4 text-secondary text-center">
-          A "thing" is either a model (user, comment, etc) or something else that can't be&nbsp;considered to be a model
-          (auth, app settings etc). Every "thing" has its own folder with a controller, service, state, etc, where all
+          A module is either a model (user, comment, etc) or something else that can't be&nbsp;considered to be a model
+          (auth, app settings etc). Every module has its own folder with a controller, service, state, etc, where all
           elements are optional.
         </p>
         <div className="grid md:grid-cols-2 gap-10 mt-10">
@@ -455,7 +455,7 @@ const VovkPattern = () => {
               <h3 className="font-semibold text-xl">Use your imagination</h3>
               <p className="mt-1 text-secondary">
                 {' '}
-                This idea is not limited by the elements mentioned before, you can add whatever you want to the "thing"
+                This idea is not limited by the elements mentioned before, you can add whatever you want to the module
                 folder: types, components or something new!
               </p>
             </div>

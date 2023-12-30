@@ -41,10 +41,10 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     title: '"Clientize" controller in a few lines of code',
     children: (
       <>
-        Turn your controller into a client-side API library for free. Thanks to <code>import type</code> and the new
-        JSON metadata approach Vovk.ts creates well-typed "bridge" between front-end and back-end. It uses so-called
-        "fetcher" to make requests to the server which can be re-defined to be tightly injected in your application
-        state logic. In VSCode you can jump thraight to the controller from the client-side.
+        Turn your controller into a client-side API library for free. Thanks to TypeScript and the new JSON metadata
+        approach Vovk.ts creates well-typed "bridge" between front-end and back-end. It uses so-called "fetcher" to make
+        requests to the server which can be re-defined to be tightly injected in your application state logic. In VSCode
+        you can jump thraight to the controller from the client-side.
         <video className="mt-4 rounded-xl shadow-xl" src="/jump-to-controller.mp4" loop autoPlay muted controls />
       </>
     ),
@@ -57,7 +57,9 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
           static controllerName = 'HelloController';
 
           @post('hello/world')
-          static postSomeData(req: VovkRequest<{ hello: number }, { foo: string }>) {
+          static postSomeData(
+            req: VovkRequest<{ hello: number }, { foo: string }>
+          ) {
               const body = await req.json(); // casted as { hello: number }
               const foo = req.nextUrl.get('foo'); // casted as string
               const bar = req.nextUrl.get('bar'); // casted as never
@@ -153,7 +155,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         metadata.HelloController
       );
 
-      export async function streamTokens() {
+      export async function logStreamTokens() {
         const resp = await controller.streamTokens({
             body: { hello: 'world' },
             isStream: true, // !

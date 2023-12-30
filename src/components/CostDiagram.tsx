@@ -6,10 +6,12 @@ const CostDiagram = () => {
     <div className="mt-32 px-5">
       <div className="text-center">
         <h2 className="font-semibold text-3xl">The cheapest way to do things</h2>
-        <p className="max-w-3xl mx-auto mt-2 text-secondary mb-4">
-          Vovk decreases amount of time you spend on project implementation up to 10% because developers don't split
-          their attention on front-end and back-end. Project infrastructure is 2x cheaper because you don't need to pay
-          for two separate servers for each environment (staging, production, etc).
+        <p className="max-w-5xl mx-auto mt-2 text-secondary mb-4">
+          Vovk.ts offers a more cost-effective approach to project execution, reducing the time spent on implementation
+          by up to 10%. This efficiency is achieved as developers focus on a unified code base, rather than dividing
+          their attention between front-end and back-end tasks. Additionally, the project infrastructure becomes more
+          economical, halving costs by eliminating the need for maintaining separate Node.js servers for different
+          environments like staging and production. Furthermore, Vovk.ts eleminates monorepo hell in most cases.
         </p>
       </div>
       <WindowAlike className="max-w-[600px] mx-auto">
