@@ -203,11 +203,11 @@ const SolvedProblems = () => {
           </svg>
         </span>
         <div>
-          <h3 className="font-semibold text-xl">The new pattern</h3>
+          <h3 className="font-semibold text-xl">The New Architecture</h3>
           <p className="mt-1 text-secondary">
             {' '}
-            Vovk introduces "The Vovk pattern" that gives recommendation on how to structure your Back-end Services,
-            Controllers, Client State etc.
+            Vovk introduces "The Vovk Architecture" that gives recommendation on how to structure your Back-end
+            Services, Controllers, Client State etc.
           </p>
         </div>
       </div>

@@ -6,24 +6,24 @@ const VovkPattern = () => {
   return (
     <div className="mt-32 px-5">
       <div className="text-center mb-4">
-        <h2 className="font-semibold text-3xl">The Vovk Pattern</h2>
+        <h2 className="font-semibold text-3xl">The Vovk Architecture</h2>
         <p className="max-w-3xl mx-auto mt-2 text-secondary">
           Vovk.ts represents a groundbreaking shift in full-stack development, building upon the innovative foundations
           laid by Next.js and the collective efforts of the JavaScript community. Its capabilities, nearly all of which
           are owed to the open-source movement, showcase the remarkable progress and collaboration that have defined the
           modern era of software development.
         </p>
-        <DocsLink href="https://docs.vovk.dev/docs/vovk-pattern" />
+        <DocsLink href="https://docs.vovk.dev/docs/vovk-architecture" />
       </div>
       <WindowAlike className="max-w-screen-xl mx-auto">
-        <Image src="/vovk-pattern.svg" width={1281} height={466.33} alt="The Vovk Pattern" />
+        <Image src="/vovk-architecture.svg" width={1281} height={466.33} alt="The Vovk Architecture" />
       </WindowAlike>
       <div className="max-w-4xl mx-auto px-5 mt-20">
         <div className="text-center">
-          <h2 className="font-semibold text-3xl">Modules</h2>
+          <h2 className="font-semibold text-3xl">Modules Orchestration</h2>
           <p className="max-w-2xl mx-auto mt-2 text-secondary mb-4">
-            A Vovk.ts application is split into virtual modules (that don't have an export entry point) that gives
-            (almost) the final answer on how to structure a full-stack application.
+            A Vovk.ts application is split into virtual modules (that don't have a specific export entry point) that
+            gives (almost) the final answer on how to structure a full-stack application.
           </p>
         </div>
         <WindowAlike>
