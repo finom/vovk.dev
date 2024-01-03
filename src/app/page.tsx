@@ -62,7 +62,16 @@ const Home = () => {
                 Andrii Gubanov
               </a>
             </p>
+
             <nav className="flex gap-5">
+              <a href="https://www.cutercounter.com/" target="_blank" className="dark:invert flex items-center">
+                <Image
+                  width={30}
+                  height={20}
+                  alt="Visitor count"
+                  src="https://www.cutercounter.com/hits.php?id=hxoqqpq&nd=4&style=1"
+                />
+              </a>
               <a href="https://docs.vovk.dev" className="link" target="_blank" rel="noopener noreferrer">
                 Vovk.ts Docs
               </a>
