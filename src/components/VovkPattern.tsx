@@ -21,9 +21,11 @@ const VovkPattern = () => {
       <div className="max-w-4xl mx-auto px-5 mt-20">
         <div className="text-center">
           <h2 className="font-semibold text-3xl">Modules Orchestration</h2>
-          <p className="max-w-2xl mx-auto mt-2 text-secondary mb-4">
-            A Vovk.ts application is split into virtual modules (that don't have a specific export entry point) that
-            gives (almost) the final answer on how to structure a full-stack application.
+          <p className="max-w-4xl mx-auto mt-2 text-secondary mb-4">
+            Vovk.ts introduces a novel way to organize full-stack applications through virtual modules. These modules,
+            distinct in not having specific export entry points, provide a refined approach to structuring applications.
+            This method simplifies the architectural design, offering clarity and efficiency in developing full-stack
+            solutions.
           </p>
         </div>
         <WindowAlike>
@@ -63,10 +65,12 @@ const VovkPattern = () => {
             </code>
           </pre>
         </WindowAlike>
-        <p className="max-w-2xl mx-auto mt-4 text-secondary text-center">
-          A module is either a model (user, comment, etc) or something else that can't be&nbsp;considered to be a model
-          (auth, app settings etc). Every module has its own folder with a controller, service, state, etc, where all
-          elements are optional.
+        <p className="max-w-3xl mx-auto mt-4 text-secondary text-center">
+          In Vovk.ts, a module is categorized as either a model (like a user or comment) or a non-model entity (such as
+          authentication or app settings). Each module is allocated its own folder, which may contain a controller,
+          service, state, and other elements. The flexible structure allows for any of these components to be optional,
+          adapting to the specific needs of the module. This approach offers a clear and organized framework for
+          managing various aspects of a full-stack application.
         </p>
         <div className="grid md:grid-cols-2 gap-10 mt-10">
           <div className="flex gap-4 items-start">
@@ -106,8 +110,8 @@ const VovkPattern = () => {
               <h3 className="font-semibold text-xl">Back-end Service</h3>
               <p className="mt-1 text-secondary">
                 {' '}
-                Back-end Service (or just "Service") is a static class that implements third-party API calls or performs
-                requests do the project database.
+                This static class in Vovk.ts handles interactions with third-party APIs and database requests,
+                efficiently managing external data operations.
               </p>
             </div>
           </div>
@@ -151,7 +155,8 @@ const VovkPattern = () => {
               <h3 className="font-semibold text-xl">Controller</h3>
               <p className="mt-1 text-secondary">
                 {' '}
-                Controller is a static class that defines API endpoints with decorators.
+                The Controller in Vovk.ts is a static class that defines API endpoints using decorators, making the
+                setup and management of these endpoints straightforward.
               </p>
             </div>
           </div>
@@ -201,8 +206,8 @@ const VovkPattern = () => {
               <h3 className="font-semibold text-xl">Isomorphic Service</h3>
               <p className="mt-1 text-secondary">
                 {' '}
-                Isomorphic Service is a static class with methods that implement "pure function" pattern, and they can
-                be used by any part of the application.
+                As a static class, the Isomorphic Service adheres to the "pure function" pattern. Its methods are
+                versatile and can be utilized by any part of the application for consistent functionality.
               </p>
             </div>
           </div>
@@ -308,8 +313,8 @@ const VovkPattern = () => {
               <h3 className="font-semibold text-xl">Worker Service</h3>
               <p className="mt-1 text-secondary">
                 {' '}
-                Any Isomorphic Service can be turned into a Web Worker Service where you can perform heavy data
-                manipulations in another browser thread.{' '}
+                This service transforms an Isomorphic Service into a Web Worker Service, allowing for intensive data
+                processing in a separate browser thread, thereby enhancing application performance.{' '}
               </p>
             </div>
           </div>
@@ -350,8 +355,8 @@ const VovkPattern = () => {
               <h3 className="font-semibold text-xl">State</h3>
               <p className="mt-1 text-secondary">
                 {' '}
-                Your application state where you clientize Controllers, promisify Worker Services and provide API to
-                React components.{' '}
+                In Vovk.ts, the State component handles the application data. It integrates Controllers and Worker
+                Services, providing a cohesive API for React components.{' '}
               </p>
             </div>
           </div>
@@ -455,8 +460,9 @@ const VovkPattern = () => {
               <h3 className="font-semibold text-xl">Use your imagination</h3>
               <p className="mt-1 text-secondary">
                 {' '}
-                This idea is not limited by the elements mentioned before, you can add whatever you want to the module
-                folder: types, components or something new!
+                The framework is not confined to just these elements. The modular design of Vovk.ts allows for the
+                inclusion of various components in the module folder, be it types, components, or innovative additions.
+                It's a platform for creative and adaptable development.
               </p>
             </div>
           </div>

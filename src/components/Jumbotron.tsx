@@ -10,7 +10,9 @@ const Jumbotron = () => {
       <h1 className="text-3xl md:text-6xl font-bold tracking-tight mt-2">
         Build your Next<span className="opacity-10">.js</span> app with Vovk
       </h1>
-      <p className="mt-3 text-secondary md:text-2xl hidden">The Next iteration of web technology</p>
+      <p className="mt-3 text-secondary md:text-2xl">
+        Type-isomorphic framework for full-stack software architects built on top of Next.js public API
+      </p>
       <div className="justify-center mt-5 gap-3">
         <span className="bg-rose-100 flex max-w-[695px] gap-5 items-center justify-between py-3 px-5 rounded-full">
           <code className="text-rose-900 text-left whitespace-nowrap overflow-x-auto">

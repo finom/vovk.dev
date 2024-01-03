@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Vovk.ts Framework',
-  description: 'World-first meta-isomorphic full-stack framework for Next.js',
+  description: 'Type-isomorphic full-stack framework for Next.js',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

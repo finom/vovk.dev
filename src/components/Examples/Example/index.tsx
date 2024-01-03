@@ -39,25 +39,20 @@ const Example = ({ code, badge, title, docsLink, children, reverse }: ExamplePro
           {children}
         </ExampleInfo>
         {code.length === 3 && (
-          <>
-            <div>
-              <div className="justify-center py-6 relative hidden lg:flex">
-                <Arrow className="rotate-[270deg] absolute -right-10 top-96" />
-              </div>
-              <CodeSection code={[code[2]]} />
+          <div className="hidden lg:block">
+            <div className="justify-center py-6 relative flex">
+              <Arrow className="rotate-[270deg] absolute -right-10 top-96" />
             </div>
-            <div className="flex justify-center py-6 lg:hidden">
-              <Arrow className="rotate-180" />
-            </div>
-          </>
+            <CodeSection code={[code[2]]} />
+          </div>
         )}
       </div>
       <div className="min-w-0 flex-1">
-        {codeArr.map((section, index) => (
-          <div key={index}>
+        {code.map((section, index) => (
+          <div key={index} className={index === 2 ? 'lg:hidden' : undefined}>
             <CodeSection code={[section]} />
-            {!!codeArr[index + 1] && (
-              <div className="flex justify-center py-6">
+            {!!code[index + 1] && (
+              <div className={`flex justify-center py-6 ${index === 1 ? 'lg:hidden' : ''}`}>
                 <Arrow className="rotate-180" />
               </div>
             )}

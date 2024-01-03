@@ -41,7 +41,11 @@ const Home = () => {
           <div className="text-center">
             <h2 className="font-semibold text-3xl">Sponsors</h2>
             <p className="max-w-md mx-auto mt-2 text-secondary">
-              Oops... There are no sponsors yet. If you want to become one, please contact me via email from my{' '}
+              <a href="https://github.com/sponsors/finom" className="link mb-2 inline-block">
+                Sponsor the project author on Github ♥️
+              </a>
+              <br />
+              You can also contact me via email from my{' '}
               <a href="https://github.com/finom" className="link" target="_blank" rel="noopener">
                 Github profile
               </a>

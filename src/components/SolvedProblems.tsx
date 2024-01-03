@@ -38,11 +38,12 @@ const SolvedProblems = () => {
           </svg>
         </span>
         <div>
-          <h3 className="font-semibold text-xl">One app on one port</h3>
+          <h3 className="font-semibold text-xl">Unified Access Point</h3>
           <p className="mt-1 text-secondary">
             {' '}
-            Thanks to Next.js App Router you get great React framework. Vovk.ts adds structure for back-end code and
-            something more and simplifies deployment.
+            Simplify your development process with Vovk.ts. Designed to integrate front-end and back-end seamlessly, it
+            operates efficiently through a single port, enhancing both development and deployment with its structured
+            approach.
           </p>
         </div>
       </div>
@@ -68,11 +69,12 @@ const SolvedProblems = () => {
           </svg>
         </span>
         <div>
-          <h3 className="font-semibold text-xl">Meta-isomorphism</h3>
+          <h3 className="font-semibold text-xl">Type Isomorphism? Check!</h3>
           <p className="mt-1 text-secondary">
             {' '}
-            "Run" back-end code on the front-end thanks to the new idea to read controller metadata from a JSON file and
-            read types using `import type`
+            Ever wished you could use back-end code in the front-end without a headache? Vovk.ts makes this possible. It
+            reads controller metadata from a JSON file and smartly infer types. It's like having a bilingual translator
+            for your code.
           </p>
         </div>
       </div>
@@ -112,11 +114,12 @@ const SolvedProblems = () => {
           </svg>
         </span>
         <div>
-          <h3 className="font-semibold text-xl">Shared code</h3>
+          <h3 className="font-semibold text-xl">Shared Code, Solved</h3>
           <p className="mt-1 text-secondary">
             {' '}
-            Vovk.ts answers The Ultimate Question of Full-Stack development: "Where to store JS used by back-end and
-            front-end?" introducing so-called Isomorphic Services
+            Where do you keep the JavaScript shared by both ends? Vovk.ts introduces 'Isomorphic Services' - a neat
+            solution for storing and using code across your full-stack environment. It's like a common toolbox for both
+            your back-end and front-end.
           </p>
         </div>
       </div>
@@ -154,11 +157,11 @@ const SolvedProblems = () => {
           </svg>
         </span>
         <div>
-          <h3 className="font-semibold text-xl">Any state library</h3>
+          <h3 className="font-semibold text-xl">Pick Your State Library</h3>
           <p className="mt-1 text-secondary">
             {' '}
-            Use your favourite state library like Redux, Zustand, Recoil, Jotai, etc. Vovk.ts does not require any
-            specific library.
+            Whether you're into Redux, Zustand, Recoil, or Jotai, Vovk.ts plays nice with all. We don’t force any
+            specific library on you. Choose what you love; we'll support it.
           </p>
         </div>
       </div>
@@ -203,11 +206,11 @@ const SolvedProblems = () => {
           </svg>
         </span>
         <div>
-          <h3 className="font-semibold text-xl">The New Architecture</h3>
+          <h3 className="font-semibold text-xl">A Fresh Take on Architecture</h3>
           <p className="mt-1 text-secondary">
             {' '}
-            Vovk introduces "The Vovk Architecture" that gives recommendation on how to structure your Back-end
-            Services, Controllers, Client State etc.
+            Vovk.ts provides a guide on organizing your app. From back-end services to client state, it offers
+            recommendations to keep your project tidy and efficient.
           </p>
         </div>
       </div>
@@ -230,11 +233,11 @@ const SolvedProblems = () => {
           </svg>
         </span>
         <div>
-          <h3 className="font-semibold text-xl">No dependencies </h3>
+          <h3 className="font-semibold text-xl">No Extra Baggage </h3>
           <p className="mt-1 text-secondary">
             {' '}
-            Vovk does not depend on any other library besides some types from Next.js. It's just a wrapper around the
-            documented Next.js API.
+            Keeping it streamlined, Vovk.ts is crafted around the Next.js API, steering clear of dependencies on other
+            libraries. It delivers the essentials, ensuring a lightweight experience without any unnecessary bloat.
           </p>
         </div>
       </div>
