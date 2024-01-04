@@ -3,7 +3,7 @@ import HelloWorkerService from '../../../vovk/hello/HelloWorkerService';
 import { initVovk } from 'vovk';
 
 export function generateStaticParams() {
-  return [{ slug: ['1'] }]; // just to disable build errors for now
+  return [{ '': ['1'] }]; // just to disable build errors for now
 }
 
 export const { GET, POST, PUT, DELETE } = initVovk({
