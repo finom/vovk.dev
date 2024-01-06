@@ -233,11 +233,11 @@ const SolvedProblems = () => {
           </svg>
         </span>
         <div>
-          <h3 className="font-semibold text-xl">No Extra Baggage </h3>
+          <h3 className="font-semibold text-xl">No Extra Baggage</h3>
           <p className="mt-1 text-secondary">
             {' '}
-            Keeping it streamlined, Vovk.ts is crafted around the Next.js API, steering clear of dependencies on other
-            libraries. It delivers the essentials, ensuring a lightweight experience without any unnecessary bloat.
+            Vovk.ts is crafted around the Next.js API, steering clear of dependencies on other libraries. It delivers
+            the essentials, ensuring a lightweight experience without any unnecessary bloat.
           </p>
         </div>
       </div>

@@ -16,7 +16,7 @@ const VovkPattern = () => {
         <DocsLink href="https://docs.vovk.dev/docs/vovk-architecture" />
       </div>
       <WindowAlike className="max-w-screen-xl mx-auto">
-        <Image src="/vovk-architecture.svg" width={1281} height={466.33} alt="The Vovk Architecture" />
+        <Image src="/vovk-pattern.svg" width={1281} height={466.33} alt="The Vovk Architecture" />
       </WindowAlike>
       <div className="max-w-4xl mx-auto px-5 mt-20">
         <div className="text-center">

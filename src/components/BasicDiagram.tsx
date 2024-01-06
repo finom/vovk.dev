@@ -16,16 +16,19 @@ const BasicDiagram = () => {
       <WindowAlike className="max-w-4xl mx-auto">
         <Image src="/vovk-basics.svg" width={1281} height={466.33} alt="Vovk Basics Diagram" />
       </WindowAlike>
-      <div className="max-w-xl mx-auto mt-8 mb-4 text-secondary">
-        Here is an example of <strong>vovk-metadata.json</strong> file that is generated automatically from Controllers
-        by the API entry point stored at <strong>/src/api/[[...]]/route.ts</strong> that implement two endpoints:{' '}
-        <strong>POST hello/post-hello</strong> and <strong>GET hello/get-hello</strong> but also contains metadata for
-        Workers that implement one generator function <strong>calculatePi</strong>:
-      </div>
-      <WindowAlike className="max-w-md mx-auto">
-        <SyntaxHighlighter language="json">
-          {[
-            `{
+      <details className="mx-auto text-center mt-6">
+        <summary className="cursor-pointer">Show me the metadata file</summary>
+
+        <div className="max-w-xl mx-auto mt-4 mb-4 text-secondary text-left">
+          Here is an example of <strong>vovk-metadata.json</strong> file that is generated automatically from
+          Controllers by the API entry point stored at <strong>/src/api/[[...]]/route.ts</strong> that implement two
+          endpoints: <strong>POST hello/post-hello</strong> and <strong>GET hello/get-hello</strong> but also contains
+          metadata for Workers that implement one generator function <strong>calculatePi</strong>:
+        </div>
+        <WindowAlike className="max-w-md mx-auto text-left">
+          <SyntaxHighlighter language="json">
+            {[
+              `{
   "HelloController": {
     "controllerName": "HelloController",
     "_prefix": "hello",
@@ -51,9 +54,10 @@ const BasicDiagram = () => {
     }
   }
 }`,
-          ]}
-        </SyntaxHighlighter>
-      </WindowAlike>
+            ]}
+          </SyntaxHighlighter>
+        </WindowAlike>
+      </details>
     </div>
   );
 };

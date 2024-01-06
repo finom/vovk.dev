@@ -1,11 +1,9 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import React from 'react';
 import { Inter } from 'next/font/google';
 import Jumbotron from '@/components/Jumbotron';
 import SolvedProblems from '@/components/SolvedProblems';
 import Examples from '@/components/Examples';
-import WindowAlike from '@/components/WindowAlike';
 import BasicDiagram from '@/components/BasicDiagram';
 import VovkPattern from '@/components/VovkPattern';
 import CostDiagram from '@/components/CostDiagram';
@@ -64,14 +62,6 @@ const Home = () => {
             </p>
 
             <nav className="flex gap-5">
-              <a href="https://www.cutercounter.com/" target="_blank" className="dark:invert flex items-center">
-                <Image
-                  width={30}
-                  height={20}
-                  alt="Visitor count"
-                  src="https://www.cutercounter.com/hits.php?id=hxoqqpq&nd=4&style=1"
-                />
-              </a>
               <a href="https://docs.vovk.dev" className="link" target="_blank" rel="noopener noreferrer">
                 Vovk.ts Docs
               </a>

@@ -4,7 +4,7 @@ import Clipboard from './Clipboard';
 const Jumbotron = () => {
   return (
     <div className="max-w-3xl text-center mx-auto py-16 px-5">
-      <span className="p-4  text-white inline-flex rounded-full ">
+      <span className="p-4 text-white inline-flex rounded-full ">
         <Image src="/vovk-logo.png" width={180} height={240} alt="Vovk Logo" />
       </span>
       <h1 className="text-3xl md:text-6xl font-bold tracking-tight mt-2">
