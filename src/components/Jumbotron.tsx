@@ -11,7 +11,7 @@ const Jumbotron = () => {
         Build your Next<span className="opacity-10">.js</span> app with Vovk
       </h1>
       <p className="mt-3 text-secondary md:text-2xl">
-        Type-isomorphic framework for full-stack software architects built on top of Next.js public API
+        Next.js add-on for one-port full-stack development powered by the magic of TypeScript
       </p>
       <div className="justify-center mt-5 gap-3">
         <span className="bg-rose-100 flex max-w-[695px] gap-5 items-center justify-between py-3 px-5 rounded-full">

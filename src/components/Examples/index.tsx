@@ -6,7 +6,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     badge: 'Controller to Service',
     title: 'Embracing the Service-Controller Pattern',
     children:
-      'Drawing inspiration from NestJS, this framework champions the well-known Service-Controller pattern. It distinctly separates database and API requests from the code managing incoming requests. This design promotes cleaner, more organized code structures, enhancing maintainability and scalability.',
+      'Drawing inspiration from NestJS, this library champions the well-known Service-Controller pattern. It distinctly separates database and API requests from the code managing incoming requests. This design promotes cleaner, more organized code structures, enhancing maintainability and scalability.',
     code: [
       `
       // /src/vovk/hello/HelloService.ts
@@ -43,8 +43,8 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       <>
         Transform your controller into a client-side API library with just a few lines of code using Vovk.ts. Leveraging
         TypeScript and an innovative JSON metadata approach, it creates a well-typed 'bridge' between front-end and
-        back-end, echoing the functionality of tRPC. The framework features a customizable 'fetcher' for server
-        requests, which can be seamlessly integrated with your application's state logic. Plus, enjoy the convenience of
+        back-end, echoing the functionality of tRPC. The library features a customizable 'fetcher' for server requests,
+        which can be seamlessly integrated with your application's state logic. Plus, enjoy the convenience of
         navigating directly from the client-side to the controller in VSCode.
         <video className="mt-4 rounded-xl shadow-xl" src="/jump-to-controller.mp4" loop autoPlay muted controls />
       </>

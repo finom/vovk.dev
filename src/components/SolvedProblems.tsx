@@ -1,4 +1,35 @@
 const SolvedProblems = () => {
+  /**
+   * New sections:
+   * - Good old Rest API
+   * Fetch screenshot or code
+   * - Single port
+   * Single port screenshot (website / API /api)
+   * - Library for free
+   * Code snippet for clientize
+   * - Shared code
+   * ???
+   * - No deps
+   * Maybe screenshot from package.json?
+   * - Pick your state library
+   * Multiple logos
+   *
+   * tRPC-like Gif https://camo.githubusercontent.com/71e5b599406ae18a7f4b8fe8675be31376eb188971950f0c8afb907343fd4633/68747470733a2f2f6173736574732e747270632e696f2f7777772f7631302f7631302d6461726b2d6c616e6473636170652e676966
+   *
+   * Comparison to NestJS and tRPC
+   * - Full-stack
+   * - Worker
+   * - REST API
+   * - Response streaming
+   * - CLI
+   * - Standalone
+   * - Shared code
+   * - Single port
+   * - Size
+   * - Stars ???
+   * - Code splitting ???
+   * - Proxy object ???
+   */
   return (
     <div className="grid sm:grid-cols-2 md:grid-cols-3 max-w-screen-xl mx-auto gap-10 mt-10 px-5">
       <div className="flex gap-4 items-start flex-col ">

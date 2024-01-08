@@ -460,7 +460,7 @@ const VovkPattern = () => {
               <h3 className="font-semibold text-xl">Use your imagination</h3>
               <p className="mt-1 text-secondary">
                 {' '}
-                The framework is not confined to just these elements. The modular design of Vovk.ts allows for the
+                The structure is not confined to just these elements. The modular design of Vovk.ts allows for the
                 inclusion of various components in the module folder, be it types, components, or innovative additions.
                 It's a platform for creative and adaptable development.
               </p>

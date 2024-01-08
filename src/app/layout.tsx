@@ -5,8 +5,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Vovk.ts Framework',
-  description: 'Type-isomorphic full-stack framework for Next.js',
+  title: 'Vovk.ts',
+  description: 'Structural add-on for Next.js',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
