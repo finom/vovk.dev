@@ -6,26 +6,24 @@ const VovkPattern = () => {
   return (
     <div className="mt-32 px-5">
       <div className="text-center mb-4">
-        <h2 className="font-semibold text-3xl">The Vovk Architecture</h2>
+        <h2 className="font-semibold text-3xl">Vovk Architecture</h2>
         <p className="max-w-3xl mx-auto mt-2 text-secondary">
-          Vovk.ts represents a groundbreaking shift in full-stack development, building upon the innovative foundations
-          laid by Next.js and the collective efforts of the JavaScript community. Its capabilities, nearly all of which
-          are owed to the open-source movement, showcase the remarkable progress and collaboration that have defined the
-          modern era of software development.
+          Vovk.ts represents a shift in full-stack development, building upon the innovative foundations laid by Next.js
+          and the collective efforts of the JavaScript community. Its capabilities, nearly all of which are owed to the
+          open-source movement, showcase the remarkable progress and collaboration that have defined the modern era of
+          software development.
         </p>
         <DocsLink href="https://docs.vovk.dev/docs/vovk-architecture" />
       </div>
-      <WindowAlike className="max-w-screen-xl mx-auto">
-        <Image src="/vovk-pattern.svg" width={1281} height={466.33} alt="The Vovk Architecture" />
+      <WindowAlike className="max-w-screen-2xl mx-auto">
+        <Image src="/vovk-pattern.svg" width={1281} height={466.33} alt="Vovk Architecture" />
       </WindowAlike>
       <div className="max-w-4xl mx-auto px-5 mt-20">
         <div className="text-center">
-          <h2 className="font-semibold text-3xl">Modules Orchestration</h2>
+          <h2 className="font-semibold text-3xl">Vovk Modules</h2>
           <p className="max-w-4xl mx-auto mt-2 text-secondary mb-4">
-            Vovk.ts introduces a novel way to organize full-stack applications through virtual modules. These modules,
+            Vovk.ts introduces a way to organize full-stack applications through virtual modules. These modules,
             distinct in not having specific export entry points, provide a refined approach to structuring applications.
-            This method simplifies the architectural design, offering clarity and efficiency in developing full-stack
-            solutions.
           </p>
         </div>
         <WindowAlike>

@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import CodeSection from './CodeSection';
+import CodeSection from '../../CodeSection';
 import ExampleInfo from './ExampleInfo';
 
 export interface ExampleProps {
@@ -27,10 +27,9 @@ const Arrow = ({ className }: { className: string }) => (
 );
 
 const Example = ({ code, badge, title, docsLink, children, reverse }: ExampleProps) => {
-  const codeArr = code.length === 3 ? code.slice(0, 2) : code;
   return (
     <div
-      className={`lg:flex max-w-screen-xl mx-auto mt-40 px-5 gap-16 justify-between ${
+      className={`lg:flex max-w-screen-2xl mx-auto mt-40 px-5 gap-16 justify-between ${
         reverse ? 'flex-row-reverse' : ''
       }`}
     >

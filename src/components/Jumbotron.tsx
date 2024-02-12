@@ -8,11 +8,9 @@ const Jumbotron = () => {
         <Image src="/vovk-logo.png" width={180} height={240} alt="Vovk Logo" />
       </span>
       <h1 className="text-3xl md:text-6xl font-bold tracking-tight mt-2">
-        Build your Next<span className="opacity-10">.js</span> app with Vovk
+        REST for Next<span className="opacity-10">.js</span>
       </h1>
-      <p className="mt-3 text-secondary md:text-2xl">
-        Next.js add-on for one-port full-stack development powered by the magic of TypeScript
-      </p>
+      <p className="mt-3 text-secondary md:text-lg">+ Web Worker interface</p>
       <div className="justify-center mt-5 gap-3">
         <span className="bg-rose-100 flex max-w-[695px] gap-5 items-center justify-between py-3 px-5 rounded-full">
           <code className="text-rose-900 text-left whitespace-nowrap overflow-x-auto">

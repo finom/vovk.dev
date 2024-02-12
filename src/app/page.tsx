@@ -1,3 +1,4 @@
+'use client';
 import Image from 'next/image';
 import React from 'react';
 import { Inter } from 'next/font/google';
@@ -8,6 +9,49 @@ import BasicDiagram from '@/components/BasicDiagram';
 import VovkPattern from '@/components/VovkPattern';
 import CostDiagram from '@/components/CostDiagram';
 import TopNav from '@/components/TopNav';
+import { HelloController } from 'vovk-examples';
+import CreateInitUse from '@/components/CreateInitUse';
+
+/*
+# REST for Next
+## + Web Worker interface
+
+- Create - init - use - 3 sections of code
+
+New mini sections with illustrations or icons:
+- One port
+- Edge runtime
+- Good old REST API
+- Zero dependencies
+- Total TypeScript
+- Easy to learn
+
+Combined section of "Bonus features":
+- Customize - 1 section of code of Client with custom arguments
+- Back-end for React Native - 1 section of code
+- Easy to distribute - 1 section of code
+
+
+- Code
+  - Service-controller pattern (2 sections of code) + example
+  - Streaming with openai (compact exmaple 2 sections of code) with link to full example
+  - Isomorphic validation (2 sections of code) + example
+  - Workers (2 sections of code) + example
+
+- Sponsor
+
+---
+OTHER SECTION IDEAS:
+[Some illustration on how it works???]
+
+- A note from the author
+- Video
+- 3 articles of documentaion (Intro, Controller, Worker) + links to secondary ones (decorators, customization, how it works, API)
+---
+
+*/
+
+// POST https://example.com/api/posts/n6ic9e/comments
 
 const inter = Inter({
   subsets: ['latin'],
@@ -15,8 +59,18 @@ const inter = Inter({
 
 // Some styles are borrowed from https://sandocs.vercel.app/ because I don't have budget on a designer :)
 const Home = () => {
+  console.log(HelloController);
+  HelloController.getHello().then(console.log);
+
+  const x = async () => {
+    for await (const x of await HelloController.getStreamingHello()) {
+      console.log(x);
+    }
+  };
+
+  x();
   return (
-    <div className={`dark:bg-slate-900 dark:text-white bg-white ${inter.className} transition-colors`}>
+    <div className={`dark:bg-slate-900 dark:text-white bg-white ${inter.className} transition-colors px-4`}>
       <header className="flex items-center justify-between px-5 py-3">
         <div className="flex items-center gap-2">
           <a className="flex" href="/">
@@ -28,8 +82,9 @@ const Home = () => {
       <div className="fixed inset-0 [background:radial-gradient(circle_at_15%_50%,rgb(237,233,254),rgb(255_255_255/0)25%),radial-gradient(circle_at_85%_30%,rgb(216,243,246),rgb(255_255_255/0)25%)] opacity-40 from-rose-100 -z-10" />
 
       <Jumbotron />
+      <CreateInitUse />
       <SolvedProblems />
-      <CostDiagram />
+      {/* <CostDiagram /> */}
       <BasicDiagram />
       <Examples />
       <VovkPattern />
@@ -53,7 +108,7 @@ const Home = () => {
       </div>
       <div className="border-t border-gray-200 dark:border-gray-700 mt-20">
         <footer>
-          <div className="flex flex-col md:flex-row gap-3 items-center justify-between py-10 max-w-screen-xl mx-auto text-sm px-5 text-secondary">
+          <div className="flex flex-col md:flex-row gap-3 items-center justify-between py-10 max-w-screen-2xl mx-auto text-sm px-5 text-secondary">
             <p>
               Created by{' '}
               <a href="https://github.com/finom" className="link" target="_blank" rel="noopener">
