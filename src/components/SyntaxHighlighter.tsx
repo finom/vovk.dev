@@ -23,7 +23,7 @@ const SyntaxHighlighter = ({ children, language = 'typescript' }: Props) => {
   }, []);
 
   return (
-    <pre ref={codeRef}>
+    <pre ref={codeRef} className="min-h-full">
       <style jsx>{`
         :global(.hljs) {
           background: transparent;
@@ -54,7 +54,7 @@ const SyntaxHighlighter = ({ children, language = 'typescript' }: Props) => {
         return (
           <div
             key={index}
-            className={`${
+            className={`max-w-full ${
               index !== children.length - 1 ? 'border-b border-gray-200 dark:border-gray-300 mb-4 pb-4' : ''
             }`}
           >

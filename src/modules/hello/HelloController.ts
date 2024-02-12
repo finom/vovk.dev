@@ -3,8 +3,6 @@ import HelloService from './HelloService';
 
 @prefix('hello')
 export default class HelloController {
-  static controllerName = 'HelloController';
-
   private static helloService = HelloService;
 
   /**

@@ -3,11 +3,12 @@ import SyntaxHighlighter from './SyntaxHighlighter';
 
 interface Props {
   code: string[];
+  className?: string;
 }
 
-const CodeSection = ({ code }: Props) => {
+const CodeSection = ({ code, className }: Props) => {
   return (
-    <WindowAlike>
+    <WindowAlike className={className}>
       <SyntaxHighlighter>{code}</SyntaxHighlighter>
     </WindowAlike>
   );
