@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test": "npm run lint && tsc --noEmit",
     "dev": "vovk dev",
     "build": "vovk build",
     "start": "next start",
@@ -28,7 +29,8 @@
     "react": "^18",
     "react-dom": "^18",
     "use-0": "^1.0.2",
-    "vovk": "^0.2.3-beta.125",
+    "vovk": "^0.2.3-beta.126",
+    "vovk-client": "^0.0.2",
     "vovk-examples": "^0.1.7"
   },
   "prettier": {

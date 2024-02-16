@@ -2,14 +2,19 @@ import Example, { ExampleProps } from './Example';
 
 const examples: Omit<ExampleProps, 'reverse'>[] = [
   {
-    docsLink: 'https://docs.vovk.dev/docs/service-controller',
-    badge: 'Controller to Service',
+    docsLink: 'https://docs.vovk.dev/docs/',
+    badge: 'Code Organization',
     title: 'Embracing the Service-Controller Pattern',
-    children:
-      'Drawing inspiration from NestJS, this library champions the well-known Service-Controller pattern. It distinctly separates database and API requests from the code managing incoming requests. This design promotes cleaner, more organized code structures, enhancing maintainability and scalability.',
+    Component: () => (
+      <>
+        Drawing inspiration from NestJS, this library champions the well-known Service-Controller pattern. It distinctly
+        separates database and API requests from the code managing incoming requests. This design promotes cleaner, more
+        organized code structures, enhancing maintainability and scalability.
+      </>
+    ),
     code: [
       `
-      // /src/vovk/hello/HelloService.ts
+      // /src/modules/hello/HelloService.ts
       export default class HelloService {
         static async getHello() {
           return { greeting: 'Hello world!' };
@@ -17,14 +22,12 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       }
       `,
       `
-      // /src/vovk/hello/HelloController.ts
+      // /src/modules/hello/HelloController.ts
       import { get, prefix } from "vovk";
-      import HelloService from "./HelloService"
+      import HelloService from "./HelloService";
       
       @prefix('hello')
-      export default class HelloController {
-          static controllerName = 'HelloController';
-          
+      export default class HelloController {          
           private static helloService = HelloService;
 
           @get('greeting')
@@ -35,18 +38,17 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       `,
     ],
   },
-  {
-    docsLink: 'https://docs.vovk.dev/docs/client',
-    badge: 'State to Controller',
+  /* {
+    docsLink: 'https://docs.vovk.dev/docs/',
+    badge: 'Streaming',
     title: "Effortlessly 'Clientize' Your Controller",
-    children: (
+    Component: () => (
       <>
         Transform your controller into a client-side API library with just a few lines of code using Vovk.ts. Leveraging
         TypeScript and an innovative JSON metadata approach, it creates a well-typed 'bridge' between front-end and
         back-end, echoing the functionality of tRPC. The library features a customizable 'fetcher' for server requests,
         which can be seamlessly integrated with your application's state logic. Plus, enjoy the convenience of
         navigating directly from the client-side to the controller in VSCode.
-        <video className="mt-4 rounded-xl shadow-xl" src="/jump-to-controller.mp4" loop autoPlay muted controls />
       </>
     ),
     code: [
@@ -91,7 +93,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
             query: { foo: string },
             params: { someParam: string },
           }) => Promise<{ hello: number; foo: string; someParam: string }>
-        */
+        * /
         const result = await controller.postSomeData({
             body: { hello: 42 },
             query: { foo: 'bar' },
@@ -108,9 +110,14 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     docsLink: 'https://docs.vovk.dev/docs/streaming',
     badge: 'Response Streaming',
     title: 'Streaming Server Responses with Async Generators',
-    children: `
-    Vovk.ts reinvigorates the power of generators, a crucial yet underutilized syntax, especially in modern AI applications. It offers an elegant abstraction layer for both generators and async generators. This implementation includes smart workarounds that safeguard the client from data collisions, ensuring smooth and efficient data streaming from the server.
-      `,
+    Component: () => (
+      <>
+        Vovk.ts reinvigorates the power of generators, a crucial yet underutilized syntax, especially in modern AI
+        applications. It offers an elegant abstraction layer for both generators and async generators. This
+        implementation includes smart workarounds that safeguard the client from data collisions, ensuring smooth and
+        efficient data streaming from the server.
+      </>
+    ),
     code: [
       `
       // /src/vovk/hello/HelloService.ts
@@ -177,7 +184,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     docsLink: 'https://docs.vovk.dev/docs/validation',
     badge: 'Client-side Validation',
     title: 'Isomorphic Validation',
-    children: (
+    Component: () => (
       <>
         <p className="mb-2">
           Vovk.ts enhances web development with its client-side validation feature, utilizing isomorphic validation.
@@ -261,7 +268,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     docsLink: 'https://docs.vovk.dev/docs/worker',
     badge: 'Web Workers',
     title: 'Seamless Usage of Web Workers',
-    children: (
+    Component: () => (
       <>
         <p className="mb-2">
           Vovk.ts sets a new standard in web development with its seamless integration of Web Workers. This feature
@@ -325,7 +332,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       }
 `,
     ],
-  },
+  },*/
 ];
 
 const Examples = () => {

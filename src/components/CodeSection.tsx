@@ -2,14 +2,14 @@ import WindowAlike from '@/components/WindowAlike';
 import SyntaxHighlighter from './SyntaxHighlighter';
 
 interface Props {
-  code: string[];
+  children: string;
   className?: string;
 }
 
-const CodeSection = ({ code, className }: Props) => {
+const CodeSection = ({ children, className }: Props) => {
   return (
     <WindowAlike className={className}>
-      <SyntaxHighlighter>{code}</SyntaxHighlighter>
+      <SyntaxHighlighter>{children}</SyntaxHighlighter>
     </WindowAlike>
   );
 };

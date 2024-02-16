@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import IconWrapper from './IconWrapper';
 
 const SolvedProblems = () => {
   return (
-    <div className="grid sm:grid-cols-2 md:grid-cols-3 max-w-screen-2xl mx-auto gap-10 mt-10 px-5">
+    <div className="grid sm:grid-cols-2 md:grid-cols-3 max-w-screen-2xl mx-auto gap-10 mt-10">
       <div className="flex gap-4 items-start flex-col ">
-        <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full w-[44px] h-[44px]">
+        <IconWrapper>
           <svg
             width="20px"
             height="20px"
@@ -38,7 +39,7 @@ const SolvedProblems = () => {
               strokeWidth="1.5"
             ></path>
           </svg>
-        </span>
+        </IconWrapper>
         <div>
           <h3 className="font-semibold text-xl">One Port</h3>
           <p className="mt-1 text-secondary">
@@ -48,7 +49,7 @@ const SolvedProblems = () => {
         </div>
       </div>
       <div className="flex gap-4 items-start flex-col ">
-        <span className="text-rose-600 bg-rose-500/10 justify-center flex font-bold items-center rounded-full text-[10px] w-[44px] h-[44px]">
+        <span className="text-rose-600 bg-rose-500/10 justify-center flex font-extrabold items-center rounded-full text-[10px] w-[44px] h-[44px]">
           <span>GET /</span>
         </span>
         <div>
@@ -164,7 +165,7 @@ const SolvedProblems = () => {
         </span>
         <div>
           <h3 className="font-semibold text-xl">Total TypeScript</h3>
-          <p className="mt-1 text-secondary"> One of the most type-head library ever.</p>
+          <p className="mt-1 text-secondary"> One of the most typed library ever.</p>
         </div>
       </div>
     </div>

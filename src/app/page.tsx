@@ -5,14 +5,19 @@ import { Inter } from 'next/font/google';
 import Jumbotron from '@/components/Jumbotron';
 import SolvedProblems from '@/components/SolvedProblems';
 import Examples from '@/components/Examples';
-import BasicDiagram from '@/components/BasicDiagram';
-import VovkPattern from '@/components/VovkPattern';
-import CostDiagram from '@/components/CostDiagram';
 import TopNav from '@/components/TopNav';
 import { HelloController } from 'vovk-examples';
 import CreateInitUse from '@/components/CreateInitUse';
+import BonusFeatures from '@/components/BonusFeatures';
 
 /*
+TODO
+Make static!
+Refator example component
+Use bright
+
+Sections
+
 # REST for Next
 ## + Web Worker interface
 
@@ -57,14 +62,14 @@ const inter = Inter({
   subsets: ['latin'],
 });
 
-// Some styles are borrowed from https://sandocs.vercel.app/ because I don't have budget on a designer :)
+// Some styles are borrowed from https://sandocs.vercel.app/ because I don't have budget
 const Home = () => {
-  console.log(HelloController);
-  HelloController.getHello().then(console.log);
+  // console.log(HelloController);
+  // HelloController.getHello().then(console.log);
 
   const x = async () => {
     for await (const x of await HelloController.getStreamingHello()) {
-      console.log(x);
+      // console.log(x);
     }
   };
 
@@ -84,10 +89,8 @@ const Home = () => {
       <Jumbotron />
       <CreateInitUse />
       <SolvedProblems />
-      {/* <CostDiagram /> */}
-      <BasicDiagram />
+      <BonusFeatures />
       <Examples />
-      <VovkPattern />
 
       <div className="max-w-3xl mx-auto px-5 mt-28">
         <div className="flex flex-col justify-center">

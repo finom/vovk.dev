@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
-import { HelloController } from '@vovkts/client';
+import { HelloController } from 'vovk-client';
 import type { VovkClientReturnType } from 'vovk';
+import Link from 'next/link';
 
 export default function CreateInitUseExample() {
   const [serverResponse, setServerResponse] = useState<VovkClientReturnType<typeof HelloController.getHello>>();
@@ -18,6 +19,15 @@ export default function CreateInitUseExample() {
         Get Greeting from Server
       </button>
       <div className="mt-2">{serverResponse?.greeting ?? <>&nbsp;</>}</div>
+      <div
+        className={`text-xs mt-2 delay-1000 transition-opacity duration-1000 ${serverResponse ? 'opacity-100' : 'opacity-0'}`}
+      >
+        Hint: the endpoint for this example is implemented with{' '}
+        <Link target="_blank" className="link" href="https://docs.vovk.dev/docs/api#generateStaticAPI">
+          generateStaticAPI
+        </Link>{' '}
+        and served from GitHub Pages.
+      </div>
     </div>
   );
 }

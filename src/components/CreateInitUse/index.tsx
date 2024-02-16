@@ -39,7 +39,7 @@ export const { GET, POST } = initVovk({
 const use = `
 'use client';
 import { useState } from 'react';
-import { HelloController } from '@vovkts/client';
+import { HelloController } from 'vovk-client';
 import type { VovkClientReturnType } from 'vovk';
 
 export default function Example() {
@@ -68,9 +68,15 @@ const CreateInitUse = () => {
   return (
     <div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mx-auto max-w-screen-2xl">
-        <CreateInitUseSection code={create} text="1. Create"></CreateInitUseSection>
-        <CreateInitUseSection code={init} text="2. Init"></CreateInitUseSection>
-        <CreateInitUseSection code={use} text="3. Use"></CreateInitUseSection>
+        <CreateInitUseSection text="Create" number={1}>
+          {create}
+        </CreateInitUseSection>
+        <CreateInitUseSection text="Init" number={2}>
+          {init}
+        </CreateInitUseSection>
+        <CreateInitUseSection text="Use" number={3}>
+          {use}
+        </CreateInitUseSection>
       </div>
       <CreateInitUseExample />
     </div>
