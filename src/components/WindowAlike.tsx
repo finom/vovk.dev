@@ -19,7 +19,7 @@ const WindowAlike = ({ children, className }: Props) => {
           <div className="w-2 h-2 bg-[#62C454] rounded-full md:w-[10px] md:h-[10px]" />
         </div>
       </div>
-      <div className="rounded-3xl rounded-t-none bg-white dark:bg-[#f0f0e0] overflow-x-auto text-gray-800 text-xs md:text-sm p-6">
+      <div className="rounded-3xl rounded-t-none bg-white dark:bg-[#f0f0e0] overflow-x-auto text-gray-800 text-xs md:text-sm p-6 h-full">
         {children}
       </div>
     </div>

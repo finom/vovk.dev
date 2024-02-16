@@ -11,5 +11,5 @@
 }
 
 .link-docs {
-    @apply inline-flex items-center gap-2 border-b text-sm mt-3;
+    @apply inline-flex items-center gap-2 border-b mt-3;
 } 

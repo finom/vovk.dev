@@ -1,39 +1,11 @@
+import Link from 'next/link';
+import IconWrapper from './IconWrapper';
+
 const SolvedProblems = () => {
-  /**
-   * New sections:
-   * - Good old Rest API
-   * Fetch screenshot or code
-   * - Single port
-   * Single port screenshot (website / API /api)
-   * - Library for free
-   * Code snippet for clientize
-   * - Shared code
-   * ???
-   * - No deps
-   * Maybe screenshot from package.json?
-   * - Pick your state library
-   * Multiple logos
-   *
-   * tRPC-like Gif https://camo.githubusercontent.com/71e5b599406ae18a7f4b8fe8675be31376eb188971950f0c8afb907343fd4633/68747470733a2f2f6173736574732e747270632e696f2f7777772f7631302f7631302d6461726b2d6c616e6473636170652e676966
-   *
-   * Comparison to NestJS and tRPC
-   * - Full-stack
-   * - Worker
-   * - REST API
-   * - Response streaming
-   * - CLI
-   * - Standalone
-   * - Shared code
-   * - Single port
-   * - Size
-   * - Stars ???
-   * - Code splitting ???
-   * - Proxy object ???
-   */
   return (
-    <div className="grid sm:grid-cols-2 md:grid-cols-3 max-w-screen-xl mx-auto gap-10 mt-10 px-5">
+    <div className="grid sm:grid-cols-2 md:grid-cols-3 max-w-screen-2xl mx-auto gap-10 mt-10">
       <div className="flex gap-4 items-start flex-col ">
-        <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full">
+        <IconWrapper>
           <svg
             width="20px"
             height="20px"
@@ -67,19 +39,26 @@ const SolvedProblems = () => {
               strokeWidth="1.5"
             ></path>
           </svg>
-        </span>
+        </IconWrapper>
         <div>
-          <h3 className="font-semibold text-xl">Unified Access Point</h3>
+          <h3 className="font-semibold text-xl">One Port</h3>
           <p className="mt-1 text-secondary">
             {' '}
-            Simplify your development process with Vovk.ts. Designed to integrate front-end and back-end seamlessly, it
-            operates efficiently through a single port, enhancing both development and deployment with its structured
-            approach.
+            Run your full-stack app on a single port. Next.js handles front-end, Vovk.ts handles back-end routing.
           </p>
         </div>
       </div>
       <div className="flex gap-4 items-start flex-col ">
-        <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full">
+        <span className="text-rose-600 bg-rose-500/10 justify-center flex font-extrabold items-center rounded-full text-[10px] w-[44px] h-[44px]">
+          <span>GET /</span>
+        </span>
+        <div>
+          <h3 className="font-semibold text-xl">Good old REST API</h3>
+          <p className="mt-1 text-secondary"> No more workarounds! Create RESTful APIs with ease.</p>
+        </div>
+      </div>
+      <div className="flex gap-4 items-start flex-col ">
+        <span className="text-rose-600 bg-rose-500/10 rounded-full w-[44px] h-[44px] items-center justify-center flex">
           <svg
             width="24px"
             height="24px"
@@ -88,165 +67,65 @@ const SolvedProblems = () => {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <rect x="3" y="2" width="7" height="5" rx="0.6" stroke="currentColor" strokeWidth="1.5"></rect>
-            <rect x="8.5" y="17" width="7" height="5" rx="0.6" stroke="currentColor" strokeWidth="1.5"></rect>
-            <rect x="14" y="2" width="7" height="5" rx="0.6" stroke="currentColor" strokeWidth="1.5"></rect>
+            <path d="M21 2L20 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M3 2L4 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             <path
-              d="M6.5 7V10.5C6.5 11.6046 7.39543 12.5 8.5 12.5H15.5C16.6046 12.5 17.5 11.6046 17.5 10.5V7"
+              d="M21 16L20 15"
               stroke="currentColor"
               strokeWidth="1.5"
-            ></path>
-            <path d="M12 12.5V17" stroke="currentColor" strokeWidth="1.5"></path>
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path d="M3 16L4 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M9 18H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M10 21H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M11.9998 3C7.9997 3 5.95186 4.95029 5.99985 8C6.02324 9.48689 6.4997 10.5 7.49985 11.5C8.5 12.5 9 13 8.99985 15H14.9998C15 13.0001 15.5 12.5 16.4997 11.5001L16.4998 11.5C17.4997 10.5 17.9765 9.48689 17.9998 8C18.0478 4.95029 16 3 11.9998 3Z"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </span>
         <div>
-          <h3 className="font-semibold text-xl">Type Isomorphism? Check!</h3>
+          <h3 className="font-semibold text-xl">Easy to learn</h3>
           <p className="mt-1 text-secondary">
             {' '}
-            Ever wished you could use back-end code in the front-end without a headache? Vovk.ts makes this possible. It
-            reads controller metadata from a JSON file and smartly infer types. It's like having a bilingual translator
-            for your code.
+            To get started you need to read only 3 articles of documentation:{' '}
+            <Link target="_blank" href="https://docs.vovk.dev/docs/intro" className="link">
+              Into
+            </Link>
+            ,{' '}
+            <Link target="_blank" href="https://docs.vovk.dev/docs/controller" className="link">
+              Controller
+            </Link>
+            ,{' '}
+            <Link target="_blank" href="https://docs.vovk.dev/docs/worker" className="link">
+              Worker
+            </Link>
+            .
           </p>
         </div>
       </div>
       <div className="flex gap-4 items-start flex-col ">
-        <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full">
-          <svg
-            width="24px"
-            height="24px"
-            strokeWidth="1.5"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M18 22C19.6569 22 21 20.6569 21 19C21 17.3431 19.6569 16 18 16C16.3431 16 15 17.3431 15 19C15 20.6569 16.3431 22 18 22Z"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-            <path
-              d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 6.65685 16.3431 8 18 8Z"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-            <path
-              d="M6 15C7.65685 15 9 13.6569 9 12C9 10.3431 7.65685 9 6 9C4.34315 9 3 10.3431 3 12C3 13.6569 4.34315 15 6 15Z"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-            <path d="M15.5 6.5L8.5 10.5" stroke="currentColor" strokeWidth="1.5"></path>
-            <path d="M8.5 13.5L15.5 17.5" stroke="currentColor" strokeWidth="1.5"></path>
+        <span className="text-rose-600 bg-rose-500/10 rounded-full w-[44px] h-[44px] items-center justify-center flex">
+          <svg xmlns="http://www.w3.org/2000/svg" width={22} height={22} viewBox="0 0 172 158" fill="none">
+            <path d="m96.71 0 43.999 120-50-80-50 10 56-50Z" fill="currentColor" />
+            <path d="M171.083 148.881 40.209 120h100.5l14-40 16.374 68.881Z" fill="currentColor" />
+            <path d="M0 129.54 90.71 40l-50 80 26.868 37.112L0 129.54Z" fill="currentColor" />
           </svg>
         </span>
         <div>
-          <h3 className="font-semibold text-xl">Shared Code, Solved</h3>
+          <h3 className="font-semibold text-xl">Edge runtime</h3>
           <p className="mt-1 text-secondary">
             {' '}
-            Where do you keep the JavaScript shared by both ends? Vovk.ts introduces 'Isomorphic Services' - a neat
-            solution for storing and using code across your full-stack environment. It's like a common toolbox for both
-            your back-end and front-end.
+            Edge runtime is enabled by default. It allows you to run your code on the edge, closer to your users.
           </p>
         </div>
       </div>
       <div className="flex gap-4 items-start flex-col ">
-        <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full">
-          <svg
-            width="24px"
-            height="24px"
-            strokeWidth="1.5"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M13.5 6L10 18.5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-            <path
-              d="M6.5 8.5L3 12L6.5 15.5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-            <path
-              d="M17.5 8.5L21 12L17.5 15.5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-          </svg>
-        </span>
-        <div>
-          <h3 className="font-semibold text-xl">Pick Your State Library</h3>
-          <p className="mt-1 text-secondary">
-            {' '}
-            Whether you're into Redux, Zustand, Recoil, or Jotai, Vovk.ts plays nice with all. We don’t force any
-            specific library on you. Choose what you love; we'll support it.
-          </p>
-        </div>
-      </div>
-      <div className="flex gap-4 items-start flex-col ">
-        <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full">
-          <svg
-            width="24px"
-            height="24px"
-            strokeWidth="1.5"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M14.5714 15.0036L15.4286 16.8486C15.4286 16.8486 19.2857 17.6678 19.2857 19.6162C19.2857 21 17.5714 21 17.5714 21H13L10.75 19.75"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-            <path
-              d="M9.42864 15.0036L8.5715 16.8486C8.5715 16.8486 4.71436 17.6678 4.71436 19.6162C4.71436 21 6.42864 21 6.42864 21H8.50007L10.7501 19.75L13.5001 18"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-            <path
-              d="M3 15.9261C3 15.9261 5.14286 15.4649 6.42857 15.0036C7.71429 8.54595 11.5714 9.00721 12 9.00721C12.4286 9.00721 16.2857 8.54595 17.5714 15.0036C18.8571 15.4649 21 15.9261 21 15.9261"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-            <path
-              d="M12 7C13.1046 7 14 6.10457 14 5C14 3.89543 13.1046 3 12 3C10.8954 3 10 3.89543 10 5C10 6.10457 10.8954 7 12 7Z"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-          </svg>
-        </span>
-        <div>
-          <h3 className="font-semibold text-xl">A Fresh Take on Architecture</h3>
-          <p className="mt-1 text-secondary">
-            {' '}
-            Vovk.ts provides a guide on organizing your app. From back-end services to client state, it offers
-            recommendations to keep your project tidy and efficient.
-          </p>
-        </div>
-      </div>
-      <div className="flex gap-4 items-start flex-col ">
-        <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full">
+        <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full w-[44px] h-[44px]">
           <svg
             width={15}
             height={15}
@@ -264,12 +143,29 @@ const SolvedProblems = () => {
           </svg>
         </span>
         <div>
-          <h3 className="font-semibold text-xl">No Extra Baggage</h3>
+          <h3 className="font-semibold text-xl">No dependencies</h3>
           <p className="mt-1 text-secondary">
             {' '}
-            Vovk.ts is crafted around the Next.js API, steering clear of dependencies on other libraries. It delivers
-            the essentials, ensuring a lightweight experience without any unnecessary bloat.
+            Vovk.ts is tiny and has{' '}
+            <Link target="_blank" className="link" href="https://bundlephobia.com/package/vovk">
+              zero dependencies
+            </Link>
+            .
           </p>
+        </div>
+      </div>
+      <div className="flex gap-4 items-start flex-col ">
+        <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full w-[44px] h-[44px]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="22" height="22">
+            <path
+              fill="currentColor"
+              d="M 5 4 A 1.0001 1.0001 0 0 0 4 5 L 4 45 A 1.0001 1.0001 0 0 0 5 46 L 45 46 A 1.0001 1.0001 0 0 0 46 45 L 46 5 A 1.0001 1.0001 0 0 0 45 4 L 5 4 z M 6 6 L 44 6 L 44 44 L 6 44 L 6 6 z M 15 23 L 15 26.445312 L 20 26.445312 L 20 42 L 24 42 L 24 26.445312 L 29 26.445312 L 29 23 L 15 23 z M 36.691406 23.009766 C 33.576782 22.997369 30.017578 23.941219 30.017578 28.324219 C 30.017578 34.054219 37.738281 34.055625 37.738281 36.640625 C 37.738281 36.885625 37.842187 38.666016 35.117188 38.666016 C 32.392187 38.666016 30.121094 36.953125 30.121094 36.953125 L 30.121094 41.111328 C 30.121094 41.111328 42.001953 44.954062 42.001953 36.289062 C 42.000953 30.664063 34.208984 30.945391 34.208984 28.150391 C 34.208984 27.067391 34.978375 26.054687 37.109375 26.054688 C 39.240375 26.054688 41.126953 27.3125 41.126953 27.3125 L 41.267578 23.607422 C 41.267578 23.607422 39.113892 23.019408 36.691406 23.009766 z"
+            />
+          </svg>
+        </span>
+        <div>
+          <h3 className="font-semibold text-xl">Total TypeScript</h3>
+          <p className="mt-1 text-secondary"> One of the most typed library ever.</p>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import CodeSection from './CodeSection';
+import CodeSection from '../../CodeSection';
 import ExampleInfo from './ExampleInfo';
 
 export interface ExampleProps {
@@ -8,7 +8,7 @@ export interface ExampleProps {
   title: string;
   reverse: boolean;
   docsLink: string;
-  children: ReactNode;
+  Component: () => ReactNode;
 }
 
 const Arrow = ({ className }: { className: string }) => (
@@ -26,31 +26,30 @@ const Arrow = ({ className }: { className: string }) => (
   </svg>
 );
 
-const Example = ({ code, badge, title, docsLink, children, reverse }: ExampleProps) => {
-  const codeArr = code.length === 3 ? code.slice(0, 2) : code;
+const Example = ({ code, badge, title, docsLink, Component, reverse }: ExampleProps) => {
   return (
     <div
-      className={`lg:flex max-w-screen-xl mx-auto mt-40 px-5 gap-16 justify-between ${
+      className={`lg:flex max-w-screen-2xl mx-auto mt-40 px-5 gap-16 justify-between ${
         reverse ? 'flex-row-reverse' : ''
       }`}
     >
       <div className="flex-1 lg:w-1/2 flex flex-col">
         <ExampleInfo badge={badge} title={title} docsLink={docsLink}>
-          {children}
+          <Component />
         </ExampleInfo>
         {code.length === 3 && (
           <div className="hidden lg:block">
             <div className="justify-center py-6 relative flex">
               <Arrow className="rotate-[270deg] absolute -right-10 top-96" />
             </div>
-            <CodeSection code={[code[2]]} />
+            <CodeSection>{code[2]}</CodeSection>
           </div>
         )}
       </div>
       <div className="min-w-0 flex-1">
         {code.map((section, index) => (
           <div key={index} className={index === 2 ? 'lg:hidden' : undefined}>
-            <CodeSection code={[section]} />
+            <CodeSection>{section}</CodeSection>
             {!!code[index + 1] && (
               <div className={`flex justify-center py-6 ${index === 1 ? 'lg:hidden' : ''}`}>
                 <Arrow className="rotate-180" />
