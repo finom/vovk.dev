@@ -23,7 +23,11 @@ export default function CreateInitUseExample() {
         className={`text-xs mt-2 delay-1000 transition-opacity duration-1000 ${serverResponse ? 'opacity-100' : 'opacity-0'}`}
       >
         Hint: the endpoint for this example is implemented with{' '}
-        <Link target="_blank" className="link" href="https://docs.vovk.dev/docs/api#generateStaticAPI">
+        <Link
+          target="_blank"
+          className="link"
+          href="https://docs.vovk.dev/docs/api/#generatestaticapicontrollers-recordstring-function-slug-string"
+        >
           generateStaticAPI
         </Link>{' '}
         and served from GitHub Pages.

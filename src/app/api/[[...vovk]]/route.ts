@@ -7,10 +7,7 @@ const workers = {};
 export type Controllers = typeof controllers;
 export type Workers = typeof workers;
 
-export const dynamic = 'force-static';
-
 export function generateStaticParams() {
-  console.log(generateStaticAPI(controllers));
   return generateStaticAPI(controllers);
 }
 
