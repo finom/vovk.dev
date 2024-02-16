@@ -4,7 +4,7 @@
     "_prefix": "hello",
     "_handlers": {
       "getHello": {
-        "path": "greeting",
+        "path": "greeting.json",
         "httpMethod": "GET"
       }
     }
