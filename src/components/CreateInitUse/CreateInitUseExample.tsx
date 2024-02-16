@@ -30,7 +30,7 @@ export default function CreateInitUseExample() {
         >
           generateStaticAPI
         </Link>{' '}
-        and served from GitHub Pages.
+        and statically served from GitHub Pages.
       </div>
     </div>
   );
