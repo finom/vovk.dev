@@ -8,7 +8,7 @@ export default class HelloController {
   /**
    * Return a greeting from the HelloService
    */
-  @get('greeting')
+  @get('greeting.json')
   static async getHello() {
     return this.helloService.getHello();
   }

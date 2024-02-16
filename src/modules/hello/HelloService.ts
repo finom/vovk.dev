@@ -6,7 +6,6 @@ export default class HelloService {
    * Return a greeting
    */
   static async getHello() {
-    console.log('Hello generated');
     return { greeting: 'Hello world!' };
   }
 }
