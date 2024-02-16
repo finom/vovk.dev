@@ -14,4 +14,4 @@ export function generateStaticParams() {
   return generateStaticAPI(controllers);
 }
 
-export const { GET, POST, PUT, DELETE } = initVovk({ controllers, workers });
+export const { GET } = initVovk({ controllers, workers });

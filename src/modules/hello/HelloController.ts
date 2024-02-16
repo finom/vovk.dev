@@ -12,12 +12,4 @@ export default class HelloController {
   static async getHello() {
     return this.helloService.getHello();
   }
-
-  /**
-   * Iterate over a stream of greetings from the HelloService
-   */
-  @get('streaming')
-  static async *getStreamingHello() {
-    yield* this.helloService.getStreamingHello();
-  }
 }
