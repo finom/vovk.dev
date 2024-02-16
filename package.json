@@ -5,7 +5,7 @@
   "scripts": {
     "test": "npm run lint && tsc --noEmit",
     "dev": "vovk dev",
-    "build": "vovk build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "deploy": "rm -rf dist && deploy-to-git"
