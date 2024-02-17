@@ -133,7 +133,7 @@ const BonusFeatures = () => {
               </Link>{' '}
               package bundled with Webpack that utilises REST endpoints from{' '}
               <Link href="https://vovk-examples.vercel.app/" className="link" target="_blank">
-                Examples Website
+                Examples Website API
               </Link>
               .
             </p>

@@ -29,9 +29,9 @@
     "react": "^18",
     "react-dom": "^18",
     "use-0": "^1.0.2",
-    "vovk": "^0.2.3-beta.126",
+    "vovk": "^1.0.3",
     "vovk-client": "^0.0.2",
-    "vovk-examples": "^0.1.7"
+    "vovk-examples": "^0.1.53"
   },
   "prettier": {
     "trailingComma": "es5",

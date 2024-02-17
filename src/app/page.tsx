@@ -6,7 +6,7 @@ import Jumbotron from '@/components/Jumbotron';
 import SolvedProblems from '@/components/SolvedProblems';
 import Examples from '@/components/Examples';
 import TopNav from '@/components/TopNav';
-import { HelloController } from 'vovk-examples';
+import { StreamController, WorkerService } from 'vovk-examples';
 import CreateInitUse from '@/components/CreateInitUse';
 import BonusFeatures from '@/components/BonusFeatures';
 
@@ -68,9 +68,14 @@ const Home = () => {
   // HelloController.getHello().then(console.log);
 
   const x = async () => {
-    for await (const x of await HelloController.getStreamingHello()) {
-      // console.log(x);
+    if(typeof Worker !== 'undefined') {
+    console.log('xx', await WorkerService.factorize(100n));
     }
+
+    for await (const x of await StreamController.streamTokens()) {
+      console.log(x);
+    }
+
   };
 
   x();

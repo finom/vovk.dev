@@ -3,7 +3,7 @@ import IconWrapper from './IconWrapper';
 
 const SolvedProblems = () => {
   return (
-    <div className="grid sm:grid-cols-2 md:grid-cols-3 max-w-screen-2xl mx-auto gap-10 mt-10">
+    <div className="grid sm:grid-cols-2 md:grid-cols-3 max-w-screen-lg mx-auto gap-10 mt-10">
       <div className="flex gap-4 items-start flex-col ">
         <IconWrapper>
           <svg
@@ -54,7 +54,10 @@ const SolvedProblems = () => {
         </span>
         <div>
           <h3 className="font-semibold text-xl">Good old REST API</h3>
-          <p className="mt-1 text-secondary"> No more workarounds! Create RESTful APIs with ease.</p>
+          <p className="mt-1 text-secondary">
+            {' '}
+            No more workarounds and new protocols! Create RESTful API for your Next.js app with ease.
+          </p>
         </div>
       </div>
       <div className="flex gap-4 items-start flex-col ">
@@ -165,7 +168,10 @@ const SolvedProblems = () => {
         </span>
         <div>
           <h3 className="font-semibold text-xl">Total TypeScript</h3>
-          <p className="mt-1 text-secondary"> One of the most typed library ever.</p>
+          <p className="mt-1 text-secondary">
+            {' '}
+            One of the most well-typed library ever that also exports types for any use-case.
+          </p>
         </div>
       </div>
     </div>
