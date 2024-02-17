@@ -6,10 +6,49 @@
     @apply text-gray-500 dark:text-gray-300;
 }
 
-.link {
-    @apply border-b border-rose-300 text-rose-500 hover:border-rose-500;
+a.link {
+    @apply border-b border-rose-300 text-rose-500 hover:border-rose-500 hover:text-rose-700 transition-colors;
 }
 
-.link-docs {
+a.link-docs {
     @apply inline-flex items-center gap-2 border-b mt-3;
 } 
+
+.button {
+    @apply py-2 px-4 rounded bg-blue-500 text-white hover:bg-blue-700 transition-colors cursor-pointer leading-none h-auto;
+}
+
+.live-example {
+    a {
+        @apply text-blue-500 hover:text-blue-700 transition-colors;
+    }
+
+    h1 {
+        @apply text-2xl font-semibold mb-4 text-gray-700 dark:text-white;
+    }
+
+    input {
+        @apply appearance-none rounded w-full py-2 px-4 dark:text-gray-200 dark:bg-slate-800;
+        @apply leading-tight focus:outline my-1 border border-gray-200 dark:border-gray-700;
+    }
+
+    button {
+        @apply button;
+    }
+
+    .input-group {
+        @apply shadow flex flex-row mt-2;
+
+        & > input {
+            @apply rounded-r-none my-0;
+        }
+
+        & > button {
+            @apply rounded-l-none my-0;
+        }
+    }
+
+    .github-tab-content > div {
+        @apply !m-0;
+    }
+}

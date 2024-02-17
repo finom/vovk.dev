@@ -20,7 +20,7 @@ export default function CreateInitUseExample() {
       </button>
       <div className="mt-2">{serverResponse?.greeting ?? <>&nbsp;</>}</div>
       <div
-        className={`text-xs mt-2 delay-1000 transition-opacity duration-1000 ${serverResponse ? 'opacity-100' : 'opacity-0'}`}
+        className={`max-w-3xl mx-auto text-xs mt-2 delay-1000 transition-opacity duration-1000 ${serverResponse ? 'opacity-100' : 'opacity-0'}`}
       >
         Hint: the endpoint for this example is implemented with{' '}
         <Link
@@ -30,7 +30,15 @@ export default function CreateInitUseExample() {
         >
           generateStaticAPI
         </Link>{' '}
-        and statically served from GitHub Pages.
+        and statically served from GitHub Pages. Rest of the examples below are served from the{' '}
+        <Link href="https://vovk-examples.vercel.app/" className="link" target="_blank">
+          Examples Website API
+        </Link>{' '}
+        and use pre-built{' '}
+        <Link href="https://npmjs.com/package/vovk-examples" className="link" target="_blank">
+          vovk-examples
+        </Link>{' '}
+        NPM package.
       </div>
     </div>
   );

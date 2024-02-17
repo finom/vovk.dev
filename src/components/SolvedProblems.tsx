@@ -3,7 +3,7 @@ import IconWrapper from './IconWrapper';
 
 const SolvedProblems = () => {
   return (
-    <div className="grid sm:grid-cols-2 md:grid-cols-3 max-w-screen-lg mx-auto gap-10 mt-10">
+    <div className="grid sm:grid-cols-2 md:grid-cols-3 max-w-screen-lg mx-auto gap-10 mt-4">
       <div className="flex gap-4 items-start flex-col ">
         <IconWrapper>
           <svg

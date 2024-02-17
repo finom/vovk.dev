@@ -6,7 +6,7 @@ import Jumbotron from '@/components/Jumbotron';
 import SolvedProblems from '@/components/SolvedProblems';
 import Examples from '@/components/Examples';
 import TopNav from '@/components/TopNav';
-import { StreamController, WorkerService } from 'vovk-examples';
+import { StreamController, WorkerService, WorkerYieldService } from 'vovk-examples';
 import CreateInitUse from '@/components/CreateInitUse';
 import BonusFeatures from '@/components/BonusFeatures';
 
@@ -56,8 +56,6 @@ OTHER SECTION IDEAS:
 
 */
 
-// POST https://example.com/api/posts/n6ic9e/comments
-
 const inter = Inter({
   subsets: ['latin'],
 });
@@ -68,14 +66,19 @@ const Home = () => {
   // HelloController.getHello().then(console.log);
 
   const x = async () => {
-    if(typeof Worker !== 'undefined') {
-    console.log('xx', await WorkerService.factorize(100n));
+    if (typeof Worker !== 'undefined') {
+      WorkerService.use(new Worker(new URL('vovk-examples/dist/WorkerService.js', import.meta.url)));
+      WorkerYieldService.use(new Worker(new URL('vovk-examples/dist/WorkerYieldService.js', import.meta.url)));
+      console.log('xx', await WorkerService.factorize(100n));
+
+      for await (const y of WorkerYieldService.approximatePi(100n, 10)) {
+        console.log('yy', y);
+      }
     }
 
     for await (const x of await StreamController.streamTokens()) {
       console.log(x);
     }
-
   };
 
   x();
@@ -89,8 +92,6 @@ const Home = () => {
         </div>
         <TopNav />
       </header>
-      <div className="fixed inset-0 [background:radial-gradient(circle_at_15%_50%,rgb(237,233,254),rgb(255_255_255/0)25%),radial-gradient(circle_at_85%_30%,rgb(216,243,246),rgb(255_255_255/0)25%)] opacity-40 from-rose-100 -z-10" />
-
       <Jumbotron />
       <CreateInitUse />
       <SolvedProblems />

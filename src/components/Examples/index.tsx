@@ -1,4 +1,8 @@
+import Link from 'next/link';
 import Example, { ExampleProps } from './Example';
+import OpenAiExample from './Example/OpenAiExample';
+import WorkerExample from './Example/WorkerExample';
+import FormExample from './Example/FormExample';
 
 const examples: Omit<ExampleProps, 'reverse'>[] = [
   {
@@ -38,144 +42,81 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       `,
     ],
   },
-  /* {
-    docsLink: 'https://docs.vovk.dev/docs/',
-    badge: 'Streaming',
-    title: "Effortlessly 'Clientize' Your Controller",
-    Component: () => (
-      <>
-        Transform your controller into a client-side API library with just a few lines of code using Vovk.ts. Leveraging
-        TypeScript and an innovative JSON metadata approach, it creates a well-typed 'bridge' between front-end and
-        back-end, echoing the functionality of tRPC. The library features a customizable 'fetcher' for server requests,
-        which can be seamlessly integrated with your application's state logic. Plus, enjoy the convenience of
-        navigating directly from the client-side to the controller in VSCode.
-      </>
-    ),
-    code: [
-      `
-      // /src/vovk/hello/HelloController.ts - the back-end
-      import { post, type VovkRequest } from 'vovk';
 
-      export class HelloController {
-          static controllerName = 'HelloController';
-
-          @post('hello/world/:someParam')
-          static postSomeData(
-            req: VovkRequest<{ hello: number }, { foo: string }>,
-            { someParam }: { someParam: string }
-          ) {
-              const body = await req.json(); // casted as { hello: number }
-              const foo = req.nextUrl.get('foo'); // casted as string
-              const bar = req.nextUrl.get('bar'); // casted as never
-
-              return {
-                  hello: body.hello,
-                  foo,
-                  someParam,
-              }
-          }
-      }
-      `,
-      `
-      // /src/vovk/hello/HelloState.ts - the front-end
-      import { clientizeController } from 'vovk/client';
-      import type HelloController from './HelloController';
-      import metadata from '../vovk-metadata.json';
-
-      const controller = clientizeController<typeof HelloController>(
-        metadata.HelloController
-      );
-
-      export async function postSomeData(hello: string, foo: string) {
-        /*
-          typeof controller.postSomeData == ({
-            body: { hello: number },
-            query: { foo: string },
-            params: { someParam: string },
-          }) => Promise<{ hello: number; foo: string; someParam: string }>
-        * /
-        const result = await controller.postSomeData({
-            body: { hello: 42 },
-            query: { foo: 'bar' },
-            someParam: 'baz',
-        });
-
-        // typeof result == { hello: string; foo: string; someParam: string }
-        return result;
-      }
-      `,
-    ],
-  },
   {
     docsLink: 'https://docs.vovk.dev/docs/streaming',
     badge: 'Response Streaming',
-    title: 'Streaming Server Responses with Async Generators',
+    title: 'Stream Server Responses with Async Generators and Disposable Objects',
     Component: () => (
       <>
-        Vovk.ts reinvigorates the power of generators, a crucial yet underutilized syntax, especially in modern AI
-        applications. It offers an elegant abstraction layer for both generators and async generators. This
-        implementation includes smart workarounds that safeguard the client from data collisions, ensuring smooth and
-        efficient data streaming from the server.
+        Vovk.ts addresses the contemporary demand for streaming responses through AI client libraries with modern
+        TypeScript syntax.
+        <div className="live-example my-6">
+          <OpenAiExample />
+        </div>
+        You can check 3 examples of streaming implementation on the{' '}
+        <Link href="https://vovk-examples.vercel.app/" className="link">
+          Examples Website
+        </Link>
+        .
+        <ul className="list-disc pl-6 mt-2">
+          <li>
+            <Link href="https://vovk-examples.vercel.app/openai" className="link">
+              OpenAI Chat Example
+            </Link>{' '}
+            &ndash; the example above.
+          </li>
+          <li>
+            <Link href="https://vovk-examples.vercel.app/stream" className="link">
+              Stream Example
+            </Link>{' '}
+            &ndash; basic example of response streaming.
+          </li>
+          <li>
+            <Link href="https://vovk-examples.vercel.app/stream" className="link">
+              Stream using Response Object
+            </Link>{' '}
+            &ndash; stream example with StreamResponse class instead of generators.
+          </li>
+        </ul>
       </>
     ),
     code: [
       `
-      // /src/vovk/hello/HelloService.ts
-      export type Token = { message: string };
-      
-      export default class HelloService {
-        static async *streamTokens() {
-          const tokens: Token[] = [
-            { message: 'Hello,' }, 
-            { message: ' World' }, 
-            { message: '!' }
-          ];
-      
-          for (const token of body) {
-              await new Promise((resolve) => setTimeout(resolve, 300));
-              yield token;
+        // /src/modules/openai/OpenAiController.ts
+        import { type VovkRequest, post, prefix } from 'vovk';
+        import OpenAI from 'openai';
+
+        @prefix('openai')
+        export default class OpenAiController {
+          private static openai = new OpenAI();
+
+          @post('chat', { cors: true })
+          static async *createChatCompletion(
+            req: VovkRequest<{ messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] }>
+          ) {
+            const { messages } = await req.json();
+
+            yield* await this.openai.chat.completions.create({
+              messages,
+              model: 'gpt-3.5-turbo',
+              stream: true,
+            });
           }
         }
-      }
       `,
 
       `
-      // /src/vovk/hello/HelloController.ts
-      import { type VovkRequest } from 'vovk';
-      import HelloService from './HelloService';
-      
-      export default class HelloController {
-        static controllerName = 'HelloController';
-      
-        private static helloService = HelloService;
-      
-        @post.auto()
-        static async *streamTokens(req: VovkRequest<{ hello: string }>) {
-          const body = await req.json(); // handle body if needed
-          yield* this.helloService.streamTokens();
-        }
-      }
-      `,
-      `
-      // /src/vovk/hello/HelloState.ts
-      import { clientizeController } from 'vovk/client';
-      import type HelloController from './HelloController';
-      import type { Token } from './HelloService';
-      import metadata from '../vovk-metadata.json';
+      import { OpenAiController } from 'vovk-client';
 
-      const controller = clientizeController<typeof HelloController>(
-        metadata.HelloController
-      );
+      // ...
 
-      export async function logStreamTokens() {
-        const resp = await controller.streamTokens({
-            body: { hello: 'world' },
-            isStream: true, // !
-        });
+      using completion = await OpenAiController.createChatCompletion({
+        body: { messages },
+      });
 
-        for await (const token of resp) {
-            console.log(token satisfies Token);
-        }
+      for await (const chunk of completion) {
+        console.log(chunk);
       }
 `,
     ],
@@ -186,153 +127,136 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     title: 'Isomorphic Validation',
     Component: () => (
       <>
-        <p className="mb-2">
-          Vovk.ts enhances web development with its client-side validation feature, utilizing isomorphic validation.
-          This approach allows the client-side to access controller metadata, enabling pre-validation of requests before
-          they reach the server. This process reduces server load and improves user experience by catching errors early.
-        </p>
-        <p>
-          The{' '}
-          <a href="https://github.com/finom/vovk-zod" className="link" target="_blank">
-            vovk-zod
-          </a>{' '}
-          library, integrating with Vovk.ts, leverages the Zod validation library to offer a unified validation schema
-          across both client and server sides. This ensures consistent data handling and simplifies the development
-          process. The use of <strong>vovk-zod</strong> exemplifies a practical, efficient approach to data validation,
-          aligning well with modern web application needs.
-        </p>
+        <div className="live-example my-6">
+          <FormExample />
+        </div>
       </>
     ),
     code: [
       `
-      // /src/vovk/user/UserController.ts
-      import { z } from 'zod';
+      // /src/modules/user/FormController.ts
+      import { prefix, post, VovkRequest } from 'vovk';
       import vovkZod from 'vovk-zod';
-      import { put, type VovkRequest } from 'vovk';
-      import UserService from './UserService';
+      import { z } from 'zod';
+      import { userSchema } from '../../zod';
 
-      const UpdateUserModel = z.object({
-          name: z.string(),
-          email: z.string(),
-      }).strict();
+      @prefix('form')
+      export default class FormController {
+        @post('create-user')
+        @vovkZod(userSchema)
+        static async createUser(req: VovkRequest<z.infer<typeof userSchema>>) {
+          const { firstName, lastName, email } = await req.json();
 
-      const UpdateUserQueryModel = z.object({
-          id: z.string(),
-      }).strict();
-
-      export default class UserController {
-          static controllerName = 'UserController';
-
-          private static userService = UserService;
-
-          @put()
-          @vovkZod(UpdateUserModel, UpdateUserQueryModel)
-          static updateUser(
-              req: VovkRequest<
-                z.infer<typeof UpdateUserModel>, 
-                z.infer<typeof UpdateUserQueryModel>
-              >
-          ) {
-              const { name, email } = await req.json();
-              const id = req.nextUrl.searchParams.get('id');
-
-              return this.userService.updateUser(id, { name, email });
-          }
+          return {
+            success: true,
+            user: { firstName, lastName, email },
+          };
+        }
       }
 `,
       `
-    // /src/vovk/user/UserState.ts
-    import { clientizeController } from 'vovk/client';
-    import { zodValidateOnClient } from 'vovk-zod';
-    import type UserController from './UserController';
-    import metadata from '../vovk-metadata.json';
-
-    const controller = clientizeController<typeof StreamingController>(
-      metadata.UserController, 
-      { validateOnClient: zodValidateOnClient }
-    );
-
-    export function updateUser(
-      id: string, 
-      { name, email }: { name: string; email: string }
-    ) {
-        return controller.updateUser({
-            query: { id },
-            body: { name, email },
-        });
-    }
+      'use client';
+      import { useState, type FormEvent } from 'react';
+      import { FormController } from 'vovk-client';
+      import type { VovkClientReturnType } from 'vovk';
+      
+      export default function FormExample() {
+        const [response, setResponse] = useState<VovkClientReturnType<typeof FormController.createUser> | null>(null);
+        const [firstName, setFirstName] = useState('');
+        const [lastName, setLastName] = useState('');
+        const [email, setEmail] = useState('');
+        const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+          setResponse(
+            await FormController.createUser({
+              body: { firstName, lastName, email },
+            })
+          );
+          setError(null);
+        };
+      
+        return (
+          <form onSubmit={onSubmit}>
+            <input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            <input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+            <input type="text" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <button>Submit</button>
+      
+            {response && (
+              <div className="text-left">
+                <h3>Response:</h3>
+                <pre>{JSON.stringify(response, null, 2)}</pre>
+              </div>
+            )}
+          </form>
+        );
+      }
+      
 `,
     ],
   },
   {
-    docsLink: 'https://docs.vovk.dev/docs/worker',
-    badge: 'Web Workers',
+    docsLink: 'https://docs.vovk.dev/docs/',
+    badge: 'Client-side threading',
     title: 'Seamless Usage of Web Workers',
     Component: () => (
       <>
-        <p className="mb-2">
-          Vovk.ts sets a new standard in web development with its seamless integration of Web Workers. This feature
-          allows for easy delegation of intensive computations and data manipulations to Web Workers. Achieving this
-          only requires a few lines of code, greatly simplifying complex tasks.
-        </p>
-        <p>
-          The integration is designed to be developer-friendly, with tools like VSCode enabling direct navigation to the
-          Worker implementation, similar to how it works with Controllers. This ensures a smooth workflow and easy code
-          management.
-        </p>
-        <video className="my-4 rounded-xl shadow-xl" src="/jump-to-controller.mp4" loop autoPlay muted controls />
-        Additionally, Vovk.ts goes beyond typical one-shot Web Worker calls by supporting continuous data streaming from
-        the worker. Utilizing generators and async generators, it's ideal for ongoing data processing tasks. This means
-        data can be sent continuously to components without disrupting the calculations, enhancing the application's
-        performance and responsiveness.
+        Vovk.ts provides an easy way to integrate Web Workers into your application. This feature allows you to offload
+        heavy calculations to a separate browser thread, preventing the main thread from becoming unresponsive. The
+        library simplifies the process of creating and using Web Workers, making it accessible without setting up
+        messaging manually to exchange data between threads.
+        <div className="live-example my-6">
+          <WorkerExample />
+        </div>
       </>
     ),
     code: [
       `
-      // /src/vovk/hello/HelloWorkerService.ts
-      import { worker } from 'vovk/worker';
-      
-      @worker()
-      export default class HelloWorkerService {
-          static workerName = 'HelloWorkerService';
-      
-          static heavyCalculation(iterations: number) {
-              let result: number;
-              // ...heavy calculations
-              return result;
-          }
+      // /src/modules/hello/HelloWorker.ts
+      import { worker } from 'vovk';
 
-          static *generator() {
-            for (let i = 0; i < 10; i++) {
-                yield i;
-            }
-          }
+      @worker()
+      export default class HelloWorker {
+        static factorize(number: bigint): bigint[] {
+          let factors: bigint[] = [];
+          // ...
+
+          return factors;
+        }
       }
       `,
       `
-      // /src/vovk/hello/HelloState.ts
-      import type HelloWorkerService from './HelloWorkerService';
-      import metadata from '../vovk-metadata.json';
+'use client';
+import { useCallback, useEffect, useState } from 'react';
+import { HelloWorker } from 'vovk-client';
 
-      const worker = promisifyWorker<typeof HelloWorkerService>(
-          new Worker(new URL('./HelloWorkerService.ts', import.meta.url)),
-          metadata.workers.HelloWorkerService
-      );
+export default function BasicExample() {
+  const [value, setValue] = useState('123456789');
+  const [result, setResult] = useState<bigint[]>();
 
-      export async function heavyCalculation() {
-        const result = await worker.heavyCalculation(100_000_000);
+  useEffect(() => {
+    // inject the worker to the interface
+    HelloWorker.use(new Worker(new URL('../../modules/worker/HelloWorker.ts', import.meta.url)));
+  }, []);
 
-        return result;
-      }
+  const submit = async () => {
+    setResult(await HelloWorker.factorize(BigInt(value)));
+  };
 
-      export async function logGeneratedNumbers() {
-        for await (const number of worker.generator()) {
-          console.log(number); // 0 ... 9
-        }
-      }
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        submit();
+      }}
+    >
+      {/* ... */}
+    </form>
+  );
+}
 `,
     ],
-  },*/
+  },
 ];
 
 const Examples = () => {
