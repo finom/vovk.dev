@@ -10,52 +10,6 @@ import { StreamController, WorkerService, WorkerYieldService } from 'vovk-exampl
 import CreateInitUse from '@/components/CreateInitUse';
 import BonusFeatures from '@/components/BonusFeatures';
 
-/*
-TODO
-Make static!
-Refator example component
-Use bright
-
-Sections
-
-# REST for Next
-## + Web Worker interface
-
-- Create - init - use - 3 sections of code
-
-New mini sections with illustrations or icons:
-- One port
-- Edge runtime
-- Good old REST API
-- Zero dependencies
-- Total TypeScript
-- Easy to learn
-
-Combined section of "Bonus features":
-- Customize - 1 section of code of Client with custom arguments
-- Back-end for React Native - 1 section of code
-- Easy to distribute - 1 section of code
-
-
-- Code
-  - Service-controller pattern (2 sections of code) + example
-  - Streaming with openai (compact exmaple 2 sections of code) with link to full example
-  - Isomorphic validation (2 sections of code) + example
-  - Workers (2 sections of code) + example
-
-- Sponsor
-
----
-OTHER SECTION IDEAS:
-[Some illustration on how it works???]
-
-- A note from the author
-- Video
-- 3 articles of documentaion (Intro, Controller, Worker) + links to secondary ones (decorators, customization, how it works, API)
----
-
-*/
-
 const inter = Inter({
   subsets: ['latin'],
 });

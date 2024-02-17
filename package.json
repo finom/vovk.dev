@@ -31,7 +31,7 @@
     "use-0": "^1.0.2",
     "vovk": "^1.0.3",
     "vovk-client": "^0.0.2",
-    "vovk-examples": "^0.1.62"
+    "vovk-examples": "^0.1.64"
   },
   "prettier": {
     "trailingComma": "es5",
