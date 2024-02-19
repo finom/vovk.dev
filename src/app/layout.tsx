@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Vovk.ts',
-  description: 'Structural add-on for Next.js',
+  description: 'REST for Next',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
