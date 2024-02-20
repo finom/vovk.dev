@@ -122,8 +122,8 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     ],
   },
   {
-    docsLink: 'https://docs.vovk.dev/docs/validation',
-    badge: 'Client-side Validation',
+    docsLink: 'https://docs.vovk.dev/docs/',
+    badge: 'Request Validation',
     title: 'Isomorphic Validation',
     Component: () => (
       <>
@@ -208,6 +208,16 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         <div className="live-example my-6">
           <WorkerExample />
         </div>
+        This feature is also implemented with TypeScript Mapped Types so you can jump straight from the main thread to
+        the worker implementation.
+        <video
+          className="mt-4 rounded-xl shadow-xl max-w-full w-[700px] mx-auto"
+          src="/jump-to-worker.mp4"
+          loop
+          autoPlay
+          muted
+          controls
+        />
       </>
     ),
     code: [
