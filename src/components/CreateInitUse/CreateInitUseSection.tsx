@@ -1,4 +1,4 @@
-import CodeSection from '../CodeSection';
+import CodeBox from '../CodeBox';
 import IconWrapper from '../IconWrapper';
 
 interface Props {
@@ -14,7 +14,7 @@ const CreateInitUseSection = ({ children, text, number }: Props) => {
         <span>{number}</span>
       </IconWrapper>
       <div className="text-center font-semibold text-lg mb-4">{text}</div>
-      <CodeSection className="flex-1">{children}</CodeSection>
+      <CodeBox>{children}</CodeBox>
     </div>
   );
 };

@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --gh-dark: #0d1117;
+}
+
+.bg-code {
+    @apply bg-white dark:bg-[var(--gh-dark)];
+}
+
+
+body {
+    @apply transition-colors  bg-slate-50/80 dark:bg-slate-950/95 dark:text-white;
+}
+
 .text-secondary {
     @apply text-gray-500 dark:text-gray-300;
 }
@@ -51,4 +64,8 @@ a.link-docs {
     .github-tab-content > div {
         @apply !m-0;
     }
+}
+
+div[data-bright-theme] {
+    @apply !m-0;
 }

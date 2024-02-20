@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import CodeSection from '../../CodeSection';
+import CodeBox from '../../CodeBox';
 import ExampleInfo from './ExampleInfo';
 
 export interface ExampleProps {
@@ -42,14 +42,14 @@ const Example = ({ code, badge, title, docsLink, Component, reverse }: ExamplePr
             <div className="justify-center py-6 relative flex">
               <Arrow className="rotate-[270deg] absolute -right-10 top-96" />
             </div>
-            <CodeSection>{code[2]}</CodeSection>
+            <CodeBox>{code[2]}</CodeBox>
           </div>
         )}
       </div>
       <div className="min-w-0 flex-1">
         {code.map((section, index) => (
           <div key={index} className={index === 2 ? 'lg:hidden' : undefined}>
-            <CodeSection>{section}</CodeSection>
+            <CodeBox>{section}</CodeBox>
             {!!code[index + 1] && (
               <div className={`flex justify-center py-6 ${index === 1 ? 'lg:hidden' : ''}`}>
                 <Arrow className="rotate-180" />

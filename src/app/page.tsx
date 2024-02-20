@@ -1,4 +1,3 @@
-'use client';
 import Image from 'next/image';
 import React from 'react';
 import { Inter } from 'next/font/google';
@@ -6,7 +5,6 @@ import Jumbotron from '@/components/Jumbotron';
 import SolvedProblems from '@/components/SolvedProblems';
 import Examples from '@/components/Examples';
 import TopNav from '@/components/TopNav';
-import { StreamController, WorkerService, WorkerYieldService } from 'vovk-examples';
 import CreateInitUse from '@/components/CreateInitUse';
 import BonusFeatures from '@/components/BonusFeatures';
 
@@ -16,28 +14,8 @@ const inter = Inter({
 
 // Some styles are borrowed from https://sandocs.vercel.app/ because I don't have budget
 const Home = () => {
-  // console.log(HelloController);
-  // HelloController.getHello().then(console.log);
-
-  const x = async () => {
-    if (typeof Worker !== 'undefined') {
-      WorkerService.use(new Worker(new URL('vovk-examples/dist/WorkerService.js', import.meta.url)));
-      WorkerYieldService.use(new Worker(new URL('vovk-examples/dist/WorkerYieldService.js', import.meta.url)));
-      console.log('xx', await WorkerService.factorize(100n));
-
-      for await (const y of WorkerYieldService.approximatePi(100n, 10)) {
-        console.log('yy', y);
-      }
-    }
-
-    for await (const x of await StreamController.streamTokens()) {
-      console.log(x);
-    }
-  };
-
-  x();
   return (
-    <div className={`dark:bg-slate-900 dark:text-white bg-white ${inter.className} transition-colors px-4`}>
+    <div className={`${inter.className} px-4`}>
       <header className="flex items-center justify-between px-5 py-3">
         <div className="flex items-center gap-2">
           <a className="flex" href="/">
@@ -58,7 +36,7 @@ const Home = () => {
             <h2 className="font-semibold text-3xl">Sponsors</h2>
             <p className="max-w-md mx-auto mt-2 text-secondary">
               <a href="https://github.com/sponsors/finom" className="link mb-2 inline-block">
-                Sponsor the project author on Github ♥️
+                Sponsor the author of this project on Github ♥️
               </a>
               <br />
               You can also contact me via email from my{' '}
