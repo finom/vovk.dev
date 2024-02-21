@@ -7,6 +7,7 @@ import Examples from '@/components/Examples';
 import TopNav from '@/components/TopNav';
 import CreateInitUse from '@/components/CreateInitUse';
 import BonusFeatures from '@/components/BonusFeatures';
+import VovkTextLogo from '@/components/VovkTextLogo';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -19,7 +20,7 @@ const Home = () => {
       <header className="flex items-center justify-between px-5 py-3">
         <div className="flex items-center gap-2">
           <a className="flex" href="/">
-            <Image className="dark:invert" src="/vovk-text-logo.png" width={150} height={30} alt="Vovk.ts" />
+            <VovkTextLogo width={150} />
           </a>
         </div>
         <TopNav />

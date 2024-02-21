@@ -40,7 +40,7 @@ a.link-docs {
         @apply text-2xl font-semibold mb-4 text-gray-700 dark:text-white;
     }
 
-    input {
+    input[type="text"] {
         @apply appearance-none rounded w-full py-2 px-4 dark:text-gray-200 dark:bg-slate-800;
         @apply leading-tight focus:outline my-1 border border-gray-200 dark:border-gray-700;
     }
