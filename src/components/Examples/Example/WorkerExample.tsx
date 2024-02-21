@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { WorkerService } from 'vovk-examples';
 
 export default function WorkerExample() {
-  const [value, setValue] = useState('1234567891011133351123');
+  const [value, setValue] = useState('337751842839865299034216387');
   const [result, setResult] = useState<bigint[]>();
   const [isCalculating, setIsCalculating] = useState(false);
   const regExp = /^-?\d+$/;
@@ -37,7 +37,7 @@ export default function WorkerExample() {
           {isCalculating ? 'Calculating...' : 'Factorize'}
         </button>
       </div>
-      <div className="break-all max-h-96 overflow-auto">
+      <div className="break-all max-h-96 overflow-auto text-center">
         {result?.map((factor, index) => <div key={index}>{factor.toString()}</div>)}
       </div>
     </form>
