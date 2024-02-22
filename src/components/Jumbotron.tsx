@@ -73,6 +73,11 @@ const Jumbotron = () => {
           Vovk-Zod
         </Link>
       </div>
+
+      <div className="mt-8 opacity-90">
+        Vovk.ts is an extension over documented Next.js App API routes that enables you to create a REST API as easy as
+        you can imagine.
+      </div>
     </div>
   );
 };
