@@ -7,18 +7,19 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Vovk.ts',
   description: 'REST for Next',
+  openGraph: {
+    title: 'Vovk.ts',
+    description: 'REST for Next',
+    url: 'https://vovk.dev/',
+    type: 'website',
+    images: 'https://vovk.dev/vovk-og.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <meta property="og:title" content={metadata.title as string} />
-        <meta property="og:description" content={metadata.description as string} />
-        <meta property="og:url" content="https://vovk.dev/" />
-        <meta property="og:image" content="https://vovk.dev/vovk-og.png" />
-        <meta property="og:type" content="website" />
-      </head>
+      <head />
       <body className={inter.className}>{children}</body>
     </html>
   );
