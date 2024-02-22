@@ -70,6 +70,9 @@ const Home = () => {
               <a href="https://iconoir.com/" className="link" target="_blank" rel="noopener noreferrer">
                 Icons
               </a>
+              <a href="https://bright.codehike.org/" className="link" target="_blank" rel="noopener noreferrer">
+                Syntax Highlighting
+              </a>
             </nav>
           </div>
         </footer>
