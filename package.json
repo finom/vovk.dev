@@ -8,7 +8,7 @@
     "build": "vovk generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "rm -rf dist && deploy-to-git"
+    "deploy": "rm -rf dist && deploy-to-git && git push"
   },
   "config": {
     "deployToGit": {
@@ -29,7 +29,7 @@
     "react": "^18",
     "react-dom": "^18",
     "use-0": "^1.0.2",
-    "vovk": "^1.0.8",
+    "vovk": "^1.1.1",
     "vovk-client": "^0.0.2",
     "vovk-examples": "^0.2.3"
   },

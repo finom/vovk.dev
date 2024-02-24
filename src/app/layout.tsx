@@ -5,11 +5,13 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Vovk.ts',
-  description: 'REST for Next',
+  title: 'Vovk.ts - REST for Next',
+  description:
+    'Vovk.ts is an extension over documented Next.js App API routes that enables you to create a REST API as easy as you can imagine.',
   openGraph: {
-    title: 'Vovk.ts',
-    description: 'REST for Next',
+    title: 'Vovk.ts - REST for Next',
+    description:
+      'Vovk.ts is an extension over documented Next.js App API routes that enables you to create a REST API as easy as you can imagine.',
     url: 'https://vovk.dev/',
     type: 'website',
     images: 'https://vovk.dev/vovk-og.png',
