@@ -198,7 +198,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
   {
     docsLink: 'https://docs.vovk.dev/docs/',
     badge: 'Client-side threading',
-    title: 'Seamless Usage of Web Workers',
+    title: 'Bonus Feature: Seamless Web Workers Invocation',
     Component: () => (
       <>
         Vovk.ts provides an easy way to integrate Web Workers into your application. This feature allows you to offload
