@@ -66,7 +66,7 @@ export default function Example() {
 
 const CreateInitUse = () => {
   return (
-    <div>
+    <div className="mb-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mx-auto max-w-screen-2xl">
         <CreateInitUseSection
           title="Create"

@@ -1,13 +1,13 @@
-import Image from 'next/image';
 import React from 'react';
 import { Inter } from 'next/font/google';
 import Jumbotron from '@/components/Jumbotron';
-import SolvedProblems from '@/components/SolvedProblems';
+import Features from '@/components/Features';
 import Examples from '@/components/Examples';
 import TopNav from '@/components/TopNav';
 import CreateInitUse from '@/components/CreateInitUse';
 import BonusFeatures from '@/components/BonusFeatures';
 import VovkTextLogo from '@/components/VovkTextLogo';
+import ManualInstall from '@/components/ManualInstall';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -26,7 +26,8 @@ const Home = () => {
       </header>
       <Jumbotron />
       <CreateInitUse />
-      <SolvedProblems />
+      <ManualInstall />
+      <Features />
       <BonusFeatures />
       <Examples />
 
