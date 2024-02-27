@@ -20,7 +20,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       `
       // /src/modules/hello/HelloService.ts
       export default class HelloService {
-        static async getHello() {
+        static getHello() {
           return { greeting: 'Hello world!' };
         }
       }
@@ -35,7 +35,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
           private static helloService = HelloService;
 
           @get('greeting')
-          static async getHello() {
+          static getHello() {
               return this.helloService.getHello();
           }
       }

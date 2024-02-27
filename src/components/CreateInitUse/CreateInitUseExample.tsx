@@ -16,7 +16,7 @@ export default function CreateInitUseExample() {
           setServerResponse(response);
         }}
       >
-        Get Greeting from Server
+        Get Greeting from the Server
       </button>
       <div className="mt-2">{serverResponse?.greeting ?? <>&nbsp;</>}</div>
       <div

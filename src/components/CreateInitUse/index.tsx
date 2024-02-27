@@ -25,15 +25,13 @@ import HelloController from '../../../modules/hello/HelloController';
 
 export const runtime = 'edge'; // optional
 
+// list of all controllers
 const controllers = { HelloController };
-const workers = {};
 
+// used to map types for the generated client library
 export type Controllers = typeof controllers;
-export type Workers = typeof workers;
 
-export const { GET, POST } = initVovk({ 
-    controllers, workers,
-});
+export const { GET, POST } = initVovk({ controllers });
 `;
 
 const use = `
@@ -43,22 +41,18 @@ import { HelloController } from 'vovk-client';
 import type { VovkClientReturnType } from 'vovk';
 
 export default function Example() {
-  const [
-    serverResponse, setServerResponse,
-  ] = useState<VovkClientReturnType<typeof HelloController.getHello>>();
+  const [response, setResponse] = useState<VovkClientReturnType<typeof HelloController.getHello>>();
 
   return (
     <>
       <button
-        onClick={async () => {
-          setServerResponse(
-            await HelloController.getHello()
-          );
-        }}
+        onClick={async () => setResponse(
+          await HelloController.getHello()
+        )}
       >
-        Get Greeting from Server
+        Get Greeting from the Server
       </button>
-      <div>{serverResponse?.greeting}</div>
+      <div>{response?.greeting}</div>
     </>
   );
 }
@@ -70,7 +64,7 @@ const CreateInitUse = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mx-auto max-w-screen-2xl">
         <CreateInitUseSection
           title="Create"
-          description="Create static class and define API endpoints with decorators"
+          description="Create a static class and define API endpoints with decorators"
           number={1}
         >
           {create}
