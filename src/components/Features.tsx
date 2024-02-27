@@ -115,7 +115,7 @@ const SolvedProblems = () => {
             <h3 className="font-semibold text-xl">Easy to learn</h3>
             <p className="mt-1 text-secondary">
               {' '}
-              To get started you need to read only 3 articles of documentation:{' '}
+              To get started you need to read only 4 articles of documentation:{' '}
               <Link target="_blank" href="https://docs.vovk.dev/docs/intro" className="link">
                 Into
               </Link>
@@ -124,10 +124,14 @@ const SolvedProblems = () => {
                 Controller
               </Link>
               ,{' '}
-              <Link target="_blank" href="https://docs.vovk.dev/docs/worker" className="link">
-                Worker
+              <Link target="_blank" href="https://docs.vovk.dev/docs/decorators" className="link">
+                Decorators
               </Link>
-              .
+              ,{' '}
+              <Link target="_blank" href="https://docs.vovk.dev/docs/customization" className="link">
+                Customization & Configuration
+              </Link>
+              . The rest are optional.
             </p>
           </div>
         </div>
@@ -143,7 +147,8 @@ const SolvedProblems = () => {
             <h3 className="font-semibold text-xl">Edge runtime</h3>
             <p className="mt-1 text-secondary">
               {' '}
-              Edge runtime is enabled by default. It allows you to run your code on the edge, closer to your users.
+              Edge runtime is available out of the box. It allows you to run your code on the edge, closer to your
+              users.
             </p>
           </div>
         </div>
