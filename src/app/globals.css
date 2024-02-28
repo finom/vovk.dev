@@ -12,7 +12,7 @@
 
 
 body {
-    @apply transition-colors  bg-slate-50/80 dark:bg-slate-950/95 dark:text-white;
+    @apply  bg-slate-50/80 dark:bg-slate-950/95 dark:text-white;
 }
 
 .text-secondary {

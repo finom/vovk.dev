@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react';
 import { WorkerService } from 'vovk-examples';
 
 export default function WorkerExample() {
+  const isMobile = typeof document !== 'undefined' && 'ontouchstart' in document.documentElement;
   const [value, setValue] = useState(
-    navigator.userAgentData?.mobile ? '333944026345847228099687' : '337751842839865299034216387'
+    // use smaller number on mobile devices
+    isMobile ? '333944026345847228099687' : '337751842839865299034216387'
   );
   const [result, setResult] = useState<bigint[]>();
   const [isCalculating, setIsCalculating] = useState(false);

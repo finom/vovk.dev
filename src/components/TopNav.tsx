@@ -5,35 +5,25 @@ export const TopNav = () => {
   const [darkMode, setDarkMode] = useState(false);
   useEffect(() => {
     const getIsDarkMode = () => {
-      const storedDarkModeLastSet = localStorage.getItem('darkModeLastSet');
-      const lastSet = storedDarkModeLastSet ? Number(storedDarkModeLastSet) : 0;
-      const storedDarkMode =
-        localStorage.getItem('darkMode') && Date.now() - lastSet < 1000 * 60 * 60 * 24
-          ? localStorage.getItem('darkMode')
-          : null;
-      return storedDarkMode
-        ? storedDarkMode === 'true'
-        : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = localStorage.getItem('theme');
+      return theme ? theme === 'dark' : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     };
 
     const isDarkMode = getIsDarkMode();
     document.documentElement.classList.toggle('dark', isDarkMode);
     setDarkMode(isDarkMode);
 
-    const interval = setInterval(() => {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
       const mode = getIsDarkMode();
       document.documentElement.classList.toggle('dark', mode);
       setDarkMode(mode);
-    }, 5_000);
-
-    return () => clearInterval(interval);
+    });
   }, []);
 
   const onModeClick = useCallback(() => {
     const isDarkMode = document.documentElement.classList.contains('dark');
     document.documentElement.classList.toggle('dark', !isDarkMode);
-    localStorage.setItem('darkMode', String(!isDarkMode));
-    localStorage.setItem('darkModeLastSet', Date.now().toString());
+    localStorage.setItem('theme', isDarkMode ? 'light' : 'dark');
     setDarkMode(!isDarkMode);
   }, []);
 
@@ -64,7 +54,7 @@ export const TopNav = () => {
           />
         </svg>
       </a>
-      <a onClick={onModeClick} className="cursor-pointer">
+      <a onClick={onModeClick} className="cursor-pointer" hidden>
         {!darkMode ? (
           <svg
             width="20px"
