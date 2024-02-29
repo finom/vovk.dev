@@ -11,9 +11,9 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     title: 'Embracing the Service-Controller Pattern',
     Component: () => (
       <>
-        Drawing inspiration from NestJS, this library champions the well-known Service-Controller pattern. It distinctly
-        separates database and API requests from the code managing incoming requests. This design promotes cleaner, more
-        organized code structures, enhancing maintainability and scalability. Check out the full example{' '}
+        Drawing inspiration from NestJS, this library champions the well-known Service-Controller pattern, distinctly
+        separating database and API requests from the code managing incoming requests. This design promotes cleaner,
+        more organized code structures, thereby enhancing maintainability and scalability. Check out the full example{' '}
         <Link href="https://vovk-examples.vercel.app/basic-with-service" className="link" target="_blank">
           here
         </Link>
@@ -53,8 +53,8 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     title: 'Stream Server Responses with Async Generators and Disposable Objects',
     Component: () => (
       <>
-        Vovk.ts addresses the contemporary demand for streaming responses through AI client libraries with modern
-        TypeScript syntax. Check out the implementation of OpenAI chat completion using response streaming:
+        Vovk.ts meets the contemporary demand for streaming responses in AI client libraries, leveraging modern
+        TypeScript syntax. Explore how it implements OpenAI chat completion with response streaming:
         <div className="live-example my-6">
           <OpenAiExample />
         </div>
@@ -62,19 +62,20 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         <Link href="https://vovk-examples.vercel.app/openai" target="_blank" className="link">
           examples website
         </Link>
-        . You might also be interested to see other streaming examples as well:
+        . You might also find other streaming examples interesting:
         <ul className="list-disc pl-6 mt-2">
           <li>
             <Link href="https://vovk-examples.vercel.app/stream" target="_blank" className="link">
               Stream Example
             </Link>{' '}
-            &ndash; basic example of response streaming.
+            &ndash; a basic example of response streaming.
           </li>
           <li>
             <Link href="https://vovk-examples.vercel.app/stream" target="_blank" className="link">
               Stream using Response Object
             </Link>{' '}
-            &ndash; stream example with StreamResponse class instead of generators for more control over the code.
+            &ndash; an example that utilizes the StreamResponse class instead of generators for more control over the
+            code.
           </li>
         </ul>
       </>
@@ -89,7 +90,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         export default class OpenAiController {
           private static openai = new OpenAI();
 
-          @post('chat', { cors: true })
+          @post('chat')
           static async *createChatCompletion(
             req: VovkRequest<{ messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] }>
           ) {
@@ -135,7 +136,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
           vovk-zod
         </Link>{' '}
         package. The validation is isomorphic, meaning it works on both the server and the client and the data is
-        validated before it reaches the server. Try it yourself!
+        validated before it reaches the server. Try it yourself:
         <div className="live-example my-6">
           <FormExample />
         </div>
@@ -153,7 +154,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         </Link>{' '}
         example that you can view{' '}
         <Link href="https://vovk-examples.vercel.app/hook-form" target="_blank" className="link">
-          here
+          by this link
         </Link>
         .
       </>
@@ -265,7 +266,7 @@ export default function WorkerExample() {
   const [result, setResult] = useState<bigint[]>();
 
   useEffect(() => {
-    // inject the worker to the interface
+    // inject the worker to the generated interface
     HelloWorker.use(new Worker(new URL('../../modules/worker/HelloWorker.ts', import.meta.url)));
   }, []);
 

@@ -28,7 +28,7 @@ const ManualInstall = () => {
         <Clipboard />
       </div>
 
-      <div className="mx-auto max-w-screen-lg border-b border-gray-200 dark:border-gray-800 pb-8 mb-16 mt-8">
+      <div className="mx-auto max-w-screen-lg border-b border-gray-200 dark:border-gray-800 pb-4 mb-16 mt-8">
         <h1
           className="flex gap-2 font-semibold text-2xl items-center justify-center mb-3 cursor-pointer"
           id="manual-install-title"
@@ -53,7 +53,7 @@ const ManualInstall = () => {
             />
           </svg>
         </h1>
-        <div className="overflow-hidden h-0 transition-all" id="manual-install">
+        <div className="overflow-hidden h-0 transition-all mb-4" id="manual-install">
           <div id="manual-install-content">
             <p className="text-center mb-4">
               For detailed information on Vovk.ts installation{' '}
@@ -82,10 +82,11 @@ const ManualInstall = () => {
               </Step>
               <Step icon={5}>
                 Run <code className="code">npx vovk dev</code> that wraps the original{' '}
-                <code className="code">npx next dev</code> to define the required ports and open{' '}
+                <code className="code">npx next dev</code> to set required ports and open{' '}
                 <Link href="http://localhost:3000" target="_blank" className="link">
                   http://localhost:3000
                 </Link>
+                .
               </Step>
               <Step icon={<span className="mt-1.5 inline-block">*</span>}>
                 Commit <strong>.vovk.json</strong> that just was automatically created.

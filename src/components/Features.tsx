@@ -46,7 +46,7 @@ const SolvedProblems = () => {
             <h3 className="font-semibold text-xl">One Port</h3>
             <p className="mt-1 text-secondary">
               {' '}
-              Run your full-stack app on a single port. Next.js handles front-end, Vovk.ts handles back-end routing.
+              Run your full-stack app on a single port. Vovk.ts is an addon over documented Next.js API routes.
             </p>
           </div>
         </div>
@@ -58,7 +58,7 @@ const SolvedProblems = () => {
             <h3 className="font-semibold text-xl">Good old REST API</h3>
             <p className="mt-1 text-secondary">
               {' '}
-              No more workarounds and new protocols! Create RESTful API for your Next.js app with ease.
+              No more workarounds and new protocols. Create RESTful API for your Next.js app with ease.
             </p>
           </div>
         </div>
@@ -147,8 +147,7 @@ const SolvedProblems = () => {
             <h3 className="font-semibold text-xl">Edge runtime</h3>
             <p className="mt-1 text-secondary">
               {' '}
-              Edge runtime is available out of the box. It allows you to run your code on the edge, closer to your
-              users.
+              Edge runtime is available out of the box. Your REST API geographically is closer to users.
             </p>
           </div>
         </div>
@@ -194,20 +193,19 @@ const SolvedProblems = () => {
           <div>
             <h3 className="font-semibold text-xl">Total TypeScript</h3>
             <p className="mt-1 text-secondary">
-              {' '}
-              One of the most well-typed library ever that also exports types for any use-case.
+              Vovk.ts is a well-typed library that also exports types for any use-case imaginable.
             </p>
           </div>
         </div>
       </div>
       <div className="mt-12 text-center">
-        <div className="flex gap-4 items-start flex-col mx-auto max-w-[540px]">
+        <div className="flex gap-4 items-start flex-col mx-auto max-w-[690px]">
           <div>
             <h3 className="font-semibold text-xl">Enjoy Mapped Types</h3>
             <p className="mt-1 text-secondary">
               {' '}
-              You can jump sthraight from the client-side to the controller in VSCode thanks to Mapped Types in
-              TypeScript.
+              You can jump straight from the client-side to the controller implementation, making the development
+              process easier, thanks to Mapped Types in TypeScript.
             </p>
           </div>
         </div>

@@ -51,8 +51,9 @@ const BonusFeatures = () => {
         description={
           <>
             <p className="text-secondary">
-              You can completely redefine client bahaviour by implementing your own fetching function to tightly
-              integrate with your application state logic or to add extra options.
+              You can completely redefine the behavior of the generated library by implementing your own fetching
+              function. This allows tight integration with your application's state logic or the addition of extra
+              options.
             </p>
             <DocsLink href="https://docs.vovk.dev/docs/customization" />
           </>
@@ -90,8 +91,8 @@ const BonusFeatures = () => {
         description={
           <>
             <p className="text-secondary">
-              Making a full-stack React-Native application was never so easy! Set up a project with React Native +
-              Next.js + Vovk.ts and start making requests.
+              Creating a full-stack React-Native application has never been so easy! Set up a project with React Native,
+              Next.js, and Vovk.ts, and start making requests.
             </p>
             <DocsLink href="https://github.com/finom/vovk-react-native-example">See example</DocsLink>
           </>
@@ -127,11 +128,11 @@ const BonusFeatures = () => {
         description={
           <>
             <p className="text-secondary">
-              Bundle and distribute your REST API client library with ease. The examples below use{' '}
+              Bundle and distribute your REST API client library with ease. The examples below utilize the{' '}
               <Link href="https://npmjs.com/package/vovk-examples" className="link" target="_blank">
                 vovk-examples
               </Link>{' '}
-              package bundled with Webpack that utilises REST endpoints from{' '}
+              package, bundled with Webpack, which accesses REST endpoints from the{' '}
               <Link href="https://vovk-examples.vercel.app/" className="link" target="_blank">
                 Examples Website API
               </Link>

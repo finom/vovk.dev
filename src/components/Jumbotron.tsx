@@ -54,7 +54,7 @@ const Jumbotron = () => {
           </Link>
         </div>
       </div>
-      <div className="flex flex-col gap-4 md:flex-row md:gap-8 justify-center mt-4">
+      <div className="flex flex-col gap-4 md:flex-row md:gap-8 justify-center mt-6">
         <Link href="https://vovk-examples.vercel.app/" className="link" target="_blank">
           Interactive Examples
         </Link>

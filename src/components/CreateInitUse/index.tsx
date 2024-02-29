@@ -60,7 +60,7 @@ export default function Example() {
 
 const CreateInitUse = () => {
   return (
-    <div className="mb-8">
+    <div className="mb-8 mt-4">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mx-auto max-w-screen-2xl">
         <CreateInitUseSection
           title="Create"
@@ -78,7 +78,7 @@ const CreateInitUse = () => {
         </CreateInitUseSection>
         <CreateInitUseSection
           title="Use"
-          description='Import the auto-generated client library from "vovk-client"'
+          description='Import the auto-generated fetching library from "vovk-client"'
           number={3}
         >
           {use}
