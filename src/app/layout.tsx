@@ -6,12 +6,10 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Vovk.ts - REST for Next',
-  description:
-    'Vovk.ts is an extension over documented Next.js App API routes that enables you to create a REST API as easy as you can imagine.',
+  description: 'Transforms Next.js into a powerful and extensible REST API platform',
   openGraph: {
     title: 'Vovk.ts - REST for Next',
-    description:
-      'Vovk.ts is an extension over documented Next.js App API routes that enables you to create a REST API as easy as you can imagine.',
+    description: 'Transforms Next.js into a powerful and extensible REST API platform',
     url: 'https://vovk.dev/',
     type: 'website',
     images: 'https://vovk.dev/vovk-og.png',
