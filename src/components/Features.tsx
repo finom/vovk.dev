@@ -147,7 +147,7 @@ const SolvedProblems = () => {
             <h3 className="font-semibold text-xl">Edge runtime</h3>
             <p className="mt-1 text-secondary">
               {' '}
-              Edge runtime is available out of the box. Your REST API geographically is closer to users.
+              Edge runtime is available out of the box. Your REST API is geographically closer to users.
             </p>
           </div>
         </div>
