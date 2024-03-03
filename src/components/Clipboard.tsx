@@ -1,15 +1,21 @@
 'use client';
 
-const Clipboard = () => {
+interface Props {
+  text: string;
+  className?: string;
+}
+
+const Clipboard = ({ text, className }: Props) => {
   return (
     <span
-      className="text-rose-900 hover:text-rose-500 cursor-pointer"
+      className={`cursor-pointer ${className ?? ''}`}
+      title="Copy to clipboard"
       onClick={(evt) => {
         (evt.target as HTMLSpanElement).classList.add('animate-pulse');
         setTimeout(() => {
           (evt.target as HTMLSpanElement).classList.remove('animate-pulse');
         }, 2000);
-        navigator.clipboard.writeText('npx create-next-app -e https://github.com/finom/vovk-hello-world');
+        navigator.clipboard.writeText(text);
       }}
     >
       <svg width={15} height={15} viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -25,10 +25,13 @@ const ManualInstall = () => {
         <code className="text-rose-500 text-left whitespace-nowrap overflow-x-auto">
           npx create-next-app -e https://github.com/finom/vovk-hello-world
         </code>{' '}
-        <Clipboard />
+        <Clipboard
+          text="npx create-next-app -e https://github.com/finom/vovk-hello-world"
+          className="text-rose-900 hover:text-rose-500"
+        />
       </div>
 
-      <div className="mx-auto max-w-screen-lg border-b border-gray-200 dark:border-gray-800 pb-4 mb-16 mt-8">
+      <div className="mx-auto max-w-screen-lg border-b border-gray-200 dark:border-gray-800  mb-16 mt-8">
         <h1
           className="flex gap-2 font-semibold text-2xl items-center justify-center mb-3 cursor-pointer"
           id="manual-install-title"
@@ -54,7 +57,7 @@ const ManualInstall = () => {
           </svg>
         </h1>
         <div className="overflow-hidden h-0 transition-all mb-4" id="manual-install">
-          <div id="manual-install-content">
+          <div id="manual-install-content" className="pb-4">
             <p className="text-center mb-4">
               For detailed information on Vovk.ts installation{' '}
               <Link href="https://docs.vovk.dev/docs/intro/" className="link" target="_blank">
