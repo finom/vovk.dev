@@ -187,8 +187,8 @@ const SolvedProblems = () => {
           <div>
             <h3 className="font-semibold text-xl">Easy to Learn</h3>
             <p className="mt-1 text-secondary">
-              Specially designed for Next.js App Router, Vovk doesn't introduce complex abstractions being just
-              a wrapper over{' '}
+              Specially designed for Next.js App Router, Vovk doesn't introduce complex abstractions being just a
+              wrapper over{' '}
               <Link
                 target="_blank"
                 href="https://nextjs.org/docs/app/building-your-application/routing/route-handlers"
