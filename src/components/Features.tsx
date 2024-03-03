@@ -185,14 +185,18 @@ const SolvedProblems = () => {
             </svg>
           </span>
           <div>
-            <h3 className="font-semibold text-xl">Minimal Abstrctions</h3>
+            <h3 className="font-semibold text-xl">Easy to Learn</h3>
             <p className="mt-1 text-secondary">
-              Vovk.ts is specially designed for Next.js App Router. It doesn't introduce complex abstractions being just
-              a wrapper over Next.js{' '}
-              <Link target="_blank" href="https://nextjs.org/docs/api-routes/introduction" className="link">
+              Specially designed for Next.js App Router, Vovk doesn't introduce complex abstractions being just
+              a wrapper over{' '}
+              <Link
+                target="_blank"
+                href="https://nextjs.org/docs/app/building-your-application/routing/route-handlers"
+                className="link"
+              >
                 route handlers
-              </Link>
-              .
+              </Link>{' '}
+              making it easy to learn.
             </p>
           </div>
         </div>
@@ -252,7 +256,7 @@ const SolvedProblems = () => {
             </svg>
           </span>
           <div>
-            <h3 className="font-semibold text-xl">Total TypeScript</h3>
+            <h3 className="font-semibold text-xl">Only TypeScript</h3>
             <p className="mt-1 text-secondary">
               Vovk.ts is a well-typed library that also exports types for any use-case imaginable.
             </p>
