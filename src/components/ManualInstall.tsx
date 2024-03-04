@@ -97,9 +97,9 @@ const ManualInstall = () => {
                   concurrently
                 </Link>{' '}
                 to avoid using the wrapper. Use <code className="code">--no-next-dev</code> in order to avoid running{' '}
-                <code className="code">next dev</code> internally and provide port variables explicitly:{' '}
+                <code className="code">next dev</code> internally and provide PORT variable explicitly:{' '}
                 <code className="code text-nowrap">
-                  PORT=3000 VOVK_PORT=6969 concurrently 'vovk dev --no-next-dev' 'next dev' --kill-others
+                  PORT=3000 concurrently 'vovk dev --no-next-dev' 'next dev' --kill-others
                 </code>
               </Step>
               <Step icon={<span className="mt-1.5 inline-block">*</span>}>
