@@ -46,7 +46,7 @@ export const TopNav = () => {
           />
         </svg>
       </a>
-      <a href="https://discord.gg/fQWk2rh8" target="_blank" rel="noopener">
+      <a href="https://discord.gg/aQcUpcQxSp" target="_blank" rel="noopener">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36" width={24}>
           <path
             fill="currentColor"
