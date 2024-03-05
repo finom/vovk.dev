@@ -10,6 +10,7 @@ import { UserController } from 'vovk-client';
 UserController.createUser({ 
     body,
     query,
+    params,
     successToast: 'Successfully created a new user',
     useAuth: true,
     sentryLogErrors: true,

@@ -6,6 +6,102 @@ import FormExample from './Example/FormExample';
 
 const examples: Omit<ExampleProps, 'reverse'>[] = [
   {
+    docsLink: 'https://nextjs.org/docs/app/building-your-application/routing/route-handlers',
+    docsLinkText: 'Read Next.js Docs',
+    badge: 'Well-known API',
+    title: 'Designed for the latest version of Next.js',
+    Component: () => (
+      <>
+        The library designed for{' '}
+        <Link href="https://nextjs.org/docs/app" className="link" target="_blank">
+          Next.js App Router
+        </Link>{' '}
+        It avoids introducing complex abstractions and does not modify the request object, acting merely as a wrapper
+        over Next.js{' '}
+        <Link
+          href="https://nextjs.org/docs/app/building-your-application/routing/route-handlers"
+          className="link"
+          target="_blank"
+        >
+          route handlers
+        </Link>
+        . If you're familiar with using them, you already know how to handle operations like retrieving the{' '}
+        <Link href="https://developer.mozilla.org/en-US/docs/Web/API/Request/json" className="link" target="_blank">
+          JSON body
+        </Link>
+        ,{' '}
+        <Link
+          href="https://nextjs.org/docs/app/building-your-application/routing/route-handlers#request-body-formdata"
+          className="link"
+          target="_blank"
+        >
+          Request Body FormData
+        </Link>
+        ,{' '}
+        <Link
+          href="https://nextjs.org/docs/app/api-reference/functions/next-request#nexturl"
+          className="link"
+          target="_blank"
+        >
+          search query
+        </Link>
+        , making a{' '}
+        <Link href="https://nextjs.org/docs/app/api-reference/functions/redirect" className="link" target="_blank">
+          redirect
+        </Link>
+        , using{' '}
+        <Link href="https://nextjs.org/docs/app/api-reference/functions/cookies" className="link" target="_blank">
+          cookies
+        </Link>
+        , accessing{' '}
+        <Link href="https://nextjs.org/docs/app/api-reference/functions/headers" className="link" target="_blank">
+          headers
+        </Link>
+        , etc. It uses <code className="code">VovkRequest</code> that extends{' '}
+        <Link href="https://nextjs.org/docs/app/api-reference/functions/next-request" className="link" target="_blank">
+          NextRequest
+        </Link>{' '}
+        to define request body and search query.
+      </>
+    ),
+    code: [
+      `
+        import { type VovkRequest, prefix, put } from 'vovk';
+        import { redirect } from 'next/navigation';
+        import { headers } from 'next/headers';
+        // ...
+
+        @prefix('users')
+        export default class UserController {
+            @put(':id') // PUT /api/users/69?notifyOn=comment
+            @authGuard() 
+            static async updateUser(
+              req: VovkRequest<Partial<User>, { notifyOn: 'comment' | 'none' }>, 
+              { id }: { id: string }
+            ) {
+                const body = await req.json(); // type: Partial<User>
+                const notifyOn = req.nextUrl.searchParams.get('notifyOn'); // 'comment' | 'none'
+                // ...
+                redirect('/api/another/endpoint');
+                // ...
+                return updatedUser;
+            }
+        }
+        `,
+      `
+        import { UserController } from 'vovk-client';
+
+        // ...
+
+        const updatedUser = await UserController.updateUser({
+            params: { id: '69' },
+            body: { email: 'john@example.com' },
+            query: { notifyOn: 'comment' },
+        });
+        `,
+    ],
+  },
+  {
     docsLink: 'https://docs.vovk.dev/docs/controller',
     badge: 'Code Splitting',
     title: 'Embracing the Service-Controller Pattern',

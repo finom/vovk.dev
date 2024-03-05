@@ -6,9 +6,10 @@ export interface Props {
   title: string;
   children: ReactNode;
   docsLink: string;
+  docsLinkText?: string;
 }
 
-const ExampleInfo = ({ title, badge, children, docsLink }: Props) => {
+const ExampleInfo = ({ title, badge, children, docsLink, docsLinkText }: Props) => {
   return (
     <div className="flex items-center flex-wrap flex-1 mb-6">
       <div>
@@ -17,7 +18,7 @@ const ExampleInfo = ({ title, badge, children, docsLink }: Props) => {
         </span>
         <h2 className="font-semibold text-2xl mt-3">{title}</h2>
         <div className="mt-2 text-secondary">{children}</div>
-        <DocsLink href={docsLink} />
+        <DocsLink href={docsLink}>{docsLinkText}</DocsLink>
       </div>
     </div>
   );
