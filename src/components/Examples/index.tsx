@@ -25,7 +25,12 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         >
           route handlers
         </Link>
-        . If you're familiar with using them, you already know how to handle operations like retrieving the{' '}
+        . It uses <code className="code">VovkRequest</code> that extends{' '}
+        <Link href="https://nextjs.org/docs/app/api-reference/functions/next-request" className="link" target="_blank">
+          NextRequest
+        </Link>{' '}
+        to define request body and search query in order to set up proper type recognition. If you're familiar with
+        using them, you already know how to handle operations like retrieving the{' '}
         <Link href="https://developer.mozilla.org/en-US/docs/Web/API/Request/json" className="link" target="_blank">
           JSON body
         </Link>
@@ -57,11 +62,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         <Link href="https://nextjs.org/docs/app/api-reference/functions/headers" className="link" target="_blank">
           headers
         </Link>
-        , etc. It uses <code className="code">VovkRequest</code> that extends{' '}
-        <Link href="https://nextjs.org/docs/app/api-reference/functions/next-request" className="link" target="_blank">
-          NextRequest
-        </Link>{' '}
-        to define request body and search query.
+        , etc.
       </>
     ),
     code: [
