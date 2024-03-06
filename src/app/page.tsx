@@ -9,6 +9,7 @@ import BonusFeatures from '@/components/BonusFeatures';
 import VovkTextLogo from '@/components/VovkTextLogo';
 import ManualInstall from '@/components/ManualInstall';
 import Link from 'next/link';
+import OgToScreenshot from '@/components/OgToScreenshot';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -25,6 +26,7 @@ const Home = () => {
         </div>
         <TopNav />
       </header>
+      {/* <OgToScreenshot /> */}
       <Jumbotron />
       <CreateInitUse />
       <ManualInstall />
