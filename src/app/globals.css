@@ -12,7 +12,7 @@
 
 
 body {
-    @apply  bg-gray-50/50 dark:bg-black/95 dark:text-white;
+    @apply  bg-gray-50/50 dark:bg-gray-950/95 dark:text-white;
 }
 
 .text-secondary {
