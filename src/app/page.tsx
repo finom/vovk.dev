@@ -6,7 +6,7 @@ import Examples from '@/components/Examples';
 import TopNav from '@/components/TopNav';
 import CreateInitUse from '@/components/CreateInitUse';
 import BonusFeatures from '@/components/BonusFeatures';
-import VovkTextLogo from '@/components/VovkTextLogo';
+import VovkLogo from '@/components/VovkLogo';
 import ManualInstall from '@/components/ManualInstall';
 import Link from 'next/link';
 import OgToScreenshot from '@/components/OgToScreenshot';
@@ -27,7 +27,7 @@ const Home = () => {
         <header className="flex items-center justify-between px-5 py-4">
           <div className="flex items-center gap-2">
             <a className="flex" href="/">
-              <VovkTextLogo width={150} />
+              <VovkLogo width={150} />
             </a>
           </div>
           <TopNav />

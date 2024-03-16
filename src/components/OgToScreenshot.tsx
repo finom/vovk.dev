@@ -1,5 +1,5 @@
 import CodeBox from './CodeBox';
-import VovkTextLogo from './VovkTextLogo';
+import VovkTextLogo from './VovkLogo';
 
 const OgToScreenshot = () => {
   return (
