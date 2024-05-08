@@ -1,0 +1,30 @@
+```tsx
+'use client';
+import { useState } from 'react';
+import { PostController } from 'vovk-client';
+import type { VovkReturnType } from 'vovk';
+
+export default function Example() {
+  const [response, setResponse] = useState<VovkReturnType<typeof HelloController.getHello>>();
+
+  return (
+    <>
+      <button
+        onClick={async () => setResponse(
+          await PostController.createComment({
+            body: { 
+              content: 'Hello, World!', 
+              userId: '1', 
+            },
+            params: { postId: '1' },
+            query: { notificationType: 'push' }
+          })
+        )}
+      >
+        Post a comment
+      </button>
+      <div>{JSON.stringify(response)}</div>
+    </>
+  );
+}
+```

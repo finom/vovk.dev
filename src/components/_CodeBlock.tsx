@@ -1,4 +1,18 @@
-import { Code } from 'bright';
+import React, { ReactNode } from 'react';
+
+interface Props {
+  lineNumbers?: boolean;
+  className?: string;
+  children: ReactNode;
+}
+
+const CodeBlock = ({ lineNumbers, className, children }: Props) => {
+  return <div>{children}</div>;
+};
+
+export default CodeBlock;
+
+/* import { Code } from 'bright';
 
 interface Props {
   lineNumbers?: boolean;
@@ -17,7 +31,7 @@ const CodeBlock = ({ lineNumbers, className, children }: Props) => {
     if (line.trim().length === 0) {
       return max;
     }
-    const spaces = line.match(/^ */)?.[0].length ?? 0;
+    const spaces = line.match(/^ * /)?.[0].length ?? 0;
     return Math.min(max, spaces);
   }, 100);
   const newLines = lines.map((line) => line.slice(maxSpaces));
@@ -48,3 +62,4 @@ const CodeBlock = ({ lineNumbers, className, children }: Props) => {
 };
 
 export default CodeBlock;
+*/

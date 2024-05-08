@@ -1,48 +1,9 @@
 import Link from 'next/link';
 import BonusFeaturesSection from './BonusFeaturesSection';
 import DocsLink from '../DocsLink';
-
-const customize = `
-import { UserController } from 'vovk-client';
-
-// ...
-
-UserController.createUser({ 
-    body,
-    query,
-    params,
-    successToast: 'Successfully created a new user',
-    useAuth: true,
-    sentryLogErrors: true,
-});
-`;
-
-const rn = `
-import { GreetingController } from 'vovk-client';
-
-// ...
-<Pressable 
-    onPress={async () => {
-        setGreetingResponse(
-            await GreetingController.getGreeting()
-        );
-    }}
->
-    <Text>Get Greeting</Text>
-</Pressable>
-`;
-
-const distribute = `
-import { MyController } from 'my-client-library';
-
-// ...
-
-using stream = await MyController.streamTokens();
-
-for await (const token of stream) {
-    console.log(token);
-}
-`;
+import CustomizeCode from './CustomizeCode.mdx';
+import ReactNativeCode from './ReactNativeCode.mdx';
+import DistributeCode from './DistributeCode.mdx';
 
 const BonusFeatures = () => {
   return (
@@ -56,7 +17,7 @@ const BonusFeatures = () => {
               function. This allows tight integration with your application's state logic or the addition of extra
               options.
             </p>
-            <DocsLink href="https://docs.vovk.dev/docs/customization" />
+            <DocsLink href="customization" />
           </>
         }
         icon={
@@ -85,7 +46,7 @@ const BonusFeatures = () => {
           </svg>
         }
       >
-        {customize}
+        <CustomizeCode />
       </BonusFeaturesSection>
       <BonusFeaturesSection
         title="Back-end for React Native"
@@ -122,7 +83,7 @@ const BonusFeatures = () => {
           </svg>
         }
       >
-        {rn}
+        <ReactNativeCode />
       </BonusFeaturesSection>
       <BonusFeaturesSection
         title="Easy to Distribute"
@@ -172,7 +133,7 @@ const BonusFeatures = () => {
           </svg>
         }
       >
-        {distribute}
+        <DistributeCode />
       </BonusFeaturesSection>
     </div>
   );

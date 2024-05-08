@@ -1,0 +1,18 @@
+{
+  "*": {
+    "display": "hidden",
+    "theme": {
+      "breadcrumb": true,
+      "footer": true,
+      "sidebar": false,
+      "pagination": true
+    }
+  },
+  "index": {
+    "display": "normal",
+    "title": "All Posts"
+  },
+  "2024-05-22-vovk-2": {
+    "title": "Vovk.ts 2.0 has arrived"
+  }
+}

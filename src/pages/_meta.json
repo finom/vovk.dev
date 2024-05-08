@@ -1,0 +1,20 @@
+{
+  "blog": {
+    "title": "Blog",
+    "type": "page"
+  },
+  "index": {
+    "title": "Home",
+    "theme": {
+      "layout": "raw",
+      "footer": false
+    }
+    
+  },
+  "github_link": {
+    "title": "🌻 Support Ukraine Now! 🇺🇦",
+    "href": "https://supportukrainenow.org/",
+    "type": "page",
+    "newWindow": true
+  }
+}

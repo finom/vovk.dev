@@ -3,7 +3,7 @@ import CodeBox from '../CodeBox';
 import IconWrapper from '../IconWrapper';
 
 interface Props {
-  children: string;
+  children: ReactNode;
   title: ReactNode;
   description: ReactNode;
   icon: ReactNode;

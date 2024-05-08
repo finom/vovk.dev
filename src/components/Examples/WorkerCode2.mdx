@@ -1,0 +1,26 @@
+```tsx
+'use client';
+import { useEffect, useState, type FormEvent } from 'react';
+import { HelloWorker } from 'vovk-client';
+
+export default function WorkerExample() {
+  const [value, setValue] = useState('123456789');
+  const [result, setResult] = useState<bigint[]>();
+
+  useEffect(() => {
+    // inject the worker to the generated interface
+    HelloWorker.employ(new Worker(new URL('../../modules/worker/HelloWorker.ts', import.meta.url)));
+  }, []);
+
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setResult(await HelloWorker.factorize(BigInt(value)));
+  };
+
+  return (
+    <form onSubmit={onSubmit}>
+      {/* ... */}
+    </form>
+  );
+}
+```

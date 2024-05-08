@@ -1,37 +1,20 @@
 import React from 'react';
-import { Inter } from 'next/font/google';
 import Jumbotron from '@/components/Jumbotron';
 import Features from '@/components/Features';
 import Examples from '@/components/Examples';
-import TopNav from '@/components/TopNav';
+import TopNav from '@/components/_TopNav';
 import CreateInitUse from '@/components/CreateInitUse';
 import BonusFeatures from '@/components/BonusFeatures';
 import VovkLogo from '@/components/VovkLogo';
 import ManualInstall from '@/components/ManualInstall';
 import Link from 'next/link';
-import OgToScreenshot from '@/components/OgToScreenshot';
-
-const inter = Inter({
-  subsets: ['latin'],
-});
+import OgToScreenshot from '@/components/_OgToScreenshot';
+import '../app/globals.css';
 
 const Home = () => {
   return (
     <>
-      <div className="text-center border-b py-1 border-gray-150 dark:border-gray-800">
-        <Link href="https://supportukrainenow.org/" target="_blank" className="font-semibold">
-          🌻 Support Ukraine Now! 🇺🇦
-        </Link>
-      </div>
-      <div className={`${inter.className} px-4`}>
-        <header className="flex items-center justify-between px-5 py-4">
-          <div className="flex items-center gap-2">
-            <a className="flex" href="/">
-              <VovkLogo width={150} />
-            </a>
-          </div>
-          <TopNav />
-        </header>
+      <div className={`px-4`}>
         {/* <OgToScreenshot /> */}
         <Jumbotron />
         <CreateInitUse />
@@ -68,9 +51,6 @@ const Home = () => {
               </p>
 
               <nav className="text-center flex flex-col gap-3 sm:flex-row sm:gap-5">
-                <a href="https://docs.vovk.dev" className="link" target="_blank" rel="noopener noreferrer">
-                  Vovk.ts Docs
-                </a>
                 <a href="https://github.com/finom/vovk" className="link" target="_blank" rel="noopener noreferrer">
                   Vovk.ts on Github
                 </a>
@@ -79,9 +59,6 @@ const Home = () => {
                 </a>
                 <a href="https://iconoir.com/" className="link" target="_blank" rel="noopener noreferrer">
                   Icons
-                </a>
-                <a href="https://bright.codehike.org/" className="link" target="_blank" rel="noopener noreferrer">
-                  Syntax Highlighting
                 </a>
               </nav>
             </div>

@@ -1,8 +1,9 @@
+import { ReactNode } from 'react';
 import CodeBox from '../CodeBox';
 import IconWrapper from '../IconWrapper';
 
 interface Props {
-  children: string;
+  children: ReactNode;
   title: string;
   description: string;
   number: number;

@@ -3,9 +3,15 @@ import Example, { ExampleProps } from './Example';
 import OpenAiExample from './Example/OpenAiExample';
 import WorkerExample from './Example/WorkerExample';
 import FormExample from './Example/FormExample';
+import OpenAiCode1 from './OpenAiCode1.mdx';
+import OpenAiCode2 from './OpenAiCode2.mdx';
+import ValidationCode1 from './ValidationCode1.mdx';
+import ValidationCode2 from './ValidationCode2.mdx';
+import WorkerCode1 from './WorkerCode1.mdx';
+import WorkerCode2 from './WorkerCode2.mdx';
 
 const examples: Omit<ExampleProps, 'reverse'>[] = [
-  {
+  /* {
     docsLink: 'https://nextjs.org/docs/app/building-your-application/routing/route-handlers',
     docsLinkText: 'Read Next.js Docs',
     badge: 'Well-known API',
@@ -101,7 +107,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         });
         `,
     ],
-  },
+  }, 
   {
     docsLink: 'https://docs.vovk.dev/docs/controller',
     badge: 'Code Splitting',
@@ -143,9 +149,9 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
       `,
     ],
   },
-
+*/
   {
-    docsLink: 'https://docs.vovk.dev/docs/controller#streaming',
+    docsLink: 'controller#streaming',
     badge: 'Response Streaming',
     title: 'Stream Server Responses with Async Generators and Disposable Objects',
     Component: () => (
@@ -177,48 +183,10 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         </ul>
       </>
     ),
-    code: [
-      `
-        // /src/modules/openai/OpenAiController.ts
-        import { type VovkRequest, post, prefix } from 'vovk';
-        import OpenAI from 'openai';
-
-        @prefix('openai')
-        export default class OpenAiController {
-          private static openai = new OpenAI();
-
-          @post('chat')
-          static async *createChatCompletion(
-            req: VovkRequest<{ messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] }>
-          ) {
-            const { messages } = await req.json();
-
-            yield* await this.openai.chat.completions.create({
-              messages,
-              model: 'gpt-3.5-turbo',
-              stream: true,
-            });
-          }
-        }
-      `,
-
-      `
-      import { OpenAiController } from 'vovk-client';
-
-      // ...
-
-      using completion = await OpenAiController.createChatCompletion({
-        body: { messages },
-      });
-
-      for await (const chunk of completion) {
-        console.log(chunk);
-      }
-`,
-    ],
+    code: [<OpenAiCode1 key={1} />, <OpenAiCode2 key={2} />],
   },
   {
-    docsLink: 'https://docs.vovk.dev/docs/decorators#request-input-validation',
+    docsLink: 'decorators#request-input-validation',
     badge: 'Request Validation',
     title: 'Isomorphic Validation',
     Component: () => (
@@ -256,56 +224,12 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         .
       </>
     ),
-    code: [
-      `
-      // /src/modules/user/FormController.ts
-      import { prefix, post, VovkRequest } from 'vovk';
-      import vovkZod from 'vovk-zod';
-      import { z } from 'zod';
-      import { userSchema } from '../../zod';
-
-      @prefix('form')
-      export default class FormController {
-        @post('create-user')
-        @vovkZod(userSchema)
-        static async createUser(req: VovkRequest<z.infer<typeof userSchema>>) {
-          const { firstName, lastName, email } = await req.json();
-
-          return {
-            success: true,
-            user: { firstName, lastName, email },
-          };
-        }
-      }
-`,
-      `
-      'use client';
-      import { useState, type FormEvent } from 'react';
-      import { FormController } from 'vovk-client';
-      
-      export default function FormExample() {
-        // ...
-        const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
-          e.preventDefault();
-          await FormController.createUser({
-            body: { firstName, lastName, email },
-          })
-        };
-      
-        return (
-          <form onSubmit={onSubmit}>
-            {/* ... */}
-          </form>
-        );
-      }
-      
-`,
-    ],
+    code: [<ValidationCode1 key={1} />, <ValidationCode2 key={2} />],
   },
   {
-    docsLink: 'https://docs.vovk.dev/docs/worker',
+    docsLink: 'worker',
     badge: 'Client-side threading',
-    title: 'Bonus Feature: Seamless Web Workers Invocation',
+    title: 'Bonus Feature: WPC - Worker Procedure Call',
     Component: () => (
       <>
         Vovk.ts provides an easy way to integrate Web Workers into your application. This feature allows you to offload
@@ -338,48 +262,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
         />
       </>
     ),
-    code: [
-      `
-      // /src/modules/hello/HelloWorker.ts
-      import { worker } from 'vovk';
-
-      @worker()
-      export default class HelloWorker {
-        static factorize(number: bigint): bigint[] {
-          let factors: bigint[] = [];
-          // ...
-
-          return factors;
-        }
-      }
-      `,
-      `
-'use client';
-import { useEffect, useState, type FormEvent } from 'react';
-import { HelloWorker } from 'vovk-client';
-
-export default function WorkerExample() {
-  const [value, setValue] = useState('123456789');
-  const [result, setResult] = useState<bigint[]>();
-
-  useEffect(() => {
-    // inject the worker to the generated interface
-    HelloWorker.use(new Worker(new URL('../../modules/worker/HelloWorker.ts', import.meta.url)));
-  }, []);
-
-  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setResult(await HelloWorker.factorize(BigInt(value)));
-  };
-
-  return (
-    <form onSubmit={onSubmit}>
-      {/* ... */}
-    </form>
-  );
-}
-`,
-    ],
+    code: [<WorkerCode1 key={1} />, <WorkerCode2 key={2} />],
   },
 ];
 

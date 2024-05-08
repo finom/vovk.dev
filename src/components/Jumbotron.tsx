@@ -1,15 +1,13 @@
 import Image from 'next/image';
-import Clipboard from './Clipboard';
+import Clipboard from './_Clipboard';
 import Link from 'next/link';
 
 const Jumbotron = () => {
   return (
-    <div className="max-w-3xl text-center mx-auto py-16 px-5">
-      <h1 className="text-3xl md:text-6xl font-bold tracking-tight mt-8">
-        REST for Next<span className="opacity-10">.js</span>
-      </h1>
+    <div className="max-w-4xl text-center mx-auto py-16 px-5">
+      <h1 className="text-3xl md:text-6xl font-bold tracking-tight mt-8">RESTful RPC for Next.js</h1>
       <p className="mt-4 text-secondary md:text-lg">
-        Transforms Next.js into a powerful and extensible REST API platform
+        Transforms Next.js into a powerful and extensible REST API platform with RPC integration
       </p>
       <div className="justify-center mt-8 gap-3">
         <div className="flex gap-6 justify-center">
@@ -39,10 +37,9 @@ const Jumbotron = () => {
 
           <Link
             className="min-w-8 bg-rose-500 justify-center inline-flex items-center gap-2 rounded-full py-3 px-6 text-white font-medium hover:bg-rose-700"
-            href="https://docs.vovk.dev"
-            target="_blank"
+            href="intro"
           >
-            <span>Documentation</span>{' '}
+            <span>Getting Started</span>{' '}
             <svg width={15} height={15} viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z"

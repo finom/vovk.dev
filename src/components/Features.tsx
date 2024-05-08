@@ -219,46 +219,75 @@ const SolvedProblems = () => {
         <div className="flex gap-4 items-start flex-col ">
           <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full w-[44px] h-[44px]">
             <svg
-              width={15}
-              height={15}
-              viewBox="0 0 15 15"
+              width="24px"
+              height="24px"
+              strokeWidth="1.5"
+              viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5"
             >
               <path
-                d="M7.28856 0.796908C7.42258 0.734364 7.57742 0.734364 7.71144 0.796908L13.7114 3.59691C13.8875 3.67906 14 3.85574 14 4.05V10.95C14 11.1443 13.8875 11.3209 13.7114 11.4031L7.71144 14.2031C7.57742 14.2656 7.42258 14.2656 7.28856 14.2031L1.28856 11.4031C1.11252 11.3209 1 11.1443 1 10.95V4.05C1 3.85574 1.11252 3.67906 1.28856 3.59691L7.28856 0.796908ZM2 4.80578L7 6.93078V12.9649L2 10.6316V4.80578ZM8 12.9649L13 10.6316V4.80578L8 6.93078V12.9649ZM7.5 6.05672L12.2719 4.02866L7.5 1.80176L2.72809 4.02866L7.5 6.05672Z"
-                fill="currentColor"
-                fillRule="evenodd"
-                clipRule="evenodd"
+                d="M3 19H12M21 19H12M12 19V13M12 13H18V5H6V13H12Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M9 9.01L9.01 8.99889"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M12 9.01L12.01 8.99889"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </svg>
           </span>
           <div>
-            <h3 className="font-semibold text-xl">No dependencies</h3>
+            <h3 className="font-semibold text-xl">RPC with REST</h3>
             <p className="mt-1 text-secondary">
               {' '}
-              Vovk.ts is tiny and has{' '}
-              <Link target="_blank" className="link" href="https://bundlephobia.com/package/vovk">
-                zero dependencies
-              </Link>
-              .
+              World first REST API with RPC support. You can call your API methods directly from the client-side.
             </p>
           </div>
         </div>
         <div className="flex gap-4 items-start flex-col ">
           <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full w-[44px] h-[44px]">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="22" height="22">
+            <svg
+              width="24px"
+              height="24px"
+              strokeWidth="1.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <path
-                fill="currentColor"
-                d="M 5 4 A 1.0001 1.0001 0 0 0 4 5 L 4 45 A 1.0001 1.0001 0 0 0 5 46 L 45 46 A 1.0001 1.0001 0 0 0 46 45 L 46 5 A 1.0001 1.0001 0 0 0 45 4 L 5 4 z M 6 6 L 44 6 L 44 44 L 6 44 L 6 6 z M 15 23 L 15 26.445312 L 20 26.445312 L 20 42 L 24 42 L 24 26.445312 L 29 26.445312 L 29 23 L 15 23 z M 36.691406 23.009766 C 33.576782 22.997369 30.017578 23.941219 30.017578 28.324219 C 30.017578 34.054219 37.738281 34.055625 37.738281 36.640625 C 37.738281 36.885625 37.842187 38.666016 35.117188 38.666016 C 32.392187 38.666016 30.121094 36.953125 30.121094 36.953125 L 30.121094 41.111328 C 30.121094 41.111328 42.001953 44.954062 42.001953 36.289062 C 42.000953 30.664063 34.208984 30.945391 34.208984 28.150391 C 34.208984 27.067391 34.978375 26.054687 37.109375 26.054688 C 39.240375 26.054688 41.126953 27.3125 41.126953 27.3125 L 41.267578 23.607422 C 41.267578 23.607422 39.113892 23.019408 36.691406 23.009766 z"
+                d="M3 9.4V3.6C3 3.26863 3.26863 3 3.6 3H20.4C20.7314 3 21 3.26863 21 3.6V9.4C21 9.73137 20.7314 10 20.4 10H3.6C3.26863 10 3 9.73137 3 9.4Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M14 20.4V14.6C14 14.2686 14.2686 14 14.6 14H20.4C20.7314 14 21 14.2686 21 14.6V20.4C21 20.7314 20.7314 21 20.4 21H14.6C14.2686 21 14 20.7314 14 20.4Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M3 20.4V14.6C3 14.2686 3.26863 14 3.6 14H9.4C9.73137 14 10 14.2686 10 14.6V20.4C10 20.7314 9.73137 21 9.4 21H3.6C3.26863 21 3 20.7314 3 20.4Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
               />
             </svg>
           </span>
           <div>
-            <h3 className="font-semibold text-xl">Only TypeScript</h3>
+            <h3 className="font-semibold text-xl">Code Splitting</h3>
             <p className="mt-1 text-secondary">
-              Vovk.ts is a well-typed library that also exports types for any use-case imaginable.
+              Apps built with Vovk.ts utilise service-controller pattern that inspired by NestJS.
             </p>
           </div>
         </div>

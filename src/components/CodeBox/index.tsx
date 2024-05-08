@@ -1,26 +1,24 @@
 import Title from './Title';
-import CodeBlock from '../CodeBlock';
-import Clipboard from '../Clipboard';
+import { ReactNode } from 'react';
 
 interface Props {
   className?: string;
   noClipboard?: boolean;
-  children: string;
+  children: ReactNode;
 }
 
 const CodeBox = ({ className, noClipboard, children }: Props) => {
   return (
     <div
-      className={`relative bg-code h-full rounded-lg overflow-hidden border border-gray-300/20 dark:border-gray-700/20 ${className ?? ''}`}
+      className={`jsx-code-block relative bg-code h-full rounded-lg overflow-hidden border border-gray-300/20 dark:border-gray-700/20 ${className ?? ''}`}
     >
+      <style jsx>{`
+        .jsx-code-block :global(pre) {
+          contain: none;
+        }
+      `}</style>
       <Title></Title>
-      {!noClipboard && (
-        <Clipboard
-          text={children}
-          className="absolute top-1.5 right-2 text-gray-400 hover:text-gray-600 dark:text-gray-700 dark:hover:text-gray-400"
-        />
-      )}
-      <CodeBlock className="text-sm">{children}</CodeBlock>
+      <div className="overflow-x-auto w-full relative py-2">{children}</div>
     </div>
   );
 };

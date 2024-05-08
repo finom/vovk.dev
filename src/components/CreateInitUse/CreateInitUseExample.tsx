@@ -1,11 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { HelloController } from 'vovk-client';
-import type { VovkClientReturnType } from 'vovk';
+import type { VovkReturnType } from 'vovk';
 import Link from 'next/link';
 
 export default function CreateInitUseExample() {
-  const [serverResponse, setServerResponse] = useState<VovkClientReturnType<typeof HelloController.getHello>>();
+  const [serverResponse, setServerResponse] = useState<VovkReturnType<typeof HelloController.getHello>>();
 
   return (
     <div className="text-center mt-4">

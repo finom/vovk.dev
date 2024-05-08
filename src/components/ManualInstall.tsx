@@ -31,7 +31,7 @@ const ManualInstall = () => {
         />
       </div>
 
-      <div className="mx-auto max-w-screen-lg border-b border-gray-200 dark:border-gray-800  mb-16 mt-8">
+      <div className="mx-auto max-w-screen-md border-b border-gray-200 dark:border-gray-800  mb-16 mt-8">
         <h1
           className="flex gap-2 font-semibold text-2xl items-center justify-center mb-3 cursor-pointer"
           id="manual-install-title"
@@ -76,31 +76,29 @@ const ManualInstall = () => {
                 <code className="code">yarn add vovk-client vovk</code>.
               </Step>
               <Step icon={3}>
+                Install Concurrently with <code className="code">npm i -D concurrently</code> or{' '}
+                <code className="code">yarn add concurrently --dev</code>.
+              </Step>
+              <Step icon={4}>
                 Enable decorators by setting <code className="code">compilerOptions&#8203;.experimentalDecorators</code>{' '}
                 to true in your <strong>tsconfig.json</strong>.
               </Step>
-              <Step icon={4}>
+              <Step icon={5}>
                 Create <strong>/src/app/api/[[...vovk]]/route.ts</strong>, the controller class and the component at{' '}
                 <strong>/src/page.tsx</strong> as illustrated above.
               </Step>
-              <Step icon={5}>
-                Run <code className="code">npx vovk dev</code> that wraps the original{' '}
-                <code className="code">npx next dev</code> to set required ports and open{' '}
-                <Link href="http://localhost:3000" target="_blank" className="link">
-                  http://localhost:3000
-                </Link>
-                .
-              </Step>
-              <Step icon={<span className="mt-1.5 inline-block">*</span>}>
-                Alternatively, you can use{' '}
-                <Link className="link" target="_blank" href="https://www.npmjs.com/package/concurrently">
-                  concurrently
-                </Link>{' '}
-                to avoid using the wrapper. Use <code className="code">--no-next-dev</code> in order to avoid running{' '}
-                <code className="code">next dev</code> internally and provide PORT variable explicitly:{' '}
+              <Step icon={6}>
+                Create NPM script called <code className="code">"dev"</code> and define the PORT variable explicitly.{' '}
                 <code className="code text-nowrap">
                   PORT=3000 concurrently 'vovk dev --no-next-dev' 'next dev' --kill-others
                 </code>
+              </Step>
+              <Step icon={7}>
+                Run <code className="code">npm run dev</code> or <code className="code">yarn dev</code> to start the
+                project and open the browser at{' '}
+                <Link href="http://localhost:3000" target="_blank" className="link">
+                  http://localhost:3000
+                </Link>
               </Step>
               <Step icon={<span className="mt-1.5 inline-block">*</span>}>
                 Commit <strong>.vovk.json</strong> that just was automatically created.
@@ -108,7 +106,7 @@ const ManualInstall = () => {
               <Step icon={<span className="mt-1.5 inline-block">*</span>}>
                 To build o deployment run <code className="code">npx vovk generate</code> before{' '}
                 <code className="code">npx next build</code>. Create NPM script:{' '}
-                <code className="code">"vovk generate && next build"</code>.
+                <code className="code">vovk generate && next build</code>.
               </Step>
             </ol>
           </div>

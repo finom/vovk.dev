@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "test": "npm run lint && tsc --noEmit",
-    "dev": "vovk dev",
+    "dev": "vovk dev --next-dev",
     "build": "vovk generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "rm -rf dist && deploy-to-git && git push"
+    "deploy": "rm -rf dist && deploy-to-git && git push",
+    "upgrade": "npx npm-check-updates -x shiki -u && npm install"
   },
   "config": {
     "deployToGit": {
@@ -24,12 +25,15 @@
     }
   },
   "dependencies": {
-    "bright": "^0.8.4",
-    "next": "14.1.1",
-    "react": "^18",
-    "react-dom": "^18",
+    "next": "^14.1.1",
+    "nextra": "^2.13.4",
+    "nextra-theme-blog": "^2.13.4",
+    "nextra-theme-docs": "^2.13.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-syntax-highlighter": "^15.5.0",
     "use-0": "^1.0.2",
-    "vovk": "^1.1.4",
+    "vovk": "^2.0.0-beta.19",
     "vovk-client": "^0.0.2",
     "vovk-examples": "^0.2.4"
   },
@@ -44,6 +48,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "autoprefixer": "^10.4.18",
     "deploy-to-git": "^0.4.1",
     "eslint": "^8",

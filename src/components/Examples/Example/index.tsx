@@ -3,7 +3,7 @@ import CodeBox from '../../CodeBox';
 import ExampleInfo from './ExampleInfo';
 
 export interface ExampleProps {
-  code: string[];
+  code: ReactNode[];
   badge: string;
   title: string;
   reverse: boolean;
@@ -41,14 +41,18 @@ const Example = ({ code, badge, title, docsLink, docsLinkText, Component, revers
             <div className="justify-center py-6 relative flex">
               <Arrow className="rotate-[270deg] absolute -right-10 top-96" />
             </div>
-            <CodeBox>{code[2]}</CodeBox>
+            <CodeBox>
+              <pre>{code[2]}</pre>
+            </CodeBox>
           </div>
         )}
       </div>
       <div className="min-w-0 flex-1">
         {code.map((section, index) => (
           <div key={index} className={index === 2 ? 'lg:hidden' : undefined}>
-            <CodeBox>{section}</CodeBox>
+            <CodeBox>
+              <pre>{section}</pre>
+            </CodeBox>
             {!!code[index + 1] && (
               <div className={`flex justify-center py-6 ${index === 1 ? 'lg:hidden' : ''}`}>
                 <Arrow className="rotate-180" />
