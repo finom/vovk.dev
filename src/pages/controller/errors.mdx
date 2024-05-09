@@ -1,0 +1,48 @@
+# Errors: `HttpException` class and `HttpStatus` enum
+
+You can gracefully throw HTTP exceptions similarly to NestJS. `HttpException` class accepts 2 arguments. The first one is an HTTP code that can be retrieved from `HttpStatus`, the other one is an error text.
+
+```ts
+import { HttpException, HttpStatus } from 'vovk';
+
+// ...
+static async updateUser(/* ... */) {
+    // ...
+    throw new HttpException(HttpStatus.BAD_REQUEST, 'Something went wrong');
+}
+```
+
+The errors are re-thrown at the client library with the same interface.
+
+```ts
+import { UserController } from 'vovk-client';
+import { HttpException } from 'vovk';
+
+// ...
+try {
+    const updatedUser = await UserController.updateUser(/* ... */);
+} catch(e) {
+    console.log(e instanceof HttpException); // true
+    const err = e as HttpException;
+    console.log(err.message, err.statusCode);
+}
+
+```
+
+Regular errors such as `Error` are equivalent to `HttpException` with code `500`.
+
+```ts
+import { HttpException, HttpStatus } from 'vovk';
+
+// ...
+static async updateUser(/* ... */) {
+    // ...
+    throw new Error('Something went wrong'); // 500
+}
+```
+
+You can also throw custom objects that are going to be re-thrown on the client-side as is.
+
+```ts
+throw { hello: 'World' };
+```

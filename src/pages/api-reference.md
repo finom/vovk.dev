@@ -60,7 +60,7 @@ Creates the standard Next.js App Route handlers used by the main [Optional Catch
 - `controllers: Record<string, Function>` - the list of Controllers
 - `workers?: Record<string, Function>` - the list of Worker Services
 - `exposeValidation?: boolean` - set to `false` if you want to hide validation logic from the client-side code.
-- `onError?: (err: Error) => void | Promise<void>` - called on Controller exceptions, can be used to log errors by a third-party service
+- `onError?: (err: Error, req: NextRequest) => void | Promise<void>` - called on Controller exceptions, can be used to log errors by a third-party service. The second argument can be utilised to retrieve reques URL, authorisation info, and other useful information about the failed request.
 
 ```ts
 // /src/app/api/[[...vovk]]/route.ts
@@ -80,7 +80,7 @@ export const { GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS } = initVovk({
   controllers,
   workers,
   exposeValidation: false,
-  onError(e) {
+  onError(e, req) {
     console.log('Error', e);
   }
 });
@@ -333,7 +333,7 @@ export default class StreamController {
 ```
 
 
-The class also provides static property `defaultHeaders` that contains the standard headers for the keep-alive connections. Since `StreamResponse` accepts standard `ResponseInit` as options argument you can override default headers and optionally use `StreamResponse.defaultHeaders`.
+The class also provides static property `defaultHeaders` that contains the standard headers for the keep-alive connections. Since `StreamResponse` accepts standard `ResponseInit` as options argument you can override default headers and optionally spread `StreamResponse.defaultHeaders`.
 
 ```ts
 const resp = new StreamResponse<Token>({
@@ -536,7 +536,7 @@ export default class HelloController {
 }
 ```
 
-As result you're going to get an endpoint that looks like that: [https://vovk.dev/api/hello/greeting.json](https://vovk.dev/api/hello/greeting.json). [vovk.dev](https://vovk.dev) website is served from Github Pages and uses this endpoint for one of the examples.
+As result you're going to get an endpoint that looks like that: [https://vovk.dev/api/hello/greeting.json](https://vovk.dev/api/hello/greeting.json).
 
 In case if you use custom slug (e.g. `/src/app/api/[[...custom]]/route.ts`) instead of **vovk** you can provide it as second argument.
 

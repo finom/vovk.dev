@@ -1,0 +1,23 @@
+{
+    "index": {
+        "title": "Controller Definition"
+    },
+    "client": {
+        "title": "Client Library"
+    },
+    "return": {
+        "title": "Return Type"
+    },
+    "errors": {
+        "title": "Errors"
+    },
+    "service": {
+        "title": "Service"
+    },
+    "streaming": {
+        "title": "Text Streaming"
+    },
+    "type": {
+        "title": "Type Extraction"
+    }
+}
