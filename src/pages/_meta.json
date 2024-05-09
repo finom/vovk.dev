@@ -1,20 +1,54 @@
 {
-  "blog": {
-    "title": "Blog",
-    "type": "page"
-  },
+  
   "index": {
     "title": "Home",
+    "type": "page",
+    "display": "hidden",
     "theme": {
       "layout": "raw",
       "footer": false
     }
-    
   },
-  "github_link": {
+  "blog": {
+    "title": "Blog",
+    "type": "page",
+    "theme": {
+    }
+  },
+  "about": {
+    "title": "About",
+    "type": "page",
+    "theme": {
+      "toc": true
+    }
+  },
+  "getting_started_link": {
+    "title": "Getting Started",
+    "href": "/getting-started",
+    "type": "page"
+  },
+  "examples_link": {
+    "title": "Examples",
+    "href": "https://vovk-examples.vercel.app/",
+    "type": "page",
+    "newWindow": true
+  },
+  "sun_link": {
     "title": "🌻 Support Ukraine Now! 🇺🇦",
     "href": "https://supportukrainenow.org/",
     "type": "page",
     "newWindow": true
-  }
+  },
+  "getting-started": {
+    "title": "Getting Started"
+  },
+  "controller":  "Controller",
+  "decorators":  "Decorators",
+  "worker": "Web Worker",
+  "config": "vovk.config.js",
+  "customization": "Customization",
+  "cli": "CLI",
+  "framework": "Project Framework",
+  "api-reference": "API Reference",
+  "sponsor": "♥️ Sponsor"
 }

@@ -1,10 +1,22 @@
 import Image from 'next/image';
-import Clipboard from './_Clipboard';
 import Link from 'next/link';
 
 const Jumbotron = () => {
   return (
     <div className="max-w-4xl text-center mx-auto py-16 px-5">
+      <style jsx>{`
+        h1 {
+          background: -webkit-linear-gradient(#f43f5f, #b910a9);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        h1:where(.dark, .dark *) {
+          background: -webkit-linear-gradient(#f43f5f, #ff67f0);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+      `}</style>
       <h1 className="text-3xl md:text-6xl font-bold tracking-tight mt-8">RESTful RPC for Next.js</h1>
       <p className="mt-4 text-secondary md:text-lg">
         Transforms Next.js into a powerful and extensible REST API platform with RPC integration

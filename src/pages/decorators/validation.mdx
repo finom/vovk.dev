@@ -1,117 +1,10 @@
----
-sidebar_position: 3
----
 
-# Decorators for Controller Methods
 
-## Overview
+# Request Validation
 
-`createDecorator` is a higher-order function that produces a decorator factory (a function that returns a decorator) for Controller Classes. It accepts a middleware function with the following parameters:
+**Vovk.ts** offers API that allows to validate request body and query string on back-end and performs zero-cost validation on client-side before request to the server is even made.
 
-- `request`, which extends `NextRequest` as well as `VovkRequest`.
-- `next`, a function that should be invoked and its result returned to call subsequent decorators or the route handler.
-- Additional arguments are passed through to the decorator factory.
-
-The second argument of `createDecorator` is an optional init handler. It's called every time when decorator is initialised and it's used to populate **.vovk.json** with information on client-side validation explained below.
-
-```ts
-import { createDecorator, get, HttpException, HttpStatus } from 'vovk';
-
-const myDecorator = createDecorator((req, next, a: string, b: number) => {
-  console.log(a, b); // Outputs: "foo", 1
-
-  if(isSomething) { 
-    // override route method behavior and return { hello: 'world' } from the endpoint
-    return { hello: 'world' };
-  }
-
-  if(isSomethingElse) {
-    // throw HTTP error if needed
-    throw new HttpException(HttpStatus.BAD_REQUEST, 'Something went wrong');
-  }
-
-  return next();
-}, (a: string, b: number) => {
-    console.info('Decorator is initialised with', a, b);
-});
-
-class MyController {
-  static controllerName = 'MyController';
-  @get.auto()
-  @myDecorator('foo', 1) // Passes 'foo' as 'a', and 1 as 'b'
-  static doSomething() {
-    // ...
-  }
-}
-```
-
-## Authorisation decorator example
-
-There is an example code that defines `authGuard` decorator that does two things:
-
-- Checks if a user is authorised and returns an Unauthorised status if not.
-- Adds `currentUser` to the request object.
-
-To extend `req` object you can define your custom interface that extends `VovkRequest`. Let's imagine that Prisma ORM is used at the project.
-
-```ts
-// /src/types.ts
-import type { VovkRequest } from 'vovk'
-import type { User } from '@prisma/client';
-
-export interface GuardedRequest<BODY = undefined, QUERY extends Record<string, string> | undefined = undefined>
-  extends VovkRequest<BODY, QUERY> {
-  currentUser: User;
-}
-
-```
-
-Then define the `authGuard` decorator itself.
-
-```ts
-// /src/decorators/authGuard.ts
-import { HttpException, HttpStatus, createDecorator } from 'vovk';
-import type { GuardedRequest } from '../types';
-
-const authGuard = createDecorator(async (req: GuardedRequest, next) => {
-  // ... define userId and isAuthorised
-  // parse access token for example
-
-  if (!isAuthorised) {
-    throw new HttpException(HttpStatus.UNAUTHORIZED, 'Unauthorized');
-  }
-
-  const currentUser = await prisma.user.findUnique({ where: { id: userId } });
-
-  req.currentUser = currentUser;
-
-  return next();
-});
-
-export default authGuard;
-```
-
-And finally use the decorator and define request object with your newly created `GuardedRequest` type.
-
-```ts
-// ...
-export default class UserController {
-  // ...
-  @get('current-user')
-  @authGuard()
-  static async getCurrentUser(req: GuardedRequest</* ... */>) {
-    return req.currentUser;
-  }
-
-  // ...
-}
-```
-
-## Request Input Validation
-
-**Vovk.ts** offers API that allows to validate request body and query string on back-end and, thanks to the metadata mechanism, performs zero-cost validation on client-side before request to the server is even made.
-
-### vovk-zod
+## vovk-zod
 
 [vovk-zod](https://github.com/finom/vovk-zod) is the library that implements [Zod](https://zod.dev/) validation. It performs validation on the Controller side with `ZodModel.parse`, [converts the Zod object to a JSON Schema](https://www.npmjs.com/package/zod-to-json-schema) that's stored at **.vovk.json** file, and runs validation on client before the HTTP request is made with [Ajv](https://ajv.js.org/).
 
@@ -137,7 +30,7 @@ export default class UserController {
 }
 ```
 
-### Creating a custom validation library
+## Creating a Custom Validation Library
 
 You can create a decorator that, first of all, validates request on the server-side and optionally populates controller metadata with validation information that is going to be used by the client.
 
@@ -216,7 +109,7 @@ export default validateEqualityOnClient;
 
 At this example `validateEquality` is used as a controller decorator and `validateEqualityOnClient` is used internally by the client. Also notice that `validateEqualityOnClient` throws `HttpException` with status `0` to simulate regular HTTP exceptions that can be caught by the client-side code.
 
-Here is how the newly created decorator is used at controller.
+Here is how the newly created decorator is used at the controller.
 
 ```ts
 // /src/modules/hello/HelloController.ts
@@ -232,7 +125,7 @@ export default class HelloController {
 }
 ```
 
-In order to enable client-side validation you need to define `validateOnClient` option in **vovk.config.js** file. For more info see [customization documentation](./customization).
+In order to enable client-side validation you need to define `validateOnClient` option in **vovk.config.js** file. For more info see [customization documentation](/customization).
 
 ```js
 /** @type {import('vovk').VovkConfig} */
@@ -270,7 +163,7 @@ const result = await HelloController.validatedRequest({
 `validateEqualityOnClient` is going to be invoked on every request before data is sent to the server.
 
 
-### Disable client validation
+## Disable client validation
 
 You can set `disableClientValidation` option mentioned above to `true` to disable client validation for debugging purposes.
 
@@ -293,6 +186,3 @@ export const { GET, POST, PATCH, PUT } = initVovk({
     exposeValidation: false // don't populate metadata file with validation information
 });
 ```
-
-
-

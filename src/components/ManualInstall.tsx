@@ -89,9 +89,7 @@ const ManualInstall = () => {
               </Step>
               <Step icon={6}>
                 Create NPM script called <code className="code">"dev"</code> and define the PORT variable explicitly.{' '}
-                <code className="code text-nowrap">
-                  PORT=3000 concurrently 'vovk dev --no-next-dev' 'next dev' --kill-others
-                </code>
+                <code className="code text-nowrap">PORT=3000 concurrently 'vovk dev' 'next dev' --kill-others</code>
               </Step>
               <Step icon={7}>
                 Run <code className="code">npm run dev</code> or <code className="code">yarn dev</code> to start the
@@ -104,7 +102,7 @@ const ManualInstall = () => {
                 Commit <strong>.vovk.json</strong> that just was automatically created.
               </Step>
               <Step icon={<span className="mt-1.5 inline-block">*</span>}>
-                To build o deployment run <code className="code">npx vovk generate</code> before{' '}
+                To build the project, run <code className="code">npx vovk generate</code> before{' '}
                 <code className="code">npx next build</code>. Create NPM script:{' '}
                 <code className="code">vovk generate && next build</code>.
               </Step>

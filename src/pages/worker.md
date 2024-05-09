@@ -2,11 +2,13 @@
 sidebar_position: 2
 ---
 
-# Worker Service Class
+# WPC Class (Worker Procedure Call)
 
-Web Worker features provided by Vovk.ts is intended to popularise threading in browser. The standard Web Workers are awesome but they require to write additional logic by using `onmessage` handler on both sides (main thread and the Woker thread) and exchange data using `postMessage`. Vovk.ts applies the same principle that is used at controllers and builds main-thread client-side library using the auto-generated **.vovk.json**. It uses built-in browser API aush as `addEventListener` and `postMessage` and does not utilise `eval` function or `Function` constructor.
+The standard Web Workers are awesome but they require to write additional logic by using `onmessage` handler on both sides (main thread and the Woker thread) and exchange data using `postMessage`. Vovk.ts applies the same principle that is used at controllers and builds main-thread client-side library using the auto-generated **.vovk.json**. It uses built-in browser API aush as `addEventListener` and `postMessage` and does not utilise `eval` function or `Function` constructor.
 
-Worker Service Class (don't confuse with [Service Workers](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers)) is created from an [Isomorphic Service Class](./project-structure) by applying `@worker()` class decorator that defines `onmessage` handler in the Web Worker scope. Isomorphic Service Class is a static class that provides code that is shared between front-end and back-end. It should implement [pure functions](https://en.wikipedia.org/wiki/Pure_function) that don't have access to neither application state nor server-side capabilities such as access to the database.
+WPC Class is created from an [Isomorphic Service Class](/framework) by applying `@worker()` class decorator that defines `onmessage` handler in the Web Worker scope. 
+
+> Quick explanation: Isomorphic Service Class is a static class that provides code that is shared between front-end and back-end. It should implement static methods as [pure functions](https://en.wikipedia.org/wiki/Pure_function) that don't have access to neither application state nor server-side capabilities such as access to the database.
 
 ```ts
 // /src/modules/hello/HelloWorkerService.ts
@@ -45,7 +47,7 @@ export const { GET, POST, PUT, DELETE } = initVovk({ controllers, workers });
 ```
 
 
-Once this is done, **vovk-client** is going to export the worker library that provides interface to invoke heavy calculations but doesn't initialise Web Worker itself. To initialise the Web Worker at the main-thread interface it needs to be initialised and passed as an argument of `use` static method.
+Once this is done, **vovk-client** is going to export the worker library that provides interface to invoke heavy calculations but doesn't initialise the Web Worker itself. To initialise the Web Worker at the main-thread interface it needs to be initialised and passed as an argument of `employ` static method.
 
 ```ts
 import { HelloWorker } from 'vovk-client';
@@ -69,7 +71,7 @@ if(typeof Worker !== 'undefined') {
 }
 ```
 
-`use` method returns the worker interface itself so as a nicer solution you can use ternary operator to make the Worker library to be nullish.
+`employ` method returns the worker interface itself so as a nicer solution you can use ternary operator to make the Worker library to be nullish.
 
 ```ts
 import { HelloWorker } from 'vovk-client';
@@ -86,7 +88,7 @@ await MyWorker?.heavyCalculation(1e9);
 A worker can be terminated with built-in `terminate` method.
 
 ```ts
-worker.terminate();
+HelloWorker.terminate();
 ```
 
 ## Async generators
@@ -114,7 +116,7 @@ export default class HelloWorkerService {
 }
 ```
 
-Vovk.ts turns them both into an async generators when they're imported from **vovk-client**.
+Vovk.ts turns them both into async generators when they're imported from **vovk-client**.
 
 ```ts
 import { HelloWorker } from 'vovk-client';
@@ -130,7 +132,7 @@ for await (const number of HelloWorker.asyncGenerator()) {
 }
 ```
 
-## Making HTTP requests inside a Worker Service Class
+## Making HTTP requests inside a WPC Class
 
 Since Web Workers are run in a browser (but just in another thread) it's capable to fetch server-side data as expected.
 
@@ -163,7 +165,7 @@ export default class HelloWorker {
 }
 ```
 
-## Using Worker Service Class inside another Worker Service Class
+## Using WPC Class inside another WPC Class
 
 Workers can use other workers. The syntax remains the same and you don't need to check for `Worker` variable to exist.
 

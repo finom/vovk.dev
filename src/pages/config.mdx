@@ -1,0 +1,34 @@
+
+## vovk.config.js
+
+The config file allows to change default options in order to customise generated client or its path. The default config looks like that: 
+
+```ts
+/** @type {import('vovk').VovkConfig} */
+const vovkConfig = {
+    clientOut: './node_modules/.vovk',
+    route: './src/app/api/[[...vovk]]/route.ts',
+    fetcher: 'vovk/client/defaultFetcher',
+    prefix: '/api',
+    validateOnClient: '',
+};
+
+module.exports = vovkConfig;
+```
+
+- `clientOut` - where the client is going to be compiled to. Can be overriden by `VOVK_CLIENT_OUT` env variable.
+- `route` - allows to redefine path to the wildcard route (the slug can be any non-empty string, it's name is not utilised by Vovk.ts). Can be overriden by `VOVK_ROUTE` env variable.
+- `fetcher` - allows to customize the fetching function that used internally by the client. Can be overriden by `VOVK_FETCHER` env variable. See the next section for more info. 
+- `prefix` - defines the root endpoint used by `fetch` function at the client. Can be overriden by `VOVK_PREFIX` env variable.
+- `validateOnClient` - defines client-side validation library. If [vovk-zod](https://github.com/finom/vovk-zod) is installed but `validateOnClient` is not redefined it's value going to get value `vovk-zod/zodValidateOnClient`. Can be overriden by `VOVK_VALIDATE_ON_CLIENT` env variable.
+
+The config can be also defined as **vovk.config.cjs** but also as an ES Module named **vovk.config.mjs**:
+
+```ts
+/** @type {import('vovk').VovkConfig} */
+const vovkConfig = {
+    // ...
+};
+
+export default vovkConfig;
+```

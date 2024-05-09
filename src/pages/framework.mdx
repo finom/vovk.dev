@@ -1,6 +1,5 @@
----
-sidebar_position: 4
----
+import { FileTree } from 'nextra/components'
+
 
 # Project Structure
 
@@ -13,42 +12,52 @@ The framework combines back-end and front-end code into one code base. The logic
 
 The typical structure of files and folders in a Vovk.ts app would look like that:
 
-```
-/src/modules
-    /app
-        /AppState.ts
-        /AppWorkerService.ts
-    /auth
-        /AuthState.ts
-        /AuthService.ts
-        /AuthController.ts
-    /hello
-        /HelloState.ts
-        /HelloService.ts
-        /HelloIsomorphicService.ts
-        /HelloWorkerService.ts
-        /HelloState.ts
-    /user
-        /UserState.ts
-        /UserService.ts
-        /UserController.ts
-        /UserIsomorphicService.ts
-    /post
-        /PostState.ts
-        /PostService.ts
-        /PostIsomorphicService.ts
-        /PostController.ts
-    /comment
-        /CommentState.ts
-        /CommentService.ts
-        /CommentController.ts
-```
+<FileTree>
+  <FileTree.Folder name="src" defaultOpen>
+    <FileTree.Folder name="modules" defaultOpen>
+        <FileTree.Folder name="hello" defaultOpen>
+            <FileTree.File name="HelloState.ts" />
+            <FileTree.File name="HelloService.ts" />
+            <FileTree.File name="HelloIsomorphicService.ts" />
+            <FileTree.File name="HelloWorkerService.ts" />
+            <FileTree.File name="HelloState.ts" />
+        </FileTree.Folder>
+        <FileTree.Folder name="app" defaultOpen>
+            <FileTree.File name="AppState.ts" />
+            <FileTree.File name="AppState.ts" />
+        </FileTree.Folder>
+        <FileTree.Folder name="auth" defaultOpen>
+            <FileTree.File name="AuthState.ts" />
+            <FileTree.File name="AuthService.ts" />
+            <FileTree.File name="AuthController.ts" />
+        </FileTree.Folder>
+        <FileTree.Folder name="user" defaultOpen>
+            <FileTree.File name="UserState.ts" />
+            <FileTree.File name="UserService.ts" />
+            <FileTree.File name="UserController.ts" />
+            <FileTree.File name="UserIsomorphicService.ts" />
+        </FileTree.Folder>
+        <FileTree.Folder name="post" defaultOpen>
+            <FileTree.File name="PostState.ts" />
+            <FileTree.File name="PostService.ts" />
+            <FileTree.File name="PostIsomorphicService.ts" />
+            <FileTree.File name="PostController.ts" />
+        </FileTree.Folder>
+        <FileTree.Folder name="comment" defaultOpen>
+            <FileTree.File name="CommentState.ts" />
+            <FileTree.File name="CommentService.ts" />
+            <FileTree.File name="CommentController.ts" />
+        </FileTree.Folder>
+        
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
 
 Every item in a module folder (Service Class, Controller Class, state etc) is optional. Some parts of your app would require to have state only, but no controller. In another case you can have a state and a controller, but database request in your controller is too simple to move it to a service...
 
 The image below illustrates how different components of the application can be related to each other.
 
-![Vovk Framework](/img/vovk-framework.svg)
+<img src="vovk-framework.svg" className="dark:invert" />
 
 ## Controller Class
 
@@ -174,7 +183,7 @@ import { HelloWorkerService } from 'vovk-client';
 
 // ...
 const onClick = useCallback(async () => {
-    HelloWorker.use(new Worker(new URL('../modules/hello/HelloWorkerService.ts', import.meta.url)));
+    HelloWorker.employ(new Worker(new URL('../modules/hello/HelloWorkerService.ts', import.meta.url)));
 
     const result = await worker.performHeavyCalculations();
 

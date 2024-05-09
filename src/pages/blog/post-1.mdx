@@ -1,4 +1,20 @@
-# Changelog
+---
+title: Post 1
+image: https://assets.vercel.com/image/upload/v1630059453/swr/v1.png
+date: '01/01/2024'
+description: 'Description post 1'
+authors:
+  thanhnamnguyen:
+    name: Thành Nam Nguyễn
+    title: Lập trình viên (Developer)
+    url: https://www.facebook.com/NguyenThanhNam1601
+    imageUrl: https://res.cloudinary.com/thanhnam/image/upload/v1696673670/thanhnamnguyen.dev/about-me/avt-lyoko_rdtigq.jpg
+  yuu:
+    name: Yuu
+    title: Lập trình viên (Developer)
+    url: https://www.facebook.com/NguyenThanhNam1601
+    imageUrl: https://res.cloudinary.com/thanhnam/image/upload/v1696673670/thanhnamnguyen.dev/about-me/avt-lyoko_rdtigq.jpg
+---
 
 ## v2.0.0
  
@@ -25,23 +41,3 @@ The version 1 is heavily tested in production and the community feedback is take
         - Before: `PORT=3000 concurrently "vovk dev --no-next-dev" "next dev" --kill-others`
         - After: `PORT=3000 concurrently "vovk dev" "next dev" --kill-others` - this is the new recommended way to run Vovk and Next.js development servers together.
 - ✅ Renamed `worker.use` to `worker.employ` to make it less confusing in React components.
-
-### Other changes
-
-- ✅ Due to logging updates in Next.js 14.2 Vovk.ts now watches controller and route files for changes instead of making ping request every 3 seconds and updates the client with debouncing. This requires to introduce two new config options:
-    - `routeFile` (or `VOVK_ROUTE_FILE` environment variable) - path to the route file that equals to `./src/app/api/[[...vovk]]/route.ts` by default.
-    - `watchDir` (or `VOVK_WATCH_DIR` environment variable) - path to the directory to watch for changes that equals to `./src` by default (it's recommended to set it to `./src/modules` or other folder where controllers are stored).
-- ✅ `onError` option for `initVovk` now provides `req` object as the second argument. This allows to access request data in order to get more information such as URL, headers, cookies, authorisation, etc.
-
-## v1.1.0
-
-- ✅ Support .js, .cjs, .mjs extensions for Vovk Config
-- ✅ Rebuild client automatically once Vovk Config is changed without restarting the server
-
-## v1.0.0
-
-- ✅ Generate client library automatically.
-- ✅ Support Edge Runtime.
-- ✅ Export `StreamResponse` class to use as a response pointer in Services and to implement streaming without generators syntax.
-- ✅ Extract generator types.
-- ✅ Implement disposable objects (`using` keyword) to close stream responses automatically.

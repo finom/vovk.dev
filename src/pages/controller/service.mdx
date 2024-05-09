@@ -1,0 +1,81 @@
+
+
+## Service Class
+
+In order to make the code cleaner it's recommended to move most of the logic to Back-end Services. [Back-End Service](./project-structure) is a static class that serves as a library that performs database and third-party API calls outside of Controller Classes.
+
+Let's say you have the following Controller Class:
+
+```ts
+// /src/modules/user/UserController.ts
+import { prefix, put, type VovkRequest } from 'vovk';
+import type { User } from '../../types';
+
+@prefix('users')
+export default class UserController {
+    @put(':id') 
+    static async updateUser(req: VovkRequest<Partial<User>>, { id }: { id: string }) {
+        const data = await req.json();
+
+        const updatedUser = await prisma.user.update({
+            where: { id },
+            data,
+        });
+
+        return updatedUser;
+    }
+}
+```
+
+Currently it looks fine since it doesn't contain a lot of logic. But as your app is getting more complex you're going to get more handlers with more code. At this case it's recommended to move part of the logic to Back-End Service Class making controllers to be responsible for input extraction, validation and authorisation, but not for DB or API calls.
+
+Let's refactor the code above by introducing `UserService`. For this example it's going to be small but I hope that illustrates the idea clearly.
+
+```ts
+// /src/modules/user/UserService.ts
+
+// ... import types and libraries ...
+
+export default class UserService {
+    static updateUser(id: string, data: Partial<User>) {
+        return prisma.user.update({
+            where: { id },
+            data,
+        });
+    }
+}
+```
+
+As you can see, `UserService` does not use decorators and used as a library that performs required side-effects.
+
+```ts
+// /src/modules/user/UserController.ts
+import { prefix, put, type VovkRequest } from 'vovk';
+import UserService from './UserService'
+
+@prefix('users')
+export default class UserController {
+    @put(':id') 
+    static async updateUser(req: VovkRequest<Partial<User>>, { id }: { id: string }) {
+        const data = await req.json();
+        return UserService.updateUser(id, data);
+    }
+}
+```
+
+Back-End Service Classes can use other Back-End Services (as well as so-called Isomorphic Service Classes explained in [separate article of this documentation](./framework)).
+
+```ts
+// /src/modules/user/UserService.ts
+import PostService from '../post/PostService';
+import CommentService from '../comment/CommentService';
+// ... other imports ...
+
+export default class UserService {
+    static async updateUser(id: string, data: Partial<User>) {
+        const latestPost = PostService.findLatestUserPost(id);
+        const latestPostComments = CommentService.findPostComments(latestPost.id);
+        // ...
+    }
+}
+```

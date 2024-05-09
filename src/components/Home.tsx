@@ -9,7 +9,7 @@ import VovkLogo from '@/components/VovkLogo';
 import ManualInstall from '@/components/ManualInstall';
 import Link from 'next/link';
 import OgToScreenshot from '@/components/_OgToScreenshot';
-import '../app/globals.css';
+import './home.css';
 
 const Home = () => {
   return (

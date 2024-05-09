@@ -1,0 +1,59 @@
+
+# Return Type
+
+## Custom object
+
+The decorated static methods of controllers can return several kinds of objects. The most common is a regular object initializer. Let's say your controller method returns Prisma ORM invocation.
+
+```ts
+// ...
+static async updateUser(/* ... */) {
+    // ...
+    const updatedUser = await prisma.user.update({
+        where: { id },
+        data,
+    });
+
+    return updatedUser;
+}
+// ...
+```
+
+At this case the returned value of client method `UserController.updateUser` is going to be recognised as `User` generated at **@prisma/client**.
+
+## Response object
+
+HTTP handlers can also return regular `Response` object, for example `NextResponse`. 
+
+```ts
+// ...
+static async updateUser(/* ... */) {
+    // ...
+    return NextResponse.json(updatedUser, { status: 200 });
+}
+// ...
+```
+
+At this case client library wouldn't be able to properly recognise type of returned value but you can override the type manually by using generic argument that overrides the return type without need to convert it to `unknown` first.
+
+```ts
+import { UserController } from 'vovk-client';
+import type { User } from '@prisma/client';
+
+// ...
+
+const updatedUser = await UserController.updateUser<User>(/* ... */);
+```
+
+## Async iterable
+
+```ts
+// ...
+static async *updateUser(/* ... */) {
+    // ...
+    yield* iterable;
+}
+// ...
+```
+
+If iterable is returned, the client library is going to cast the method as a disposable async generator to implement response streaming. It's explained in more details on the [Streaming documentation page](./streaming).

@@ -1,0 +1,119 @@
+# Controller definition
+
+Controller is a static class that handles incoming HTTP requests. The methods of this class, that are decorated with an HTTP decorator (like `@get()` or `@post()`), accept 2 arguments: `NextRequest` that is not modified in any way by Vovk.ts itself and parameters that are defined by the decorator path. 
+
+```ts
+import type { NextRequest } from 'next';
+import { prefix, put } from 'vovk';
+
+@prefix('users')
+export default class UserController {
+    // Example request: PUT /api/users/69?role=moderator
+    @put(':id') 
+    static async updateUser(req: NextRequest, { id }: { id: string }) {
+        const data = await req.json(); // any
+        const userRole = req.nextUrl.searchParams.get('role'); // string | null
+        // ...
+        return updatedUser;
+    }
+}
+```
+
+At the example aboce `data` is casted as `any` and `userRole` is casted as `string | null`. To fix the body and query types Vovk.ts provides a new type `VovkRequest<BODY?, QUERY?>` that is extended from `NextRequest` where the first generic argument represents the type of value returned from `req.json` but also allows to define values returned from `req.nextUrl.searchParams.get`. `VovkRequest` also plays crucial role in type inference when **vovk-client** is used in order to infer types properly. 
+
+As its mentioned before, `req` object is an original `NextRequest` object that provided by Next.js as is without changing it, but other libraries (like [vovk-zod](https://github.com/finom/vovk-zod)) as well as your custom code can modify this object when needed (for example to add `currentUser` property defined by your [auth guard decorator](./decorators/authorization)).
+
+To add the required body and query types just replace `NextRequest` by `VovkRequest`. Let's modify the abstract example above.
+
+```ts
+// /src/modules/user/UserController.ts
+import { prefix, put, type VovkRequest } from 'vovk';
+import type { User } from '../../types';
+
+@prefix('users')
+export default class UserController {
+    // Example request: PUT /api/users/69?role=moderator
+    @put(':id') 
+    static async updateUser(
+        req: VovkRequest<Partial<User>, { role: 'user' | 'moderator' | 'admin' }>, 
+        { id }: { id: string }
+    ) {
+        const data = await req.json(); // Partial<User>
+        const userRole = req.nextUrl.searchParams.get('role'); // 'user' | 'moderator' | 'admin'
+        // ...
+        return updatedUser;
+    }
+}
+```
+
+As you can see we've changed nothing more than the type of `req` but now `data` receives type of `Partial<User>` and `userRole` is casted as `'user' | 'moderator' | 'admin'` and does not extend `null` anymore.
+
+## Controller initialization
+
+Once the controller is defined it needs to be initialized at the wildcard route by adding it to the `controllers` object.
+
+```ts
+// /src/app/api/[[...vovk]]/route.ts
+import { initVovk } from 'vovk';
+import UserController from '../../../modules/user/UserController';
+
+const controllers = { UserController };
+const workers = {}; // See Worker documentation
+
+export type Controllers = typeof controllers;
+export type Workers = typeof workers;
+
+export const { GET, POST, PUT, DELETE } = initVovk({ controllers, workers });
+```
+
+
+## Auto-generated endpoints
+
+All HTTP decorators provide `.auto` method that generates endpoint name automatically from the method name.
+
+```ts
+// /src/modules/user/UserController.ts
+import { prefix, put } from 'vovk';
+
+@prefix('users')
+export default class UserController {
+    // Example request: PUT /api/users/do-something
+    @put.auto() 
+    static async doSomething(/* ... */) {
+        // ...
+    }
+}
+```
+
+## Response headers
+
+All HTTP decorators support custom response headers provided as the second argument.
+
+```ts
+// ...
+export default class UserController {
+    @put('do-something', { headers: { 'x-hello': 'world' } }) 
+    static async doSomething(/* ... */) { /* ... */ }
+}
+```
+
+To enable CORS instead of manually setting up headers you can use `cors: true` option.
+
+```ts
+// ...
+export default class UserController {
+    @put('do-something', { cors: true }) 
+    static async doSomething(/* ... */) { /* ... */ }
+}
+```
+
+For auto-generated endpoints `cors` and `headers` are defined as the only argument.
+
+
+```ts
+// ...
+export default class UserController {
+    @put.auto({ cors: true, headers: { 'x-hello': 'world' } }) 
+    static async doSomething(/* ... */) { /* ... */ }
+}
+```
