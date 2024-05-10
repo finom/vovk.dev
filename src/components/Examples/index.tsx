@@ -151,7 +151,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
   },
 */
   {
-    docsLink: 'controller#streaming',
+    docsLink: 'controller/streaming',
     badge: 'Response Streaming',
     title: 'Stream Server Responses with Async Generators and Disposable Objects',
     Component: () => (
@@ -186,7 +186,7 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
     code: [<OpenAiCode1 key={1} />, <OpenAiCode2 key={2} />],
   },
   {
-    docsLink: 'decorators#request-input-validation',
+    docsLink: 'decorators',
     badge: 'Request Validation',
     title: 'Isomorphic Validation',
     Component: () => (
