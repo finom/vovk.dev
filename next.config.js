@@ -14,6 +14,7 @@ const config = {
   images: { unoptimized: true },
 };
 
+// output: 'export' does not work with rewrites
 delete config.rewrites;
 
 module.exports = config;
