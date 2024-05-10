@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { WorkerService } from 'vovk-examples';
+import { HelloWorker } from 'vovk-examples';
 
 export default function WorkerExample() {
   const [value, setValue] = useState('337751842839865299034216387');
@@ -14,13 +14,13 @@ export default function WorkerExample() {
       setValue('333944026345847228099687');
     }
 
-    WorkerService.use(new Worker(new URL('vovk-examples/dist/WorkerService.js', import.meta.url)));
+    HelloWorker.employ(new Worker(new URL('vovk-examples/dist/HelloWorker.js', import.meta.url)));
   }, []);
 
   const submit = async () => {
     if (!regExp.test(value)) return;
     setIsCalculating(true);
-    setResult(await WorkerService.factorize(BigInt(value)));
+    setResult(await HelloWorker.factorize(BigInt(value)));
     setIsCalculating(false);
   };
 

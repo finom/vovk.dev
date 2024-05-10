@@ -192,7 +192,7 @@ export default function MyComponent() {
 }
 ```
 
-Note that if you're using VSCode you're probably going to need to [restart TS server](https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server) each time when you add a new controller or worker service to your app because by the time being TS Server doesn't update types imported from **node_modules** automatically when they were changed. This is a well-known problem that bothers Prisma ORM developers for long time. In all other scenarios (when you add a new method, change body type, etc) you don't need to do that since TS server reads `Controllers` and `Workers` that you export from **/src/app/api/[[...vovk]]/route.ts**.
+Note that if you're using VSCode you're probably going to need to [restart TS server](https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server) each time when you add a new controller or WPC class to your app because by the time being TS Server doesn't update types imported from **node_modules** automatically when they were changed. This is a well-known problem that bothers Prisma ORM developers for long time. In all other scenarios (when you add a new method, change body type, etc) you don't need to do that since TS server reads `Controllers` and `Workers` that you export from **/src/app/api/[[...vovk]]/route.ts**.
 
 Next.js Server Components are also supported but require to define absolute URL (by default all requests are made to `/api`). Check the [Server Component Example](https://vovk-examples.vercel.app/server-component) for more information.
 

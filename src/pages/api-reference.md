@@ -17,7 +17,7 @@ import {
   options, 
   // controller class decorator
   prefix, 
-  // worker service class decorator 
+  // WPC class decorator 
   worker,
   // core types
   type VovkClientFetcher,
