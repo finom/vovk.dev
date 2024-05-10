@@ -1,6 +1,5 @@
 const { webpack } = require('next/dist/compiled/webpack/webpack');
 
-/** @type {import('next').NextConfig} */
 const withNextra = require('nextra')({
   theme: 'nextra-theme-docs',
   themeConfig: './theme.config.jsx',
@@ -8,6 +7,13 @@ const withNextra = require('nextra')({
 
 const nextra = withNextra();
 
-module.exports = {
+/** @type {import('next').NextConfig} */
+const config = {
   ...nextra,
-}
+  output: 'export',
+  images: { unoptimized: true },
+};
+
+delete config.rewrites;
+
+module.exports = config;
