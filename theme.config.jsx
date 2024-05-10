@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import VovkLogo from './src/components/VovkLogo';
+import { useRouter } from 'next/router';
 
 const themeConfig = {
   logo: <VovkLogo width={120} />,
@@ -18,6 +19,18 @@ const themeConfig = {
     </>
   ),
   footer: false,
+  useNextSeoProps() {
+    const { asPath } = useRouter();
+    if (asPath === '/') {
+      return {
+        titleTemplate: 'Vovk.ts - RESTful RPC for Next.js',
+      };
+    } else {
+      return {
+        titleTemplate: '%s – Vovk.ts',
+      };
+    }
+  },
 };
 
 export default themeConfig;
