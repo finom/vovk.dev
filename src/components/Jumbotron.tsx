@@ -6,7 +6,7 @@ const Jumbotron = () => {
     <div className="max-w-4xl text-center mx-auto py-16 px-5">
       <style jsx>{`
         h1 {
-          background: -webkit-linear-gradient(#666060, #d6d6d6);
+          background: -webkit-linear-gradient(#666060, #a7a1a1);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
