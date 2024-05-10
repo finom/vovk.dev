@@ -49,7 +49,7 @@ const Jumbotron = () => {
 
           <Link
             className="min-w-8 bg-rose-500 justify-center inline-flex items-center gap-2 rounded-full py-3 px-6 text-white font-medium hover:bg-rose-700"
-            href="intro"
+            href="getting-started"
           >
             <span>Getting Started</span>{' '}
             <svg width={15} height={15} viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
