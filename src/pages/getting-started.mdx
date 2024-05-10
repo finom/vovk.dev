@@ -143,7 +143,7 @@ The code above creates GET endpoint to `/api/hello/greeting`. You can also use n
 Create an NPM script in **package.json** that runs `vovk dev` and `next dev` together specifying the port explicitly. 
 Vovk server also utilises the port by adding 6969 number to it (if Next.js `PORT` is 3000, Vovk.ts port is 9969). 
 
-Vovk.ts works by exchanging data between Next.js and so-called Vovk Metadata Server, which means knowing the ports on both sides is essential.
+Vovk.ts works by exchanging data between Next.js and Vovk Server, which means knowing the ports on both sides is essential.
 
 ```json
 "scripts": {

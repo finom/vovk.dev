@@ -11,11 +11,11 @@ WPC Class is created from an [Isomorphic Service Class](/framework) by applying 
 > Quick explanation: Isomorphic Service Class is a static class that provides code that is shared between front-end and back-end. It should implement static methods as [pure functions](https://en.wikipedia.org/wiki/Pure_function) that don't have access to neither application state nor server-side capabilities such as access to the database.
 
 ```ts
-// /src/modules/hello/HelloWorkerService.ts
+// /src/modules/hello/HelloWorker.ts
 import { worker } from 'vovk';
 
 @worker()
-export default class HelloWorkerService {
+export default class HelloWorker {
     static heavyCalculation(iterations: number) {
         let result: number;
         // ... heavy calculations
@@ -93,14 +93,14 @@ HelloWorker.terminate();
 
 ## Async generators
 
-Worker Service supports generators and async generators to implement continious event streaming. 
+WPC classes support generators and async generators to implement continious event streaming. 
 
 ```ts
 // /src/modules/hello/HelloWorker.ts
 import { worker } from 'vovk';
 
 @worker()
-export default class HelloWorkerService {
+export default class HelloWorker {
     static *generator() {
         for (let i = 0; i < 10; i++) {
             yield i;
@@ -172,7 +172,7 @@ Workers can use other workers. The syntax remains the same and you don't need to
 ```ts
 import { AnotherWorker } from 'vovk-client';
 
-export default class WorkerService {
+export default class HelloWorker {
     heavyCalculation() {
         const anotherWorkerResult = await AnotherWorker.doSomethingHeavy();
         // ...

@@ -12,9 +12,6 @@ export function BlogHeader() {
       <h1>
         <span className="font-bold leading-tight lg:text-5xl">Blog</span>
       </h1>
-      <p className="text-center text-gray-500 dark:text-gray-400 font-space-grotesk">
-        The latest updates and releases from the Turbo team at Vercel.
-      </p>
     </div>
   );
 }
@@ -42,12 +39,12 @@ export function BlogIndex() {
         </Link>
         <p className="opacity-80" style={{ marginTop: ".5rem" }}>
           {page.frontMatter?.description}{" "}
-          <span className="block">
+          <span className="block mt-2 text-sm">
             <Link href={page.route}>{"Read more →"}</Link>
           </span>
         </p>
         {page.frontMatter?.date ? (
-          <p className="opacity-50 text-sm">{page.frontMatter.date}</p>
+          <p className="opacity-50 text-sm mt-2">{page.frontMatter.date}</p>
         ) : null}
       </div>
     );

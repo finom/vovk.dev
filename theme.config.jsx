@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import VovkLogo from './src/components/VovkLogo';
 
 const themeConfig = {
@@ -7,13 +8,16 @@ const themeConfig = {
   },
   banner: {
     key: '2.0-release',
-    text: (
-      <a href="https://nextra.site" target="_blank">
-        🎉 Nextra 2.0 is released. Read more →
-      </a>
-    ),
+    text: <Link href="/blog/vovk-2-0">🎉 Vovk 2.0 is released. Read more →</Link>,
   },
-  // ... other theme options
+  docsRepositoryBase: 'https://github.com/finom/vovk.dev/tree/main/',
+  head: (
+    <>
+      <link href="icon.svg" rel="icon" media="(prefers-color-scheme: light)" />
+      <link href="icon-white.svg" rel="icon" media="(prefers-color-scheme: dark)" />
+    </>
+  ),
+  footer: false,
 };
 
 export default themeConfig;

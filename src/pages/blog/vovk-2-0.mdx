@@ -1,8 +1,7 @@
 ---
-title: Post 1
-image: https://assets.vercel.com/image/upload/v1630059453/swr/v1.png
-date: '01/01/2024'
-description: 'Description post 1'
+title: Vovk.ts 2.0 is here!
+date: '11/05/2024'
+description: 'After a long time of development and testing in multiple large projects, thanks to community feedback, Vovk 2.0 is released with some breaking changes.'
 authors:
   thanhnamnguyen:
     name: Thành Nam Nguyễn
@@ -16,7 +15,7 @@ authors:
     imageUrl: https://res.cloudinary.com/thanhnam/image/upload/v1696673670/thanhnamnguyen.dev/about-me/avt-lyoko_rdtigq.jpg
 ---
 
-## v2.0.0
+## Vovk.ts 2.0 is here!
  
 ### Breaking changes
 
@@ -41,3 +40,22 @@ The version 1 is heavily tested in production and the community feedback is take
         - Before: `PORT=3000 concurrently "vovk dev --no-next-dev" "next dev" --kill-others`
         - After: `PORT=3000 concurrently "vovk dev" "next dev" --kill-others` - this is the new recommended way to run Vovk and Next.js development servers together.
 - ✅ Renamed `worker.use` to `worker.employ` to make it less confusing in React components.
+
+### Minior changes
+ 
+`onError` option of `initVovk` now gets request object as the second argument. This is useful if you want to extract some information about request like headers, method, authorisation, etc. 
+
+```ts
+import { initVovk } from 'vovk';
+import ErrorService from '../../modules/ErrorService';
+
+// ...
+
+const { GET, POST, PUT, DELETE } = initVovk({
+    controllers,
+    workers,
+    onError: (error, request) => {
+      ErrorService.logError(error, request);
+    }
+});
+```

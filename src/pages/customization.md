@@ -1,7 +1,4 @@
-# Customization & Configuration
-
-
-## Customizing fetcher and default client options
+# Customizing the Fetcher and Default Client Options
 
 You can redefine the default fetching function and its options to tightly integrate Vovk.ts client with your application state or to add extra features. For example, the clientized controller methods may look like that:
 
@@ -13,6 +10,7 @@ import { UserController } from 'vovk-client';
 UserController.createUser({ 
     body,
     query,
+    // custom options
     successToast: 'Successfully created a new user',
     useAuth: true,
     sentryLogErrors: true,
@@ -36,10 +34,10 @@ Or as `VOVK_FETCHER` env variable:
 VOVK_FETCHER="./src/lib/myFetchingFunction" vovk dev
 ```
 
-By default Vovk.ts uses fetcher defined at `vovk/client/defaultFetcher` and you can check its source code [here](https://github.com/finom/vovk/blob/main/src/client/defaultFetcher.ts). 
+By default Vovk.ts uses fetcher defined at `vovk/client/defaultFetcher` and you can check its [source code on Github](https://github.com/finom/vovk/blob/main/src/client/defaultFetcher.ts). 
 
 The fetcher accepts two arguments: 
-- An object that is provided by internal Vovk.ts code that includes HTTP method information and utilities:
+- An object that is provided by the internal Vovk.ts code that includes HTTP method information and utilities:
     - `httpMethod` - the HTTP metod;
     - `getEndpoint` - an utility that builds request endpoiint from `prefix`, `query` and `params`;
     - `validate` - a function that validates `body` and `query` of the request;
@@ -82,19 +80,21 @@ const myCustomFetcher: VovkClientFetcher<MyOptions> = async (
     ...options,
   });
 
-  // 4. Utilise your custom option somehow
-  alert(successMessage);
+  let returnResponse = response;
 
-  // 5. Handle response based on response headers
+  // 4. Handle response based on response headers
   if (response.headers.get('content-type')?.includes('application/json')) {
-    return defaultHandler(response);
+    returnResponse = await defaultHandler(response);
   }
 
   if (response.headers.get('content-type')?.includes('text/event-stream')) {
-    return defaultStreamHandler(response);
+    returnResponse = await defaultStreamHandler(response);
   }
 
-  return response;
+  // 5. Utilise your custom option somehow.
+  alert(successMessage);
+
+  return returnResponse;
 };
 
 export default myCustomFetcher;
@@ -108,7 +108,7 @@ if (response.headers.get('content-type')?.includes('application/json')) {
 }
 ```
 
-In case if the server endpoint and `yourCustomHandler` return different values, you can redefine its type using client method generic.
+In case if the server endpoint and `yourCustomHandler` return different values, you can redefine the inferred return type using the client method generic argument.
 
 ```ts
 import { MyController } from 'vovk-client';

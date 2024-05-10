@@ -5,7 +5,7 @@ import { PostController } from 'vovk-client';
 import type { VovkReturnType } from 'vovk';
 
 export default function Example() {
-  const [response, setResponse] = useState<VovkReturnType<typeof HelloController.getHello>>();
+  const [response, setResponse] = useState<VovkReturnType<typeof PostController.createComment>>();
 
   return (
     <>

@@ -1,9 +1,5 @@
----
-sidebar_position: 10
----
+# ♥️ Sponsor
 
-# Sponsor
+Constantly balancing between my family, full-time job, quality sleep, and open-source projects is not easy. I am grateful to everyone who supports me in my endeavors. If you like my work and want to support me, you can do it by [sponsoring me on Github](https://github.com/sponsors/finom)
 
-[Sponsor the author of the project on Github ♥️](https://github.com/sponsors/finom)
-
-You can also contact me via email from my [Github profile](https://github.com/finom). I hope you enjoy Vovk!
+If you want to contact me, my email can be found on my [Github profile](https://github.com/finom).

@@ -58,7 +58,7 @@ import {
 Creates the standard Next.js App Route handlers used by the main [Optional Catch-all Segment](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments). The function accepts the following options:
 
 - `controllers: Record<string, Function>` - the list of Controllers
-- `workers?: Record<string, Function>` - the list of Worker Services
+- `workers?: Record<string, Function>` - the list of WPC interfaces
 - `exposeValidation?: boolean` - set to `false` if you want to hide validation logic from the client-side code.
 - `onError?: (err: Error, req: NextRequest) => void | Promise<void>` - called on Controller exceptions, can be used to log errors by a third-party service. The second argument can be utilised to retrieve reques URL, authorisation info, and other useful information about the failed request.
 
@@ -157,14 +157,14 @@ export default class HelloController {
 
 ## `worker` decorator
 
-Defines required `onmessage` handler for a [Worker Service Class](./worker).
+Defines required `onmessage` handler for a [WPC Class](./worker).
 
 ```ts
-// /src/modules/hello/HelloWorkerService.ts
+// /src/modules/hello/HelloWorker.ts
 import { worker } from 'vovk';
 
 @worker()
-export default class HelloWorkerService {
+export default class HelloWorker {
     static heavyCalculation() {
         // ...
     }

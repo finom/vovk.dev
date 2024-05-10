@@ -60,8 +60,8 @@ const ManualInstall = () => {
           <div id="manual-install-content" className="pb-4">
             <p className="text-center mb-4">
               For detailed information on Vovk.ts installation{' '}
-              <Link href="https://docs.vovk.dev/docs/intro/" className="link" target="_blank">
-                visit the official documentation
+              <Link href="getting-started" className="link" target="_blank">
+                visit the documentation
               </Link>
             </p>
             <ol>
