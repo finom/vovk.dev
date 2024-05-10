@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 const themeConfig = {
   logo: <VovkLogo width={120} />,
   project: {
-    link: 'https://github.com/finom/vovk.dev',
+    link: 'https://github.com/finom/vovk',
   },
   banner: {
     key: '2.0-release',
