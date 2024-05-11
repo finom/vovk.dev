@@ -4,11 +4,11 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Vovk.ts - REST for Next',
-  description: 'Transforms Next.js into a powerful and extensible REST API platform',
+  title: 'Vovk.ts - RESTful RPC for Next.js',
+  description: 'Transforms Next.js App Router into a powerful REST API platform with RPC integration',
   openGraph: {
-    title: 'Vovk.ts - REST for Next',
-    description: 'Transforms Next.js into a powerful and extensible REST API platform',
+    title: 'Vovk.ts - RESTful RPC for Next.js',
+    description: 'Transforms Next.js App Router into a powerful REST API platform with RPC integration',
     url: 'https://vovk.dev/',
     type: 'website',
     images: 'https://vovk.dev/vovk-og.png',
