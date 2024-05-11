@@ -24,12 +24,21 @@ const themeConfig = {
   footer: false,
   useNextSeoProps() {
     const { asPath } = useRouter();
+    const openGraph = {
+      title: 'Vovk.ts - RESTful RPC for Next.js',
+      description: 'Transforms Next.js App Router into a powerful REST API platform with RPC integration',
+      url: 'https://vovk.dev/',
+      type: 'website',
+      images: 'https://vovk.dev/vovk-og.png',
+    };
     if (asPath === '/') {
       return {
+        openGraph,
         titleTemplate: 'Vovk.ts - RESTful RPC for Next.js',
       };
     } else {
       return {
+        openGraph,
         titleTemplate: '%s – Vovk.ts',
       };
     }
