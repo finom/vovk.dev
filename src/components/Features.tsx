@@ -6,7 +6,7 @@ const SolvedProblems = () => {
     <div className="mt-4">
       <h2 className="text-center text-3xl font-semibold mb-8">Features</h2>
       <div className="grid sm:grid-cols-2 md:grid-cols-3 max-w-screen-lg mx-auto gap-10">
-        <div className="flex gap-4 items-start flex-col ">
+        {/* <div className="flex gap-4 items-start flex-col ">
           <IconWrapper>
             <svg
               width="20px"
@@ -46,11 +46,54 @@ const SolvedProblems = () => {
             <h3 className="font-semibold text-xl">One Port</h3>
             <p className="mt-1 text-secondary">
               {' '}
-              Run your full-stack app on a single port. Vovk.ts is an addon over documented Next.js API routes.
+              Run your full-stack app on a single port with easy deployment. Vovk.ts is an addon over documented Next.js
+              API routes.
+            </p>
+          </div>
+        </div> */}
+        <div className="flex gap-4 items-start flex-col ">
+          <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full w-[44px] h-[44px]">
+            <svg
+              width="24px"
+              height="24px"
+              strokeWidth="1.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 19H12M21 19H12M12 19V13M12 13H18V5H6V13H12Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M9 9.01L9.01 8.99889"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M12 9.01L12.01 8.99889"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <div>
+            <h3 className="font-semibold text-xl">Good old REST with RPC</h3>
+            <p className="mt-1 text-secondary">
+              {' '}
+              World first REST API library with RPC support. You can call your API methods directly from the
+              client-side.
             </p>
           </div>
         </div>
-        <div className="flex gap-4 items-start flex-col ">
+        {/*<div className="flex gap-4 items-start flex-col ">
           <span className="text-rose-600 bg-rose-500/10 justify-center flex font-extrabold items-center rounded-full text-[10px] w-[44px] h-[44px]">
             <span>GET /</span>
           </span>
@@ -61,7 +104,7 @@ const SolvedProblems = () => {
               No more workarounds and new protocols. Create RESTful API for your Next.js app with ease.
             </p>
           </div>
-        </div>
+        </div> */}
         {/*<div className="flex gap-4 items-start flex-col ">
           <span className="text-rose-600 bg-rose-500/10 rounded-full w-[44px] h-[44px] items-center justify-center flex">
             <svg
@@ -185,7 +228,7 @@ const SolvedProblems = () => {
             </svg>
           </span>
           <div>
-            <h3 className="font-semibold text-xl">Easy to Learn</h3>
+            <h3 className="font-semibold text-xl">Easy to learn</h3>
             <p className="mt-1 text-secondary">
               Specially designed for Next.js App Router, Vovk doesn't introduce complex abstractions by being just a
               wrapper over{' '}
@@ -227,33 +270,26 @@ const SolvedProblems = () => {
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M3 19H12M21 19H12M12 19V13M12 13H18V5H6V13H12Z"
+                d="M3 9.4V3.6C3 3.26863 3.26863 3 3.6 3H20.4C20.7314 3 21 3.26863 21 3.6V9.4C21 9.73137 20.7314 10 20.4 10H3.6C3.26863 10 3 9.73137 3 9.4Z"
                 stroke="currentColor"
                 strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
               />
               <path
-                d="M9 9.01L9.01 8.99889"
+                d="M14 20.4V14.6C14 14.2686 14.2686 14 14.6 14H20.4C20.7314 14 21 14.2686 21 14.6V20.4C21 20.7314 20.7314 21 20.4 21H14.6C14.2686 21 14 20.7314 14 20.4Z"
                 stroke="currentColor"
                 strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
               />
               <path
-                d="M12 9.01L12.01 8.99889"
+                d="M3 20.4V14.6C3 14.2686 3.26863 14 3.6 14H9.4C9.73137 14 10 14.2686 10 14.6V20.4C10 20.7314 9.73137 21 9.4 21H3.6C3.26863 21 3 20.7314 3 20.4Z"
                 stroke="currentColor"
                 strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
               />
             </svg>
           </span>
           <div>
-            <h3 className="font-semibold text-xl">RPC with REST</h3>
+            <h3 className="font-semibold text-xl">Code splitting</h3>
             <p className="mt-1 text-secondary">
-              {' '}
-              World first REST API with RPC support. You can call your API methods directly from the client-side.
+              Apps built with Vovk.ts utilise service-controller pattern that inspired by the beauty of NestJS.
             </p>
           </div>
         </div>
@@ -285,9 +321,44 @@ const SolvedProblems = () => {
             </svg>
           </span>
           <div>
-            <h3 className="font-semibold text-xl">Code Splitting</h3>
+            <h3 className="font-semibold text-xl">Text streaming for LLMs</h3>
             <p className="mt-1 text-secondary">
-              Apps built with Vovk.ts utilise service-controller pattern that inspired by NestJS.
+              Create AI apps powered by the modern TypeScript syntax with disposable objects and async generators.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-4 items-start flex-col ">
+          <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full w-[44px] h-[44px]">
+            <svg
+              width="24px"
+              height="24px"
+              strokeWidth="1.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 9.4V3.6C3 3.26863 3.26863 3 3.6 3H20.4C20.7314 3 21 3.26863 21 3.6V9.4C21 9.73137 20.7314 10 20.4 10H3.6C3.26863 10 3 9.73137 3 9.4Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M14 20.4V14.6C14 14.2686 14.2686 14 14.6 14H20.4C20.7314 14 21 14.2686 21 14.6V20.4C21 20.7314 20.7314 21 20.4 21H14.6C14.2686 21 14 20.7314 14 20.4Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M3 20.4V14.6C3 14.2686 3.26863 14 3.6 14H9.4C9.73137 14 10 14.2686 10 14.6V20.4C10 20.7314 9.73137 21 9.4 21H3.6C3.26863 21 3 20.7314 3 20.4Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+            </svg>
+          </span>
+          <div>
+            <h3 className="font-semibold text-xl">Web Workers at your Fingertips</h3>
+            <p className="mt-1 text-secondary">
+              Leverage the new concept of "Worker Procedure Call" to execute resource-intensive code on a separate
+              browser thread using elegant syntax.
             </p>
           </div>
         </div>

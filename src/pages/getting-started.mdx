@@ -1,3 +1,6 @@
+import BasicController from '../downloaded-examples/basic/BasicController.md';
+import BasicExample from '../downloaded-examples/basic/BasicExample.md';
+import LiveBasicExample from '../live-examples/LiveBasicExample';
 import { Steps, Tabs } from 'nextra/components'
 
 
@@ -27,7 +30,7 @@ npx create-next-app
 
 Choices example:
 
-![](https://github.com/finom/vovk/assets/1082083/b9e600da-a43a-4e30-a089-43e5e4b147ef)
+<img className="rounded-lg mt-4" src="https://github.com/finom/vovk/assets/1082083/b9e600da-a43a-4e30-a089-43e5e4b147ef" />
 
 ### Install Vovk.ts and Concurrently
 
@@ -221,6 +224,18 @@ await HelloController.hello({
 
 </Steps>
 
+## Live Example
+
+<div className="doc-live-example">
+    <LiveBasicExample />
+</div>
+<Tabs items={['Controller', 'Component']}>
+  <Tabs.Tab><BasicController /></Tabs.Tab>
+  <Tabs.Tab><BasicExample /></Tabs.Tab>
+</Tabs>
+
+[Source code](https://github.com/finom/vovk-examples)
+
 
 ## Build and deploy
 
@@ -233,7 +248,3 @@ To easily build the project on Vercel you can create `"vercel-build"` npm script
     "vercel-build": "vovk generate && next build"
 }
 ```
-
-## Examples 
-
-You can check more examples [here](https://vovk-examples.vercel.app/).

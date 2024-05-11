@@ -1,0 +1,19 @@
+import { Tabs } from 'nextra/components';
+import OpenAiController from '../../downloaded-examples/openai/OpenAiController.md';
+import OpenAiExample from '../../downloaded-examples/openai/OpenAiExample.md';
+import LiveOpenAiExample from '../../live-examples/LiveOpenAiExample';
+
+# OpenAI Chat Live Example
+
+At this examle the `createChatCompletion` generator delegates the async iterable returned from `openai.chat.completions.create`
+and the component utilises `using` keyword in order to close the stream safely in case of an interruption, iterating the messages using `await for` syntax.
+
+<div className="doc-live-example">
+    <LiveOpenAiExample />
+</div>
+<Tabs items={['Controller', 'Component']}>
+  <Tabs.Tab><OpenAiController /></Tabs.Tab>
+  <Tabs.Tab><OpenAiExample /></Tabs.Tab>
+</Tabs>
+
+[Source code](https://github.com/finom/vovk-examples)

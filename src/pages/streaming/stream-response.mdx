@@ -1,0 +1,78 @@
+import { Tabs } from 'nextra/components';
+import StreamResponseObjectController from '../../downloaded-examples/stream-response-object/StreamResponseObjectController.md';
+import StreamService from '../../downloaded-examples/stream-response-object/StreamService.md';
+import StreamExample from '../../downloaded-examples/stream-response-object/StreamExample.md';
+import LiveStreamResponseExample from '../../live-examples/LiveStreamResponseExample';
+
+# Text Streaming with `StreamResponse` Class
+
+In some cases it's too hard to use generators to implement response streaming. Vovk.ts introduces `StreamResponse` class inherited from `Response` class that uses `TransformStream#readable` as body and adds required HTTP headers. 
+It's a lower-level API that is used behind the scenes to implement generator logic explained above.
+Service method at this case is implemented as a regular function that accepts `StreamResponse` instance as a pointer to send messages manually.
+
+There is what the streaming service might look like:
+
+```ts
+// /src/modules/stream/StreamService.ts
+import type { StreamResponse } from 'vovk';
+
+export type Token = { message: string };
+
+export default class StreamService {
+  static async streamTokens(resp: StreamResponse<Token>) {
+    const tokens: Token[] = [
+      { message: 'Hello,' },
+      { message: ' World' },
+      { message: '!' },
+    ];
+
+    for (const token of tokens) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      resp.send(token);
+    }
+
+    resp.close();
+  }
+}
+```
+
+As you can see tokens are sent using `StreamResponse#send` method and, when the stream is completed, it needs to be closed with `StreamResponse#close`.
+
+The Controller Class returns an instance of `StreamResponse` and the streaming is performed a floating Promise above the `return` statement.
+
+```ts
+import { prefix, get, StreamResponse, type VovkRequest } from 'vovk';
+import StreamService, { type Token } from './StreamService';
+
+@prefix('stream')
+export default class StreamController {
+  @get('tokens')
+  static async streamTokens() {
+    const resp = new StreamResponse<Token>();
+
+    void StreamService.streamTokens(resp);
+
+    return resp;
+  }
+}
+```
+
+`StreamResponse` class also provides `throw` methods that safely closes the stream and makes the client to re-throw the received error.
+
+```ts
+await resp.throw(new Error('Stream error'));
+```
+
+
+## Live Text Streaming Example with `StreamResponse` Class
+
+<div className="doc-live-example">
+    <LiveStreamResponseExample />
+</div>
+<Tabs items={['Service', 'Controller', 'Component']}>
+  <Tabs.Tab><StreamService /></Tabs.Tab>
+  <Tabs.Tab><StreamResponseObjectController /></Tabs.Tab>
+  <Tabs.Tab><StreamExample /></Tabs.Tab>
+</Tabs>
+
+[Source code](https://github.com/finom/vovk-examples)

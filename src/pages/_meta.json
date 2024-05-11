@@ -27,12 +27,6 @@
     "href": "/getting-started",
     "type": "page"
   },
-  "examples_link": {
-    "title": "Examples",
-    "href": "https://vovk-examples.vercel.app/",
-    "type": "page",
-    "newWindow": true
-  },
   "sun_link": {
     "title": "🌻 Support Ukraine Now! 🇺🇦",
     "href": "https://supportukrainenow.org/",
@@ -43,12 +37,12 @@
     "title": "Getting Started"
   },
   "controller":  "Controller",
+  "streaming":  "Text Streaming",
   "decorators":  "Decorators",
   "worker": "Web Worker",
   "config": "vovk.config.js",
   "customization": "Customization",
   "cli": "CLI",
   "framework": "Project Framework",
-  "api-reference": "API Reference",
-  "sponsor": "♥️ Sponsor"
+  "api-reference": "API Reference"
 }

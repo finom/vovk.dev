@@ -1,6 +1,7 @@
----
-sidebar_position: 2
----
+import { Tabs } from 'nextra/components';
+import HelloWorker from '../downloaded-examples/worker/HelloWorker.md';
+import WorkerExample from '../downloaded-examples/worker/WorkerExample.md';
+import LiveWorkerExample from '../live-examples/LiveWorkerExample';
 
 # WPC Class (Worker Procedure Call)
 
@@ -202,4 +203,14 @@ const [result1, result2, result3] = await Promise.all([
 ]);
 ```
 
+## Live Worker Example
 
+<div className="doc-live-example">
+    <LiveWorkerExample />
+</div>
+<Tabs items={['WPC Class', 'Component']}>
+  <Tabs.Tab><HelloWorker /></Tabs.Tab>
+  <Tabs.Tab><WorkerExample /></Tabs.Tab>
+</Tabs>
+
+[Source code](https://github.com/finom/vovk-examples)

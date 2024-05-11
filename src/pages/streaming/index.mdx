@@ -1,9 +1,12 @@
 
+import { Tabs } from 'nextra/components';
+import StreamController from '../../downloaded-examples/stream/StreamController.md';
+import StreamExample from '../../downloaded-examples/stream/StreamExample.md';
+import LiveStreamExample from '../../live-examples/LiveStreamExample';
+
 # Text Streaming for LLMs
 
-Vovk.ts provides two ways to implement text response streaming requred for applications that utilise the AI completions.
-
-## Async iterators
+## Async Iterators
 
 Controller methods can implement generators that use `*` syntax and utilise `yield` keyword instead of regular `return`.
 
@@ -68,68 +71,9 @@ export default class StreamController {
 }
 ```
 
-## StreamResponse Class
-
-In some cases it's too hard to use generators to implement response streaming. Vovk.ts introduces `StreamResponse` class inherited from `Response` class that uses `TransformStream#readable` as body and adds required HTTP headers. 
-It's a lower-level API that is used behind the scenes to implement generator logic explained above.
-Service method at this case is implemented as a regular function that accepts `StreamResponse` instance as a pointer to send messages manually.
-
-There is what the streaming service might look like:
-
-```ts
-// /src/modules/stream/StreamService.ts
-import type { StreamResponse } from 'vovk';
-
-export type Token = { message: string };
-
-export default class StreamService {
-  static async streamTokens(resp: StreamResponse<Token>) {
-    const tokens: Token[] = [
-      { message: 'Hello,' },
-      { message: ' World' },
-      { message: '!' },
-    ];
-
-    for (const token of tokens) {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      resp.send(token);
-    }
-
-    resp.close();
-  }
-}
-```
-
-As you can see tokens are sent using `StreamResponse#send` method and, when the stream is completed, it needs to be closed with `StreamResponse#close`.
-
-The Controller Class returns an instance of `StreamResponse` and the streaming is performed a floating Promise above the `return` statement.
-
-```ts
-import { prefix, get, StreamResponse, type VovkRequest } from 'vovk';
-import StreamService, { type Token } from './StreamService';
-
-@prefix('stream')
-export default class StreamController {
-  @get('tokens')
-  static async streamTokens() {
-    const resp = new StreamResponse<Token>();
-
-    void StreamService.streamTokens(resp);
-
-    return resp;
-  }
-}
-```
-
-`StreamResponse` class also provides `throw` methods that safely closes the stream and makes the client to re-throw the received error.
-
-```ts
-await resp.throw(new Error('Stream error'));
-```
-
 ## Handling Stream Responses on the Client
 
-Both ways of response streaming generate client method that returns a disposable async generator. 
+Text response streaming (including usage of `StreamResponse` class) generate client method that returns a disposable async generator. 
 
 ```ts
 import { StreamController } from 'vovk-client';
@@ -156,3 +100,15 @@ import { StreamController } from 'vovk-client';
 }
 // on this line stream is already closed
 ```
+
+## Text Streaming Live Example
+
+<div className="doc-live-example">
+    <LiveStreamExample />
+</div>
+<Tabs items={['Controller', 'Component']}>
+  <Tabs.Tab><StreamController /></Tabs.Tab>
+  <Tabs.Tab><StreamExample /></Tabs.Tab>
+</Tabs>
+
+[Source code](https://github.com/finom/vovk-examples)

@@ -1,4 +1,5 @@
-# Controller definition
+
+# Controller Definition
 
 Controller is a static class that handles incoming HTTP requests. The methods of this class, that are decorated with an HTTP decorator (like `@get()` or `@post()`), accept 2 arguments: `NextRequest` that is not modified in any way by Vovk.ts itself and parameters that are defined by the decorator path. 
 
@@ -48,7 +49,7 @@ export default class UserController {
 
 As you can see we've changed nothing more than the type of `req` but now `data` receives type of `Partial<User>` and `userRole` is casted as `'user' | 'moderator' | 'admin'` and does not extend `null` anymore.
 
-## Controller initialization
+## Controller Initialization
 
 Once the controller is defined it needs to be initialized at the wildcard route by adding it to the `controllers` object.
 
@@ -66,8 +67,7 @@ export type Workers = typeof workers;
 export const { GET, POST, PUT, DELETE } = initVovk({ controllers, workers });
 ```
 
-
-## Auto-generated endpoints
+## Auto-generated Endpoints
 
 All HTTP decorators provide `.auto` method that generates endpoint name automatically from the method name.
 
@@ -85,7 +85,9 @@ export default class UserController {
 }
 ```
 
-## Response headers
+Since the client is generated automatically, if your API is used only internally, you can use auto-generated endpoints to save a little bit of time.
+
+## Response Headers
 
 All HTTP decorators support custom response headers provided as the second argument.
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import Jumbotron from '@/components/Jumbotron';
 import Features from '@/components/Features';
-import Examples from '@/components/Examples';
+// import Examples from '@/components/_Examples';
 import TopNav from '@/components/_TopNav';
 import CreateInitUse from '@/components/CreateInitUse';
 import BonusFeatures from '@/components/BonusFeatures';
@@ -21,7 +21,6 @@ const Home = () => {
         <ManualInstall />
         <Features />
         <BonusFeatures />
-        <Examples />
 
         <div className="max-w-3xl mx-auto px-5 mt-28">
           <div className="flex flex-col justify-center">
@@ -51,15 +50,20 @@ const Home = () => {
               </p>
 
               <nav className="text-center flex flex-col gap-3 sm:flex-row sm:gap-5">
-                <a href="https://github.com/finom/vovk" className="link" target="_blank" rel="noopener noreferrer">
-                  Vovk.ts on Github
-                </a>
-                <a href="https://github.com/finom/vovk.dev" className="link" target="_blank" rel="noopener noreferrer">
+                <Link
+                  href="https://github.com/finom/vovk.dev"
+                  className="link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   This website on Github
-                </a>
-                <a href="https://iconoir.com/" className="link" target="_blank" rel="noopener noreferrer">
+                </Link>
+                <Link href="https://github.com/finom/vovk-zod" className="link" target="_blank">
+                  Vovk-Zod
+                </Link>
+                <Link href="https://iconoir.com/" className="link" target="_blank" rel="noopener noreferrer">
                   Icons
-                </a>
+                </Link>
               </nav>
             </div>
           </footer>
