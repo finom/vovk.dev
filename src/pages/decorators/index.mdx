@@ -1,6 +1,6 @@
 # Controller Decorators Overview
 
-`createDecorator` is a higher-order function that produces a decorator factory (a function that returns a decorator) for Controller Classes. It accepts a middleware function with the following parameters:
+`createDecorator` is a higher-order function that produces a decorator factory (a function that returns a decorator) for Controller Class methods. It accepts a middleware function with the following parameters:
 
 - `request`, which extends `NextRequest` as well as `VovkRequest`.
 - `next`, a function that should be invoked and its result returned to call subsequent decorators or the route handler.

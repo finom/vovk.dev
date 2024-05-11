@@ -1,19 +1,18 @@
 import { Tabs } from 'nextra/components';
-import StreamResponseObjectController from '../../downloaded-examples/stream-response-object/StreamResponseObjectController.md';
-import StreamService from '../../downloaded-examples/stream-response-object/StreamService.md';
-import StreamExample from '../../downloaded-examples/stream-response-object/StreamExample.md';
+import StreamResponseObjectController from '../../downloaded-examples/stream-response-object/StreamResponseObjectController.mdx';
+import StreamService from '../../downloaded-examples/stream-response-object/StreamService.mdx';
+import StreamExample from '../../downloaded-examples/stream-response-object/StreamExample.mdx';
 import LiveStreamResponseExample from '../../live-examples/LiveStreamResponseExample';
 
 # Text Streaming with `StreamResponse` Class
 
 In some cases it's too hard to use generators to implement response streaming. Vovk.ts introduces `StreamResponse` class inherited from `Response` class that uses `TransformStream#readable` as body and adds required HTTP headers. 
-It's a lower-level API that is used behind the scenes to implement generator logic explained above.
+It's a lower-level API that is used behind the scenes to implement generator logic described at previous section.
 Service method at this case is implemented as a regular function that accepts `StreamResponse` instance as a pointer to send messages manually.
 
 There is what the streaming service might look like:
 
-```ts
-// /src/modules/stream/StreamService.ts
+```ts filename="/src/modules/stream/StreamService.ts"
 import type { StreamResponse } from 'vovk';
 
 export type Token = { message: string };

@@ -1,7 +1,8 @@
 
 # Controller Definition
 
-Controller is a static class that handles incoming HTTP requests. The methods of this class, that are decorated with an HTTP decorator (like `@get()` or `@post()`), accept 2 arguments: `NextRequest` that is not modified in any way by Vovk.ts itself and parameters that are defined by the decorator path. 
+Controller is a static class that handles incoming HTTP requests. 
+The methods of this class, that are decorated with an HTTP decorator (like `@get()` or `@post()`), accept 2 arguments: `NextRequest` (that is not monkey-patched by Vovk.ts itself) and parameters that are defined by the decorator path. 
 
 ```ts
 import type { NextRequest } from 'next';
@@ -22,12 +23,11 @@ export default class UserController {
 
 At the example aboce `data` is casted as `any` and `userRole` is casted as `string | null`. To fix the body and query types Vovk.ts provides a new type `VovkRequest<BODY?, QUERY?>` that is extended from `NextRequest` where the first generic argument represents the type of value returned from `req.json` but also allows to define values returned from `req.nextUrl.searchParams.get`. `VovkRequest` also plays crucial role in type inference when **vovk-client** is used in order to infer types properly. 
 
-As its mentioned before, `req` object is an original `NextRequest` object that provided by Next.js as is without changing it, but other libraries (like [vovk-zod](https://github.com/finom/vovk-zod)) as well as your custom code can modify this object when needed (for example to add `currentUser` property defined by your [auth guard decorator](./decorators/authorization)).
+As its mentioned before, `req` object is an original `NextRequest` object that provided by Next.js as is, without changing it, but other libraries (like [vovk-zod](https://github.com/finom/vovk-zod)) as well as your custom code can modify this object when needed (for example to add `currentUser` property defined by your [auth guard decorator](./decorators/authorization)).
 
 To add the required body and query types just replace `NextRequest` by `VovkRequest`. Let's modify the abstract example above.
 
-```ts
-// /src/modules/user/UserController.ts
+```ts filename="/src/modules/user/UserController.ts"
 import { prefix, put, type VovkRequest } from 'vovk';
 import type { User } from '../../types';
 
@@ -53,8 +53,7 @@ As you can see we've changed nothing more than the type of `req` but now `data` 
 
 Once the controller is defined it needs to be initialized at the wildcard route by adding it to the `controllers` object.
 
-```ts
-// /src/app/api/[[...vovk]]/route.ts
+```ts filename="/src/app/api/[[...vovk]]/route.ts"
 import { initVovk } from 'vovk';
 import UserController from '../../../modules/user/UserController';
 
@@ -71,8 +70,7 @@ export const { GET, POST, PUT, DELETE } = initVovk({ controllers, workers });
 
 All HTTP decorators provide `.auto` method that generates endpoint name automatically from the method name.
 
-```ts
-// /src/modules/user/UserController.ts
+```ts filename="/src/modules/user/UserController.ts"
 import { prefix, put } from 'vovk';
 
 @prefix('users')
@@ -85,7 +83,7 @@ export default class UserController {
 }
 ```
 
-Since the client is generated automatically, if your API is used only internally, you can use auto-generated endpoints to save a little bit of time.
+Since the client is generated automatically, if your API is used only internally, you can use auto-generated endpoints to save a little bit of time thinking of new endpoint name.
 
 ## Response Headers
 

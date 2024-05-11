@@ -39,7 +39,7 @@
   "controller":  "Controller",
   "streaming":  "Text Streaming",
   "decorators":  "Decorators",
-  "worker": "Web Worker",
+  "worker": "Web Worker with WPC",
   "config": "vovk.config.js",
   "customization": "Customization",
   "cli": "CLI",

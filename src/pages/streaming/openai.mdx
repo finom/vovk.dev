@@ -1,11 +1,11 @@
 import { Tabs } from 'nextra/components';
-import OpenAiController from '../../downloaded-examples/openai/OpenAiController.md';
-import OpenAiExample from '../../downloaded-examples/openai/OpenAiExample.md';
+import OpenAiController from '../../downloaded-examples/openai/OpenAiController.mdx';
+import OpenAiExample from '../../downloaded-examples/openai/OpenAiExample.mdx';
 import LiveOpenAiExample from '../../live-examples/LiveOpenAiExample';
 
 # OpenAI Chat Live Example
 
-At this examle the `createChatCompletion` generator delegates the async iterable returned from `openai.chat.completions.create`
+At this example the `createChatCompletion` generator delegates the async iterable returned from `openai.chat.completions.create`
 and the component utilises `using` keyword in order to close the stream safely in case of an interruption, iterating the messages using `await for` syntax.
 
 <div className="doc-live-example">

@@ -3,7 +3,7 @@ import { FileTree, Callout } from 'nextra/components'
 
 # Project Framework
 
-This page explains how you could structure an application introducing a framework that you can optionally apply to a large project that uses Vovk.ts.
+This page explains how you could structure an application introducing a framework that you can optionally apply to a large project that uses Next.js.
 
 The framework combines back-end and front-end code into a single code base. The logical parts of the app are split into folders called "modules" given them corresponding name such as user, post, comment, app settings, auth features etc. Basically, a "module" can belong to 2 categories:
 
@@ -64,12 +64,11 @@ The image below illustrates how different components of the application can be r
 
 Controller Class is a static class that defines API endpoints. It can use Back-End Service Classes and Isomorphic Service Classes explained below.
 
-```ts
-// /src/modules/post/PostController.ts
+```ts filename="/src/modules/user/PostController.ts"
 import { prefix, get } from 'vovk';
 import PostService from './PostService';
 
-@prefix('post')
+@prefix('posts')
 export default class PostController {    
     @get()
     static getPosts() {
@@ -78,54 +77,12 @@ export default class PostController {
 }
 ```
 
-Decorators created with `createDecorator` make possible to validate request, throw errors, redirect, or return something different to the client.
-
-```ts
-// /src/modules/post/PostController.ts
-import { prefix, get, type VovkRequest } from 'vovk';
-import vovkZod from 'vovk-zod';
-import { z } from 'zod';
-import { authGuard } from '../../decorators';
-import PostService from './PostService';
-
-@prefix('post')
-export default class PostController {    
-    @put(':postId')
-    @authGuard()
-    @vovkZod(
-        z.object({
-            title: z.string()
-            content: z.string(),
-        }).strict(),
-        z.object({
-            moderationType: z.string(),
-        }).strict()
-    )
-    static updatePost(
-        req: VovkRequest<{ title: string; content: string; }, { moderationType: 'nice' | 'strict' }>, 
-        { postId }: { postId: string }
-    ) {
-        const { title, content } = req.json();
-        const moderationType = req.nextUrl.searchParams.get('moderationType');
-        return PostService.updatePost(postId, title, content, moderationType);
-    }
-}
-```
-
-The example above implements PUT endpoint that looks like that: `/api/post/69?moderationType=nice`.
-
-- `authGuard` is a custom decorator that may be created by you based on your authorisation environment.
-- `vovkZod` that's imported from [vovk-zod](https://github.com/finom/vovk-zod) performs Zod validation of body and query both on server-side and client-side.
-- `VovkRequest` generic partially re-defines `NextRequest` type and makes `req.json` as well as `req.nextUrl.searchParams.get` return proper types.
-- `PostService.updatePost` is invoked with properly-typed arguments after authorisation check, body and query validation.
-
 ## Back-end Service Class
 
-Back-end Service Class (or just a Service) is a static class that implements third-party API calls or performs requests do the project database. 
+Back-end Service Class (or just "Service") is a static class that implements third-party API calls or performs requests do the project database. 
 By design Services don't have access to the request object and play the role of a "back-end library".
 
-```ts
-// /src/modules/comment/CommentService.ts
+```ts filename="/src/modules/comment/CommentService.ts"
 export default class CommentService {
     static getUserById(userId: User['id']) {
         return prisma.users.findUniqueOrThrow({ where: { id: userId } });
@@ -139,8 +96,7 @@ export default class CommentService {
 Isomorphic Service is similar to a Back-end Service but can be used both by front-end (state, components, hooks, other Isomorphic Services, ...) and back-end (Back-End Services, Controllers, CLI scripts, ...). 
 The only difference is that its methods need to be implemented as [pure functions](https://en.wikipedia.org/wiki/Pure_function). It means that it shouldn't perform DB calls nor access application state but can use other Isomorphic Service Classes. 
 
-```ts
-// /src/modules/comment/CommentIsomorphicService.ts
+```ts filename="/src/modules/comment/CommentIsomorphicService.ts"
 import PostIsomorphicService from '../post/PostIsomorphicService';
 
 export default class CommentIsomorphicService {
@@ -163,8 +119,7 @@ Every Isomorphic Service Class can be turned into a WPC Class (Worker Procedure 
 The decorator defines required `onmessage` listeners if it's used in a Web Worker scope. 
 In other cases `@worker()` decorator does nothing and the class can still be used as an Isomorphic Service somewhere else.
 
-```ts
-// /src/modules/hello/HelloWorker.ts
+```ts filename="/src/modules/hello/HelloWorker.ts"
 import { worker } from 'vovk';
 
 @worker()
@@ -175,46 +130,32 @@ export default class HelloWorker {
 }
 ```
 
-The compiled WPC interface then can be imported from **vovk-client**.
-
-```ts
-// /src/app/page.tsx
-import { HelloWorker } from 'vovk-client';
-
-// ...
-const onClick = useCallback(async () => {
-    HelloWorker.employ(new Worker(new URL('../modules/hello/HelloWorker.ts', import.meta.url)));
-
-    const result = await worker.performHeavyCalculations();
-
-    console.log('result', result);
-}, []);
-```
-
 WPC Clases can use other WPC Classes, Isomorphic Service Classes and Back-End Controllers imported from **vovk-client**. For more info [check the documentation](./worker).
 
 ## State
 
-State file contains application state code that is going to be imported by React Components and other state files. It can use Isomorphic Services, WPC interfaces and Controllers imported from **vovk-client**.
+State file contains application state code that is going to be imported by React Components and other state files. It can use Isomorphic Services, WPC interfaces and clientized Controllers imported from **vovk-client**.
 State can be implemented with any application state library: Recoil, Redux, Redux Toolkit, MobX, custom context, or anything else since the framework does not cover state management topic.
 
-<Callout type="info" emoji="ℹ️">
-  A new state management library is [coming soon](https://github.com/finom/rebloom). Stay tuned!
-</Callout>
-
-```ts
-// /src/modules/post/PostState.ts
+```ts filename="/src/modules/post/PostState.ts"
 import { PostController, PostWorker } from 'vovk-client';
 
 // ... init app state for posts
 ```
 
+<Callout type="info" emoji="ℹ️">
+  A new state management library based on static classes is [coming soon](https://github.com/finom/rebloom). 
+  It's already used at several projects but it's not well documented yet. 
+  Using unified syntax saves even more brain waves when you switch your attention between different environments.
+  Stay tuned by giving it a star!
+</Callout>
+
 ## Other ideas
 
 The framework isn't limited by the elements described above and you may want to add more files into your module folder.
 
-- More Back-end Service Classes.
-- More Isomorphic Service Classes.
+- More Back-end Services in order to organize the code further.
+- More Isomorphic Services.
 - More WPC classes.
 - Tests.
 - React Components that you want to categorise (`modules/hello/components/MyComponent.tsx`).

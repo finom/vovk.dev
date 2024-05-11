@@ -1,5 +1,5 @@
-import BasicController from '../downloaded-examples/basic/BasicController.md';
-import BasicExample from '../downloaded-examples/basic/BasicExample.md';
+import BasicController from '../downloaded-examples/basic/BasicController.mdx';
+import BasicExample from '../downloaded-examples/basic/BasicExample.mdx';
 import LiveBasicExample from '../live-examples/LiveBasicExample';
 import { Steps, Tabs } from 'nextra/components'
 
@@ -90,10 +90,9 @@ In your **tsconfig.json** set `"experimentalDecorators"` to `true`.
 
 ### Set up Next.js wildcard route handler and export types read by the client library
 
-Create file **/src/app/api/[[...vovk]]/route.ts** where **[[...vovk]]** is a folder name insicating what Next.js documentation calls ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) that [can be customized](./config). This is the core entry point for all **Vovk.ts** routes.
+Create file **/src/app/api/[[...vovk]]/route.ts** where **[[...vovk]]** is a folder name indicating what Next.js documentation calls ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) that can be customized. This is the core entry point for all **Vovk.ts** routes.
 
-```ts
-// /src/app/api/[[...vovk]]/route.ts
+```ts filename="/src/app/api/[[...vovk]]/route.ts"
 import { initVovk } from 'vovk';
 
 export const runtime = 'edge';
@@ -115,8 +114,7 @@ Enabling Edge Runtime is optional.
 
 Create **HelloController.ts** at **/src/modules/hello/** with same-named static class. 
 
-```ts
-// /src/modules/hello/HelloController.ts
+```ts filename="/src/modules/hello/HelloController.ts"
 import { get, prefix } from "vovk";
 
 @prefix('hello') // prefix is optional
@@ -130,8 +128,7 @@ export default class HelloController {
 
 And add this class at **/src/app/api/[[...vovk]]/route.ts** to the `controllers` object.
 
-```ts
-// /src/app/api/[[...vovk]]/route.ts
+```ts filename="/src/app/api/[[...vovk]]/route.ts"
 import HelloController from '../../../modules/hello/HelloController';
 
 // ...
@@ -199,7 +196,7 @@ Note that if you're using VSCode you're probably going to need to [restart TS se
 
 Next.js Server Components are also supported but require to define absolute URL (by default all requests are made to `/api`). Check the [Server Component Example](https://vovk-examples.vercel.app/server-component) for more information.
 
-Methods of the generated library approximately have the following signature:
+The only argument of methods of the generated library has approximately the following signature:
 
 ```ts
 interface Options extends Omit<RequestInit, 'body' | 'method'> {
@@ -212,7 +209,7 @@ interface Options extends Omit<RequestInit, 'body' | 'method'> {
 }
 ```
 
-In other words it supports [custom Next.js options](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating) (Because Next.js extends `RequestInit` global type) as well as [React Native Fetch API](https://www.npmjs.com/package/react-native-fetch-api).
+In other words it supports [custom Next.js options](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating) (because Next.js extends `RequestInit` global type) as well as [React Native Fetch API](https://www.npmjs.com/package/react-native-fetch-api).
 
 ```ts
 await HelloController.hello({

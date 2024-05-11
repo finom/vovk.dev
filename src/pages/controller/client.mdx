@@ -2,7 +2,7 @@
 
 `initVovk` performs required actions to generate client-side library and no additional action from your side is required (but you probably would need to restart TS Server to update types if you use VSCode when a new controller is added).
 
-The client library implements the same methods (in our case `updateUser`) but changes the method interface so you can pass required input data as options (`body`, `query` and `params`). **vovk-client** can be used in client components, server components, application state and even be distributed as a standalone package. For an illustration [vovk-examples](https://github.com/finom/vovk-examples) is published as a [standalone NPM package](https://www.npmjs.com/package/vovk-examples) to be used on [vovk.dev](https://vovk.dev) that, by itself, is a static website powered by gh-pages.
+The client library implements same-named methods but changes the method signature so you can pass required input data as options (`body`, `query` and `params`). **vovk-client** can be used in client components, server components, application state and even be distributed as a standalone package. For an illustration [vovk-examples](https://github.com/finom/vovk-examples) is published as a [standalone NPM package](https://www.npmjs.com/package/vovk-examples) to be used on [vovk.dev](https://vovk.dev) that, by itself, is a static website powered by gh-pages.
 
 Everything exported from **vovk-client** is plain old JavaScript with typings that calls the regular `fetch` function.
 

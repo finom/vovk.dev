@@ -1,7 +1,7 @@
 
 import { Tabs } from 'nextra/components';
-import StreamController from '../../downloaded-examples/stream/StreamController.md';
-import StreamExample from '../../downloaded-examples/stream/StreamExample.md';
+import StreamController from '../../downloaded-examples/stream/StreamController.mdx';
+import StreamExample from '../../downloaded-examples/stream/StreamExample.mdx';
 import LiveStreamExample from '../../live-examples/LiveStreamExample';
 
 # Text Streaming for LLMs
@@ -10,8 +10,7 @@ import LiveStreamExample from '../../live-examples/LiveStreamExample';
 
 Controller methods can implement generators that use `*` syntax and utilise `yield` keyword instead of regular `return`.
 
-```ts
-// /src/modules/stream/StreamController.ts
+```ts filename="/src/modules/stream/StreamController.ts"
 import { get, prefix } from 'vovk';
 
 type Token = { message: string };
@@ -36,8 +35,7 @@ export default class StreamController {
 
 In order to refactor this code and utilise Back-end Service you can move the streaming logic to `StreamService` static class.
 
-```ts
-// /src/modules/stream/StreamService.ts
+```ts filename="/src/modules/stream/StreamService.ts"
 type Token = { message: string };
 
 export default class StreamService {
@@ -58,7 +56,7 @@ export default class StreamService {
 
 At the controller use `yield*` syntax to delegate iterable returned from `StreamService.streamTokens`.
 
-```ts
+```ts filename="/src/modules/stream/StreamController.ts"
 import { get, prefix } from 'vovk';
 import StreamService from './StreamService';
 

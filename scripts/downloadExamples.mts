@@ -64,13 +64,13 @@ async function main() {
 
       console.log(parsedPath.name);
 
-      const newPath = path.join(__dirname, '../src/downloaded-examples', name, parsedPath.name + '.md');
+      const newPath = path.join(__dirname, '../src/downloaded-examples', name, parsedPath.name + '.mdx');
 
       // await fs.mkdir(`$`, { recursive: true });
 
       console.log(newPath)
 
-      await createFileWithDirectories(newPath, "```tsx\n" + content.trim() + "\n```");
+      await createFileWithDirectories(newPath, "```tsx filename=\"/"+filePath+"\"\n" + content.trim() + "\n```");
     }
 
     

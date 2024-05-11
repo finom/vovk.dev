@@ -62,8 +62,7 @@ Creates the standard Next.js App Route handlers used by the main [Optional Catch
 - `exposeValidation?: boolean` - set to `false` if you want to hide validation logic from the client-side code.
 - `onError?: (err: Error, req: NextRequest) => void | Promise<void>` - called on Controller exceptions, can be used to log errors by a third-party service. The second argument can be utilised to retrieve reques URL, authorisation info, and other useful information about the failed request.
 
-```ts
-// /src/app/api/[[...vovk]]/route.ts
+```ts filename="/src/app/api/[[...vovk]]/route.ts"
 import { initVovk } from 'vovk';
 import HelloController from '../../../modules/hello/HelloController';
 import UserController from '../../../modules/user/UserController';
@@ -159,8 +158,7 @@ export default class HelloController {
 
 Defines required `onmessage` handler for a [WPC Class](./worker).
 
-```ts
-// /src/modules/hello/HelloWorker.ts
+```ts filename="/src/modules/hello/HelloWorker.ts"
 import { worker } from 'vovk';
 
 @worker()
@@ -259,8 +257,7 @@ Used to throw HTTP errors on server-side and re-throw, simulate and handle HTTP 
 
 Server-side:
 
-```ts
-// /src/modules/hello/HelloController.tsx
+```ts filename="/src/modules/hello/HelloController.ts"
 // ...
 export default class HelloController {
     @get()
@@ -274,8 +271,7 @@ export default class HelloController {
 
 Client-side:
 
-```ts
-// /src/modules/hello/HelloState.ts
+```ts filename="/src/modules/hello/HelloState.ts"
 import { HelloController } from 'vovk-client';
 
 export async function getHello() {
@@ -386,8 +382,7 @@ Original shape of an object returned from the server when an error is thrown.
 
 The type is used to define types for `req.json` and `req.nextUrl.searchParams.get` and allow to infer types in other environments.
 
-```ts
-// /src/modules/hello/HelloController.ts 
+```ts filename="/src/modules/hello/HelloController.ts"
 import { get, type VovkRequest } from 'vovk';
 
 export class HelloController {
@@ -425,8 +420,7 @@ Extracts return type from a controller method and unwraps the promise.
 
 Extracts yield type from a controller method implemented as a generator.
 
-```ts
-// /src/modules/hello/HelloState.ts
+```ts filename="/src/modules/hello/HelloController.ts"
 import {
   get,
   type VovkControllerBody, 
@@ -509,8 +503,7 @@ module.exports = nextConfig;
 
 To utilise this feature return `generateStaticAPI` results from `generateStaticParams` function.
 
-```ts
-// /src/app/api/[[...vovk]]/route.ts
+```ts filename="/src/app/api/[[...vovk]]/route.ts"
 // ...
 export type Controllers = typeof controllers;
 export type Workers = typeof workers;

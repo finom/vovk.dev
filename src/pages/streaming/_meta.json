@@ -3,7 +3,7 @@
         "title": "Text Streaming for LLMs"
     },
     "stream-response": {
-        "title": "Streaming with StreamResponse class"
+        "title": "Streaming with StreamResponse Class"
     },
     "openai": {
         "title": "OpenAI Chat Example"

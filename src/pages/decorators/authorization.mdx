@@ -1,15 +1,14 @@
 
 # Authorization with Decorators
 
-There is an example code that defines `authGuard` decorator that does two things:
+The `authGuard` decorator below does two things:
 
 - Checks if a user is authorised and returns an Unauthorised status if not.
 - Adds `currentUser` to the request object.
 
 To extend `req` object you can define your custom interface that extends `VovkRequest`. Let's imagine that Prisma ORM is used at the project.
 
-```ts
-// /src/types.ts
+```ts filename="/src/types.ts"
 import type { VovkRequest } from 'vovk'
 import type { User } from '@prisma/client';
 
@@ -22,8 +21,7 @@ export interface GuardedRequest<BODY = undefined, QUERY extends Record<string, s
 
 Then define the `authGuard` decorator itself.
 
-```ts
-// /src/decorators/authGuard.ts
+```ts filename="/src/decorators/authGuard.ts"
 import { HttpException, HttpStatus, createDecorator } from 'vovk';
 import type { GuardedRequest } from '../types';
 
@@ -45,7 +43,7 @@ const authGuard = createDecorator(async (req: GuardedRequest, next) => {
 export default authGuard;
 ```
 
-And finally use the decorator and define request object with your newly created `GuardedRequest` type.
+And finally use the decorator and define the request object with your newly created `GuardedRequest` type.
 
 ```ts
 // ...

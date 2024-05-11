@@ -1,17 +1,16 @@
 import { Tabs } from 'nextra/components'
-import BasicService from '../../downloaded-examples/basic-with-service/BasicService.md';
-import BasicControllerWithService from '../../downloaded-examples/basic-with-service/BasicControllerWithService.md';
-import BasicExampleWithService from '../../downloaded-examples/basic-with-service/BasicExampleWithService.md';
+import BasicService from '../../downloaded-examples/basic-with-service/BasicService.mdx';
+import BasicControllerWithService from '../../downloaded-examples/basic-with-service/BasicControllerWithService.mdx';
+import BasicExampleWithService from '../../downloaded-examples/basic-with-service/BasicExampleWithService.mdx';
 import LiveBasicExampleWithService from '../../live-examples/LiveBasicExampleWithService';
 
 # Service Class
 
-In order to make the code cleaner it's recommended to move most of the logic to Back-end Services. [Back-End Service](./project-structure) is a static class that serves as a library that performs database and third-party API calls outside of Controller Classes.
+In order to make the code cleaner it's recommended to move most of the logic to Back-end Services. [Back-End Service](/framework) is a static class that serves as a library that performs database and third-party API calls outside of Controller Classes.
 
 Let's say you have the following Controller Class:
 
-```ts
-// /src/modules/user/UserController.ts
+```ts filename="/src/modules/user/UserController.ts"
 import { prefix, put, type VovkRequest } from 'vovk';
 import type { User } from '../../types';
 
@@ -31,12 +30,11 @@ export default class UserController {
 }
 ```
 
-Currently it looks fine since it doesn't contain a lot of logic. But as your app is getting more complex you're going to get more handlers with more code. At this case it's recommended to move part of the logic to Back-End Service Class making controllers to be responsible for input extraction, validation and authorisation, but not for DB or API calls.
+Currently it looks fine since it doesn't contain a lot of logic. But as your app is getting more complex you're going to get more endpoints with more code. At this case it's recommended to move part of the logic to Back-End Service Class making controllers to be responsible for input extraction, validation and authorisation, but not for DB or API calls.
 
 Let's refactor the code above by introducing `UserService`. For this example it's going to be small but I hope that illustrates the idea clearly.
 
-```ts
-// /src/modules/user/UserService.ts
+```ts filename="/src/modules/user/UserService.ts"
 
 // ... import types and libraries ...
 
@@ -52,8 +50,7 @@ export default class UserService {
 
 As you can see, `UserService` does not use decorators and used as a library that performs required side-effects.
 
-```ts
-// /src/modules/user/UserController.ts
+```ts filename="/src/modules/user/UserController.ts"
 import { prefix, put, type VovkRequest } from 'vovk';
 import UserService from './UserService'
 
@@ -67,10 +64,9 @@ export default class UserController {
 }
 ```
 
-Back-End Service Classes can use other Back-End Services (as well as so-called Isomorphic Service Classes explained in [separate article of this documentation](./framework)).
+Back-End Service Classes can use other Back-End Services (as well as so-called Isomorphic Service Classes explained in [separate article of this documentation](/framework)).
 
-```ts
-// /src/modules/user/UserService.ts
+```ts filename="/src/modules/user/UserService.ts"
 import PostService from '../post/PostService';
 import CommentService from '../comment/CommentService';
 // ... other imports ...

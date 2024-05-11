@@ -1,7 +1,7 @@
 ---
 title: Vovk.ts 2.0 is here!
 date: '11/05/2024'
-description: 'After testing in multiple large projects, thanks to community feedback, Vovk 2.0 is released with some breaking changes.'
+description: 'After testing in multiple large projects, thanks to community feedback, Vovk 2.0 is released with some insignificant breaking changes.'
 ---
 
 ## Vovk.ts 2.0 is here!
@@ -24,7 +24,7 @@ The version 1 is heavily tested in production and the community feedback is take
 - ✅ Replaced `--no-next-dev` flag with `--next-dev` flag in order to make it not run Next.js development server by default. In other words [concurrently](https://www.npmjs.com/package/concurrently) is now a recommended way to run Vovk and Next.js development servers together. This reduces potential problems with built-in command runner in Vovk.ts but also reduces very relevant confusion for new users.
     - Without Concurrently:
         - Before: `vovk dev`
-        - After: `vovk dev --next-dev` - not recommended but can be useful in some cases.
+        - After: `vovk dev --next-dev` - not recommended but can be useful if it works on your machine :)
     - With Concurrently:
         - Before: `PORT=3000 concurrently "vovk dev --no-next-dev" "next dev" --kill-others`
         - After: `PORT=3000 concurrently "vovk dev" "next dev" --kill-others` - this is the new recommended way to run Vovk and Next.js development servers together.

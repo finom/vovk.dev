@@ -52,7 +52,7 @@ The fetcher accepts two arguments:
 
 Your custom fetcher with a custom option `successMessage` may look like that:
 
-```ts
+```ts filename="/src/lib/myFetchingFunction.ts"
 import type { VovkDefaultFetcherOptions, VovkClientFetcher } from 'vovk';
 
 // in order to keep default features such as disableClientValidation, headers etc,
@@ -61,7 +61,7 @@ interface MyOptions extends VovkDefaultFetcherOptions {
     successMessage: string;
 }
 
-const myCustomFetcher: VovkClientFetcher<MyOptions> = async (
+const myFetchingFunction: VovkClientFetcher<MyOptions> = async (
   { httpMethod, getEndpoint, validate, defaultHandler, defaultStreamHandler },
   { params, query, body, prefix = '/api', successMessage, ...options }
 ) => {
@@ -85,9 +85,7 @@ const myCustomFetcher: VovkClientFetcher<MyOptions> = async (
   // 4. Handle response based on response headers
   if (response.headers.get('content-type')?.includes('application/json')) {
     returnResponse = await defaultHandler(response);
-  }
-
-  if (response.headers.get('content-type')?.includes('text/event-stream')) {
+  } else if (response.headers.get('content-type')?.includes('text/event-stream')) {
     returnResponse = await defaultStreamHandler(response);
   }
 
@@ -97,10 +95,10 @@ const myCustomFetcher: VovkClientFetcher<MyOptions> = async (
   return returnResponse;
 };
 
-export default myCustomFetcher;
+export default myFetchingFunction;
 ```
 
-As you can see the code determines response type by `content-type` header. You can freely redefine this logic to make the fetcher return something else.
+As you can see the code determines response type by `content-type` header. You can freely redefine this logic to make the fetcher return something else (for example, if you want to use Axios or other fetching library).
 
 ```ts
 if (response.headers.get('content-type')?.includes('application/json')) {
@@ -115,7 +113,7 @@ import { MyController } from 'vovk-client';
 
 // ...
 
-const result = MyController.myMethod<{ foo: 'bar' }>({
+const result = await MyController.myMethod<{ foo: 'bar' }>({
   body,
   successMessage: 'Success!'
 })
