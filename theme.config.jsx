@@ -33,8 +33,8 @@ const themeConfig = {
         {
           // url: 'https://vovk.dev/vovk-og.png',
           url: 'https://vovk.dev/vovk-logo.png',
-          width: 320, // 1165,
-          height: 92, // 906,
+          width: 1200, // 1165,
+          height: 630, // 906,
           alt: 'Vovk.ts',
         },
       ],

@@ -8,7 +8,7 @@ import BonusFeatures from '@/components/BonusFeatures';
 import VovkLogo from '@/components/VovkLogo';
 import ManualInstall from '@/components/ManualInstall';
 import Link from 'next/link';
-import OgToScreenshot from '@/components/_OgToScreenshot';
+import OgToScreenshot from '@/components/OgToScreenshot';
 import './home.css';
 
 const Home = () => {
