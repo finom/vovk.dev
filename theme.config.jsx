@@ -31,10 +31,9 @@ const themeConfig = {
       type: 'website',
       images: [
         {
-          // url: 'https://vovk.dev/vovk-og.png',
-          url: 'https://vovk.dev/vovk-logo.png',
-          width: 1200, // 1165,
-          height: 630, // 906,
+          url: 'https://vovk.dev/vovk-og.png',
+          width: 1200,
+          height: 630,
           alt: 'Vovk.ts',
         },
       ],
