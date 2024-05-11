@@ -14,12 +14,6 @@
     "service": {
         "title": "Service"
     },
-    "streaming": {
-        "title": "Text Streaming for LLMs"
-    },
-    "stream-response": {
-        "title": "Streaming with StreamResponse class"
-    },
     "type": {
         "title": "Type Extraction"
     }

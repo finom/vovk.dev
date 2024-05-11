@@ -7,6 +7,9 @@ const themeConfig = {
   project: {
     link: 'https://github.com/finom/vovk',
   },
+  chat: {
+    link: 'https://discord.gg/qdT8WEHUuP',
+  },
   banner: {
     key: '2.0-release',
     text: <Link href="/blog/vovk-2-0">🎉 Vovk 2.0 is released. Read more →</Link>,
