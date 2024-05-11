@@ -52,7 +52,7 @@ const SolvedProblems = () => {
           </div>
         </div> */}
         <div className="flex gap-4 items-start flex-col ">
-          <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full w-[44px] h-[44px]">
+          <span className="text-rose-600 bg-rose-500/10 rounded-full w-[44px] h-[44px] flex items-center justify-center">
             <svg
               width="24px"
               height="24px"
@@ -228,7 +228,7 @@ const SolvedProblems = () => {
             </svg>
           </span>
           <div>
-            <h3 className="font-semibold text-xl">Easy to learn</h3>
+            <h3 className="font-semibold text-xl">Easy to Learn</h3>
             <p className="mt-1 text-secondary">
               Specially designed for Next.js App Router, Vovk doesn't introduce complex abstractions by being just a
               wrapper over{' '}
@@ -252,7 +252,7 @@ const SolvedProblems = () => {
             </svg>
           </span>
           <div>
-            <h3 className="font-semibold text-xl">Edge runtime</h3>
+            <h3 className="font-semibold text-xl">Edge Runtime</h3>
             <p className="mt-1 text-secondary">
               {' '}
               Edge runtime is available out of the box. Your REST API is geographically closer to users.
@@ -260,10 +260,10 @@ const SolvedProblems = () => {
           </div>
         </div>
         <div className="flex gap-4 items-start flex-col ">
-          <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full w-[44px] h-[44px]">
+          <span className="text-rose-600 bg-rose-500/10 rounded-full w-[44px] h-[44px] flex items-center justify-center">
             <svg
-              width="24px"
-              height="24px"
+              width="22px"
+              height="22px"
               strokeWidth="1.5"
               viewBox="0 0 24 24"
               fill="none"
@@ -287,14 +287,14 @@ const SolvedProblems = () => {
             </svg>
           </span>
           <div>
-            <h3 className="font-semibold text-xl">Code splitting</h3>
+            <h3 className="font-semibold text-xl">Code Splitting</h3>
             <p className="mt-1 text-secondary">
               Apps built with Vovk.ts utilise service-controller pattern that inspired by the beauty of NestJS.
             </p>
           </div>
         </div>
         <div className="flex gap-4 items-start flex-col ">
-          <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full w-[44px] h-[44px]">
+          <span className="text-rose-600 bg-rose-500/10 rounded-full w-[44px] h-[44px] flex items-center justify-center">
             <svg
               width="24px"
               height="24px"
@@ -332,7 +332,7 @@ const SolvedProblems = () => {
           </div>
         </div>
         <div className="flex gap-4 items-start flex-col ">
-          <span className="text-rose-600 bg-rose-500/10 p-3 rounded-full w-[44px] h-[44px]">
+          <span className="text-rose-600 bg-rose-500/10 rounded-full w-[44px] h-[44px] flex items-center justify-center">
             <svg
               width="24px"
               height="24px"
