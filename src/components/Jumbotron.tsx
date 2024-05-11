@@ -17,8 +17,8 @@ const Jumbotron = () => {
           -webkit-text-fill-color: transparent;
         }
       `}</style>
-      <h1 className="text-5xl md:text-6xl font-bold tracking-tight mt-8">RESTful RPC for Next.js</h1>
-      <p className="mt-4 text-secondary md:text-lg">
+      <h1 className="text-5xl md:text-7xl font-bold tracking-tight mt-8">RESTful RPC for Next.js</h1>
+      <p className="mt-4 text-secondary md:text-xl">
         Transforms Next.js App Router into a powerful REST API platform with RPC integration
       </p>
       <div className="max-w-[450px] m-auto">
