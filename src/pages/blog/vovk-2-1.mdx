@@ -10,11 +10,11 @@ Vovk.ts 2.1 is a small but important type update that gives additional flexibili
 Starting this version standard `NextResponse.json` can be used with proper type inferrence without requirement to override the return type of a client method.
 
 
-```ts filename="/src/modules/HelloWorld.ts"
+```ts filename="/src/modules/hello-world/HelloWorldController.ts"
 import { get, HttpStatus } from 'vovk';
 import { NextResponse } from 'next/server';
 
-export default class HelloWorld {
+export default class HelloWorldController {
     @get()
     static async helloWorld(/* ... */) {
         // ...
@@ -29,8 +29,8 @@ export default class HelloWorld {
 Client code:
 
 ```ts 
-import { HelloWorld } from 'vovk-client';
+import { HelloWorldController } from 'vovk-client';
 
 // ...
-const response = await HelloWorld.helloWorld(); // response type is inferred as { hello: string }
+const response = await HelloWorldController.helloWorld(); // response type is inferred as { hello: string }
 ```
