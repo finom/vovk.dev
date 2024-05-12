@@ -1,9 +1,19 @@
 
 # Return Type
 
-## Custom object
+## Custom Object
 
-The decorated static methods of controllers can return several kinds of objects. The most common is a regular object initializer. Let's say your controller method returns Prisma ORM invocation.
+The decorated static methods of controllers can return several kinds of objects. For example, a regular object literal. 
+
+```ts
+// ...
+static async helloWorld(/* ... */) {
+    // ...
+    return { hello: 'world' };
+}
+```
+
+Another example - if the controller method returns Prisma ORM invocation the type is going to be recognised accordingly.
 
 ```ts
 // ...
@@ -19,30 +29,37 @@ static async updateUser(/* ... */) {
 // ...
 ```
 
-At this case the returned value of client method `UserController.updateUser` is going to be recognised as `User` generated at **@prisma/client**.
+At this case the returned value of client method `UserController.updateUser` gets `User` type generated at **@prisma/client**.
 
-## Response object
+## Response Object
 
-HTTP handlers can also return regular `Response` object, for example `NextResponse`. 
+HTTP handlers can also return regular `Response` object, including `NextResponse`.
+
 
 ```ts
 // ...
-static async updateUser(/* ... */) {
+static async helloWorld(/* ... */) {
     // ...
-    return NextResponse.json(updatedUser, { status: 200 });
+    return NextResponse.json({ hello: 'world' }, { status: 200 });
 }
 // ...
 ```
 
-At this case client library wouldn't be able to properly recognise type of returned value but you can override the type manually by using generic argument that overrides the return type without need to convert it to `unknown` first.
+When `NextResponse.json` is returned from the controller method, the client library is going to recognise the return type as expected.
+This way you can define headers, cookies and other options dynamically. See the [NextResponse documentation](https://nextjs.org/docs/app/api-reference/functions/next-response) for more details.
+
+## Type Override
+
+In case if your code makes it impossible to recognise the return type, you can override it manually with no need to convert it to `unknown` first.
 
 ```ts
 import { UserController } from 'vovk-client';
-import type { User } from '@prisma/client';
+import type { SomeType } from '../types';
 
 // ...
 
-const updatedUser = await UserController.updateUser<User>(/* ... */);
+// Override the return type
+const updatedUser = await UserController.updateUser<SomeType>(/* ... */);
 ```
 
 ## Async iterable

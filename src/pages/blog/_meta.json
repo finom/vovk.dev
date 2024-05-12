@@ -7,5 +7,14 @@
       "breadcrumb": true,
       "toc": true
     }
+  },
+  "vovk-2-1": {
+    "title": "Vovk.ts 2.1",
+    "display": "hidden",
+    "type": "page",
+    "theme": {
+      "breadcrumb": true,
+      "toc": true
+    }
   }
 }

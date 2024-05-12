@@ -4,9 +4,9 @@ date: '11/05/2024'
 description: 'After testing in multiple large projects, thanks to community feedback, Vovk 2.0 is released with some insignificant breaking changes.'
 ---
 
-## Vovk.ts 2.0 is here!
+# Vovk.ts 2.0 is here!
  
-### Breaking changes
+## Breaking changes
 
 The version 1 is heavily tested in production and the community feedback is taken into account. Great news is that no significant bugs are found since then! The main purpose of breaking changes in this release is to make Vovk more consistent and easier to use.
 
@@ -30,7 +30,7 @@ The version 1 is heavily tested in production and the community feedback is take
         - After: `PORT=3000 concurrently "vovk dev" "next dev" --kill-others` - this is the new recommended way to run Vovk and Next.js development servers together.
 - ✅ Renamed `worker.use` to `worker.employ` to make it less confusing in React components.
 
-### Minior changes
+## Minior changes
  
 `onError` option of `initVovk` now gets request object as the second argument. This is useful if you want to extract some information about request like headers, method, authorisation, etc. 
 
@@ -49,6 +49,6 @@ const { GET, POST, PUT, DELETE } = initVovk({
 });
 ```
 
-### Chores
+## Chores
 
 - ✅ Improved quality of the documentation and switched from [Docusaurus](https://docusaurus.io/) to [Nextra](https://nextra.site/)
