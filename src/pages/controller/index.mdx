@@ -117,3 +117,19 @@ export default class UserController {
     static async doSomething(/* ... */) { /* ... */ }
 }
 ```
+
+## Dynamic Response Headers
+
+To set up dynamic response headers you can use `NextResponse` object that is provided by Next.js.
+
+```ts
+import { NextResponse } from 'next/server';
+
+// ...
+export default class UserController {
+    @put('do-something') 
+    static async doSomething() {
+        return NextResponse.json({ hello: 'world' }, { 'x-hello': 'world' });
+    }
+}
+```
