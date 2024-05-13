@@ -19,6 +19,9 @@ export function BlogHeader() {
 export function BlogIndex() {
   return (
       <>
+        <pre>
+          {JSON.stringify(getPagesUnderRoute("/blog"), null, 2)}
+        </pre>
         {getPagesUnderRoute("/blog").reverse().map((page) => {
           // If the page has a `href` front matter item, we'll render it as an external link
           const externalLinkProps = page.frontMatter.href
