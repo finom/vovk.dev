@@ -1,20 +1,10 @@
 {
   "vovk-2-0": {
     "title": "Vovk.ts 2.0 is here!",
-    "display": "hidden",
-    "type": "page",
-    "theme": {
-      "breadcrumb": true,
-      "toc": true
-    }
+    "type": "page"
   },
   "vovk-2-1": {
     "title": "Vovk.ts 2.1",
-    "display": "hidden",
-    "type": "page",
-    "theme": {
-      "breadcrumb": true,
-      "toc": true
-    }
+    "type": "page"
   }
 }
