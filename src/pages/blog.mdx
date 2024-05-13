@@ -3,7 +3,7 @@ description: The latest updates and releases of Vovk.ts.
 type: posts
 ---
 
-import { getPagesUnderRoute, getCurrentLevelPages, getAllPages } from "nextra/context";
+import { getPagesUnderRoute } from "nextra/context";
 import Link from "next/link";
 
 export function BlogHeader() {
@@ -17,13 +17,9 @@ export function BlogHeader() {
 }
 
 export function BlogIndex() {
-  const pages = getAllPages().find((page) => page.name === "blog")?.children ?? [];
   return (
       <>
-        <pre>
-          pages: {JSON.stringify(getAllPages(), null, 2)}
-        </pre>
-        {pages.reverse().map((page) => {
+        {getPagesUnderRoute("/blog").reverse().map((page) => {
           // If the page has a `href` front matter item, we'll render it as an external link
           const externalLinkProps = page.frontMatter.href
             ? {

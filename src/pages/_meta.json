@@ -11,9 +11,7 @@
   },
   "blog": {
     "title": "Blog",
-    "type": "page",
-    "theme": {
-    }
+    "type": "page"
   },
   "about": {
     "title": "About",
