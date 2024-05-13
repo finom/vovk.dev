@@ -11,8 +11,7 @@
   },
   "blog": {
     "title": "Blog",
-    "type": "page",
-    "newWindow": true
+    "type": "page"
   },
   "about": {
     "title": "About",

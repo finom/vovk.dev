@@ -57,7 +57,10 @@ export function BlogIndex() {
 
 <BlogHeader />
 <Callout type="info" emoji="ℹ️">
-  Due to bugs in Nextra (the framework this documentation is built on), the blog link opens in a new window. 
-  Sorry for the inconvenience.
+  Due to bugs in Nextra (the framework this documentation is built on), you may see not all blog posts here.
+  <span onClick={() => window.location.reload()} className="cursor-pointer text-blue-500 underline">
+    Reload the page
+  </span>
+  Sorry for the inconvenience, I'm working on a fix.
 </Callout>
 <BlogIndex />
