@@ -20,7 +20,7 @@ export function BlogIndex() {
   return (
       <>
         <pre>
-          getCurrentLevelPages: {JSON.stringify(getCurrentLevelPages(), null, 2)}
+          getAllPages: {JSON.stringify(getAllPages(), null, 2)}
         </pre>
         {getCurrentLevelPages().reverse().map((page) => {
           // If the page has a `href` front matter item, we'll render it as an external link
