@@ -24,7 +24,7 @@ export function BlogIndex() {
         {/* Copy-paste the output to _pages.json in dev mode because of rendering bugs
         <pre>{JSON.stringify(getPagesUnderRoute("/blog"), null, 2)}</pre> 
         */}
-        {pages.reverse().map((page) => {
+        {[...pages].reverse().map((page) => {
           // If the page has a `href` front matter item, we'll render it as an external link
           const externalLinkProps = page.frontMatter.href
             ? {
