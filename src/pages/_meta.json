@@ -14,7 +14,8 @@
     "type": "page"
   },
   "about": {
-    "title": "About"
+    "title": "About",
+    "type": "page"
   },
   "getting_started_link": {
     "title": "Getting Started",
