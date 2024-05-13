@@ -3,9 +3,10 @@ description: The latest updates and releases of Vovk.ts.
 type: posts
 ---
 
+import pages from './blog/_pages.json';
+
 import { getPagesUnderRoute } from "nextra/context";
 import Link from "next/link";
-import { Callout } from 'nextra/components'
 
 export function BlogHeader() {
   return (
@@ -20,7 +21,10 @@ export function BlogHeader() {
 export function BlogIndex() {
   return (
       <>
-        {getPagesUnderRoute("/blog").reverse().map((page) => {
+        {/* Copy-paste the output to _pages.json in dev mode because of rendering bugs
+        <pre>{JSON.stringify(getPagesUnderRoute("/blog"), null, 2)}</pre> 
+        */}
+        {pages.reverse().map((page) => {
           // If the page has a `href` front matter item, we'll render it as an external link
           const externalLinkProps = page.frontMatter.href
             ? {
@@ -56,11 +60,4 @@ export function BlogIndex() {
 }
 
 <BlogHeader />
-<Callout type="info" emoji="ℹ️">
-  Due to bugs in Nextra (the framework this documentation is built on), you may see not all blog posts here.
-  <span onClick={() => window.location.reload()} className="cursor-pointer text-blue-500 underline">
-    Reload the page
-  </span>
-  Sorry for the inconvenience, I'm working on a fix.
-</Callout>
 <BlogIndex />
