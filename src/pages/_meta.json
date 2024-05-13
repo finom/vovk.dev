@@ -14,11 +14,7 @@
     "type": "page"
   },
   "about": {
-    "title": "About",
-    "type": "page",
-    "theme": {
-      "toc": true
-    }
+    "title": "About"
   },
   "getting_started_link": {
     "title": "Getting Started",
