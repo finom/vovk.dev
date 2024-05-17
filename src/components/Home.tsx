@@ -14,59 +14,61 @@ import './home.css';
 const Home = () => {
   return (
     <>
-      <div className={`px-4`}>
+      <div>
         {/* <OgToScreenshot /> */}
         <Jumbotron />
-        <CreateInitUse />
-        <ManualInstall />
-        <Features />
-        <BonusFeatures />
+        <div className={`px-4`}>
+          <CreateInitUse />
+          <ManualInstall />
+          <Features />
+          <BonusFeatures />
 
-        <div className="max-w-3xl mx-auto px-5 mt-28">
-          <div className="flex flex-col justify-center">
-            <div className="text-center">
-              <h2 className="font-semibold text-3xl">Sponsors</h2>
-              <p className="max-w-md mx-auto mt-2 text-secondary">
-                <Link href="https://github.com/sponsors/finom" target="_blank" className="link mb-2 inline-block">
-                  Sponsor the author of this project on&nbsp;Github&nbsp;♥️
-                </Link>
-                <br />
-                You can also contact me via email from my{' '}
-                <Link href="https://github.com/finom" className="link" target="_blank" rel="noopener">
-                  Github profile
-                </Link>
-              </p>
+          <div className="max-w-3xl mx-auto px-5 mt-28">
+            <div className="flex flex-col justify-center">
+              <div className="text-center">
+                <h2 className="font-semibold text-3xl">Sponsors</h2>
+                <p className="max-w-md mx-auto mt-2 text-secondary">
+                  <Link href="https://github.com/sponsors/finom" target="_blank" className="link mb-2 inline-block">
+                    Sponsor the author of this project on&nbsp;Github&nbsp;♥️
+                  </Link>
+                  <br />
+                  You can also contact me via email from my{' '}
+                  <Link href="https://github.com/finom" className="link" target="_blank" rel="noopener">
+                    Github profile
+                  </Link>
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="border-t border-gray-200 dark:border-gray-700 mt-20">
-          <footer>
-            <div className="flex flex-col md:flex-row gap-3 items-center justify-between py-4 md:py-8 max-w-screen-2xl mx-auto text-sm px-5 text-secondary">
-              <p>
-                Created by{' '}
-                <a href="https://github.com/finom" className="link" target="_blank" rel="noopener">
-                  Andrii Gubanov
-                </a>
-              </p>
+          <div className="border-t border-gray-200 dark:border-gray-700 mt-20">
+            <footer>
+              <div className="flex flex-col md:flex-row gap-3 items-center justify-between py-4 md:py-8 max-w-screen-2xl mx-auto text-sm px-5 text-secondary">
+                <p>
+                  Created by{' '}
+                  <a href="https://github.com/finom" className="link" target="_blank" rel="noopener">
+                    Andrii Gubanov
+                  </a>
+                </p>
 
-              <nav className="text-center flex flex-col gap-3 sm:flex-row sm:gap-5">
-                <Link
-                  href="https://github.com/finom/vovk.dev"
-                  className="link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  This website on Github
-                </Link>
-                <Link href="https://github.com/finom/vovk-zod" className="link" target="_blank">
-                  Vovk-Zod
-                </Link>
-                <Link href="https://iconoir.com/" className="link" target="_blank" rel="noopener noreferrer">
-                  Icons
-                </Link>
-              </nav>
-            </div>
-          </footer>
+                <nav className="text-center flex flex-col gap-3 sm:flex-row sm:gap-5">
+                  <Link
+                    href="https://github.com/finom/vovk.dev"
+                    className="link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    This website on Github
+                  </Link>
+                  <Link href="https://github.com/finom/vovk-zod" className="link" target="_blank">
+                    Vovk-Zod
+                  </Link>
+                  <Link href="https://iconoir.com/" className="link" target="_blank" rel="noopener noreferrer">
+                    Icons
+                  </Link>
+                </nav>
+              </div>
+            </footer>
+          </div>
         </div>
       </div>
     </>
