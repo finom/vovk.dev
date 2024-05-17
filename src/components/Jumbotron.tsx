@@ -18,12 +18,12 @@ const Jumbotron = () => {
           left: 0;
           width: 100%;
           height: 100%;
-          background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 85%, white 100%);
+          background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0.95) 100%);
           pointer-events: none; /* Ensure the pseudo-element doesn't interfere with pointer events */
         }
 
         .jumbotron:where(.dark, .dark *)::after {
-          background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 85%, rgb(17, 17, 17) 100%);
+          background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 60%, rgb(17, 17, 17, 0.95) 100%);
         }
 
         h1 {
@@ -39,7 +39,7 @@ const Jumbotron = () => {
         }
       `}</style>
 
-      <div className="max-w-4xl text-center mx-auto pt-16 pb-32 px-5">
+      <div className="max-w-4xl text-center mx-auto pt-16 pb-36 px-5">
         <h1 className="text-5xl md:text-7xl font-bold tracking-tight mt-8">RESTful RPC for Next.js</h1>
         <p className="mt-4 text-secondary md:text-xl">
           Transforms Next.js App Router into a powerful REST API platform with RPC integration
