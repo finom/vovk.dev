@@ -18,12 +18,12 @@ const Jumbotron = () => {
           left: 0;
           width: 100%;
           height: 100%;
-          background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0.95) 100%);
+          background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 75%, rgba(255, 255, 255, 0.95) 100%);
           pointer-events: none; /* Ensure the pseudo-element doesn't interfere with pointer events */
         }
 
         .jumbotron:where(.dark, .dark *)::after {
-          background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 60%, rgb(17, 17, 17, 0.95) 100%);
+          background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 75%, rgb(17, 17, 17, 0.95) 100%);
         }
 
         h1 {
@@ -46,7 +46,7 @@ const Jumbotron = () => {
         </p>
         <div className="max-w-[450px] m-auto">
           <div className="justify-center mt-8 gap-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-center z-10 relative">
               <Link
                 className="min-w-8 bg-rose-500 justify-center inline-flex items-center gap-2 rounded-full py-3 px-6 text-white font-medium hover:bg-rose-700"
                 href="https://github.com/finom/vovk"
