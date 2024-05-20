@@ -64,7 +64,7 @@ The image below illustrates how different components of the application can be r
 
 Controller Class is a static class that defines API endpoints. It can use Back-End Service Classes and Isomorphic Service Classes explained below.
 
-```ts filename="/src/modules/user/PostController.ts"
+```ts filename="/src/modules/post/PostController.ts"
 import { prefix, get } from 'vovk';
 import PostService from './PostService';
 
@@ -82,10 +82,14 @@ export default class PostController {
 Back-end Service Class (or just "Service") is a static class that implements third-party API calls or performs requests do the project database. 
 By design Services don't have access to the request object and play the role of a "back-end library".
 
-```ts filename="/src/modules/comment/CommentService.ts"
-export default class CommentService {
-    static getUserById(userId: User['id']) {
-        return prisma.users.findUniqueOrThrow({ where: { id: userId } });
+```ts filename="/src/modules/post/PostService.ts"
+export default class PostService {
+    static getPosts() {
+        return prisma.post.findMany();
+    }
+    
+    static getPostById(postId: Post['id']) {
+        return prisma.post.findUniqueOrThrow({ where: { id: postId } });
     }
 }
 ```
@@ -135,20 +139,13 @@ WPC Clases can use other WPC Classes, Isomorphic Service Classes and Back-End Co
 ## State
 
 State file contains application state code that is going to be imported by React Components and other state files. It can use Isomorphic Services, WPC interfaces and clientized Controllers imported from **vovk-client**.
-State can be implemented with any application state library: Recoil, Redux, Redux Toolkit, MobX, custom context, or anything else since the framework does not cover state management topic.
+State can be implemented with any application state library, since the framework does not cover state management topic.
 
 ```ts filename="/src/modules/post/PostState.ts"
 import { PostController, PostWorker } from 'vovk-client';
 
 // ... init app state for posts
 ```
-
-<Callout type="info" emoji="ℹ️">
-  A new state management library based on static classes is [coming soon](https://github.com/finom/rebloom). 
-  It's already used at several projects but it's not well documented yet. 
-  Using unified syntax saves even more brain waves when you switch your attention between different environments.
-  Stay tuned by giving it a star!
-</Callout>
 
 ## Other ideas
 

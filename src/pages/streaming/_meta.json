@@ -1,7 +1,4 @@
 {
-    "index": {
-        "title": "Text Streaming for LLMs"
-    },
     "stream-response": {
         "title": "Streaming with StreamResponse Class"
     },

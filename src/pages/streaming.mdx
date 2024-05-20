@@ -1,10 +1,22 @@
 
 import { Tabs } from 'nextra/components';
-import StreamController from '../../downloaded-examples/stream/StreamController.mdx';
-import StreamExample from '../../downloaded-examples/stream/StreamExample.mdx';
-import LiveStreamExample from '../../live-examples/LiveStreamExample';
+import StreamController from '../downloaded-examples/stream/StreamController.mdx';
+import StreamExample from '../downloaded-examples/stream/StreamExample.mdx';
+import LiveStreamExample from '../live-examples/LiveStreamExample';
 
 # Text Streaming for LLMs
+
+## Text Streaming Live Example
+
+<div className="doc-live-example">
+    <LiveStreamExample />
+</div>
+<Tabs items={['Controller', 'Component']}>
+  <Tabs.Tab><StreamController /></Tabs.Tab>
+  <Tabs.Tab><StreamExample /></Tabs.Tab>
+</Tabs>
+
+[Source code](https://github.com/finom/vovk-examples)
 
 ## Async Iterators
 
@@ -98,15 +110,3 @@ import { StreamController } from 'vovk-client';
 }
 // on this line stream is already closed
 ```
-
-## Text Streaming Live Example
-
-<div className="doc-live-example">
-    <LiveStreamExample />
-</div>
-<Tabs items={['Controller', 'Component']}>
-  <Tabs.Tab><StreamController /></Tabs.Tab>
-  <Tabs.Tab><StreamExample /></Tabs.Tab>
-</Tabs>
-
-[Source code](https://github.com/finom/vovk-examples)
