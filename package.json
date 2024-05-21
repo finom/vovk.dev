@@ -17,7 +17,7 @@
       "repository": "git@github.com:finom/vovk.dev.git",
       "branch": "gh-pages",
       "folder": "dist",
-      "script": "npm run build",
+      "script": "npm run build && cp -a out/. dist/",
       "commit": "Automatic commit text",
       "user": {
         "email": "andrii@gubanov.eu",
