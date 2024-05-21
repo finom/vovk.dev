@@ -1,6 +1,6 @@
 {
     "*": { "display": "hidden" },
-    "authorization": "Authorization",
-    "validation": "Validation",
-    "validation-examples": "Form Validation Examples"
+    "authorization": {"title": "Authorization", "display": "normal"},
+    "validation":{"title":  "Validation" , "display": "normal"},
+    "validation-examples": {"title": "Form Validation Examples", "display": "normal"}
 }

@@ -1,9 +1,11 @@
 {
     "*": { "display": "hidden" },
     "stream-response": {
-        "title": "Streaming with StreamResponse Class"
+        "title": "Streaming with StreamResponse Class",
+        "display": "normal"
     },
     "openai": {
-        "title": "OpenAI Chat Example"
+        "title": "OpenAI Chat Example",
+        "display": "normal"
     }
 }
