@@ -1,4 +1,5 @@
 {
+    "*": { "display": "hidden" },
     "authorization": "Authorization",
     "validation": "Validation",
     "validation-examples": "Form Validation Examples"

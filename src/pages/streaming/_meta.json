@@ -1,4 +1,5 @@
 {
+    "*": { "display": "hidden" },
     "stream-response": {
         "title": "Streaming with StreamResponse Class"
     },
