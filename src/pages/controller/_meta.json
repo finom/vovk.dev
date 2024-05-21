@@ -1,23 +1,17 @@
 {
-    "*": { "display": "hidden" },
     "client": {
-        "title": "Client Library",
-        "display": "normal"
+        "title": "Client Library"
     },
     "return": {
-        "title": "Return Type",
-        "display": "normal"
+        "title": "Return Type"
     },
     "errors": {
-        "title": "Errors",
-        "display": "normal"
+        "title": "Errors"
     },
     "service": {
-        "title": "Service",
-        "display": "normal"
+        "title": "Service"
     },
     "type": {
-        "title": "Type Extraction",
-        "display": "normal"
+        "title": "Type Extraction"
     }
 }

@@ -6,8 +6,8 @@ const withNextra = require('nextra')({
 });
 
 const nextra = withNextra();
-
-/** @type {import('next').NextConfig} */
+/*
+/** @type {import('next').NextConfig} * /
 const config = {
   ...nextra,
   output: 'export',
@@ -15,6 +15,7 @@ const config = {
 };
 
 // output: 'export' does not work with rewrites
-delete config.rewrites;
+config.rewrites;
+*/
 
-module.exports = config;
+module.exports = nextra;
