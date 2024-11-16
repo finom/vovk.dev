@@ -3,13 +3,14 @@ import Jumbotron from '@/components/Jumbotron';
 import Features from '@/components/Features';
 // import Examples from '@/components/_Examples';
 import TopNav from '@/components/_TopNav';
-import CreateInitUse from '@/components/CreateInitUse';
+import CreateInitUse from '@/components/_CreateInitUse';
 import BonusFeatures from '@/components/BonusFeatures';
 import VovkLogo from '@/components/VovkLogo';
 import ManualInstall from '@/components/ManualInstall';
 import Link from 'next/link';
 import OgToScreenshot from '@/components/OgToScreenshot';
 import './home.css';
+import WhatsInside from './WhatsInside';
 
 const Home = () => {
   return (
@@ -18,7 +19,7 @@ const Home = () => {
         {/* <OgToScreenshot /> */}
         <Jumbotron />
         <div className={`px-4`}>
-          <CreateInitUse />
+          <WhatsInside />
           <ManualInstall />
           <Features />
           <BonusFeatures />

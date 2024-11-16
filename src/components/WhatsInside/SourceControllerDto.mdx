@@ -1,0 +1,14 @@
+```ts
+import type { User } from '@prisma/client';
+import UserService from './UserService';
+import { prefix, patch, type VovkRequest } from 'vovk';
+
+@prefix('users')
+export default class UserController {
+    @patch(':id')
+    static updateUser = async (
+        req: VovkRequest<Omit<User, 'id'>>, 
+        { id }: { id: string }
+    ) => UserService.updateUser(id, await req.json())
+}
+```

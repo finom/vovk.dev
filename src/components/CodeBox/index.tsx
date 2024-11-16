@@ -2,12 +2,13 @@ import Title from './Title';
 import { ReactNode } from 'react';
 
 interface Props {
+  title?: string;
   className?: string;
   noClipboard?: boolean;
   children: ReactNode;
 }
 
-const CodeBox = ({ className, noClipboard, children }: Props) => {
+const CodeBox = ({ title, className, noClipboard, children }: Props) => {
   return (
     <div
       className={`jsx-code-block relative bg-code h-full rounded-lg overflow-hidden border border-gray-300/20 dark:border-gray-700/20 ${className ?? ''}`}
@@ -17,8 +18,8 @@ const CodeBox = ({ className, noClipboard, children }: Props) => {
           contain: none;
         }
       `}</style>
-      <Title></Title>
-      <div className="overflow-x-auto w-full relative py-2">{children}</div>
+      <Title>{title}</Title>
+      <div className="overflow-x-auto w-full relative py-2 text-xs">{children}</div>
     </div>
   );
 };

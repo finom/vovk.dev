@@ -1,0 +1,12 @@
+```ts
+import type { VovkControllerBody } from 'vovk';
+import type UserController from './UserController';
+import prisma from '@/prisma';
+
+export default class UserService {
+    static updateUser = (
+        id: string, 
+        data: VovkControllerBody<typeof UserController.updateUser>
+    ) => prisma.user.update({ where: { id }, data });
+}
+```
