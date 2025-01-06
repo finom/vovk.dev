@@ -1,6 +1,6 @@
 import { SwitchTransition, CSSTransition } from 'react-transition-group';
 import styles from './fade.module.css';
-import { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 
 interface Props {
   currentKey: string;
@@ -8,10 +8,12 @@ interface Props {
 }
 
 const FadeTransition = ({ currentKey, children }: Props) => {
+  const nodeRef = useRef(null);
   return (
     <SwitchTransition>
       <CSSTransition
         key={currentKey}
+        nodeRef={nodeRef}
         timeout={300} // matches the transition duration in CSS
         classNames={{
           enter: styles.fadeEnter,
@@ -19,10 +21,12 @@ const FadeTransition = ({ currentKey, children }: Props) => {
           exit: styles.fadeExit,
           exitActive: styles.fadeExitActive,
         }}
-        mountOnEnter
-        unmountOnExit
+        mountOnEnter={false}
+        unmountOnExit={true}
       >
-        <div className="py-4">{children}</div>
+        <div className="py-4" ref={nodeRef}>
+          {children}
+        </div>
       </CSSTransition>
     </SwitchTransition>
   );

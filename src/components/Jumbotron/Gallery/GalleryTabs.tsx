@@ -3,7 +3,6 @@ import { twMerge } from 'tailwind-merge';
 
 export enum GalleryTabType {
   MULTI_SEGMENT = 'MULTI_SEGMENT',
-  MODULE_GENERATOR = 'MODULE_GENERATOR',
   CUSTOMIZABLE = 'CUSTOMIZABLE',
   EASY_TO_DISTRIBUTE = 'EASY_TO_DISTRIBUTE',
   PRE_VALIDATION = 'PRE_VALIDATION',
@@ -24,7 +23,6 @@ const GalleryTabs = ({ currentTab, setCurrentTab }: Props) => {
           {
             {
               [GalleryTabType.MULTI_SEGMENT]: 'Multi Segment - Multi Backend',
-              [GalleryTabType.MODULE_GENERATOR]: 'Module Generator',
               [GalleryTabType.CUSTOMIZABLE]: 'Customize',
               [GalleryTabType.EASY_TO_DISTRIBUTE]: 'Distribute',
               [GalleryTabType.PRE_VALIDATION]: 'Client-side Pre-validation',

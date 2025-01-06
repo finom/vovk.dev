@@ -1,0 +1,55 @@
+import { Steps } from 'nextra/components'
+ 
+<div className="max-w-screen-sm m-auto">
+
+<h2 className="text-3xl font-bold">Quick install: back-end in 60 seconds</h2>
+ 
+
+<Steps className="mdx-with-style">
+### Set up a Next.js project with app router and TypeScript
+ 
+```bash
+npx create-next-app my-app --ts --app
+```
+
+### Init Vovk and follow the prompts
+ 
+```bash
+npx vovk-init
+```
+ 
+### Create new segment and controller
+
+```bash
+npx vovk new segment # root segment
+npx vovk new controller service users
+```
+
+### Start the server and navigate to an example endpoint
+
+```bash
+npm run dev
+```
+
+http://localhost:3000/api/users?search=John
+
+### Create a React component to display the data
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+// ...
+
+const result = await UserRPC.getUsers({ query: { search: 'John' } });
+```
+
+### Deploy
+
+```bash
+npx vovk generate
+```
+
+</Steps>
+
+</div>
+ 

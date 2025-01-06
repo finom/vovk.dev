@@ -9,8 +9,10 @@ import SourceControllerNoValidation from './SourceControllerNoValidation.mdx';
 import SourceControllerYup from './SourceControllerYup.mdx';
 import SourceControllerDto from './SourceControllerDto.mdx';
 import SourceControllerZod from './SourceControllerZod.mdx';
+import SplitSection from '../SplitSection';
 import Arrow from '../Arrow';
 import TabPill from '../TabPill';
+import DocsLink from '../DocsLink';
 
 const pills = [
   {
@@ -35,66 +37,115 @@ const WhatsInside = () => {
   const [validationLibrary, setValidationLibrary] = useState(pills[0].name);
   return (
     <div className="max-w-screen-2xl mx-auto">
-      <div className="mb-12 p-8 rounded-xl bg-gradient-to-b from-blue-200/10 to-blue-200/5 dark:from-blue-900/10 dark:to-blue-900/5">
-        {pills.map((pill) => (
-          <TabPill
-            key={pill.name}
-            isActive={validationLibrary === pill.name}
-            onClick={() => setValidationLibrary(pill.name)}
-          >
-            {pill.title}
-          </TabPill>
-        ))}
-        <h2 className="text-center mb-4 text-3xl">On server-side</h2>
-        <p className="text-center mb-8 text-lg">Just a wrapper around Next.js API routes</p>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <CodeBox title="UserService.ts" className="transform -rotate-3 translate-y-3 [&_code]:text-xs">
-            <SourceService />
-          </CodeBox>
-          <CodeBox title="UserController.ts" className="[&_code]:text-xs">
-            {validationLibrary === 'none' && <SourceControllerNoValidation />}
-            {validationLibrary === 'vovk-yup' && <SourceControllerYup />}
-            {validationLibrary === 'vovk-dto' && <SourceControllerDto />}
-            {validationLibrary === 'vovk-zod' && <SourceControllerZod />}
-          </CodeBox>
-          <CodeBox title="route.ts" className="transform rotate-3 translate-y-3 [&_code]:text-xs">
-            <SourceSegment />
-          </CodeBox>
-        </div>
-        <Arrow direction="down" className="m-auto my-4" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div />
-          <CodeBox title="route.ts" className="[&_code]:text-xs">
-            <ResultSegment />
-          </CodeBox>
-          <div />
-        </div>
-      </div>
-      <div className="mb-12 p-8 rounded-xl bg-gradient-to-b from-blue-200/10 to-blue-200/5 dark:from-blue-900/10 dark:to-blue-900/5">
-        <h2 className="text-center mb-4 text-3xl">On client-side</h2>
-        <p className="text-center mb-8 text-lg">
-          Just a wrapper around <code>fetch</code>
-        </p>
-        <div className="flex items-stretch justify-center">
-          <div className="w-1/3">
-            <div />
-            <CodeBox title="UserService.ts">
-              <SourceClient />
+      <SplitSection
+        reverse
+        left={
+          <div>
+            <div className="p-6 rounded-lg border border-gray-300/30 dark:border-gray-700/30">
+              {pills.map((pill) => (
+                <TabPill
+                  key={pill.name}
+                  isActive={validationLibrary === pill.name}
+                  onClick={() => setValidationLibrary(pill.name)}
+                >
+                  {pill.title}
+                </TabPill>
+              ))}
+              <CodeBox title="UserService.ts" className="[&_code]:text-xs h-auto mb-2 mt-4">
+                <SourceService />
+              </CodeBox>
+              <CodeBox title="UserController.ts" className="[&_code]:text-xs h-auto mb-2">
+                {validationLibrary === 'none' && <SourceControllerNoValidation />}
+                {validationLibrary === 'vovk-yup' && <SourceControllerYup />}
+                {validationLibrary === 'vovk-dto' && <SourceControllerDto />}
+                {validationLibrary === 'vovk-zod' && <SourceControllerZod />}
+              </CodeBox>
+              <CodeBox title="route.ts" className="[&_code]:text-xs h-auto mb-2">
+                <SourceSegment />
+              </CodeBox>
+            </div>
+            <svg
+              className={`text-current opacity-80 dark:text-white mx-auto my-4`}
+              xmlns="http://www.w3.org/2000/svg"
+              height="28"
+              width="21"
+              viewBox="0 0 384 512"
+            >
+              <path
+                fill="currentColor"
+                d="M169.4 502.6c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 402.7 224 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 370.7L86.6 329.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128z"
+              />
+            </svg>
+            <CodeBox title="route.ts (resulting pseudo-code)" className="[&_code]:text-xs h-auto mb-2">
+              <ResultSegment />
             </CodeBox>
-            <div />
           </div>
-          <div className="w-28 flex flex-col">
-            <Arrow direction="right" className="m-auto" />
+        }
+        right={
+          <div className="">
+            <SplitSection.SplitSectionInfo badge="On server-side" title="Just a wrapper around API routes">
+              Being a meta-framework on top of Next.js App Router, Vovk.ts by itself doesn't include any network logic.
+              What it does is it provides a way to define API routes in a more structured way, being just a wrapper
+              around Next.js API handlers.
+              <br />
+              <br />
+              Vovk.ts supports multiple validation libraries such as Zod, Yup, and class-validator (DTO) that nicely
+              define types that can be used both on back-end (services) and front-end (client).
+              <br />
+              <DocsLink href="/docs/api-routes" className="mt-4">
+                Learn more about API routes TODO
+              </DocsLink>
+            </SplitSection.SplitSectionInfo>
           </div>
-          <div className="w-1/3">
-            <div />
-            <CodeBox title="UserService.ts">
-              <ResultClient />
-            </CodeBox>
-            <div />
+        }
+      />
+      <SplitSection
+        left={
+          <div className="">
+            <div>
+              <div />
+              <CodeBox title="page.tsx">
+                <SourceClient />
+              </CodeBox>
+              <div />
+            </div>
+            <div>
+              <svg
+                className={`text-current opacity-80 dark:text-white mx-auto my-4`}
+                xmlns="http://www.w3.org/2000/svg"
+                height="28"
+                width="21"
+                viewBox="0 0 384 512"
+              >
+                <path
+                  fill="currentColor"
+                  d="M169.4 502.6c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 402.7 224 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 370.7L86.6 329.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128z"
+                />
+              </svg>
+            </div>
+            <div>
+              <div />
+              <CodeBox title="page.tsx (resulting pseudo-code)">
+                <ResultClient />
+              </CodeBox>
+              <div />
+            </div>
           </div>
-        </div>
-      </div>
+        }
+        right={
+          <div className="">
+            <SplitSection.SplitSectionInfo badge="On client-side" title={`Just a wrapper around "fetch"`}>
+              Vovk.ts generates a client-side library that matches methods defined in a controller and each such method
+              is not more than just a wrapper around the native fetch API. Vovk.ts doesn't introduce custom protocols
+              for communication between client and server, utilizing well-known REST principles.
+              <br />
+              <DocsLink href="/docs/api-routes" className="mt-4">
+                Learn more about API routes TODO
+              </DocsLink>
+            </SplitSection.SplitSectionInfo>
+          </div>
+        }
+      />
     </div>
   );
 };

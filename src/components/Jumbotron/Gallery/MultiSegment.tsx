@@ -5,7 +5,9 @@ import Link from 'next/link';
 const MultiSegment = () => {
   return (
     <div>
-      <Image src={svg} alt="Multi-Segment" className="dark:invert block w-8/12 m-auto" />
+      <h2 className="font-semibold text-2xl mb-3 text-center">How it works</h2>
+
+      <Image src={svg} alt="Multi-Segment" className="dark:invert block max-w-[60%] m-auto" />
       <p className="mt-8">
         Back-end logic implemented with Vovk.ts can be distributed between unlimited number of routes, implemented as{' '}
         <Link

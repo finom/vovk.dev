@@ -12,7 +12,7 @@ export interface Props {
 const SplitSectionInfo = ({ title, badge, children, docsLink, docsLinkText }: Props) => {
   return (
     <div className="flex items-center flex-wrap flex-1 mb-6">
-      <div>
+      <div className="flex-1">
         <span className="text-rose-500 bg-rose-500/10 px-3 py-1 rounded-full text-xs uppercase font-medium tracking-wider">
           {badge}
         </span>

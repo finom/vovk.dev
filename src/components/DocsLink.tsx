@@ -1,14 +1,20 @@
 import Link from 'next/link';
 import { ReactNode } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 interface Props {
+  className?: string;
   children?: ReactNode;
   href: string;
 }
 
-const DocsLink = ({ href, children = 'Read Docs' }: Props) => {
+const DocsLink = ({ className, href, children = 'Read Docs' }: Props) => {
   return (
-    <Link className="link link-docs" href={href} target={href.startsWith('http') ? '_blank' : undefined}>
+    <Link
+      className={twMerge('link link-docs', className)}
+      href={href}
+      target={href.startsWith('http') ? '_blank' : undefined}
+    >
       <span>{children}</span>{' '}
       <svg width={15} height={15} viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path

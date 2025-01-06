@@ -1,0 +1,12 @@
+const meta = {
+  'vovk-2-0': {
+    title: 'Vovk.ts 2.0 is here!',
+    type: 'page',
+  },
+  'vovk-2-1': {
+    title: 'Vovk.ts 2.1',
+    type: 'page',
+  },
+};
+
+export default meta;

@@ -1,6 +1,6 @@
-const { webpack } = require('next/dist/compiled/webpack/webpack');
+import n from 'nextra';
 
-const withNextra = require('nextra')({
+const withNextra = n({
   theme: 'nextra-theme-docs',
   themeConfig: './theme.config.jsx',
 });
@@ -17,4 +17,4 @@ const config = {
 // output: 'export' does not work with rewrites
 delete config.rewrites;
 
-module.exports = config;
+export default config;
