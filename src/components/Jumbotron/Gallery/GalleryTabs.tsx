@@ -1,3 +1,6 @@
+import TabPill from '@/components/TabPill';
+import { twMerge } from 'tailwind-merge';
+
 export enum GalleryTabType {
   MULTI_SEGMENT = 'MULTI_SEGMENT',
   MODULE_GENERATOR = 'MODULE_GENERATOR',
@@ -10,13 +13,14 @@ export enum GalleryTabType {
 
 interface Props {
   currentTab: GalleryTabType;
+  setCurrentTab: (tab: GalleryTabType) => void;
 }
 
-const GalleryTabs = () => {
+const GalleryTabs = ({ currentTab, setCurrentTab }: Props) => {
   return (
-    <div>
+    <div className="text-center">
       {Object.values(GalleryTabType).map((tab) => (
-        <div key={tab}>
+        <TabPill key={tab} isActive={currentTab === tab} onClick={() => setCurrentTab(tab)}>
           {
             {
               [GalleryTabType.MULTI_SEGMENT]: 'Multi Segment - Multi Backend',
@@ -28,7 +32,7 @@ const GalleryTabs = () => {
               [GalleryTabType.JSON_STREAMING]: 'JSON Streaming for LLMs',
             }[tab]
           }
-        </div>
+        </TabPill>
       ))}
     </div>
   );

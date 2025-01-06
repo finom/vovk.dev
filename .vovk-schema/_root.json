@@ -1,6 +1,18 @@
 {
-  "emitSchema": false,
+  "emitSchema": true,
   "segmentName": "",
-  "controllers": {},
+  "controllers": {
+    "HelloController": {
+      "controllerName": "HelloController",
+      "originalControllerName": "HelloController",
+      "prefix": "hello",
+      "handlers": {
+        "getHello": {
+          "path": "greeting.json",
+          "httpMethod": "GET"
+        }
+      }
+    }
+  },
   "workers": {}
 }

@@ -1,0 +1,11 @@
+```ts
+import { MyRPC } from 'my-client-library';
+
+// ...
+
+using stream = await MyRPC.streamTokens();
+
+for await (const token of stream) {
+    console.log(token);
+}
+```

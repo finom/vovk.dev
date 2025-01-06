@@ -54,7 +54,7 @@ const Jumbotron = () => {
         </Link>
       </div> * /}
       </div>*/}
-      <div className="max-w-screen-2xl mx-auto pt-16 pb-36 px-5 grid grid-cols-2 gap-4">
+      <div className="max-w-screen-2xl mx-auto pt-16 pb-36 px-5 grid lg:grid-cols-2 gap-4 grid-cols-1">
         <div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mt-8">
             Back-end meta-framework for&nbsp;Next.js

@@ -35,12 +35,16 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-syntax-highlighter": "^15.5.0",
+    "react-transition-group": "^4.4.5",
+    "tailwind-merge": "^2.5.5",
     "use-0": "^1.2.5",
-    "vovk": "^3.0.0-draft.21",
-    "vovk-client": "^0.0.3",
+    "vovk": "^3.0.0-draft.25",
+    "vovk-client": "^0.0.4-draft.8",
+    "vovk-dto": "^0.0.1-draft.10",
     "vovk-examples": "^1.0.1",
-    "zod": "^3.23.8",
-    "vovk-zod": "^1.0.0-draft.11"
+    "vovk-yup": "^0.0.1-draft.10",
+    "vovk-zod": "^1.0.0-draft.11",
+    "zod": "^3.23.8"
   },
   "prettier": {
     "trailingComma": "es5",
@@ -54,6 +58,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "@types/react-transition-group": "^4.4.12",
     "autoprefixer": "^10.4.19",
     "deploy-to-git": "^0.4.1",
     "eslint": "^8",

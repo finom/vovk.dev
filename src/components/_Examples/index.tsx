@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Example, { ExampleProps } from './Example';
-import OpenAiExample from './Example/OpenAiExample';
+import OpenAiExample from '../Jumbotron/Gallery/OpenAiExample';
 import WorkerExample from './Example/WorkerExample';
 import FormExample from './Example/FormExample';
 import OpenAiCode1 from './OpenAiCode1.mdx';

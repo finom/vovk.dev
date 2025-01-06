@@ -1,14 +1,15 @@
 ```ts
-import type { User } from '@prisma/client';
-import UserService from './UserService';
 import { prefix, patch, type VovkRequest } from 'vovk';
+import { withDto } from 'vovk-dto';
+import UpdateUserDto from './UpdateUserDto';
+import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
     @patch(':id')
-    static updateUser = async (
-        req: VovkRequest<Omit<User, 'id'>>, 
-        { id }: { id: string }
-    ) => UserService.updateUser(id, await req.json())
+    static updateUser = withDto(
+        UpdateUserDto, 
+        async (req, { id }: { id: string }) => UserService.updateUser(id, await req.json())
+    );
 }
 ```

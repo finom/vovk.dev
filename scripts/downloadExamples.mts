@@ -72,8 +72,6 @@ async function main() {
 
       await createFileWithDirectories(newPath, "```tsx filename=\"/"+filePath+"\"\n" + content.trim() + "\n```");
     }
-
-    
   }
 }
 

@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import BonusFeaturesSection from './BonusFeaturesSection';
 import DocsLink from '../DocsLink';
-import CustomizeCode from './CustomizeCode.mdx';
+// import CustomizeCode from './CustomizeCode.mdx';
 import ReactNativeCode from './ReactNativeCode.mdx';
-import DistributeCode from './DistributeCode.mdx';
+// import DistributeCode from './DistributeCode.mdx';
 
 const BonusFeatures = () => {
   return (
@@ -48,7 +48,7 @@ const BonusFeatures = () => {
             </svg>
           }
         >
-          <CustomizeCode />
+          xx
         </BonusFeaturesSection>
         <BonusFeaturesSection
           title="Back-end for React Native"
@@ -135,7 +135,7 @@ const BonusFeatures = () => {
             </svg>
           }
         >
-          <DistributeCode />
+          xxx
         </BonusFeaturesSection>
       </div>
     </div>

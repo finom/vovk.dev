@@ -4,13 +4,15 @@ import Features from '@/components/Features';
 // import Examples from '@/components/_Examples';
 import TopNav from '@/components/_TopNav';
 import CreateInitUse from '@/components/_CreateInitUse';
-import BonusFeatures from '@/components/BonusFeatures';
+import BonusFeatures from '@/components/_BonusFeatures';
 import VovkLogo from '@/components/VovkLogo';
-import ManualInstall from '@/components/ManualInstall';
+import ManualInstall from '@/components/_ManualInstall';
 import Link from 'next/link';
 import OgToScreenshot from '@/components/OgToScreenshot';
 import './home.css';
 import WhatsInside from './WhatsInside';
+import HowItWorks from './HowItWorks';
+import SplitSection from './SplitSection';
 
 const Home = () => {
   return (
@@ -20,9 +22,7 @@ const Home = () => {
         <Jumbotron />
         <div className={`px-4`}>
           <WhatsInside />
-          <ManualInstall />
-          <Features />
-          <BonusFeatures />
+          <HowItWorks />
 
           <div className="max-w-3xl mx-auto px-5 mt-28">
             <div className="flex flex-col justify-center">

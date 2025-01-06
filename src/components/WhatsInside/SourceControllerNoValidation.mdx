@@ -1,7 +1,7 @@
 ```ts
+import { prefix, patch, type VovkRequest } from 'vovk';
 import type { User } from '@prisma/client';
 import UserService from './UserService';
-import { prefix, patch, type VovkRequest } from 'vovk';
 
 @prefix('users')
 export default class UserController {

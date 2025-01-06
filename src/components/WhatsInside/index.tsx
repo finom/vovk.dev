@@ -10,38 +10,61 @@ import SourceControllerYup from './SourceControllerYup.mdx';
 import SourceControllerDto from './SourceControllerDto.mdx';
 import SourceControllerZod from './SourceControllerZod.mdx';
 import Arrow from '../Arrow';
+import TabPill from '../TabPill';
+
+const pills = [
+  {
+    name: 'none',
+    title: 'No validation',
+  },
+  {
+    name: 'vovk-zod',
+    title: 'Zod',
+  },
+  {
+    name: 'vovk-yup',
+    title: 'Yup',
+  },
+  {
+    name: 'vovk-dto',
+    title: 'DTO (class-validator)',
+  },
+];
 
 const WhatsInside = () => {
-  const [validationLibrary, setValidationLibrary] = useState('vovk-zod');
+  const [validationLibrary, setValidationLibrary] = useState(pills[0].name);
   return (
     <div className="max-w-screen-2xl mx-auto">
       <div className="mb-12 p-8 rounded-xl bg-gradient-to-b from-blue-200/10 to-blue-200/5 dark:from-blue-900/10 dark:to-blue-900/5">
-        <select className="absolute">
-          <option value="vovk-zod">With Zod</option>
-          <option value="vovk-yup">With Yup</option>
-          <option value="vovk-dto">With class-validator</option>
-          <option value="none">No validation</option>
-        </select>
+        {pills.map((pill) => (
+          <TabPill
+            key={pill.name}
+            isActive={validationLibrary === pill.name}
+            onClick={() => setValidationLibrary(pill.name)}
+          >
+            {pill.title}
+          </TabPill>
+        ))}
         <h2 className="text-center mb-4 text-3xl">On server-side</h2>
         <p className="text-center mb-8 text-lg">Just a wrapper around Next.js API routes</p>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <CodeBox title="UserService.ts" className="transform -rotate-3 translate-y-3">
+          <CodeBox title="UserService.ts" className="transform -rotate-3 translate-y-3 [&_code]:text-xs">
             <SourceService />
           </CodeBox>
-          <CodeBox title="UserController.ts">
+          <CodeBox title="UserController.ts" className="[&_code]:text-xs">
             {validationLibrary === 'none' && <SourceControllerNoValidation />}
             {validationLibrary === 'vovk-yup' && <SourceControllerYup />}
             {validationLibrary === 'vovk-dto' && <SourceControllerDto />}
             {validationLibrary === 'vovk-zod' && <SourceControllerZod />}
           </CodeBox>
-          <CodeBox title="route.ts" className="transform rotate-3 translate-y-3">
+          <CodeBox title="route.ts" className="transform rotate-3 translate-y-3 [&_code]:text-xs">
             <SourceSegment />
           </CodeBox>
         </div>
         <Arrow direction="down" className="m-auto my-4" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div />
-          <CodeBox title="route.ts">
+          <CodeBox title="route.ts" className="[&_code]:text-xs">
             <ResultSegment />
           </CodeBox>
           <div />
