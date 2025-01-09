@@ -1,13 +1,15 @@
 import Image from 'next/image';
-import svg from '../../../excalidraw/vovk-segments.svg';
 import CodeBox from '@/components/CodeBox';
 import DocsLink from '@/components/DocsLink';
 import DistributeCode from './DistributeCode.mdx';
 
 const EasyToDistribute = () => {
   return (
-    <div className="pt-8">
-      <h2 className="font-semibold text-2xl mb-3 text-center">How it works</h2>
+    <div className="pt-4">
+      <h2 className="font-semibold text-2xl mb-4 text-center">Distribute the client library</h2>
+      <CodeBox className="w-8/12 m-auto mb-4">
+        <code>npm install my-client-library</code>
+      </CodeBox>
       <CodeBox className="w-8/12 m-auto">
         <DistributeCode />
       </CodeBox>

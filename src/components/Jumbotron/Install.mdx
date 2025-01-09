@@ -1,8 +1,9 @@
 import { Steps } from 'nextra/components'
+import SplitSection from '../SplitSection'
  
-<div className="max-w-screen-sm m-auto">
+<div className="max-w-screen-md m-auto">
 
-<h2 className="text-3xl font-bold">Quick install: back-end in 60 seconds</h2>
+<SplitSection.SplitSectionInfo badge="Back-end in 60 seconds" title={`Quick install`} titleClassName="text-4xl" />
  
 
 <Steps className="mdx-with-style">
@@ -11,39 +12,61 @@ import { Steps } from 'nextra/components'
 ```bash
 npx create-next-app my-app --ts --app
 ```
+```bash
+cd my-app
+```
 
 ### Init Vovk and follow the prompts
+
+You will be asked preferred validation library, and a couple of other questions. The command also creates **vovk.config.mjs** or **vovk.config.cjs**.
  
 ```bash
 npx vovk-init
 ```
  
-### Create new segment and controller
+### Create a new segment
+
+The following will create a root segment at **./src/app/api/[[...vovk]]/route.ts**.
 
 ```bash
-npx vovk new segment # root segment
-npx vovk new controller service users
+npx vovk new segment
+```
+
+### Create a new controller and a service
+
+The following command will create an example controller and a service for users at **./src/modules/user/** and update the **route.ts** file.
+
+```bash
+npx vovk new controller service user
 ```
 
 ### Start the server and navigate to an example endpoint
+
+The dev script runs Next.js server and Vovk.ts watcher in parallel. Once the command is running, Vovk.ts will generate schema files at **.vovk-schema/** (needs to be committed) and client library at **node_modules/.vovk-client**.
 
 ```bash
 npm run dev
 ```
 
-http://localhost:3000/api/users?search=John
+Then open http://localhost:3000/api/users?search=John
 
 ### Create a React component to display the data
 
+Import the generated client library and use it to fetch data.
+
+<div className="nextra-code [&_code]:block inline-block">
+
 ```ts
 import { UserRPC } from 'vovk-client';
-
 // ...
-
 const result = await UserRPC.getUsers({ query: { search: 'John' } });
 ```
 
+</div>
+
 ### Deploy
+
+In order to build the client (not the schema) at **node_modules** you need to run the following command after dependency installation and before building the app.
 
 ```bash
 npx vovk generate

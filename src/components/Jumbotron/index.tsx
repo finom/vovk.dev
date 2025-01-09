@@ -28,18 +28,6 @@ const Jumbotron = () => {
           .jumbotron:where(.dark, .dark *)::after {
             background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 75%, rgb(17, 17, 17, 0.95) 100%);
           }
-
-          h1 {
-            background: -webkit-linear-gradient(#666060, #a7a1a1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-          }
-
-          h1:where(.dark, .dark *) {
-            background: -webkit-linear-gradient(#f43f5f, #ff67f0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-          }
         `}</style>
 
         {/* <div className="max-w-4xl text-center mx-auto pt-16 pb-36 px-5">
@@ -56,8 +44,9 @@ const Jumbotron = () => {
         </Link>
       </div> * /}
       </div>*/}
-        <div className="max-w-screen-2xl mx-auto pt-16 pb-36 px-5 grid lg:grid-cols-2 gap-4 grid-cols-1">
+        <div className="max-w-screen-2xl mx-auto pt-16 pb-24 px-5 grid lg:grid-cols-2 gap-4 grid-cols-1">
           <div className="pt-24">
+            <div className="text-3xl font-bold mb-4 text-slate-600 dark:text-stone-500">REST + RPC = ♥️</div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Back-end meta-framework for&nbsp;Next.js</h1>
             <p className="mt-4 text-secondary md:text-xl">
               RPC-ish REST API framework with validation on server and client

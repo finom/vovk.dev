@@ -13,7 +13,7 @@ const TabPill = ({ isActive, onClick, children }: Props) => {
       className={twMerge(
         `
       inline-block cursor-pointer text-sm mx-1 mb-2 
-      bg-slate-800 dark:bg-sky-900 
+      bg-slate-800 dark:bg-indigo-700
       rounded-full px-3 py-0.5
       transition-colors
     `,

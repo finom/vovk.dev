@@ -4,20 +4,14 @@ import svg from '../../../excalidraw/vovk-validate.svg';
 
 const PreValidation = () => {
   return (
-    <div>
-      <h2 className="font-semibold text-2xl mb-3 text-center">How it works</h2>
+    <div className="pt-4">
+      <h2 className="font-semibold text-2xl mb-3 text-center">Validation on client and server</h2>
 
       <Image src={svg} alt="Multi-Segment" className="dark:invert block max-w-[50%] m-auto" />
       <p className="mt-8">
-        Back-end logic implemented with Vovk.ts can be distributed between unlimited number of routes, implemented as{' '}
-        <Link
-          className="link"
-          href="https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments"
-        >
-          Optional Catch-all Segments
-        </Link>
-        . Each segment is compiled as an individual serverless function making possible to host REST API with billions
-        of endpoints keeping cold starts as fast as possible.
+        Vovk.ts provides a way to validate requests on the client side using the same schema as on the server. This way
+        it is possible to avoid sending invalid requests to the server and get instant feedback about the request
+        format.{' '}
       </p>
     </div>
   );

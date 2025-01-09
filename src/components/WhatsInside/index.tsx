@@ -41,7 +41,7 @@ const WhatsInside = () => {
         reverse
         left={
           <div>
-            <div className="p-6 rounded-lg border border-gray-300/30 dark:border-gray-700/30">
+            <div className="p-6 rounded-lg border border-gray-300/30 dark:border-gray-700/30 bg-gray-200/30 dark:bg-gray-800/30">
               {pills.map((pill) => (
                 <TabPill
                   key={pill.name}
@@ -90,7 +90,7 @@ const WhatsInside = () => {
               <br />
               <br />
               Vovk.ts supports multiple validation libraries such as Zod, Yup, and class-validator (DTO) that nicely
-              define types that can be used both on back-end (services) and front-end (client).
+              define types that can be used both on back-end (services) and on the client side (another server can also be a client if it supports fetch function).
               <br />
               <DocsLink href="/docs/api-routes" className="mt-4">
                 Learn more about API routes TODO

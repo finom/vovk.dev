@@ -33,7 +33,11 @@ a.link-docs {
 
 .mdx-with-style {
     & code {
-        @apply bg-gray-200 dark:bg-gray-800 rounded px-1 py-0.5 mx-0.5;
+        @apply bg-white dark:bg-gray-800 rounded px-1 py-0.5 mx-0.5;
+    }
+
+    & pre {
+        @apply my-2;
     }
 }
 

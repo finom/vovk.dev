@@ -1,11 +1,10 @@
 import TabPill from '@/components/TabPill';
-import { twMerge } from 'tailwind-merge';
 
 export enum GalleryTabType {
   MULTI_SEGMENT = 'MULTI_SEGMENT',
+  PRE_VALIDATION = 'PRE_VALIDATION',
   CUSTOMIZABLE = 'CUSTOMIZABLE',
   EASY_TO_DISTRIBUTE = 'EASY_TO_DISTRIBUTE',
-  PRE_VALIDATION = 'PRE_VALIDATION',
   CUSTOM_CLIENT = 'CUSTOM_CLIENT',
   JSON_STREAMING = 'JSON_STREAMING',
 }
@@ -22,11 +21,11 @@ const GalleryTabs = ({ currentTab, setCurrentTab }: Props) => {
         <TabPill key={tab} isActive={currentTab === tab} onClick={() => setCurrentTab(tab)}>
           {
             {
-              [GalleryTabType.MULTI_SEGMENT]: 'Multi Segment - Multi Backend',
-              [GalleryTabType.CUSTOMIZABLE]: 'Customize',
-              [GalleryTabType.EASY_TO_DISTRIBUTE]: 'Distribute',
-              [GalleryTabType.PRE_VALIDATION]: 'Client-side Pre-validation',
-              [GalleryTabType.CUSTOM_CLIENT]: 'Build Custom Clients',
+              [GalleryTabType.MULTI_SEGMENT]: 'Multi-segment',
+              [GalleryTabType.PRE_VALIDATION]: 'Client-side pre-validation',
+              [GalleryTabType.CUSTOMIZABLE]: 'Customize your RPC',
+              [GalleryTabType.EASY_TO_DISTRIBUTE]: 'Distribute the library',
+              [GalleryTabType.CUSTOM_CLIENT]: 'Build custom clients',
               [GalleryTabType.JSON_STREAMING]: 'JSON Streaming for LLMs',
             }[tab]
           }

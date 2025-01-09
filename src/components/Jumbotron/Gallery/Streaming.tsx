@@ -8,7 +8,8 @@ import CodeBox from '@/components/CodeBox';
 
 const Streaming = () => {
   return (
-    <div className="">
+    <div className="pt-4">
+      <h2 className="font-semibold text-2xl mb-4 text-center">JSON streaming for LLMs</h2>
       Vovk.ts meets the contemporary demand for streaming responses in AI client libraries, leveraging modern TypeScript
       syntax. Explore how it implements OpenAI chat completion with response streaming:
       <div className="live-example my-6">
