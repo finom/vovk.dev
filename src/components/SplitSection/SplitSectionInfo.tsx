@@ -7,7 +7,7 @@ export interface Props {
   titleClassName?: string;
   badge: string;
   title: string;
-  children: ReactNode;
+  children?: ReactNode;
   docsLink?: string;
   docsLinkText?: string;
 }
@@ -20,7 +20,7 @@ const SplitSectionInfo = ({ className, titleClassName, title, badge, children, d
           {badge}
         </span>
         <h2 className={twMerge('font-semibold text-2xl mt-3', titleClassName)}>{title}</h2>
-        <div className="mt-2 text-secondary">{children}</div>
+        {children && <div className="mt-2 text-secondary">{children}</div>}
         {!!docsLink && <DocsLink href={docsLink}>{docsLinkText}</DocsLink>}
       </div>
     </div>

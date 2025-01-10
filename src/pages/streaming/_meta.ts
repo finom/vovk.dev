@@ -5,6 +5,9 @@ const meta = {
   openai: {
     title: 'OpenAI Chat Example',
   },
+  'vercel-ai': {
+    title: 'Vercel AI SDK',
+  },
 };
 
 export default meta;

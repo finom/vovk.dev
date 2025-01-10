@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import Gallery from './Gallery';
-import Install from './Install.mdx';
+import SplitSection from '../SplitSection';
+import InstallSteps from '../InstallSteps.mdx';
 
 const Jumbotron = () => {
   return (
@@ -101,7 +101,15 @@ const Jumbotron = () => {
           </div>
         </div>
       </div>
-      <Install />
+      <div className="mdx-with-style max-w-screen-md m-auto">
+        <SplitSection.SplitSectionInfo
+          badge="Back-end in 60 seconds"
+          title={`Quick install`}
+          titleClassName="text-4xl"
+        />
+
+        <InstallSteps />
+      </div>
     </div>
   );
 };

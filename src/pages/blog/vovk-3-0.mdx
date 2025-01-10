@@ -1,0 +1,102 @@
+---
+title: Vovk.ts 3.0
+date: '13/01/2025'
+description: 'Wubba lubba dub dub! Vovk.ts 3.0 is here!'
+---
+
+# Vovk.ts 3.0
+
+## Breaking changes
+
+- Rename prefix API option to apiRoot
+- detect stream response by x-vovk-stream header, stream responses use text/plain; charset=utf-8 header
+- rename StreamResponse to StreamJSONResponse
+- Update schema format
+- Generate client to .vovk-client
+- Create vovk-init
+- rename all occurrences of metadata to schema ?
+- rename config options
+- remove default client validation when validateOnClient is not set in settings
+- move VovkEnv to vovk-cli
+
+## New features
+
+- req.vovk
+- Rethrow error cause
+- Add dotenv
+- Add devHttps setting to enable https in local development
+- Support .config folder for configs
+- Add 'prettifyClient' config option
+- Finally figure out how to fix problems with query and single-item arrays
+- implement multi-segment mode
+- Add endpoint info to client error cause
+- Transform option for client methods
+- Client method accepts fetcher and validateOnClient
+
+## Noteworthy Fixes
+
+- Simplify types
+- Get rid of VOVK_PORT variable because it isn't needed anymore after the previous commit
+- JSON divider for streams is a new line instead of a hard-coded string
+
+## CLI
+
+- Transfer CLI to TS
+- Separate project
+
+### vovk init
+
+NEW
+
+### vovk new
+
+NEW
+
+### vovk dev
+
+## vovk-zod
+
+- x export const instead of default
+- vovk-validate-client-ajv
+- replade vovkZod decorator by withZod function
+
+## vovk-yup
+
+NEW
+
+## vovk-dto
+
+NEW
+
+# Structure
+
+- Introduction, Quick install
+- Manual install
+- Controller
+  - Return type
+  - Service
+  - Type extraction
+- Client
+  - Customization
+  - FormData
+  - Type extraction
+- Streaming yield
+  - StreamJSONResponse
+  - OpenAI
+  - Vercel AI
+- Errors
+- Decorators - Authorization
+- Validation
+    - vovk-zod
+    - vovk-yup
+    - vovk-dto
+    - Custom validation
+- Worker
+- CLI
+    - vovk init
+    - vovk new
+    - vovk dev
+    - vovk generate
+- Config
+- API
+

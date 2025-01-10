@@ -12,9 +12,9 @@ const themeConfig = {
   },
   banner: {
     key: '2.0-release',
-    text: <Link href="/blog/vovk-2-0">🎉 Vovk 2.0 is released. Read more →</Link>,
+    text: <Link href="/blog/vovk-2-0">🎉 The ultimate version is released. Read more →</Link>,
   },
-  docsRepositoryBase: 'https://github.com/finom/vovk.dev/tree/main/',
+  docsRepositoryBase: 'https://github.com/finom/vovk.dev/tree/main',
   head: (
     <>
       <link href="icon.svg" rel="icon" media="(prefers-color-scheme: light)" />
