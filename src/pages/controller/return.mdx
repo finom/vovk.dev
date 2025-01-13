@@ -48,7 +48,7 @@ static async helloWorld(/* ... */) {
 When `NextResponse.json` is returned from the controller method, the client library is going to recognise the return type as expected.
 This way you can define headers, cookies and other options dynamically. See the [NextResponse documentation](https://nextjs.org/docs/app/api-reference/functions/next-response) for more details.
 
-## Type Override
+## Type Override (MOVE TO CLIENT SECTION)
 
 In case if your code makes it impossible to recognise the return type, you can override it manually with no need to convert it to `unknown` first.
 
@@ -73,4 +73,4 @@ static async *updateUser(/* ... */) {
 // ...
 ```
 
-If iterable is returned, the client library is going to cast the method as a disposable async generator to implement response streaming. It's explained in more details on the [streaming documentation page](/streaming).
+If iterable is returned, the client library is going to cast the method as a disposable async generator to implement response streaming. It's explained in more details on the [Text Streaming documentation page](/streaming).

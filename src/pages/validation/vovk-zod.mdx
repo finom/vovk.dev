@@ -1,0 +1,53 @@
+# vovk-zod
+
+[vovk-zod](https://github.com/finom/vovk-zod) is the library that implements [Zod](https://zod.dev/) validation. It performs validation on the Controller side with `ZodModel.parse`, [converts the Zod object to a JSON Schema](https://www.npmjs.com/package/zod-to-json-schema) that's stored at **.vovk-schema/*/.json** file, and runs validation on client before the HTTP request is made with [Ajv](https://ajv.js.org/). The handler is wrapped with `withZod` function as the last argument that accepts Zod objects for the request body and query string.
+
+```ts filename="/src/modules/user/UserController.ts"
+import { z } from 'zod';
+import { put } from 'vovk';
+import { withZod } from 'vovk-zod';
+import UserService from './UserService';
+
+const UpdateUserModel = z.object({ name: z.string(), email: z.email() }).strict();
+const UpdateUserQueryModel = z.object({ id: z.uuid() }).strict();
+
+export default class UserController {
+    @put.auto()
+    static updateUser = withZod(UpdateUserModel, UpdateUserQueryModel, async (req) => {
+        const { name, email } = await req.json();
+        const id = req.nextUrl.searchParams.get('id');
+
+        return UserService.updateUser(id, { name, email });
+    });
+}
+```
+
+The request body and query receive the type inferred from the Zod objects.
+
+`withZod` is implemented with multiple overloads where query model is optional and both body and query models can be set to null.
+
+- `withZod(bodyModel: ZodObject | null, queryModel: ZodObject | null, handler: RequestHandler)`
+- `withZod(bodyModel: ZodObject | null, handler: RequestHandler)`
+
+Here is body only validation where `withZod` accepts 2 arguments: the body model and the handler.
+
+```ts filename="/src/modules/user/UserService.ts"
+// ...
+export default class UserService {
+    static async updateUser = withZod(UpdateUserModel, async (id, { name, email }) => {
+        // ...
+    });
+}
+```
+
+To validate query only `withZod` accepts 3 arguments: `null`, the query model and the handler.
+
+```ts filename="/src/modules/user/UserController.ts"
+// ...
+export default class UserController {
+    @put.auto()
+    static updateUser = withZod(null, UpdateUserQueryModel, async (req) => {
+        // ...
+    });
+}
+```

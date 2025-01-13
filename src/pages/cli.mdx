@@ -2,6 +2,20 @@ import { Callout } from 'nextra/components'
 
 # CLI
 
+Vovk provides a set of commands to simplify the development process. The commands are available via `vovk` binary that is installed with **vovk-cli** package.
+
+- [vovk init](/cli/vovk-init) - creates a new Vovk.ts project.
+- [vovk dev](/cli/vovk-dev) - runs Vovk Dev Watcher that watches for changes at controllers and workers and updates the [schema](/schema) and the [client](/client) accordingly when needed.
+- [vovk generate](/cli/vovk-generate) - generates the client based on the schema and creates **.js** and **.d.ts** files at **node_modules/.vovk-client** that are re-exported by **vovk-client**.
+- [vovk new](/cli/vovk-new) - module generator that helps to create segments, controllers, services, workers and other modules that you can define as a template at [config](/config).
+
+
+-------
+
+
+
+# CLI
+
 ## `vovk dev`
 
 The command runs Vovk Server expecting to be run together with Next.js dev server. It uses `PORT` variable to define its own port by adding 6969 to it. For example, if Next.js server runs on port 3000, Vovk Server will run on port 9969.

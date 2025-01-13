@@ -1,0 +1,25 @@
+# Proxy Endpoints
+
+You can easily create a proxy endpoint by fetching data from another server with `fetch` function. 
+
+```ts
+import { get } from 'vovk';
+export default class ProxyController {
+    @get('proxy')
+    static proxy() {
+        return fetch('https://api.example.com/data');
+    }
+}
+```
+
+Since the `fetch` function returns a promise of `Response` object, the [client](/client) will automatically resolve it's type as `Response` so you can use any of its methods in a type-safe manner. The following example is borrowed at a real project where we fetch a PDF file and use it's Blob with [pdfjs-dist](https://www.npmjs.com/package/pdfjs-dist).
+
+```ts
+import { ProxyRPC } from 'vovk-client';
+
+// ...
+const response = await ProxyRPC.proxy();
+const buffer = await response.arrayBuffer();
+const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+// ...
+```

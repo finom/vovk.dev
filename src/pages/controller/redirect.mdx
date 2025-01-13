@@ -1,0 +1,23 @@
+# redirect and notFound
+
+In order to perform a redirect or render the not-found file you can use built-in Next.js functions imported from **next/navigation**.
+
+```ts
+import { redirect, notFound } from 'next/navigation';
+
+export default class UserController {
+    @get('redirect') 
+    static async redirect() {
+        // if something
+        redirect('/some-other-endpoint');
+    }
+
+    @get('not-found') 
+    static async notFound() {
+        // if something
+        notFound();
+    }
+}
+```
+
+Both functions work by throwing an error so you don't need to use `return` statement. TypeScript casts their return type as `never`.

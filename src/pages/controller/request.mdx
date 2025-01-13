@@ -1,0 +1,94 @@
+# VovkRequest
+
+Request object accepted by controller methods is represented by `VovkRequest` type. It extends `NextRequest` object from Next.js by defining body and query types.
+
+```ts
+import { put, type VovkRequest } from 'vovk';
+export default class UserController {
+    @put(':id') 
+    static async updateUser(req: VovkRequest<{ foo: 'foo' }, { bar: 'bar'}>) {
+        const data = await req.json(); // data type is { foo: 'foo' }
+        const bar = req.nextUrl.searchParams.get('bar'); // bar type is 'bar'
+        // ...
+    }
+}
+```
+
+## req.vovk
+
+Version 3 of Vovk.ts introduces `req.vovk` object that contains additional properties and methods for request processing.
+
+### req.vovk.query()
+
+Function `req.vovk.query` returns serialized query parameters of the request.
+
+```ts
+import { get, type VovkRequest } from 'vovk';
+export default class UserController {
+    @get(':id') 
+    static async getUser(req: VovkRequest<null, { id: string }>) {
+        const query = req.vovk.query(); // query type is { id: string }
+        // ...
+    }
+}
+```
+
+If you use [vovk-dto](/validation/vovk-dto) it will return an instance of DTO class with `plainToInstance` from [class-transformer](https://www.npmjs.com/package/class-transformer).
+
+```ts
+import { get, type VovkRequest } from 'vovk';
+import { withDto } from 'vovk-dto';
+import { GetUserDto } from './dto';
+export default class UserController {
+    @get(':id') 
+    static async getUser = withDto(GetUserDto, async (req: VovkRequest<null, GetUserDto>) => {
+        const query = await req.vovk.query(); // query type is GetUserDto
+        console.log(query instanceof GetUserDto); // true
+        // ...
+    });
+}
+```
+
+### req.vovk.body()
+
+Async function `req.vovk.body` returns body of the request. In most of cases it's the same as `req.json()`. 
+
+```ts
+import { post, type VovkRequest } from 'vovk';
+export default class UserController {
+    @post() 
+    static async createUser(req: VovkRequest<{ foo: 'foo' }>) {
+        const body = await req.vovk.body(); // body type is { foo: 'foo' }
+        // ...
+    }
+}
+```
+
+
+If you use [vovk-dto](/validation/vovk-dto) it will return an instance of DTO class with `plainToInstance` from [class-transformer](https://www.npmjs.com/package/class-transformer).
+
+```ts
+import { post, type VovkRequest } from 'vovk';
+import { withDto } from 'vovk-dto';
+import { CreateUserDto } from './dto';
+export default class UserController {
+    @post() 
+    static async createUser = withDto(CreateUserDto, async (req: VovkRequest<CreateUserDto>) => {
+        const body = await req.vovk.body(); // body type is CreateUserDto
+        console.log(body instanceof CreateUserDto); // true
+        // ...
+    });
+}
+```
+
+### req.vovk.meta()
+
+Function `req.vovk.meta` allows to get and set meta information of the request.
+
+TODO
+
+### req.vovk.form()
+
+Function `req.vovk.form` returns form data  of the request serialized as an object.
+
+TODO

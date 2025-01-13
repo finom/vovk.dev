@@ -1,6 +1,44 @@
 
 # vovk.config.js
 
+Vovk.ts uses a config file to define options for the [CLI](/cli) TODO
+
+## Valid config names
+
+The config can be implemented either as a CJS module or as a ESM module. It supports the following extensions: **.js**, **.cjs**, **.mjs** and can be stored at the root of the project as well as at **.config** folder. In other words, the following paths are valid:
+
+- **vovk.config.js**
+- **vovk.config.cjs**
+- **vovk.config.mjs**
+- **.config/vovk.config.js**
+- **.config/vovk.config.cjs**
+- **.config/vovk.config.mjs**
+
+When [vovk init](/cli/vovk-init) is executed, it checks if the project is a module and, if true, uses **.mjs** extension and if it contains the **.config** folder it saves the config there.
+
+```ts
+export type VovkConfig = {
+  clientOutDir?: string;
+  schemaOutDir?: string;
+  fetcher?: string;
+  validateOnClient?: string | null;
+  modulesDir?: string;
+  validationLibrary?: string | null;
+  rootEntry?: string;
+  origin?: string;
+  rootSegmentModulesDirName?: string;
+  logLevel?: LogLevelNames;
+  prettifyClient?: boolean;
+  devHttps?: boolean;
+  templates?: {
+    service?: string;
+    controller?: string;
+    worker?: string;
+    [key: string]: string | undefined;
+  };
+};
+```
+
 The config file allows to change default options in order to customise generated client or its path. The default config looks like that: 
 
 ```ts filename="/vovk.config.js"

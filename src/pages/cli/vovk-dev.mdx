@@ -1,0 +1,45 @@
+import Image from 'next/image';
+import devSvg from '../../excalidraw/vovk-dev.svg';
+
+# vovk dev
+
+The `vovk dev` command runs Vovk Dev Watcher that watches for changes at controllers and workers and updates the [schema](/schema) and the [client](/client) accordingly when needed by making HTTP GET requests to the Next.js dev server. When a change is detected, the watcher sends a GET request to `/api/*segment-name*/_schema_` to get the updated schema. If schema is changed the watcher updates the schema and the client. 
+
+## How it works
+
+1. `vovk dev` and `next dev` are run together with [concurrently](https://www.npmjs.com/package/concurrently).
+2. `vovk dev` watches for changes at **modules** folder.
+3. When a change is detected, the script checks if the file is a controller or a worker and if it belongs to a segment by making some simple RegExp checks.
+4. If the file is a controller or a worker and belongs to a segment, the script sends a GET request to `/api/*segment-name*/_schema_` to get the updated schema.
+5. The script checks if the schema is changed and if so:
+    - If list of controllers or worker is changed (added, removed, renamed), or method definition (including validation) is changed, the script updates the schema by saving it to **.vovk-schema** folder as a .json file making it fast to serialize and import after.
+    - If list of controllers or worker is changed (added, removed, renamed) the script updates the client. The client imports the schema in order to get information about the methods and their properties. The client is generated at **node_modules/.vovk-client** folder and is re-exported by **vovk-client** package. The client is generated with string concatenation and doesn't use any AST libraries making it lighning fast to generate (usually a couple of milliseconds).
+
+<Image src={devSvg} alt="vovk dev" className="dark:invert" />
+
+Since Vovk Dev Watcher is expected to be run together with Next.js dev server, it can be run two ways, both of them involve [concurrently](https://www.npmjs.com/package/concurrently):
+
+1. Explicit way. This way might be pleasant for those who want to have less abstraction but the downside is that you need to define the `PORT` variable manually:
+```sh
+PORT=3000 npx concurrently 'vovk dev' 'next dev' --kill-others
+```
+
+At this case `next dev` flags can be defined as usual:
+```sh
+PORT=3000 npx concurrently 'vovk dev' 'next dev --experimental-https' --kill-others
+```
+
+2. Implicit way. At this case the port is assigned automatically and checks if a port (3000 by default) is already in use and attempts to find the next available one:
+```sh
+npx vovk dev --next-dev
+```
+
+In order to define additional flags to `next dev` you can pass them after `--`:
+```sh
+npx vovk dev --next-dev -- --experimental-https
+```
+
+Behind the scenes the implicit way runs concurrently API which means both ways are almost identical.
+
+Read more about [HTTPS in development](/dev-https).
+

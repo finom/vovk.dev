@@ -2,11 +2,11 @@ import { Tabs } from 'nextra/components'
 import BasicService from '../../downloaded-examples/basic-with-service/BasicService.mdx';
 import BasicControllerWithService from '../../downloaded-examples/basic-with-service/BasicControllerWithService.mdx';
 import BasicExampleWithService from '../../downloaded-examples/basic-with-service/BasicExampleWithService.mdx';
-import LiveBasicExampleWithService from '../../live-examples/LiveBasicExampleWithService';
+import LiveBasicExampleWithService from '../live-examples/LiveBasicExampleWithService';
 
 # Service Class
 
-In order to make the code cleaner it's recommended to move most of the logic to Back-end Services. [Back-End Service](/framework) is a static class that serves as a library that performs database and third-party API calls outside of Controller Classes.
+In order to make the code cleaner it's recommended to move most of the logic to a Service. Service is a static class that serves as a library that performs database and third-party API calls.
 
 Let's say you have the following Controller Class:
 

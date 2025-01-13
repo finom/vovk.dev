@@ -1,35 +1,76 @@
-# Client Library
+# RPC Library
 
 `initVovk` performs required actions to generate client-side library and no additional action from your side is required (but you probably would need to restart TS Server to update types if you use VSCode when a new controller is added).
+
+Name of an RPC library is defined by the key in the `controllers` object. The key is used to import the library in the client code.
+
+```ts filename="/src/app/api/[[...vovk]]/route.ts"
+// ...
+const controllers = { 
+    UserRPC: UserController 
+};
+// ...
+initVovk({ controllers });
+```
 
 The client library implements same-named methods but changes the method signature so you can pass required input data as options (`body`, `query` and `params`). **vovk-client** can be used in client components, server components, application state and even be distributed as a standalone package. For an illustration [vovk-examples](https://github.com/finom/vovk-examples) is published as a [standalone NPM package](https://www.npmjs.com/package/vovk-examples) to be used on [vovk.dev](https://vovk.dev) that, by itself, is a static website powered by gh-pages.
 
 Everything exported from **vovk-client** is plain old JavaScript with typings that calls the regular `fetch` function.
 
 ```ts
-import { UserController } from 'vovk-client';
+import { UserRPC } from 'vovk-client';
 
 // ...
 
-const updatedUser = await UserController.updateUser({
+const updatedUser = await UserRPC.updateUser({
     body: { firstName, lastName },
     query: { role: 'admin' },
-    params: { id: '69' },
+    params: { id },
 });
 
 // same as
-fetch('/api/users/69?role=admin', {
+fetch(`/api/users/${id}?role=admin`, {
     method: 'PUT',
     body: JSON.stringify({ firstName, lastName }),
 });
 ```
 
-It's worthy to mention that client library [can be customised](/customization) in order to follow custom logic required by the application.
+The naming convention isn't strict and can be changed to fit the application's needs. For example `UserRPC` can be renamed to `users` or any other appropriate name.
+
+```ts filename="/src/app/api/[[...vovk]]/route.ts"
+// ...
+const controllers = { 
+    users: UserController 
+};
+// ...
+```
+
+The client import may look like this:
 
 ```ts
- await UserController.updateUser({
+import * as api from 'vovk-client';
+
+await api.users.updateUser({
+    // ...
+});
+```
+
+The generated client library [can be customised](/customization) in order to follow custom logic required by the application.
+
+```ts
+ await UserRPC.updateUser({
     // ...
     successMessage: 'Successfully created the user',
     someOtherCustomFlag: true,
 });
 ```
+
+## Behind the scenes
+
+The client library is generated at **node_modules/.vovk-client** and re-exported from **vovk-client** package. The folder contains 3 files:
+
+- **index.ts** - uncompiled TypeScript file. Used rarely but useful if code is generated to the root of the project. See [vovk-examples](https://github.com/finom/vovk-examples).
+- **client.js** - compiled JavaScript file. Used by the client.
+- **client.d.ts** - TypeScript definitions. Used by the client.
+
+TODO add example of generated client library

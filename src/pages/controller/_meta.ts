@@ -1,13 +1,11 @@
 const meta = {
-  return: {
-    title: 'Return Type',
-  },
-  service: {
-    title: 'Service',
-  },
-  type: {
-    title: 'Type Extraction',
-  },
+  request: 'VovkRequest',
+  return: 'Return Type',
+  headers: 'Response Headers',
+  decorators: 'Decorators',
+  redirect: 'redirect and notFound',
+  proxy: 'Proxy',
+  type: 'Type Extraction',
 };
 
 export default meta;
