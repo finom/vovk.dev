@@ -1,17 +1,17 @@
 'use client';
 import { useState } from 'react';
-import { StreamResponseObjectController } from 'vovk-examples';
+import { StreamJSONResponseObjectController } from 'vovk-examples';
 import type { VovkYieldType } from 'vovk';
 
 export default function StreamExample() {
-  const [tokens, setTokens] = useState<VovkYieldType<typeof StreamResponseObjectController.streamTokens>[]>([]);
+  const [tokens, setTokens] = useState<VovkYieldType<typeof StreamJSONResponseObjectController.streamTokens>[]>([]);
 
   return (
     <>
       <button
         onClick={async () => {
           setTokens([]);
-          using stream = await StreamResponseObjectController.streamTokens();
+          using stream = await StreamJSONResponseObjectController.streamTokens();
           for await (const token of stream) {
             setTokens((tokens) => [...tokens, token]);
           }

@@ -1,24 +1,24 @@
 import { Tabs } from 'nextra/components';
-import StreamResponseObjectController from '../../downloaded-examples/stream-response-object/StreamResponseObjectController.mdx';
+import StreamJSONResponseObjectController from '../../downloaded-examples/stream-response-object/StreamJSONResponseObjectController.mdx';
 import StreamService from '../../downloaded-examples/stream-response-object/StreamService.mdx';
 import StreamExample from '../../downloaded-examples/stream-response-object/StreamExample.mdx';
-import LiveStreamResponseExample from '../../live-examples/LiveStreamResponseExample';
+import LiveStreamJSONResponseExample from '../../live-examples/LiveStreamJSONResponseExample';
 
-# Text Streaming with `StreamResponse` Class
+# Text Streaming with `StreamJSONResponse` Class
 
-In some cases it's too hard to use generators to implement response streaming. Vovk.ts introduces `StreamResponse` class inherited from `Response` class that uses `TransformStream#readable` as body and adds required HTTP headers. 
+In some cases it's too hard to use generators to implement response streaming. Vovk.ts introduces `StreamJSONResponse` class inherited from `Response` class that uses `TransformStream#readable` as body and adds required HTTP headers. 
 It's a lower-level API that is used behind the scenes to implement generator logic described at previous section.
-Service method at this case is implemented as a regular function that accepts `StreamResponse` instance as a pointer to send messages manually.
+Service method at this case is implemented as a regular function that accepts `StreamJSONResponse` instance as a pointer to send messages manually.
 
 There is what the streaming service might look like:
 
 ```ts filename="/src/modules/stream/StreamService.ts"
-import type { StreamResponse } from 'vovk';
+import type { StreamJSONResponse } from 'vovk';
 
 export type Token = { message: string };
 
 export default class StreamService {
-  static async streamTokens(resp: StreamResponse<Token>) {
+  static async streamTokens(resp: StreamJSONResponse<Token>) {
     const tokens: Token[] = [
       { message: 'Hello,' },
       { message: ' World' },
@@ -35,19 +35,19 @@ export default class StreamService {
 }
 ```
 
-As you can see tokens are sent using `StreamResponse#send` method and, when the stream is completed, it needs to be closed with `StreamResponse#close`.
+As you can see tokens are sent using `StreamJSONResponse#send` method and, when the stream is completed, it needs to be closed with `StreamJSONResponse#close`.
 
-The Controller Class returns an instance of `StreamResponse` and the streaming is performed a floating Promise above the `return` statement.
+The Controller Class returns an instance of `StreamJSONResponse` and the streaming is performed a floating Promise above the `return` statement.
 
 ```ts
-import { prefix, get, StreamResponse, type VovkRequest } from 'vovk';
+import { prefix, get, StreamJSONResponse, type VovkRequest } from 'vovk';
 import StreamService, { type Token } from './StreamService';
 
 @prefix('stream')
 export default class StreamController {
   @get('tokens')
   static async streamTokens() {
-    const resp = new StreamResponse<Token>();
+    const resp = new StreamJSONResponse<Token>();
 
     void StreamService.streamTokens(resp);
 
@@ -56,21 +56,21 @@ export default class StreamController {
 }
 ```
 
-`StreamResponse` class also provides `throw` methods that safely closes the stream and makes the client to re-throw the received error.
+`StreamJSONResponse` class also provides `throw` methods that safely closes the stream and makes the client to re-throw the received error.
 
 ```ts
 await resp.throw(new Error('Stream error'));
 ```
 
 
-## Live Text Streaming Example with `StreamResponse` Class
+## Live Text Streaming Example with `StreamJSONResponse` Class
 
 <div className="doc-live-example">
-    <LiveStreamResponseExample />
+    <LiveStreamJSONResponseExample />
 </div>
 <Tabs items={['Service', 'Controller', 'Component']}>
   <Tabs.Tab><StreamService /></Tabs.Tab>
-  <Tabs.Tab><StreamResponseObjectController /></Tabs.Tab>
+  <Tabs.Tab><StreamJSONResponseObjectController /></Tabs.Tab>
   <Tabs.Tab><StreamExample /></Tabs.Tab>
 </Tabs>
 

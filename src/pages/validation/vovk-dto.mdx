@@ -1,1 +1,100 @@
 # vovk-dto
+
+TODO: react-hook-form, Prisma generator
+
+[vovk-dto](https://github.com/finom/vovk-dto) is the library that performs request data validation with [class-validator](https://www.npmjs.com/package/class-validator). The handler is wrapped with `withDto` function as the last argument that accepts DTOs for the request body and query string.
+
+```ts filename="/src/modules/user/UserController.ts"
+import { put } from 'vovk';
+import { withDto } from 'vovk-dto';
+import { IsString, IsEmail, IsUUID } from 'class-validator';
+import UserService from './UserService';
+
+// DTO for the body of the request
+class UpdateUserDto {
+    @IsString()
+    name: string;
+
+    @IsEmail()
+    email: string;
+}
+
+// DTO for the query parameters
+class UpdateUserQueryDto {
+    @IsUUID()
+    id: string;
+}
+
+export default class UserController {
+    @put.auto()
+    static updateUser = withDto(UpdateUserDto, UpdateUserQueryDto, async (req) => {
+        const { name, email } = await req.json();
+        const id = req.nextUrl.searchParams.get('id');
+
+        return UserService.updateUser(id, { name, email });
+    });
+}
+```
+
+Note that you need to set `"strictPropertyInitialization"` to `false` at the `tsconfig.json` file to avoid the error `Property 'name' has no initializer and is not definitely assigned in the constructor`.
+The request body and query receive the type inferred from the Zod objects.
+
+`withDto` is implemented with multiple overloads where query model is optional and both body and query models can be set to null.
+
+- `withDto(bodyDto: ClassConstructor | null, queryDto: ClassConstructor | null, handler: RequestHandler)`
+- `withDto(bodyDto: ClassConstructor | null, handler: RequestHandler)`
+
+Here is body only validation where `withDto` accepts 2 arguments: the body DTO and the handler.
+
+```ts filename="/src/modules/user/UserService.ts"
+// ...
+export default class UserService {
+    static async updateUser = withZod(UpdateUserDto, async (id, { name, email }) => {
+        // ...
+    });
+}
+```
+
+To validate query only `withDto` accepts 3 arguments: `null`, the query DTO and the handler.
+
+```ts filename="/src/modules/user/UserController.ts"
+// ...
+export default class UserController {
+    @put.auto()
+    static updateUser = withDto(null, UpdateUserQueryDto, async (req) => {
+        // ...
+    });
+}
+```
+
+## validateOnClient
+
+Unlike [vovk-zod](/validation/vovk-zod) and [vovk-yup](/validation/vovk-yup), **vovk-dto** doesn't emit validation schema. Instead, it defines [validation](/schema) as `{ isDto: true }` and the client-side expects the body and the query to be converted into the DTO instances with `plainToInstance` exported from [class-transformer](https://www.npmjs.com/package/class-transformer). If `body` or `query` arent the instances of the DTO, the client-side will perform no validation.
+
+```ts
+import { UserRPC } from 'vovk-client';
+import validateOnClient from 'vovk-dto/validateOnClient';
+import { plainToInstance } from 'class-transformer';
+import { UpdateUserDto, UpdateUserQueryDto } from './UserDto';
+
+// ...
+UserRPC.updateUser({
+    body: plainToInstance(UpdateUserDto, {
+        name: 'John Doe',
+        email: 'john@example.com'
+    }),
+    query: plainToInstance(UpdateUserQueryDto, {
+        id: '123'
+    }),
+    validateOnClient,
+});
+```
+
+You can also define `validateOnClient` option at [/config](/config) file to apply it to all RPC functions globally so you don't need to pass it every time.
+
+```ts filename="vovk.config.mjs"
+export default {
+    // ...
+    validateOnClient: 'vovk-dto/validateOnClient',
+};
+```

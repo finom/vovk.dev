@@ -3,7 +3,7 @@
 
 Vovk.ts uses a config file to define options for the [CLI](/cli) TODO
 
-## Valid config names
+## Valid config file names
 
 The config can be implemented either as a CJS module or as a ESM module. It supports the following extensions: **.js**, **.cjs**, **.mjs** and can be stored at the root of the project as well as at **.config** folder. In other words, the following paths are valid:
 
@@ -16,14 +16,18 @@ The config can be implemented either as a CJS module or as a ESM module. It supp
 
 When [vovk init](/cli/vovk-init) is executed, it checks if the project is a module and, if true, uses **.mjs** extension and if it contains the **.config** folder it saves the config there.
 
+## Config options
+
+Shape of the config object is defined by the following TypeScript type imported from [vovk-cli](/cli):
+
 ```ts
 export type VovkConfig = {
   clientOutDir?: string;
   schemaOutDir?: string;
   fetcher?: string;
+  validationLibrary?: string | null;
   validateOnClient?: string | null;
   modulesDir?: string;
-  validationLibrary?: string | null;
   rootEntry?: string;
   origin?: string;
   rootSegmentModulesDirName?: string;
@@ -41,34 +45,17 @@ export type VovkConfig = {
 
 The config file allows to change default options in order to customise generated client or its path. The default config looks like that: 
 
-```ts filename="/vovk.config.js"
-/** @type {import('vovk').VovkConfig} */
-const vovkConfig = {
-    clientOut: './node_modules/.vovk',
-    route: './src/app/api/[[...vovk]]/route.ts',
-    modulesDir: './src/modules',
-    fetcher: 'vovk/client/defaultFetcher',
-    prefix: '/api',
-    validateOnClient: '',
-};
-                                                                        
-module.exports = vovkConfig;
-```
+- `clientOutDir` - where the client is going to be compiled to. Can be overriden by `VOVK_CLIENT_OUT_DIR` env variable.
+- `schemaOutDir` - where the schema is going to be compiled to. Can be overriden by `VOVK_SCHEMA_OUT_DIR` env variable.
+- `fetcher` - allows to customize the fetching function that used internally by the client. Can be overriden by `VOVK_FETCHER` env variable. Please, check the [customization docs](/customization) for more info.
+- `validationLibrary` - defines the validation library. See [validation docs](/validation) for more info. Can be overriden by `VOVK_VALIDATION_LIBRARY` env variable.
+- `validateOnClient` - defines client-side validation library. See [validation docs](/validation) for more info. Can be overriden by `VOVK_VALIDATE_ON_CLIENT` env variable.
+- `modulesDir` - defines the directory where the modules are located. Can be overriden by `VOVK_MODULES_DIR` env variable. Used to watch for changes in the modules and recompile the client.
+- `rootEntry` - defines the root entry for the API routes (the root endpoint and the folder where [segments](/segments) are located). By default it's `api`. You can set it to `''` if you want to make the API served from the root of the domain. Can be overriden by `VOVK_ROOT_ENTRY` env variable.
+- `origin` - defines the origin for the client (for example https://example.com). By default it equals to `''`. Can be overriden by `VOVK_ORIGIN` env variable.
+- `rootSegmentModulesDirName` - the flag is used to define the name of the folder where the root segment modules are created by [the module generator](/cli/vovk-new) when multiple segments are used. By default root segment modules are located in the root of the `modulesDir`. If `rootSegmentModulesDirName` is set to a non-empty string, the root segment modules are going to be created in the folder with this name. For example if it's set to `"root"` then when `vovk new controller user` is executed the controller is going to be created at **src/modules/root/user/UserController.ts**. Can be overriden by `VOVK_ROOT_SEGMENT_MODULES_DIR_NAME` env variable.
+- `logLevel` - defines the log level for the CLI. The values are `"trace"`, `"debug"`, `"info"`, `"warn"`, `"error"`. By default it's `"info"`. Can be overriden by `VOVK_LOG_LEVEL` env variable.
+- `prettifyClient` - defines if the client code that by default is located at **node_modules/.vovk-client** is going to be prettified (making compilation a bit slower). By default it's `false`. Can be overriden by `VOVK_PRETTIFY_CLIENT=true` env variable.
+- `devHttps` - defines if the dev server is going to use HTTPS. By default it's `false`. Can be overriden by `VOVK_DEV_HTTPS=true` env variable. See [https docs](/dev-https) for more info.
+- `templates` - used by the [module generator](/cli/vovk-new) to define the templates for the service, controller, worker, state or any other kind of module. By default it uses templates from the [vovk-cli](/cli) package. There is no env variable to override it.
 
-- `clientOut` - where the client is going to be compiled to. Can be overriden by `VOVK_CLIENT_OUT` env variable.
-- `route` - allows to redefine path to the wildcard route (the slug can be any non-empty string, it's name is not utilised by Vovk.ts). Can be overriden by `VOVK_ROUTE` env variable.
-- `modulesDir` - defines the root directory where the modules are located. Can be overriden by `VOVK_MODULES_DIR` env variable. Used to watch for changes in the modules and recompile the client. You can set it to `"./src"` to watch for changes in the whole project.
-- `fetcher` - allows to customize the fetching function that used internally by the client. Can be overriden by `VOVK_FETCHER` env variable. See the [Customization docs](/customization) for more info. 
-- `prefix` - defines the root endpoint used by `fetch` function at the client. Can be overriden by `VOVK_PREFIX` env variable.
-- `validateOnClient` - defines client-side validation library. If [vovk-zod](https://github.com/finom/vovk-zod) is installed but `validateOnClient` is not redefined it's value going to get value `"vovk-zod/zodValidateOnClient"`. Can be overriden by `VOVK_VALIDATE_ON_CLIENT` env variable.
-
-The config can be also defined as **vovk.config.cjs** but also as an ES Module named **vovk.config.mjs**:
-
-```ts filename="/vovk.config.mjs"
-/** @type {import('vovk').VovkConfig} */
-const vovkConfig = {
-    // ...
-};
-
-export default vovkConfig;
-```

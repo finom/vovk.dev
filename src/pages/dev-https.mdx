@@ -14,7 +14,6 @@ export default config;
 If you don't want to set the HTTPS mode globally, you can simply create another NPM script that includes the environment variable and the flag:
 
 ```json filename="/package.json"
-
 "scripts": {
     "dev-https": "VOVK_DEV_HTTPS=true vovk dev --next-dev -- --experimental-https",
     "dev": "vovk dev --next-dev",

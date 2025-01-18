@@ -30,11 +30,10 @@ const meta = {
   errors: 'Errors',
   validation: 'Validation',
   'dev-https': 'HTTPS in Development',
-  'common-service': 'Common Code',
+  'shared-service': 'Shared Service',
   worker: 'Web Worker with WPC',
   config: 'vovk.config.js',
   cli: 'CLI',
-  framework: 'Project Framework',
   'api-reference': 'API Reference',
 };
 

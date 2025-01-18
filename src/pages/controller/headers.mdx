@@ -1,4 +1,4 @@
-# Response Headers
+# Response headers
 
 All HTTP decorators support custom response headers provided as the second argument.
 
@@ -10,7 +10,7 @@ export default class UserController {
 }
 ```
 
-To enable CORS instead of manually setting up headers you can use `cors: true` option.
+To enable CORS headers you can use `cors: true` option.
 
 ```ts
 // ...
@@ -22,7 +22,6 @@ export default class UserController {
 
 For auto-generated endpoints `cors` and `headers` are defined as the only argument.
 
-
 ```ts
 // ...
 export default class UserController {
@@ -31,7 +30,7 @@ export default class UserController {
 }
 ```
 
-## Dynamic Response Headers
+## Dynamic response headers
 
 To set up dynamic response headers you can use `NextResponse` object that is provided by Next.js.
 
@@ -49,7 +48,7 @@ export default class UserController {
 
 ## Cookies
 
-To set up cookies you can use [cookies](https://nextjs.org/docs/app/api-reference/functions/cookies) function exported by Next.js.
+To work with cookies you can use [cookies](https://nextjs.org/docs/app/api-reference/functions/cookies) function exported by Next.js headers module.
 
 ```ts
 import { cookies } from 'next/headers'

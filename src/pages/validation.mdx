@@ -1,6 +1,10 @@
 # Request Validation
 
-TODO
+- [vovk-yup](/validation/vovk-yup)
+- [vovk-zod](/validation/vovk-zod)
+- [vovk-dto](/validation/vovk-dto)
+
+TODO: finish the article and add links to examples
 
 **Vovk.ts** offers API that allows to validate request body and query string on back-end and performs zero-cost validation on client-side before request to the server is made.
 
@@ -23,6 +27,6 @@ If you want to disable it completely and remove it from **.vovk.json** file (in 
 export const { GET, POST, PATCH, PUT } = initVovk({
     controllers,
     workers,
-    exposeValidation: false // don't populate metadata file with validation information
+    exposeValidation: false // don't populate schema file with validation information
 });
 ```

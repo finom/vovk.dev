@@ -8,16 +8,18 @@ import { redirect, notFound } from 'next/navigation';
 export default class UserController {
     @get('redirect') 
     static async redirect() {
-        // if something
+        // ... if something
         redirect('/some-other-endpoint');
     }
 
     @get('not-found') 
     static async notFound() {
-        // if something
+        // ... if something
         notFound();
     }
 }
 ```
 
 Both functions work by throwing an error so you don't need to use `return` statement. TypeScript casts their return type as `never`.
+
+See [Next.js documentation](https://nextjs.org/docs/app/building-your-application/routing/redirecting) for more information.

@@ -1,15 +1,17 @@
 
-# Return Type
+# Return type
 
-## Custom Object
+## Custom object
 
 The decorated static methods of controllers can return several kinds of objects. For example, a regular object literal. 
 
 ```ts
 // ...
-static async helloWorld(/* ... */) {
-    // ...
-    return { hello: 'world' };
+export default class HelloController {
+    @get()
+    static helloWorld() {
+        return { hello: 'world' };
+    }
 }
 ```
 
@@ -17,60 +19,47 @@ Another example - if the controller method returns Prisma ORM invocation the typ
 
 ```ts
 // ...
-static async updateUser(/* ... */) {
-    // ...
-    const updatedUser = await prisma.user.update({
-        where: { id },
-        data,
-    });
+export default class UserController {
+    @get()
+    static async updateUser(/* ... */) {
+        // ...
+        const updatedUser = await prisma.user.update({
+            where: { id },
+            data,
+        });
 
-    return updatedUser;
+        return updatedUser;
+    }
 }
-// ...
 ```
 
-At this case the returned value of client method `UserController.updateUser` gets `User` type generated at **@prisma/client**.
+At this case the returned value of client method `UserRPC.updateUser` gets `User` type generated at **@prisma/client**.
 
-## Response Object
+## Response object
 
 HTTP handlers can also return regular `Response` object, including `NextResponse`.
 
-
 ```ts
 // ...
-static async helloWorld(/* ... */) {
-    // ...
-    return NextResponse.json({ hello: 'world' }, { status: 200 });
+export default class HelloController {
+    @get()
+    static helloWorld() {
+        return new Response(JSON.stringify({ hello: 'world' }), {
+            headers: { 'Content-Type': 'application/json' },
+        }) as unknown as { hello: string };
+    }
 }
-// ...
 ```
 
-When `NextResponse.json` is returned from the controller method, the client library is going to recognise the return type as expected.
-This way you can define headers, cookies and other options dynamically. See the [NextResponse documentation](https://nextjs.org/docs/app/api-reference/functions/next-response) for more details.
-
-## Type Override (MOVE TO CLIENT SECTION)
-
-In case if your code makes it impossible to recognise the return type, you can override it manually with no need to convert it to `unknown` first.
+When `NextResponse` is returned from the controller method, the client library is going to recognise the return type as expected.
 
 ```ts
-import { UserController } from 'vovk-client';
-import type { SomeType } from '../types';
-
+import {  NextResponse } from 'next/server';
 // ...
-
-// Override the return type
-const updatedUser = await UserController.updateUser<SomeType>(/* ... */);
-```
-
-## Async iterable
-
-```ts
-// ...
-static async *updateUser(/* ... */) {
-    // ...
-    yield* iterable;
+export default class HelloController {
+    @get()
+    static helloWorld() {
+        return NextResponse.json({ hello: 'world' }, { status: 200 });
+    }
 }
-// ...
 ```
-
-If iterable is returned, the client library is going to cast the method as a disposable async generator to implement response streaming. It's explained in more details on the [Text Streaming documentation page](/streaming).

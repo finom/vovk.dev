@@ -1,13 +1,31 @@
 # Customizing the Fetcher and Default Client Options
 
+TODO
+
+## Turbo mode
+
+In turbo mode, when `next dev` is used with `--turbo` flag, you're going to need to provide full path to the **.ts** file where the fetcher is stored.
+
+```ts
+/** @type {import('vovk').VovkConfig} */
+const vovkConfig = {
+    fetcher: './src/lib/myFetchingFunction/index.ts',
+};
+
+module.exports = vovkConfig;
+```
+
+
+----------
+
 You can redefine the default fetching function and its options to tightly integrate Vovk.ts client with your application state or to add extra features. For example, the clientized controller methods may look like that:
 
 ```ts
-import { UserController } from 'vovk-client';
+import { UserRPC } from 'vovk-client';
 
 // ...
 
-UserController.createUser({ 
+const user = await UserRPC.createUser({ 
     body,
     query,
     // custom options
@@ -109,7 +127,7 @@ if (response.headers.get('content-type')?.includes('application/json')) {
 In case if the server endpoint and `yourCustomHandler` return different values, you can redefine the inferred return type using the client method generic argument.
 
 ```ts
-import { MyController } from 'vovk-client';
+import { MyRPC } from 'vovk-client';
 
 // ...
 
@@ -125,3 +143,30 @@ The `result` variable from this example is going to receive `{ foo: 'bar' }` typ
 ## Creating a custom validation library
 
 If you need to create your custom validation library, check [decorators documentation](./decorators).
+
+## Type Override (MOVE TO CLIENT SECTION)
+
+In case if your code makes it impossible to recognise the return type, you can override it manually with no need to convert it to `unknown` first.
+
+```ts
+import { UserRPC } from 'vovk-client';
+import type { SomeType } from '../types';
+
+// ...
+
+// Override the return type
+const updatedUser = await UserController.updateUser<SomeType>(/* ... */);
+```
+
+## Async iterable
+
+```ts
+// ...
+static async *updateUser(/* ... */) {
+    // ...
+    yield* iterable;
+}
+// ...
+```
+
+If iterable is returned, the client library is going to cast the method as a disposable async generator to implement response streaming. It's explained in more details on the [Text Streaming documentation page](/streaming).

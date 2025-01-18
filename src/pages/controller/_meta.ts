@@ -2,10 +2,10 @@ const meta = {
   request: 'VovkRequest',
   return: 'Return Type',
   headers: 'Response Headers',
-  decorators: 'Decorators',
+  decorator: 'Decorators',
   redirect: 'redirect and notFound',
   proxy: 'Proxy',
-  type: 'Type Extraction',
+  'type-extraction': 'Type Extraction',
 };
 
 export default meta;

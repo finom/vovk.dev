@@ -1,18 +1,53 @@
-# Proxy Endpoints
+# Proxy endpoints
 
-You can easily create a proxy endpoint by fetching data from another server with `fetch` function. 
+## JSON
+
+You can easily create a proxy endpoint by fetching data from another server with `fetch` function that returns `Response` instance that's automatically handled by Next.js. The only thing you need to do is to define a different return type.
+
+```ts
+import { get } from 'vovk';
+
+export default class ProxyController {
+  @get('greeting', { cors: true })
+  static getHello() {
+    return fetch('https://vovk.dev/api/hello/greeting.json') as unknown as { greeting: 'Hello world!' };
+  }
+}
+```
+
+See this [example in action](http://vovk-examples.vercel.app/proxy).
+
+On the client-side the return type is going to be reused.
+
+```ts
+import { ProxyRPC } from 'vovk-client';
+
+// ...
+const { greeting } = await ProxyRPC.getHello();
+```
+
+You can also define response type at the client method if you want to keep the return type to be a generic `Response`.
+
+```ts
+import { ProxyRPC } from 'vovk-client';
+
+// ...
+const { greeting } = await ProxyRPC.getHello<{ greeting: string }>();
+```
+
+## Blob
+
+If you don't change the return type, the client will automatically resolve the response as `Response` object. This is useful when you need to fetch a file or a binary data.
 
 ```ts
 import { get } from 'vovk';
 export default class ProxyController {
     @get('proxy')
     static proxy() {
-        return fetch('https://api.example.com/data');
+        return fetch('https://example.com/example.pdf');
     }
 }
 ```
-
-Since the `fetch` function returns a promise of `Response` object, the [client](/client) will automatically resolve it's type as `Response` so you can use any of its methods in a type-safe manner. The following example is borrowed at a real project where we fetch a PDF file and use it's Blob with [pdfjs-dist](https://www.npmjs.com/package/pdfjs-dist).
 
 ```ts
 import { ProxyRPC } from 'vovk-client';

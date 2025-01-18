@@ -1,3 +1,89 @@
 # Schema
 
-This is the schema page.
+[vovk dev](/cli/vovk-dev) emits JSON files that contain information about endpoints, method names, validation, etc, defined at the controller to **.vovk-schema/** folder. Each **.json** file represents schema for one [segment](/segment). The schemas exported from auto-generated **.vovk-schema/index.js**. 
+
+```js
+// auto-generated
+module.exports[''] = require('./_root.json');
+module.exports['foo'] = require('./foo.json');
+module.exports['bar/baz'] = require('./bar/baz.json');
+```
+
+```json
+{
+  // vovkInit option that defines is the schema going to be emitted for this segment
+  "emitSchema": true,
+  // Segment name
+  "segmentName": "",
+  // List of controllers as key-value pairs for fast access
+  // Key is a name of the variable thst's going to be exported from "vovk-client"
+  // Value is controller information
+  "controllers": {
+    "HelloRPC": {
+      // RPC name that's going to be used in the client
+      "controllerName": "HelloRPC",
+      // Original name of the controller class
+      "originalControllerName": "HelloController",
+      // An argument of @prefix class decorator
+      "prefix": "hello",
+      // List of handlers as key-value pairs for fast access
+      // Key is a static method name
+      // Value is handler information
+      "handlers": {
+        "getHello": {
+          // Endpoint that's concatenated with the prefix
+          "path": "greeting",
+          // HTTP method
+          "httpMethod": "POST",
+          // Validation for "body" and "query"
+          // Can contain any custom data, at this case it's JSON schema emitted by "vovk-zod"
+          "validation": {
+            "body": {
+                "type": "object",
+                "properties": {
+                  "foo": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "foo"
+                ],
+                "additionalProperties": false,
+                "$schema": "http://json-schema.org/draft-07/schema#"
+            },
+            "query": {
+              "type": "object",
+              "properties": {
+                "bar": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "bar"
+              ],
+              "additionalProperties": false,
+              "$schema": "http://json-schema.org/draft-07/schema#"
+            }
+          },
+          // Custom data that can be defined by a custom decorator
+          "custom": {
+            "hello": "World"
+          }
+        }
+      }
+    }
+  },
+  "workers": {
+    "HelloWPC": {
+      "workerName": "HelloWPC",
+      "originalWorkerName": "HelloWorker",
+      "handlers": {
+        "factorize": {
+            "isGenerator": true
+        }
+      }
+    }
+  }
+}
+
+Check how to emit custom schema for "custom" key at [decorators documentation](/controller/decorator)

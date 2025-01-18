@@ -71,6 +71,6 @@
     "tsx": "^4.19.2",
     "typescript": "^5",
     "user-agent-data-types": "^0.4.2",
-    "vovk-cli": "^0.0.1-draft.30"
+    "vovk-cli": "^0.0.1-draft.40"
   }
 }

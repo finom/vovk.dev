@@ -1,6 +1,6 @@
 # vovk-zod
 
-[vovk-zod](https://github.com/finom/vovk-zod) is the library that implements [Zod](https://zod.dev/) validation. It performs validation on the Controller side with `ZodModel.parse`, [converts the Zod object to a JSON Schema](https://www.npmjs.com/package/zod-to-json-schema) that's stored at **.vovk-schema/*/.json** file, and runs validation on client before the HTTP request is made with [Ajv](https://ajv.js.org/). The handler is wrapped with `withZod` function as the last argument that accepts Zod objects for the request body and query string.
+[vovk-zod](https://github.com/finom/vovk-zod) is the library that implements [Zod](https://zod.dev/) validation. It performs validation on the Controller side with `ZodModel.parse`, [converts the Zod object to a JSON Schema](https://www.npmjs.com/package/zod-to-json-schema) that's stored at [schema](/schema) files, and runs validation on client before the HTTP request is made with [Ajv](https://ajv.js.org/). The handler is wrapped with `withZod` function as the last argument that accepts Zod objects for the request body and query string.
 
 ```ts filename="/src/modules/user/UserController.ts"
 import { z } from 'zod';
@@ -50,4 +50,27 @@ export default class UserController {
         // ...
     });
 }
+```
+
+## validateOnClient
+
+**vovk-zod** provides `validateOnClient` function exported from **vovk-zod/validateOnClient** that can be used to validate the request on the client-side at the resulting RPC function.
+
+```ts
+import { UserRPC } from 'vovk-client';
+import validateOnClient from 'vovk-zod/validateOnClient';
+
+UserRPC.updateUser({
+    body: { name: 'John', email: 'john@example.com' },
+    validateOnClient,
+});
+```
+
+You can also define `validateOnClient` option at [/config](/config) file to apply it to all RPC functions globally so you don't need to pass it every time.
+
+```ts filename="vovk.config.mjs"
+export default {
+    // ...
+    validateOnClient: 'vovk-zod/validateOnClient',
+};
 ```

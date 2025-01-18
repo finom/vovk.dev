@@ -1,13 +1,8 @@
 const meta = {
-  customization: {
-    title: 'Customization',
-  },
-  'form-data': {
-    title: 'FormData',
-  },
-  'type-extraction': {
-    title: 'Type Extraction',
-  },
+  customization: 'Customization',
+  'form-data': 'FormData',
+  'server-components': 'Server Components',
+  'type-extraction': 'Type Extraction',
 };
 
 export default meta;

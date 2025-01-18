@@ -5,7 +5,7 @@ Request object accepted by controller methods is represented by `VovkRequest` ty
 ```ts
 import { put, type VovkRequest } from 'vovk';
 export default class UserController {
-    @put(':id') 
+    @put() 
     static async updateUser(req: VovkRequest<{ foo: 'foo' }, { bar: 'bar'}>) {
         const data = await req.json(); // data type is { foo: 'foo' }
         const bar = req.nextUrl.searchParams.get('bar'); // bar type is 'bar'
@@ -16,7 +16,7 @@ export default class UserController {
 
 ## req.vovk
 
-Version 3 of Vovk.ts introduces `req.vovk` object that contains additional properties and methods for request processing.
+Version 3 of Vovk.ts introduces `req.vovk` object that contains additional methods for request processing.
 
 ### req.vovk.query()
 
@@ -25,7 +25,7 @@ Function `req.vovk.query` returns serialized query parameters of the request.
 ```ts
 import { get, type VovkRequest } from 'vovk';
 export default class UserController {
-    @get(':id') 
+    @get() 
     static async getUser(req: VovkRequest<null, { id: string }>) {
         const query = req.vovk.query(); // query type is { id: string }
         // ...
@@ -39,17 +39,18 @@ If you use [vovk-dto](/validation/vovk-dto) it will return an instance of DTO cl
 import { get, type VovkRequest } from 'vovk';
 import { withDto } from 'vovk-dto';
 import { GetUserDto } from './dto';
+
 export default class UserController {
-    @get(':id') 
-    static async getUser = withDto(GetUserDto, async (req: VovkRequest<null, GetUserDto>) => {
-        const query = await req.vovk.query(); // query type is GetUserDto
+    @get() 
+    static async getUser = withDto(null, GetUserDto, async (req) => {
+        const query = req.vovk.query(); // query type is GetUserDto
         console.log(query instanceof GetUserDto); // true
         // ...
     });
 }
 ```
 
-### req.vovk.body()
+### async req.vovk.body()
 
 Async function `req.vovk.body` returns body of the request. In most of cases it's the same as `req.json()`. 
 
@@ -73,7 +74,7 @@ import { withDto } from 'vovk-dto';
 import { CreateUserDto } from './dto';
 export default class UserController {
     @post() 
-    static async createUser = withDto(CreateUserDto, async (req: VovkRequest<CreateUserDto>) => {
+    static async createUser = withDto(CreateUserDto, async (req) => {
         const body = await req.vovk.body(); // body type is CreateUserDto
         console.log(body instanceof CreateUserDto); // true
         // ...
@@ -81,14 +82,43 @@ export default class UserController {
 }
 ```
 
+### async req.vovk.form()
+
+Function `req.vovk.form` returns form data of the request serialized as an object. It's a type-safe alternative to `req.formData()` that reads form data and uses `formData.entries()` and `Object.fromEntries()` to convert it to an object. The generic argument defines the shape of the form data.
+
+```ts
+interface Data {
+    foo: string;
+    bar: string;
+    file: File;
+}
+
+const formDataObject = await req.vovk.form<Data>();
+
+// the same as
+// const body = await req.formData();
+// const formDataObject = Object.fromEntries(body.entries()) as Data;
+```
+
 ### req.vovk.meta()
 
-Function `req.vovk.meta` allows to get and set meta information of the request.
+Function `req.vovk.meta` allows to get and set meta information of the request. The only argument is optional and, if provided, it sets meta information extending the existing meta information and returns the current. If empty, it returns the current meta information. In order to define the type of meta information, you need to pass a generic argument.
 
-TODO
+```ts
+interface RequestMeta {
+    foo: string;
+    bar: string;
+    currentUser: User;
+}
 
-### req.vovk.form()
+// set foo and bar meta information
+req.vovk.meta<RequestMeta>({ foo: 'foo', bar: 'bar' });
 
-Function `req.vovk.form` returns form data  of the request serialized as an object.
+// set currentUser meta information
+req.vovk.meta<RequestMeta>({ currentUser: user });
 
-TODO
+// get meta information
+const meta = req.vovk.meta<RequestMeta>(); // meta type is RequestMeta including foo, bar and currentUser
+```
+
+The metadata is usually set in a custom [decorator](/controller/decorator).

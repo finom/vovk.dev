@@ -83,13 +83,13 @@ export default class StreamController {
 
 ## Handling Stream Responses on the Client
 
-Text response streaming (including usage of `StreamResponse` class) generate client method that returns a disposable async generator. 
+Text response streaming (including usage of `StreamJSONResponse` class) generate client method that returns a disposable async generator. 
 
 ```ts
-import { StreamController } from 'vovk-client';
+import { StreamRPC } from 'vovk-client';
 
 {
-    using stream = await StreamController.streamTokens();
+    using stream = await StreamRPC.streamTokens();
 
     for await (const token of stream) {
         console.log(token);
@@ -102,10 +102,10 @@ import { StreamController } from 'vovk-client';
 To make sure that the stream is closed before moving to the next code block you can use `await using` syntax that disposes the stream asynchronous way.
 
 ```ts
-import { StreamController } from 'vovk-client';
+import { StreamRPC } from 'vovk-client';
 
 {
-    await using stream = await StreamController.streamTokens();
+    await using stream = await StreamRPC.streamTokens();
     // ...
 }
 // on this line stream is already closed

@@ -22,9 +22,7 @@ import {
   // core types
   type VovkClientFetcher,
   type VovkDefaultFetcherOptions,
-  type VovkConfig,
-  type VovkEnv,
-  type VovkMetadata,
+  type VovkSchema,
   type VovkErrorResponse,
   // types used by controllers
   type VovkRequest,
@@ -33,7 +31,7 @@ import {
   type VovkControllerParams,
   type VovkControllerReturnType,
   type VovkControllerYieldType,
-  // types used by client
+  // types used by client-side code
   type VovkBody,
   type VovkQuery,
   type VovkParams,
@@ -41,7 +39,7 @@ import {
   type VovkYieldType,
   type VovkClientOptions,
   // classes
-  StreamResponse,
+  StreamJSONResponse,
   HttpException,
   // enums
   HttpStatus,
@@ -49,6 +47,12 @@ import {
   // misc
   generateStaticAPI,
 } from 'vovk';
+
+// CLI types
+import type { 
+  VovkConfig, 
+  VovkEnv, 
+} from 'vovk-cli';
 ```
 
 ## Core
@@ -56,21 +60,21 @@ import {
 ### `initVovk`
 
 Creates the standard Next.js App Route handlers used by the main [Optional Catch-all Segment](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments). The function accepts the following options:
-
+- `segmentName?: string` - the name of the segment that's going to be used in the route. Default is empty string (root segment).
 - `controllers: Record<string, Function>` - the list of Controllers
 - `workers?: Record<string, Function>` - the list of WPC interfaces
 - `exposeValidation?: boolean` - set to `false` if you want to hide validation logic from the client-side code.
-- `onError?: (err: Error, req: NextRequest) => void | Promise<void>` - called on Controller exceptions, can be used to log errors by a third-party service. The second argument can be utilised to retrieve reques URL, authorisation info, and other useful information about the failed request.
+- `onError?: (err: Error, req: VovkRequest) => void | Promise<void>` - called on Controller exceptions, can be used to log errors by a third-party service. The second argument can be utilised to retrieve reques URL, authorisation info, and other useful information about the failed request.
 
 ```ts filename="/src/app/api/[[...vovk]]/route.ts"
 import { initVovk } from 'vovk';
-import HelloController from '../../../modules/hello/HelloController';
-import UserController from '../../../modules/user/UserController';
-import HelloWorker from '../../../modules/hello/HelloWorker';
-import UserWorker from '../../../modules/user/UserWorker';
+import HelloController from '../../modules/hello/HelloController';
+import UserController from '../../modules/user/UserController';
+import HelloWorker from '../../modules/hello/HelloWorker';
+import UserWorker from '../../modules/user/UserWorker';
 
-const controllers = { HelloController, UserController };
-const workers = { HelloWorker, UserWorker };
+const controllers = { HelloRPC: HelloController, UserRPC: UserController };
+const workers = { HelloWPC: HelloWorker, UserWPC: UserWorker };
 
 export type Controllers = typeof controllers;
 export type Workers = typeof workers;
@@ -87,7 +91,7 @@ export const { GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS } = initVovk({
 
 ### `createDecorator`
 
-Defines a custom decorator to extend default behavoir of API endpoints. Accepts 2 arguments: middleware function and init function. The first one defines what the decorator is going to do, the second one is called once per initialisation and intended to pass extra data to the metadata file (for now it's client validation, if exposed).
+Defines a custom decorator to extend default behavoir of API endpoints. Accepts 2 arguments: middleware function and init function. The first one defines what the decorator is going to do, the second one is called once per initialisation and intended to pass extra data to the [schema](/schema) (for now it's client validation, if exposed).
 
 The middleware accepts at least 2 arguments: `VovkRequest`, `next` function that needs to be called and its awaited result needs to be returned after you perform required actions and `...rest` - the arguments that are going to be used by the created decorator fabric.
 
@@ -272,7 +276,7 @@ export default class HelloController {
 Client-side:
 
 ```ts filename="/src/modules/hello/HelloState.ts"
-import { HelloController } from 'vovk-client';
+import { HelloRPC } from 'vovk-client';
 
 export async function getHello() {
     try {
@@ -285,9 +289,9 @@ export async function getHello() {
 }
 ```
 
-### StreamResponse
+### StreamJSONResponse
 
-`StreamResponse<T>(init?: ResponseInit)` class can be used as an alternative to generators to implement response streaming. Instances of this class provide the following methods:
+`StreamJSONResponse<T>(init?: ResponseInit)` class can be used as an alternative to generators to implement JSON response streaming. Instances of this class provide the following methods:
 
 - `send(data: T)` - sends portion of data
 - `close()` - close the connection
@@ -295,7 +299,7 @@ export async function getHello() {
 
 
 ```ts
-import { prefix, get, StreamResponse, type VovkRequest } from 'vovk';
+import { prefix, get, StreamJSONResponse, type VovkRequest } from 'vovk';
 
 type Token = { message: string };
 
@@ -303,7 +307,7 @@ type Token = { message: string };
 export default class StreamController {
   @get('tokens')
   static async streamTokens() {
-    const resp = new StreamResponse<Token>();
+    const resp = new StreamJSONResponse<Token>();
 
     void (async () => {
       const tokens: Token[] = [
@@ -329,12 +333,12 @@ export default class StreamController {
 ```
 
 
-The class also provides static property `defaultHeaders` that contains the standard headers for the keep-alive connections. Since `StreamResponse` accepts standard `ResponseInit` as options argument you can override default headers and optionally spread `StreamResponse.defaultHeaders`.
+The class also provides static property `defaultHeaders` that contains the standard headers for the keep-alive connections. Since `StreamJSONResponse` accepts standard `ResponseInit` as options argument you can override default headers and optionally spread `StreamJSONResponse.defaultHeaders`.
 
 ```ts
-const resp = new StreamResponse<Token>({
+const resp = new StreamJSONResponse<Token>({
   headers: {
-    ...StreamResponse.defaultHeaders,
+    ...StreamJSONResponse.defaultHeaders,
     'x-hello': 'world',
   }
 });
@@ -346,31 +350,15 @@ const resp = new StreamResponse<Token>({
 
 Used to redefine the default fetcher. See [customization docs](./customization).
 
-### `VovkConfig` type
-
-Defines config types.
-
-```ts
-// /vovk.config.js
-/** @type {import('vovk').VovkConfig} */
-const vovkConfig = {
-  // ...
-}
-
-module.exports = vovkConfig;
-```
-
-For more info check [customization docs](./customization).
-
 ### `VovkEnv` type
 
 Defines Vovk.ts env variable types.
 
 For more info check [customization docs](./customization).
 
-### `VovkMetadata` type
+### `VovkSchema` type
 
-Defines format for **.vovk.json**
+Defines format for one schema file at **.vovk-schema/** folder.
 
 ### `VovkErrorResponse` type
 
@@ -380,7 +368,7 @@ Original shape of an object returned from the server when an error is thrown.
 
 ### `VovkRequest` type
 
-The type is used to define types for `req.json` and `req.nextUrl.searchParams.get` and allow to infer types in other environments.
+Originally, the type is used to define types for `req.json` and `req.nextUrl.searchParams.get` and allow to infer types in other environments.
 
 ```ts filename="/src/modules/hello/HelloController.ts"
 import { get, type VovkRequest } from 'vovk';
@@ -394,6 +382,37 @@ export class HelloController {
         const body = await req.body(); // { body: true }
         const q = req.nextUrl.searchParams.get('q'); // string
         const nope = req.nextUrl.searchParams.get('nope'); // never
+        // ...
+        return { success: true };
+    }
+}
+```
+
+Starting V3 the type is alsoused to define `req.vovk` object with `body()`, `query()`, `meta()` and `form()` methods.
+
+- `await req.vovk.body()` - returns request body. In most of cases works the same way as `req.json()` but if used with [vovk-dto](/validation/vovk-dto) it's going to return an instance of the DTO class.
+- `req.vovk.query()` - returns serialized object with query string parameters. If used with [vovk-dto](/validation/vovk-dto) it's going to return an instance of the DTO class.
+- `req.vovk.meta<T>([metadata])` - allows to get and set meta information for the request (for example, to store current user authorization info, etc).
+  - If called without arguments it returns the current meta object.
+  - If called with an object it sets the meta object by extending the current one and returns the new meta object.
+  - If called with `null` it resets the meta object.
+- `await req.vovk.form<T>()` - returns a serialized object with form data. 
+
+Check [request documentation](./controller/request) for more info.
+
+```ts filename="/src/modules/hello/HelloController.ts"
+import { get, type VovkRequest } from 'vovk';
+
+export class HelloController {
+    @get(':someParam')
+    static doSomething(
+        req: VovkRequest, 
+        { someParam }: { someParam: string }
+    ) {
+        const body = await req.vovk.body(); // { body: true }
+        const q = req.vovk.query(); // { q: string }
+        const meta = req.vovk.meta(); // { user: 'admin' }
+        const form = req.vovk.form(); // { foo: 'bar' }
         // ...
         return { success: true };
     }
@@ -447,7 +466,7 @@ type GeneratorYieldtype = VovkControllerYieldType<typeof HelloController.generat
 ```
 
 
-## Types for the Client
+## Types for the client
 
 ### `VovkBody` type
 
@@ -471,18 +490,18 @@ Extracts yield type from a clientized generator controller method.
 
 
 ```ts
-import { HelloController } from 'vovk-client';
+import { HelloRPC } from 'vovk-client';
 
-type DoSomethingBody = VovkBody<typeof HelloController.doSomething>;
-type DoSomethingQuery = VovkQuery<typeof HelloController.doSomething>;
-type DoSomethingParams = VovkParams<typeof HelloController.doSomething>;
-type DoSomethingReturnType = VovkReturnType<typeof HelloController.doSomething>;
-type GeneratorYieldtype = VovkYieldType<typeof HelloController.generator>;
+type DoSomethingBody = VovkBody<typeof HelloRPC.doSomething>;
+type DoSomethingQuery = VovkQuery<typeof HelloRPC.doSomething>;
+type DoSomethingParams = VovkParams<typeof HelloRPC.doSomething>;
+type DoSomethingReturnType = VovkReturnType<typeof HelloRPC.doSomething>;
+type GeneratorYieldType = VovkYieldType<typeof HelloRPC.generator>;
 ```
 
 ### `VovkClientOptions` type
 
-Type that used internally and exposed to customize the client. See [decorators documentation](./decorators).
+Type that used internally and exposed to customize the client. See [customization](/client/customization) for more info.
 
 ## Misc
 
@@ -538,3 +557,25 @@ export function generateStaticParams() {
   return generateStaticAPI(controllers, 'custom');
 }
 ```
+
+## CLI types
+
+The types below are imported from **vovk-cli** package.
+
+### `VovkConfig` type
+
+Defines [config](/config) types.
+
+
+```ts filename="/vovk.config.mjs"
+/** @type {import('vovk-cli').VovkConfig} */
+const vovkConfig = {
+  // ...
+}
+
+export default vovkConfig;
+```
+
+### `VovkEnv` type
+
+Defines env variable types that override config options.

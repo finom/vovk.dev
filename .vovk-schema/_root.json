@@ -2,8 +2,8 @@
   "emitSchema": true,
   "segmentName": "",
   "controllers": {
-    "HelloController": {
-      "controllerName": "HelloController",
+    "HelloRPC": {
+      "controllerName": "HelloRPC",
       "originalControllerName": "HelloController",
       "prefix": "hello",
       "handlers": {
@@ -14,5 +14,13 @@
       }
     }
   },
-  "workers": {}
+  "workers": {
+    "HelloWPC": {
+      "workerName": "HelloWPC",
+      "originalWorkerName": "HelloWorker",
+      "handlers": {
+        "factorize": {}
+      }
+    }
+  }
 }

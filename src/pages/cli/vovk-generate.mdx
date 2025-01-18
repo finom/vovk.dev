@@ -5,3 +5,30 @@ The command `vovk generate` generates client at `node_modules/.vovk-client` fold
 ```sh
 npx vovk generate
 ```
+
+Its automatically added to the `"generate"` script in the `package.json` file when [vovk init](/cli/vovk-init) is run.
+
+```json
+{
+    "scripts": {
+        // ...
+        "generate": "vovk generate"
+    }
+}
+```
+
+
+## Vercel build
+
+In order to build the client at Vercel, you need to add `"vercel-build"` script to the `package.json` with `generate` script.
+
+```json
+{
+    "scripts": {
+        // ...
+        "build": "next build",
+        "generate": "vovk generate",
+        "vercel-build": "npm run build && npm run generate"
+    }
+}
+```

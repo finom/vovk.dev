@@ -1,8 +1,9 @@
-import HelloController from '../../../modules/hello/HelloController';
 import { initVovk, generateStaticAPI } from 'vovk';
+import HelloController from '../../../modules/hello/HelloController';
+import HelloWorker from '../../../modules/hello/HelloWorker';
 
-const controllers = { HelloController };
-const workers = {};
+const controllers = { HelloRPC: HelloController };
+const workers = { HelloWPC: HelloWorker };
 
 export type Controllers = typeof controllers;
 export type Workers = typeof workers;
