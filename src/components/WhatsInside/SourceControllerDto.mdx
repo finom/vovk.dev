@@ -1,15 +1,15 @@
 ```ts
 import { prefix, patch } from 'vovk';
 import { withDto } from 'vovk-dto';
-import { OmitType } from '@nestjs/mapped-types';
-import CreateUserDto from './CreateUserDto';
+import { OmitType } from 'vovk-mapped-types';
+import { UserDto } from './UserDto';
 import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
     @patch(':id')
     static updateUser = withDto(
-        OmitType(CreateUserDto, ['id'] as const), 
+        OmitType(UserDto, ['id'] as const), 
         async (req, { id }: { id: string }) => UserService.updateUser(id, await req.json())
     );
 }

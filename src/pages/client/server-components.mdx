@@ -1,6 +1,6 @@
 # Requesting data at server compoents
 
-TODO Where component example?
+See live [example](https://vovk-examples.vercel.app/server-component).
 
 In order to be able to use [client](/client) at server components, you need to provide API root URL to a function where the data is requested. 
 
@@ -11,21 +11,25 @@ import { UserRPC } from 'vovk-client';
 await UserRPC.getUsers({ apiRoot: 'https://example.com/api' });
 ```
 
-Alternatively, you can define `origin` at the config to avoid passing it every time. At the example below, the `origin` is set to `https://example.com` for preview deployments and to `http://localhost:${process.env.PORT}` for local development.
+Alternatively, you can define `origin` at the config to avoid passing it every time. At the example below, the `origin` is set to `https://example.com` for production deployments and to `http://localhost:${process.env.PORT}` for development.
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk-cli').VovkConfig} */
 const config = {
-  // you can use NEXT_PUBLIC_VERCEL_URL env var for preview deployments
-  origin: process.env.VERCEL_ENV ? `https://example.com` : `http://localhost:${process.env.PORT}`,
+  origin: process.env.NODE_ENV === 'production' ? `https://example.com` : `http://localhost:${process.env.PORT}`,
 };
 
 export default config;
 ```
 
+Component example:
+
 ```ts
 import { UserRPC } from 'vovk-client';
 
-// ...
-await UserRPC.getUsers();
+export default async function ServerComponentExample() {
+  const serverResponse = await UserRPC.getUser({ params: { id: '123' } });
+
+  return <div>{serverResponse.email}</div>;
+}
 ```

@@ -1,14 +1,20 @@
 import { Tabs } from 'nextra/components';
-import StreamJSONResponseObjectController from '../../downloaded-examples/stream-response-object/StreamJSONResponseObjectController.mdx';
+import StreamJSONResponseObjectController from '../../downloaded-examples/stream-response-object/StreamResponseObjectController.mdx';
 import StreamService from '../../downloaded-examples/stream-response-object/StreamService.mdx';
 import StreamExample from '../../downloaded-examples/stream-response-object/StreamExample.mdx';
-import LiveStreamJSONResponseExample from '../../live-examples/LiveStreamJSONResponseExample';
+import LiveStreamJSONResponseExample from '../../live-examples/LiveStreamResponseExample';
 
-# Text Streaming with `StreamJSONResponse` Class
+# `StreamJSONResponse` class
 
-In some cases it's too hard to use generators to implement response streaming. Vovk.ts introduces `StreamJSONResponse` class inherited from `Response` class that uses `TransformStream#readable` as body and adds required HTTP headers. 
-It's a lower-level API that is used behind the scenes to implement generator logic described at previous section.
-Service method at this case is implemented as a regular function that accepts `StreamJSONResponse` instance as a pointer to send messages manually.
+<div className="doc-live-example">
+    <LiveStreamJSONResponseExample />
+</div>
+
+[Source code for this example](https://vovk-examples.vercel.app/stream-response-object)
+
+If generators aren't sutable for JSON streaming at a particular case, you can use `StreamJSONResponse` class inherited from `Response` class that uses `TransformStream#readable` as response body and adds required HTTP headers. 
+It's a lower-level API that is used behind the scenes to implement generator logic described at [the main section](/streaming).
+A service method at this case is implemented as a regular function that accepts `StreamJSONResponse` instance as a pointer to send messages manually.
 
 There is what the streaming service might look like:
 
@@ -37,7 +43,7 @@ export default class StreamService {
 
 As you can see tokens are sent using `StreamJSONResponse#send` method and, when the stream is completed, it needs to be closed with `StreamJSONResponse#close`.
 
-The Controller Class returns an instance of `StreamJSONResponse` and the streaming is performed a floating Promise above the `return` statement.
+The controller class returns an instance of `StreamJSONResponse` and the streaming is performed a floating Promise above the `return` statement.
 
 ```ts
 import { prefix, get, StreamJSONResponse, type VovkRequest } from 'vovk';
@@ -56,22 +62,9 @@ export default class StreamController {
 }
 ```
 
-`StreamJSONResponse` class also provides `throw` methods that safely closes the stream and makes the client to re-throw the received error.
+`StreamJSONResponse` class also provides `throw` method that safely closes the stream and makes the client to re-throw the received error.
 
 ```ts
 await resp.throw(new Error('Stream error'));
 ```
 
-
-## Live Text Streaming Example with `StreamJSONResponse` Class
-
-<div className="doc-live-example">
-    <LiveStreamJSONResponseExample />
-</div>
-<Tabs items={['Service', 'Controller', 'Component']}>
-  <Tabs.Tab><StreamService /></Tabs.Tab>
-  <Tabs.Tab><StreamJSONResponseObjectController /></Tabs.Tab>
-  <Tabs.Tab><StreamExample /></Tabs.Tab>
-</Tabs>
-
-[Source code](https://github.com/finom/vovk-examples)

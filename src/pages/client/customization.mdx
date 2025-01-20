@@ -1,30 +1,11 @@
-# Customizing the Fetcher and Default Client Options
+# Customizing the fetcher
 
-TODO
-
-## Turbo mode
-
-In turbo mode, when `next dev` is used with `--turbo` flag, you're going to need to provide full path to the **.ts** file where the fetcher is stored.
-
-```ts
-/** @type {import('vovk').VovkConfig} */
-const vovkConfig = {
-    fetcher: './src/lib/myFetchingFunction/index.ts',
-};
-
-module.exports = vovkConfig;
-```
-
-
-----------
-
-You can redefine the default fetching function and its options to tightly integrate Vovk.ts client with your application state or to add extra features. For example, the clientized controller methods may look like that:
+You can redefine the default fetching function and its options to tightly integrate Vovk.ts client with your application state or to add extra features. For example, the clie ntized controller methods may look like that:
 
 ```ts
 import { UserRPC } from 'vovk-client';
 
 // ...
-
 const user = await UserRPC.createUser({ 
     body,
     query,
@@ -37,13 +18,13 @@ const user = await UserRPC.createUser({
 
 The fetcher is defined as a default export that extends `VovkClientFetcher` type and should be listed either as config option:
 
-```ts
+```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const vovkConfig = {
     fetcher: './src/lib/myFetchingFunction',
 };
 
-module.exports = vovkConfig;
+export default vovkConfig;
 ```
 
 Or as `VOVK_FETCHER` env variable:
@@ -52,77 +33,95 @@ Or as `VOVK_FETCHER` env variable:
 VOVK_FETCHER="./src/lib/myFetchingFunction" vovk dev
 ```
 
-By default Vovk.ts uses fetcher defined at `vovk/client/defaultFetcher` and you can check its [source code on Github](https://github.com/finom/vovk/blob/main/src/client/defaultFetcher.ts). 
+By default Vovk.ts uses a fetcher defined at `vovk/client/defaultFetcher` and you can check its [source code on Github](https://github.com/finom/vovk/blob/main/packages/vovk/client/defaultFetcher.ts). 
 
 The fetcher accepts two arguments: 
 - An object that is provided by the internal Vovk.ts code that includes HTTP method information and utilities:
     - `httpMethod` - the HTTP metod;
-    - `getEndpoint` - an utility that builds request endpoiint from `prefix`, `query` and `params`;
+    - `getEndpoint` - an utility that builds request endpoiint from `apiRoot`, `query` and `params`;
     - `validate` - a function that validates `body` and `query` of the request;
     - `defaultHandler` - handles the `Response` object returned from `fetch` function;
-    - `defaultStreamHandler` - handles the `Response` object returned from `fetch` function in case of a stream.
+    - `defaultStreamHandler` - handles the `Response` object returned from `fetch` function in case of [JSON stream](/streaming).
 - Request arguments:
-    - `params` - the patams such as `id` from `users/:id`;
-    - `query` - the search query properties such as `?foo=bar`;
+    - `params` - the input params such as `id` from `users/:id`;
+    - `query` - the request query properties such as `?foo=bar`;
     - `body` - the request body;
-    - `prefix` - what's defined as `prefix` property at **vovk.config.js** or passed directly to the client method;
-    - The rest options - your custom options and `RequestInit` (including [custom Next.js options](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating)) that includes the rest `fetch` options such as `headers`, `credentials` etc.
+    - `apiRoot` - by default it's `/api`; it can be redefined in the [config](/config) by setting `rootEntry` and `origin` properties that are concatenated to build the endpoint;
+    - The rest options - your custom options and `RequestInit` (including [custom Next.js options](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating)) that includes other `fetch` options such as `headers`, `credentials` etc.
 
 Your custom fetcher with a custom option `successMessage` may look like that:
 
 ```ts filename="/src/lib/myFetchingFunction.ts"
 import type { VovkDefaultFetcherOptions, VovkClientFetcher } from 'vovk';
 
-// in order to keep default features such as disableClientValidation, headers etc,
-// it's recommended to extend custom options from VovkDefaultFetcherOptions
+// Define custom options
 interface MyOptions extends VovkDefaultFetcherOptions {
     successMessage: string;
 }
 
 const myFetchingFunction: VovkClientFetcher<MyOptions> = async (
   { httpMethod, getEndpoint, validate, defaultHandler, defaultStreamHandler },
-  { params, query, body, prefix = '/api', successMessage, ...options }
+  { params, query, body, apiRoot = '/api', successMessage, ...options }
 ) => {
-  // 1. Build the endpoint
-  const endpoint = getEndpoint({ prefix, params, query });
+  // Build the endpoint
+  const endpoint = getEndpoint({ apiRoot, params, query });
 
-  // 2. Validate
+  // Validate
   if (!options.disableClientValidation) {
     await validate({ body, query });
   }
 
-  // 3. Make fetch request (here you can add authorisation headers)
+  // Make fetch request (here you can add authorisation headers)
   const response = await fetch(endpoint, {
     method: httpMethod,
-    body: JSON.stringify(body),
     ...options,
   });
 
-  let returnResponse = response;
-
-  // 4. Handle response based on response headers
-  if (response.headers.get('content-type')?.includes('application/json')) {
-    returnResponse = await defaultHandler(response);
-  } else if (response.headers.get('content-type')?.includes('text/event-stream')) {
-    returnResponse = await defaultStreamHandler(response);
+  // Prepare request body
+  if (body instanceof FormData) {
+    init.body = body as BodyInit;
+  } else if (body) {
+    init.body = JSON.stringify(body);
   }
 
-  // 5. Utilise your custom option somehow.
+  let response: Response;
+
+  try {
+    // Make fetch request
+    response = await fetch(endpoint, init);
+  } catch (e) {
+    // Handle network errors
+    throw new HttpException(HttpStatus.NULL, (e as Error)?.message ?? DEFAULT_ERROR_MESSAGE);
+  }
+
+  // Handle JSON response
+  if (response.headers.get('content-type')?.includes('application/json')) {
+    return defaultHandler(response);
+  }
+
+  // Handle stream response
+  if (response.headers.get('x-vovk-stream') === 'true') {
+    return defaultStreamHandler(response);
+  }
+
+  // Handle custom options
   alert(successMessage);
 
-  return returnResponse;
+  return response;
 };
 
 export default myFetchingFunction;
 ```
 
-As you can see the code determines response type by `content-type` header. You can freely redefine this logic to make the fetcher return something else (for example, if you want to use Axios or other fetching library).
+As you can see the code determines response type by headers. JSON responses are determined by `application/json` content type and stream responses are determined by `x-vovk-stream` header (the content type of stream responses is `"text/plain; charset=utf-8"`).
 
 ```ts
 if (response.headers.get('content-type')?.includes('application/json')) {
   return yourCustomHandler(response);
 }
 ```
+
+## Type override
 
 In case if the server endpoint and `yourCustomHandler` return different values, you can redefine the inferred return type using the client method generic argument.
 
@@ -131,7 +130,7 @@ import { MyRPC } from 'vovk-client';
 
 // ...
 
-const result = await MyController.myMethod<{ foo: 'bar' }>({
+const result = await MyRPC.myMethod<{ foo: 'bar' }>({
   body,
   successMessage: 'Success!'
 })
@@ -139,34 +138,16 @@ const result = await MyController.myMethod<{ foo: 'bar' }>({
 
 The `result` variable from this example is going to receive `{ foo: 'bar' }` type.
 
+## Turbo mode
 
-## Creating a custom validation library
+In turbo mode, when `next dev` is used with `--turbo` flag, you're going to need to provide full path to the **.ts** file where the fetcher is stored.
 
-If you need to create your custom validation library, check [decorators documentation](./decorators).
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const vovkConfig = {
+    fetcher: './src/lib/myFetchingFunction/index.ts',
+};
 
-## Type Override (MOVE TO CLIENT SECTION)
-
-In case if your code makes it impossible to recognise the return type, you can override it manually with no need to convert it to `unknown` first.
-
-```ts
-import { UserRPC } from 'vovk-client';
-import type { SomeType } from '../types';
-
-// ...
-
-// Override the return type
-const updatedUser = await UserController.updateUser<SomeType>(/* ... */);
+export default vovkConfig;
 ```
 
-## Async iterable
-
-```ts
-// ...
-static async *updateUser(/* ... */) {
-    // ...
-    yield* iterable;
-}
-// ...
-```
-
-If iterable is returned, the client library is going to cast the method as a disposable async generator to implement response streaming. It's explained in more details on the [Text Streaming documentation page](/streaming).

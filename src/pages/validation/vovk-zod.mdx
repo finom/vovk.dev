@@ -74,3 +74,40 @@ export default {
     validateOnClient: 'vovk-zod/validateOnClient',
 };
 ```
+
+## FormData
+
+In order to use `FormData` with `withZod` to validate the request query, you need to fake type casting of body to `z.ZodType<FormData>`. At this case the library isn't going to validate the request body but still will validate the query.
+
+```ts filename="/src/modules/user/UserController.ts"
+export default class UserController {
+    @put.auto()
+    static updateUser = withZod(
+        null as unknown as z.ZodType<FormData>, // fake type casting
+        z.object({ id: z.uuid() }).strict(), // query model
+        async (req) => {
+            // get the FormData instance
+            const formData = await req.formData();
+            
+            // or serialize the FormData to an object
+            const formData = req.vovk.form<{ email: string; file: File }>();
+        }
+    );
+}
+```
+See [VovkRequest](/controller/request) for more information.
+
+At this case the RPC function is going to expect `body` to be an instance of `FormData`.
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+const body = new FormData();
+body.append('email', 'john@example.com');
+body.append('file', new File(['Hello, World!'], 'file.txt'));
+
+UserRPC.updateUser({
+    body,
+    query: { id: '123' },
+});
+```

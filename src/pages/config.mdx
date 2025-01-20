@@ -18,7 +18,7 @@ When [vovk init](/cli/vovk-init) is executed, it checks if the project is a modu
 
 ## Config options
 
-Shape of the config object is defined by the following TypeScript type imported from [vovk-cli](/cli):
+Shape of the config object is defined by `VovkConfig` type exported at [vovk-cli](/cli):
 
 ```ts
 export type VovkConfig = {
@@ -40,6 +40,28 @@ export type VovkConfig = {
     worker?: string;
     [key: string]: string | undefined;
   };
+};
+```
+
+Some of the options can be overriden by the corresponding environment variables defined by `VovkEnv` type also exported at [vovk-cli](/cli):
+
+```ts
+// some technical vars are omitted for this documenation
+export type VovkEnv = {
+  PORT?: string;
+  VOVK_CLIENT_OUT_DIR?: string;
+  VOVK_SCHEMA_OUT_DIR?: string;
+  VOVK_FETCHER?: string;
+  VOVK_VALIDATE_ON_CLIENT?: string;
+  VOVK_MODULES_DIR?: string;
+  VOVK_VALIDATION_LIBRARY?: string;
+  VOVK_ORIGIN?: string;
+  VOVK_ROOT_ENTRY?: string;
+  VOVK_API_ENTRY_POINT?: string;
+  VOVK_ROOT_SEGMENT_MODULES_DIR_NAME?: string;
+  VOVK_LOG_LEVEL?: LogLevelNames;
+  VOVK_PRETTIFY_CLIENT?: string;
+  VOVK_DEV_HTTPS?: string;
 };
 ```
 

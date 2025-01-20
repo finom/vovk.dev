@@ -1,5 +1,6 @@
 # vovk-yup
 
+
 [vovk-yup](https://github.com/finom/vovk-yup) is the library that implements [Yup](https://github.com/jquense/yup) validation. It performs validation on the Controller side with `YupSchema.validate`, [serializes the Yup object to a JSON Schema](https://www.npmjs.com/package/@sodaru/yup-to-json-schema) that's stored at [schema](/schema) files, and runs validation on the client before the HTTP request is made with [schema-to-yup](https://www.npmjs.com/package/schema-to-yup). The handler is wrapped with the `withYup` function as the last argument that accepts Yup objects for the request body and query string.
 
 ```ts filename="/src/modules/user/UserController.ts"
@@ -75,4 +76,45 @@ export default {
     // ...
     validateOnClient: 'vovk-yup/validateOnClient',
 };
+```
+
+
+
+## FormData
+
+In order to use `FormData` with `withYup` to validate the request query, you need to fake type casting of body to `y.Schema<FormData>`. At this case the library isn't going to validate the request body but still will validate the query.
+
+```ts filename="/src/modules/user/UserController.ts"
+import * as y from 'yup';
+
+export default class UserController {
+    @put.auto()
+    static updateUser = withYup(
+        null as unknown as y.Schema<FormData>, // fake type casting
+        yup.object({ id: yup.string().required() }).strict(), // query model
+        async (req) => {
+            // get the FormData instance
+            const formData = await req.formData();
+            
+            // or serialize the FormData to an object
+            const formData = req.vovk.form<{ email: string; file: File }>();
+        }
+    );
+}
+```
+See [VovkRequest](/controller/request) for more information.
+
+At this case the RPC function is going to expect `body` to be an instance of `FormData`.
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+const body = new FormData();
+body.append('email', 'john@example.com');
+body.append('file', new File(['Hello, World!'], 'file.txt'));
+
+UserRPC.updateUser({
+    body,
+    query: { id: '123' },
+});
 ```

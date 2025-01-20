@@ -1,20 +1,22 @@
 # Schema
 
+TODO typescript type, typescript code of index.ts
+
 [vovk dev](/cli/vovk-dev) emits JSON files that contain information about endpoints, method names, validation, etc, defined at the controller to **.vovk-schema/** folder. Each **.json** file represents schema for one [segment](/segment). The schemas exported from auto-generated **.vovk-schema/index.js**. 
 
-```js
+```js filename=".vovk-schema/index.js"
 // auto-generated
 module.exports[''] = require('./_root.json');
 module.exports['foo'] = require('./foo.json');
 module.exports['bar/baz'] = require('./bar/baz.json');
 ```
 
-```json
+```json filename=".vovk-schema/foo.json"
 {
   // vovkInit option that defines is the schema going to be emitted for this segment
   "emitSchema": true,
   // Segment name
-  "segmentName": "",
+  "segmentName": "foo",
   // List of controllers as key-value pairs for fast access
   // Key is a name of the variable thst's going to be exported from "vovk-client"
   // Value is controller information
@@ -79,11 +81,13 @@ module.exports['bar/baz'] = require('./bar/baz.json');
       "originalWorkerName": "HelloWorker",
       "handlers": {
         "factorize": {
+            // is the worker method a generator
             "isGenerator": true
         }
       }
     }
   }
 }
+```
 
 Check how to emit custom schema for "custom" key at [decorators documentation](/controller/decorator)

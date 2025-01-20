@@ -7,6 +7,7 @@ import PreValidation from './PreValidation';
 import CustomClient from './CustomClient';
 import Streaming from './Streaming';
 import FadeGallery from '@/components/FadeGallery';
+import RestRpc from './RestRpc';
 
 const SWIPE_THRESHOLD = 50;
 
@@ -14,7 +15,7 @@ const Gallery = () => {
   const tabList = Object.values(GalleryTabType);
 
   // State for current tab
-  const [currentTab, setCurrentTab] = useState<GalleryTabType>(GalleryTabType.MULTI_SEGMENT);
+  const [currentTab, setCurrentTab] = useState<GalleryTabType>(GalleryTabType.REST_RPC);
 
   // State for whether the carousel is auto-sliding
   const [autoSlide, setAutoSlide] = useState(true);
@@ -25,6 +26,7 @@ const Gallery = () => {
   // The items corresponding to each tab
   const items = [
     <MultiSegment key="multi-segment" />,
+    <RestRpc key="rest-rpc" />,
     <PreValidation key="pre-validation" />,
     <Customizable key="customizable" />,
     <EasyToDistribute key="easy-to-distribute" />,

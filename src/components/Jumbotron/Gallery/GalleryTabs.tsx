@@ -2,6 +2,7 @@ import TabPill from '@/components/TabPill';
 
 export enum GalleryTabType {
   MULTI_SEGMENT = 'MULTI_SEGMENT',
+  REST_RPC = 'REST_RPC',
   PRE_VALIDATION = 'PRE_VALIDATION',
   CUSTOMIZABLE = 'CUSTOMIZABLE',
   EASY_TO_DISTRIBUTE = 'EASY_TO_DISTRIBUTE',
@@ -22,6 +23,7 @@ const GalleryTabs = ({ currentTab, setCurrentTab }: Props) => {
           {
             {
               [GalleryTabType.MULTI_SEGMENT]: 'Multi-segment',
+              [GalleryTabType.REST_RPC]: 'REST + RPC',
               [GalleryTabType.PRE_VALIDATION]: 'Client-side pre-validation',
               [GalleryTabType.CUSTOMIZABLE]: 'Customize your RPC',
               [GalleryTabType.EASY_TO_DISTRIBUTE]: 'Distribute the library',

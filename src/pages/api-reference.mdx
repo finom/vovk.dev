@@ -280,7 +280,7 @@ import { HelloRPC } from 'vovk-client';
 
 export async function getHello() {
     try {
-        return await HelloController.getHello();
+        return await HelloRPC.getHello();
     } catch (e) {
         console.log(e instanceof HttpException);
         const err = e as HttpException;
@@ -509,18 +509,7 @@ Type that used internally and exposed to customize the client. See [customizatio
 
 `generateStaticAPI(controllers: Record<string, Function>, slug?: string)` is used to generate static endpoints with [generateStaticParams](https://nextjs.org/docs/app/api-reference/functions/generate-static-params) at build time instead of on-demand at request time. It can be used in a [Static Export mode](https://nextjs.org/docs/pages/building-your-application/deploying/static-exports) with the `output: 'export'` Next.js config setting:
 
-
-```ts
-// next.config.js
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  output: 'export',
-};
-
-module.exports = nextConfig;
-```
-
-To utilise this feature return `generateStaticAPI` results from `generateStaticParams` function.
+See [segment](/segment) documenation for more info.
 
 ```ts filename="/src/app/api/[[...vovk]]/route.ts"
 // ...
@@ -534,30 +523,6 @@ export function generateStaticParams() {
 export const { GET } = initVovk({ controllers, workers });
 ```
 
-In order to make it work on a static website hosting like Github Pages, you may need to define `.json` extension in your endpoint definition to make it return proper HTTP headers.
-
-```ts
-import { get, prefix } from 'vovk';
-
-@prefix('hello')
-export default class HelloController {
-  @get('greeting.json')
-  static async getHello() {
-    return { greeting: 'Hello world!' };
-  }
-}
-```
-
-As result you're going to get an endpoint that looks like that: [https://vovk.dev/api/hello/greeting.json](https://vovk.dev/api/hello/greeting.json).
-
-In case if you use custom slug (e.g. `/src/app/api/[[...custom]]/route.ts`) instead of **vovk** you can provide it as second argument.
-
-```ts
-export function generateStaticParams() {
-  return generateStaticAPI(controllers, 'custom');
-}
-```
-
 ## CLI types
 
 The types below are imported from **vovk-cli** package.
@@ -565,7 +530,6 @@ The types below are imported from **vovk-cli** package.
 ### `VovkConfig` type
 
 Defines [config](/config) types.
-
 
 ```ts filename="/vovk.config.mjs"
 /** @type {import('vovk-cli').VovkConfig} */
@@ -578,4 +542,4 @@ export default vovkConfig;
 
 ### `VovkEnv` type
 
-Defines env variable types that override config options.
+Defines env variable types that override [config](/config) options.

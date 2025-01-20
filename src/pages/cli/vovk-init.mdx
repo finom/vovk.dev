@@ -1,8 +1,36 @@
 # vovk init
 
-If **vovk-cli** is installed globally it can be run with `vovk init` command. If it's not, it can be run with `npx vovk-cli init` command or with a shortcut `npx vovk-init`.
+If **vovk-cli** is installed globally it can be run with `vovk init` command. If it's not, it can be run with `npx vovk-cli init` or with a shortcut `npx vovk-init`.
 
+It performs some changes at your Next.js project that you would need to do [manually](/manual-install). The command asks the following questions:
 
+- What [validation](/validation) library you want to use?
+- Do you want to enable client validation?
+- Do you want to update `"dev"` script and add `"generate"` script to **package.json**?
+- Do you want to update **tsconfig.json** with `experimentalDecorators`?
 
+After the questions are answered, the command updates the files accordingly, installs the necessary packages, and creates [config](/config) file.
 
-TODO say that dev script describes implicit/explicit way
+## Available flags
+
+If you want to skip the questions, or you want to use a specific package manager, you can use the following flags:
+
+- `-y, --yes` - Skip all prompts and use default values.
+- `--log-level <level>` - Set log level. Default is `info`.
+- `--use-npm` - Use npm as package manager.
+- `--use-yarn` - Use yarn as package manager.
+- `--use-pnpm` - Use pnpm as package manager.
+- `--use-bun` - Use bun as package manager.
+- `--skip-install` - Skip installing dependencies.
+- `--update-ts-config` - Update tsconfig.json.
+- `--update-scripts <mode>` - Update package.json scripts ("implicit" or "explicit").
+- `--validation-library <library>` - Validation library to use ("vovk-zod", "vovk-yup", "vovk-dto" or another). Set to "none" to skip validation.
+- `--validate-on-client` - Path to validateOnClient file.
+- `--channel <channel>` - Channel to use for fetching packages. Default is `latest`.
+- `--dry-run` - Do not write files to disk.
+
+Example: 
+
+```sh
+npx vovk-init --yes --use-yarn
+```

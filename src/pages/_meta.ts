@@ -26,7 +26,7 @@ const meta = {
   service: 'Service',
   client: 'Client',
   schema: 'Schema',
-  streaming: 'Text Streaming',
+  streaming: 'JSON Streaming',
   errors: 'Errors',
   validation: 'Validation',
   'dev-https': 'HTTPS in Development',

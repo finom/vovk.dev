@@ -11,7 +11,6 @@ import Link from 'next/link';
 import OgToScreenshot from '@/components/OgToScreenshot';
 import './home.css';
 import WhatsInside from './WhatsInside';
-import HowItWorks from './HowItWorks';
 import SplitSection from './SplitSection';
 
 const Home = () => {
@@ -22,7 +21,6 @@ const Home = () => {
         <Jumbotron />
         <div className={`px-4`}>
           <WhatsInside />
-          <HowItWorks />
 
           <div className="max-w-3xl mx-auto px-5 mt-28">
             <div className="flex flex-col justify-center">

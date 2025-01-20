@@ -1,6 +1,6 @@
 const meta = {
   'stream-response': {
-    title: 'Streaming with StreamJSONResponse Class',
+    title: 'StreamJSONResponse class',
   },
   openai: {
     title: 'OpenAI Chat Example',

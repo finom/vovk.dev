@@ -1,1 +1,36 @@
 # FormData
+
+In order to use `FormData` as request body, you need tp provide it as body generic argument to the `VovkRequest` type.
+
+```ts filename="/src/modules/user/UserController.ts"
+import { post, prefix, type VovkRequest } from 'vovk';
+
+@prefix('users')
+export default class UserController {
+  @post()
+  static createUser(req: VovkRequest<FormData, { id: string }>) {
+    // get the FormData instance
+    const formData = await req.formData();
+    
+    // or serialize the FormData to an object
+    const formData = req.vovk.form<{ email: string; file: File }>();
+  }
+}
+```
+
+See [VovkRequest](/controller/request) for more information.
+
+At this case the RPC function is going to expect `body` to be an instance of `FormData`.
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+const body = new FormData();
+body.append('email', 'john@example.com');
+body.append('file', new File(['Hello, World!'], 'file.txt'));
+
+UserRPC.createUser({
+    body,
+    query: { id: '123' },
+});
+```

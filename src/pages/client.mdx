@@ -1,6 +1,18 @@
+import { Callout } from 'nextra/components'
+
 # RPC Library
 
-TODO: _vovkarr 
+<Callout type="warning" emoji="⚠️">
+    **Workaround notice**. In order to identify arrays, [RPC methods](/client) use a custom parameter `_vovkarr`. See [request documentation](/controller/request) for more information.
+</Callout>
+
+<Callout type="warning" emoji="⚠️">
+    **Workaround notice**. If you pass an array of strings as a query option of the RPC method, the server-side is going to struggle with identifying the type of the query input. The query string will be the same for a string as a value and for an array of one string. `query: { q: 'foo' }` and `query: { q: ['foo'] }` will be both serialized as `?q=foo`. To avoid this issue, Vovk.ts uses a custom parameter `_vovkarr` that is added to the query string if the value is an array and contains comma-separated values. For example, `query: { a: ['foo'], b: ['bar'], c: 'baz' }` will be serialized as `?a=foo&b=bar&c=baz&_vovkarr=a,b`.
+
+```ts
+UserRPC.getUser({ query: { a: ['foo'], b: ['bar'], c: 'baz' } });
+```
+</Callout>
 
 `initVovk` performs required actions to generate client-side library and no additional action from your side is required (but you probably would need to restart TS Server to update types if you use VSCode when a new controller is added).
 
@@ -12,7 +24,7 @@ const controllers = {
     UserRPC: UserController 
 };
 // ...
-initVovk({ controllers });
+export const { GET } = initVovk({ controllers });
 ```
 
 The client library implements same-named methods but changes the method signature so you can pass required input data as options (`body`, `query` and `params`). **vovk-client** can be used in client components, server components, application state and even be distributed as a standalone package. For an illustration [vovk-examples](https://github.com/finom/vovk-examples) is published as a [standalone NPM package](https://www.npmjs.com/package/vovk-examples) to be used on [vovk.dev](https://vovk.dev) that, by itself, is a static website powered by gh-pages.
@@ -69,7 +81,7 @@ The generated client library [can be customised](/customization) in order to fol
 
 ## Behind the scenes
 
-The client library is generated at **node_modules/.vovk-client** and re-exported from **vovk-client** package. The folder contains 3 files:
+The client library is generated at **node_modules/.vovk-client/** and re-exported from **vovk-client** package. The folder contains 3 files:
 
 - **index.ts** - uncompiled TypeScript file. Used rarely but useful if code is generated to the root of the project. See [vovk-examples](https://github.com/finom/vovk-examples).
 - **client.js** - compiled JavaScript file. Used by the client.
@@ -77,3 +89,30 @@ The client library is generated at **node_modules/.vovk-client** and re-exported
 
 TODO add example of generated client library
 TODO describe all client options
+
+## Type Override (MOVE TO CLIENT SECTION)
+
+In case if your code makes it impossible to recognise the return type, you can override it manually with no need to convert it to `unknown` first.
+
+```ts
+import { UserRPC } from 'vovk-client';
+import type { SomeType } from '../types';
+
+// ...
+
+// Override the return type
+const updatedUser = await UserController.updateUser<SomeType>(/* ... */);
+```
+
+## Async iterable
+
+```ts
+// ...
+static async *updateUser(/* ... */) {
+    // ...
+    yield* iterable;
+}
+// ...
+```
+
+If iterable is returned, the client library is going to cast the method as a disposable async generator to implement response streaming. It's explained in more details on the [Text Streaming documentation page](/streaming).

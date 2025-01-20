@@ -8,7 +8,7 @@ You can easily create a proxy endpoint by fetching data from another server with
 import { get } from 'vovk';
 
 export default class ProxyController {
-  @get('greeting', { cors: true })
+  @get('greeting')
   static getHello() {
     return fetch('https://vovk.dev/api/hello/greeting.json') as unknown as { greeting: 'Hello world!' };
   }
@@ -17,7 +17,7 @@ export default class ProxyController {
 
 See this [example in action](http://vovk-examples.vercel.app/proxy).
 
-On the client-side the return type is going to be reused.
+On the client-side the return type is going to be used as expected.
 
 ```ts
 import { ProxyRPC } from 'vovk-client';
@@ -55,6 +55,6 @@ import { ProxyRPC } from 'vovk-client';
 // ...
 const response = await ProxyRPC.proxy();
 const buffer = await response.arrayBuffer();
-const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+const blob = new Blob([buffer], { type: 'application/pdf' });
 // ...
 ```

@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { StreamJSONResponseObjectController } from 'vovk-examples';
+import { StreamResponseObjectController as StreamJSONResponseObjectController } from 'vovk-examples';
 import type { VovkYieldType } from 'vovk';
 
 export default function StreamExample() {
@@ -17,7 +17,7 @@ export default function StreamExample() {
           }
         }}
       >
-        Get Streamed Greeting from Server
+        Get a streamed greeting from the server
       </button>
       <div>
         {tokens.map(({ message }, i) => (

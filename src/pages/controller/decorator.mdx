@@ -1,6 +1,6 @@
 # Decorators and metadata
 
-The purpose of controller decorators is to provide a way to extend the functionality of controller methods. They can be used to implement cross-cutting concerns, such as logging, caching, validation, and authorization. They also allow to add custom metadata to the handler, which can be used for various purposes, such as identifying the user.
+The purpose of controller decorators is to provide a way to extend the functionality of controller methods. They can be used to implement cross-cutting concerns, such as logging, caching, validation, and authorization. They also allow to add custom metadata to the handler, which can be used for various purposes, such as identifying authorized users.
 
 `createDecorator` is a higher-order function that produces a decorator factory (a function that returns a decorator) for controller class methods. It accepts a middleware function with the following parameters:
 
@@ -52,10 +52,7 @@ export default class MyController {
 
 ## Examples
 
-See also:
-- [Validation](/validation) - validation with different libraries.
-
-# Vercel Cron Jobs
+### Vercel cron jobs
 
 In order to create a cron job on Vercel, you can create a decorator that checks authorization header with a secret key defined as `CRON_SECRET` in the environment variable.
 
@@ -75,9 +72,10 @@ export default cronGuard;
 
 
 ```ts filename="/src/modules/cron/CronController.ts"
-import { get } from 'vovk';
+import { get, prefix } from 'vovk';
 import cronGuard from '../decorators/cronGuard';
 
+@prefix('cron')
 export default class CronController {
   @get('do-something')
   @cronGuard()
@@ -93,7 +91,7 @@ Add the cron job to the `vercel.json` file. The `schedule` field uses the cron s
 {
     "crons": [
         {
-            "path": "/api/do-something",
+            "path": "/api/cron/do-something",
             "schedule": "0 0 * * *"
         }
     ]
@@ -102,7 +100,7 @@ Add the cron job to the `vercel.json` file. The `schedule` field uses the cron s
 
 ### OpenAPI
 
-That's a simple example of how to use a decorator to add OpenAPI metadata to the handler. The `openapi` decorator adds the OpenAPI operation object to the handler schema. The `OpenAPIController` class generates the OpenAPI specification based on the schema of the handlers. The first argument of `createDecorator` is `null` because the decorator doesn't need to access the request object. Thanks to this, it can be used both below the HTTP decorator and above it.
+That's a simple example of how to use a decorator to add OpenAPI metadata to the handler. The `openapi` decorator adds the OpenAPI operation object to the handler schema. The `OpenAPIController` class generates the OpenAPI specification based on the [schema](/schema) of the handlers. The first argument of the `createDecorator` invocation below is `null` because the decorator doesn't need to access the request object. Thanks to this, it can be used both below the HTTP decorator and above it.
 
 ```ts filename="/src/decorators/openapi.ts"
 import type { OperationObject } from 'openapi3-ts/oas31';
@@ -123,8 +121,7 @@ const openapi = createDecorator(null, (openAPIOperationObject: OperationObject =
 export default openapi;
 ```
 
-Retrieve the OpenAPI specification from the schema and build the OpenAPI object. At this case the OpenAPI object is going to beb served from the `/api` path as an example of the root endpoint.
-
+Retrieve the OpenAPI specification from the schema and build the OpenAPI object. At this case the OpenAPI object is going to be served from the `/api` path as an example of the root endpoint.
 
 ```ts filename="/src/controllers/openapi/OpenAPIController.ts"
 import type { OpenAPIObject, OperationObject } from 'openapi3-ts/oas31';
@@ -132,7 +129,7 @@ import { get, type HttpMethod } from 'vovk';
 import vovkSchema from '../../../.vovk-schema';
 
 export default class OpenAPIController {
-  @get() // The default path is '/'
+  @get()
   static getOpenAPISpec() {
     const paths: Exclude<OpenAPIObject['paths'], undefined> = {};
 
@@ -167,6 +164,8 @@ export default class OpenAPIController {
   }
 }
 ```
+
+Usage:
 
 ```ts
 import { get } from 'vovk';
@@ -240,12 +239,8 @@ const checkAuth = async (req: VovkRequest, permission: Permission) => {
 // Create the decorator
 const authGuard = createDecorator(
   async (req, next, permission: Permission) => {
-    let isAuthorized = false;
-    try {
-      isAuthorized = await checkAuth(req, permission);
-    } catch (error) {
-      throw new HttpException(HttpStatus.UNAUTHORIZED, `Auth check failed. ${(error as Error).message}`);
-    }
+    const isAuthorized = await checkAuth(req, permission);
+
     if (!isAuthorized) {
       throw new HttpException(HttpStatus.UNAUTHORIZED, 'Unauthorized');
     }
@@ -270,7 +265,7 @@ const authGuard = createDecorator(
 export default authGuard;
 ```
 
-
+Usage:
 
 ```ts filename="/src/modules/user/UserController.ts"
 import { get, prefix } from 'vovk';
