@@ -1,7 +1,26 @@
 # vovk-yup
 
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tabs.Tab>
+  ```
+  npm i vovk-yup yup
+  ```
+</Tabs.Tab>
+  <Tabs.Tab>
+  ```
+  pnpm i vovk-yup yup
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```
+  yarn add vovk-yup yup
+  ```
+  </Tabs.Tab>
+</Tabs>
 
-[vovk-yup](https://github.com/finom/vovk-yup) is the library that implements [Yup](https://github.com/jquense/yup) validation. It performs validation on the Controller side with `YupSchema.validate`, [serializes the Yup object to a JSON Schema](https://www.npmjs.com/package/@sodaru/yup-to-json-schema) that's stored at [schema](/schema) files, and runs validation on the client before the HTTP request is made with [schema-to-yup](https://www.npmjs.com/package/schema-to-yup). The handler is wrapped with the `withYup` function as the last argument that accepts Yup objects for the request body and query string.
+See [live example](https://vovk-examples.vercel.app/yup).
+
+[vovk-yup](https://github.com/finom/vovk-yup) is the library that implements [Yup](https://github.com/jquense/yup) validation. It performs validation on the Controller side with `YupSchema.validate`, [serializes the Yup object to a JSON Schema](https://www.npmjs.com/package/@sodaru/yup-to-json-schema) that's stored at [schema](/schema) files, and runs validation on the client before the HTTP request is made with [schema-to-yup](https://www.npmjs.com/package/schema-to-yup).  `withYup` accepts body model, an optional query model and the handler function.
 
 ```ts filename="/src/modules/user/UserController.ts"
 import * as yup from 'yup';
@@ -54,7 +73,7 @@ export default class UserController {
 ```
 
 
-## validateOnClient
+## Client validation
 
 **vovk-yup** provides `validateOnClient` function exported from **vovk-yup/validateOnClient** that can be used to validate the request on the client-side at the resulting RPC function.
 
@@ -80,7 +99,7 @@ export default {
 
 
 
-## FormData
+## Form data
 
 In order to use `FormData` with `withYup` to validate the request query, you need to fake type casting of body to `y.Schema<FormData>`. At this case the library isn't going to validate the request body but still will validate the query.
 

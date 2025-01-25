@@ -9,6 +9,7 @@ export type Controllers = typeof controllers;
 export type Workers = typeof workers;
 
 export function generateStaticParams() {
+  console.log('controllers', generateStaticAPI(controllers));
   return generateStaticAPI(controllers);
 }
 

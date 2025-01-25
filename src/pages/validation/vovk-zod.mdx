@@ -1,6 +1,27 @@
 # vovk-zod
 
-[vovk-zod](https://github.com/finom/vovk-zod) is the library that implements [Zod](https://zod.dev/) validation. It performs validation on the Controller side with `ZodModel.parse`, [converts the Zod object to a JSON Schema](https://www.npmjs.com/package/zod-to-json-schema) that's stored at [schema](/schema) files, and runs validation on client before the HTTP request is made with [Ajv](https://ajv.js.org/). The handler is wrapped with `withZod` function as the last argument that accepts Zod objects for the request body and query string.
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tabs.Tab>
+  ```
+  npm i vovk-zod zod
+  ```
+</Tabs.Tab>
+  <Tabs.Tab>
+  ```
+  pnpm i vovk-zod zod
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```
+  yarn add vovk-zod zod
+  ```
+  </Tabs.Tab>
+</Tabs>
+
+See live examples: [basic example](https://vovk-examples.vercel.app/zod) and [react-hook-form example](https://vovk-examples.vercel.app/zod-hook-form).
+
+
+[vovk-zod](https://github.com/finom/vovk-zod) is the library that implements [Zod](https://zod.dev/) validation. It performs validation on the Controller side with `ZodModel.parse`, [converts the Zod object to a JSON Schema](https://www.npmjs.com/package/zod-to-json-schema) that's stored at [schema](/schema) files, and runs validation on client before the HTTP request is made with [Ajv](https://ajv.js.org/). `withZod` accepts body model, an optional query model and the handler function.
 
 ```ts filename="/src/modules/user/UserController.ts"
 import { z } from 'zod';
@@ -52,7 +73,7 @@ export default class UserController {
 }
 ```
 
-## validateOnClient
+## Client validation
 
 **vovk-zod** provides `validateOnClient` function exported from **vovk-zod/validateOnClient** that can be used to validate the request on the client-side at the resulting RPC function.
 
@@ -75,7 +96,7 @@ export default {
 };
 ```
 
-## FormData
+## Form data
 
 In order to use `FormData` with `withZod` to validate the request query, you need to fake type casting of body to `z.ZodType<FormData>`. At this case the library isn't going to validate the request body but still will validate the query.
 

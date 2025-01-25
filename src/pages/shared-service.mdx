@@ -1,14 +1,12 @@
 import { Callout } from 'nextra/components'
 
-# Shared Service
+# Shared service
 
-<Callout type="info" emoji="ℹ️">
-  This article mostly a recomendation than a requirement. It's not a part of the Vovk.ts framework but a way to structure the code in a more elegant way by author's opinion.
-</Callout>
-
-Shared Service is a static class that is used to store common functions that are used in any environment (main thread, Web Worker, controller). It's a way to avoid code duplication and keep the codebase clean. The methods of the Shared Service should not have any global side effects and should be implemented *mostly* pure functions (meaning that you still can modify class properties or use scoped variables).
+Shared service is a static class that is used to store common functions that are used in any environment (main thread, Web Worker, controller). It's a way to avoid code duplication and keep the codebase clean. The methods of a shared service should not have any global side effects and should be implemented *mostly* pure functions (meaning that you still can modify class properties or use scoped variables).
 
 ```ts filename="/src/modules/user/UserSharedService.ts"
+import type { User } from '../../types';
+
 export default class UserSharedService {
     static getUserFullName(user: User) {
         return `${user.firstName} ${user.lastName}`;

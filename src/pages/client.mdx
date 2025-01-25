@@ -1,18 +1,28 @@
 import { Callout } from 'nextra/components'
 
-# RPC Library
+# Generated RPC-ish client
+
+```sh filename="bash"
+npx vovk generate
+```
+
+`vovk generate` (as well as [vovk dev](/cli/vovk-dev)) command generates a client library that can be used in the client-side code from [controllers](/controller) and [workers](/worker) that be used in any environment that supports `fetch` function (including back-end).
+
+
+
+{/*
+TODO npm install
+
+```sh filename="bash"
+npx vovk generate
+```
+
+## RPC library
 
 <Callout type="warning" emoji="⚠️">
     **Workaround notice**. In order to identify arrays, [RPC methods](/client) use a custom parameter `_vovkarr`. See [request documentation](/controller/request) for more information.
 </Callout>
 
-<Callout type="warning" emoji="⚠️">
-    **Workaround notice**. If you pass an array of strings as a query option of the RPC method, the server-side is going to struggle with identifying the type of the query input. The query string will be the same for a string as a value and for an array of one string. `query: { q: 'foo' }` and `query: { q: ['foo'] }` will be both serialized as `?q=foo`. To avoid this issue, Vovk.ts uses a custom parameter `_vovkarr` that is added to the query string if the value is an array and contains comma-separated values. For example, `query: { a: ['foo'], b: ['bar'], c: 'baz' }` will be serialized as `?a=foo&b=bar&c=baz&_vovkarr=a,b`.
-
-```ts
-UserRPC.getUser({ query: { a: ['foo'], b: ['bar'], c: 'baz' } });
-```
-</Callout>
 
 `initVovk` performs required actions to generate client-side library and no additional action from your side is required (but you probably would need to restart TS Server to update types if you use VSCode when a new controller is added).
 
@@ -84,8 +94,8 @@ The generated client library [can be customised](/customization) in order to fol
 The client library is generated at **node_modules/.vovk-client/** and re-exported from **vovk-client** package. The folder contains 3 files:
 
 - **index.ts** - uncompiled TypeScript file. Used rarely but useful if code is generated to the root of the project. See [vovk-examples](https://github.com/finom/vovk-examples).
-- **client.js** - compiled JavaScript file. Used by the client.
-- **client.d.ts** - TypeScript definitions. Used by the client.
+- **compiled.js** - compiled JavaScript file. Used by the client.
+- **compiled.d.ts** - TypeScript definitions. Used by the client.
 
 TODO add example of generated client library
 TODO describe all client options
@@ -101,14 +111,14 @@ import type { SomeType } from '../types';
 // ...
 
 // Override the return type
-const updatedUser = await UserController.updateUser<SomeType>(/* ... */);
+const updatedUser = await UserController.updateUser<SomeType>(/* ... * /);
 ```
 
 ## Async iterable
 
 ```ts
 // ...
-static async *updateUser(/* ... */) {
+static async *updateUser(/* ... * /) {
     // ...
     yield* iterable;
 }
@@ -116,3 +126,4 @@ static async *updateUser(/* ... */) {
 ```
 
 If iterable is returned, the client library is going to cast the method as a disposable async generator to implement response streaming. It's explained in more details on the [Text Streaming documentation page](/streaming).
+*/}

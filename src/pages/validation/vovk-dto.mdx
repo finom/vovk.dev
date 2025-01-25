@@ -1,10 +1,26 @@
 # vovk-dto
 
-TODO: react-hook-form, Prisma generator
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tabs.Tab>
+  ```
+  npm i vovk-dto vovk-mapped-types class-validator class-transformer reflect-metadata
+  ```
+</Tabs.Tab>
+  <Tabs.Tab>
+  ```
+  pnpm i vovk-dto vovk-mapped-types class-validator class-transformer reflect-metadata
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ```
+  yarn add vovk-dto vovk-mapped-types class-validator class-transformer reflect-metadata
+  ```
+  </Tabs.Tab>
+</Tabs>
 
+See [live example](https://vovk-examples.vercel.app/dto).
 
-
-[vovk-dto](https://github.com/finom/vovk-dto) is the library that performs request data validation with [class-validator](https://www.npmjs.com/package/class-validator). The handler is wrapped with `withDto` function as the last argument that accepts DTOs for the request body and query string.
+[vovk-dto](https://github.com/finom/vovk-dto) is the library that performs request data validation with [class-validator](https://www.npmjs.com/package/class-validator). `withDto` accepts body DTO, an optional query DTO and the handler function.
 
 ```ts filename="/src/modules/user/UserController.ts"
 import { put } from 'vovk';
@@ -69,9 +85,9 @@ export default class UserController {
 }
 ```
 
-## validateOnClient
+## Client validation
 
-Unlike [vovk-zod](/validation/vovk-zod) and [vovk-yup](/validation/vovk-yup), **vovk-dto** doesn't emit validation schema. Instead, it defines [validation](/schema) as `{ isDto: true }` and the client-side expects the body and the query to be converted into the DTO instances with `plainToInstance` exported from [class-transformer](https://www.npmjs.com/package/class-transformer). If `body` or `query` arent the instances of the DTO, the client-side will perform no validation.
+Unlike [vovk-zod](/validation/vovk-zod) and [vovk-yup](/validation/vovk-yup), **vovk-dto** doesn't emit [validation](/schema) schema. Instead, it defines it as `{ isDto: true }` and the client-side expects the body and the query to be converted into the DTO instances with `plainToInstance` exported from [class-transformer](https://www.npmjs.com/package/class-transformer). If `body` or `query` arent the instances of the DTO, the client-side will perform no validation.
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -101,8 +117,7 @@ export default {
 };
 ```
 
-
-## FormData
+## Form data
 
 In order to use `FormData` with `withDto` to validate the request query, you need to fake type casting of body to `typeof FormData`. At this case the library isn't going to validate the request body but still will validate the query.
 
@@ -138,3 +153,29 @@ UserRPC.updateUser({
     query: { id: '123' },
 });
 ```
+
+## Mapped types
+
+In order to modify a DTO you can use [vovk-mapped-types](https://www.npmjs.com/package/vovk-mapped-types) library. This package is a fork of [@nestjs/mapped-types](https://www.npmjs.com/package/@nestjs/mapped-types) that can be run in Edge Runtime.
+
+```ts filename="/src/modules/user/UserDto.ts"
+import { IsString, IsEmail } from 'class-validator';
+import { PartialType, OmitType } from 'vovk-mapped-types';
+
+export class UserDto {
+    @IsString()
+    id: string;
+
+    @IsString()
+    name: string;
+
+    @IsEmail()
+    email: string;
+}
+
+export class UpdateUserDto extends PartialType(
+  OmitType(UserDto, ['id'] as const)
+) {}
+```
+
+The library requires [reflect-metadata](https://www.npmjs.com/package/reflect-metadata) to be installed as a peer dependency.

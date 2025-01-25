@@ -4,8 +4,6 @@
 - [vovk-zod](/validation/vovk-zod)
 - [vovk-dto](/validation/vovk-dto)
 
-TODO: finish the article and add links to examples
-
 **Vovk.ts** offers API that allows to validate request body and query string on back-end and performs zero-cost validation on client-side before request to the server is made.
 
 ## Disable client validation
@@ -30,3 +28,88 @@ export const { GET, POST, PATCH, PUT } = initVovk({
     exposeValidation: false // don't populate schema file with validation information
 });
 ```
+
+## Notes
+
+### Prisma generators
+
+If you use [Prisma ORM](https://www.prisma.io/) it is possible to generate the models with `prisma generate` command and use them for request validation. You can find an appropriate generator for that [here](https://www.prisma.io/docs/orm/prisma-schema/overview/generators). The example below uses [zod-prisma](https://www.npmjs.com/package/zod-prisma) generator.
+
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator zod {
+  provider      = "zod-prisma"
+  output        = "../src/zod"
+  relationModel = false
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("PRISMA_DATABASE_URL")
+  directUrl = env("PRISMA_DIRECT_DATABASE_URL")
+}
+
+model User {
+    id    String @id @default(uuid())
+    email String @unique
+    name  String
+}
+```
+
+`npx prisma generate` will generate the following Zod schema for the user model:
+
+```ts
+import { z } from 'zod';
+
+export const UserModel = z.object({
+    id: z.string(),
+    email: z.string(),
+    name: z.string(),
+});
+```
+
+That, in its turn, can me imported at the controller and used for the request validation.
+
+```ts
+import { put } from 'vovk';
+import { withZod } from 'vovk-zod';
+import { UserModel } from '../zod';
+
+export default class UserController {
+    @put.auto()
+    static updateUser = withZod(
+        UserModel.omit({ id: true }).partial(), 
+        UserModel.pick({ id: true }),
+        async (req) => {
+            const { name, email } = await req.json();
+            const id = req.nextUrl.searchParams.get('id');
+            // ...
+        }
+    );
+}
+```
+
+You can perform the same idea with Yup or DTOs.
+
+### Using with react-hook-form
+
+If you use [react-hook-form](https://react-hook-form.com/) the models can also be used for the form validation. You can check an example [here](https://vovk-examples.vercel.app/zod-hook-form).
+
+```ts
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { UserModel } from '../zod';
+
+export default function UserForm() {
+    const { register, handleSubmit, errors } = useForm({
+        resolver: zodResolver(UserModel.omit({ id: true })),
+    });
+
+    // ...
+}
+```
+
+Find an appropriate resolver at [@hookform/resolvers](https://www.npmjs.com/package/@hookform/resolvers) README.

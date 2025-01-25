@@ -1,8 +1,6 @@
 # Schema
 
-TODO typescript type, typescript code of index.ts
-
-[vovk dev](/cli/vovk-dev) emits JSON files that contain information about endpoints, method names, validation, etc, defined at the controller to **.vovk-schema/** folder. Each **.json** file represents schema for one [segment](/segment). The schemas exported from auto-generated **.vovk-schema/index.js**. 
+[vovk dev](/cli/vovk-dev) emits JSON files that contain information about endpoints, method names, validation, etc, defined at the controller to **.vovk-schema/** folder. Each **.json** file represents schema for one [segment](/segment). The schemas exported from auto-generated **.vovk-schema/index.js** and **.vovk-schema/index.d.ts**, that are modified when segments are added or removed. 
 
 ```js filename=".vovk-schema/index.js"
 // auto-generated
@@ -11,11 +9,26 @@ module.exports['foo'] = require('./foo.json');
 module.exports['bar/baz'] = require('./bar/baz.json');
 ```
 
+```ts filename=".vovk-schema/index.d.ts"
+// auto-generated
+import type { VovkSchema } from 'vovk';
+declare const segmentSchema: {
+  '': VovkSchema;
+  'foo': VovkSchema;
+  'bar/baz': VovkSchema;
+};
+export default segmentSchema;
+```
+
+As you can see, the type of the schema is defined by `VovkSchema` type that's exported from the **vovk** package. As result, the full schema type is going to look like `Record<string, VovkSchema>`.
+
+Example of the schema file:
+
 ```json filename=".vovk-schema/foo.json"
 {
-  // vovkInit option that defines is the schema going to be emitted for this segment
+  // vovkInit function option that defines is the schema going to be emitted for this segment
   "emitSchema": true,
-  // Segment name
+  // Segment name, for the root segment it's an empty string
   "segmentName": "foo",
   // List of controllers as key-value pairs for fast access
   // Key is a name of the variable thst's going to be exported from "vovk-client"
@@ -30,7 +43,7 @@ module.exports['bar/baz'] = require('./bar/baz.json');
       "prefix": "hello",
       // List of handlers as key-value pairs for fast access
       // Key is a static method name
-      // Value is handler information
+      // Value is a handler information
       "handlers": {
         "getHello": {
           // Endpoint that's concatenated with the prefix
@@ -90,4 +103,4 @@ module.exports['bar/baz'] = require('./bar/baz.json');
 }
 ```
 
-Check how to emit custom schema for "custom" key at [decorators documentation](/controller/decorator)
+Check how to emit custom schema and validation at [decorators documentation](/controller/decorator).

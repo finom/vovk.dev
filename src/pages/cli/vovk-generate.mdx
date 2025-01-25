@@ -34,3 +34,16 @@ In order to build the client at Vercel, you need to add `"vercel-build"` script 
     }
 }
 ```
+
+## Custom templates
+
+```ts
+const ejsData = {
+    apiRoot,
+    fetcherClientImportPath,
+    schemaOutImportPath,
+    validateOnClientImportPath,
+    segments,
+    segmentsSchema,
+};
+```

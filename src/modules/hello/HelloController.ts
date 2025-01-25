@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { get, prefix } from 'vovk';
 
 @prefix('hello')

@@ -1,6 +1,6 @@
-# Exceptions and Custom HTTP Statuses
+# Errors
 
-You can gracefully throw HTTP exceptions with the syntax borrowed from NestJS. `HttpException` class accepts 2 arguments. The first one is an HTTP code that can be retrieved from `HttpStatus`, the other one is an error text.
+You can gracefully throw HTTP exceptions with the syntax inspired by NestJS. `HttpException` class accepts 3 arguments. The first one is an HTTP code that can be retrieved from `HttpStatus`, the second one is a message, and the third one is an optional `cause` that can be any object that is going to be JSON-stringified and passed down to the client.
 
 ```ts
 import { HttpException, HttpStatus } from 'vovk';
@@ -41,25 +41,25 @@ static async updateUser(/* ... */) {
 }
 ```
 
-You can also throw custom objects that are going to be re-thrown on the client-side as is.
+You can throw custom objects that are going to be re-thrown on the client-side as is.
 
 ```ts
 throw { hello: 'World' };
 ```
 
-You can also provide `cause` to the `HttpException` constructor as 3rd argument to provide more context to the error.
+You can provide `cause` to the `HttpException` constructor as 3rd argument to provide more context to the error.
 
 ```ts
 throw new HttpException(HttpStatus.BAD_REQUEST, 'Something went wrong', { hello: 'World' });
 ```
 
-## HttpStatus Enum
+## HttpStatus enum
 
 There are the values of the `HttpStatus` enum for quick reference.
 
 ```ts
 export enum HttpStatus {
-  NULL = 0,
+  NULL = 0, // for client-side errors, such as client-side validation
   CONTINUE = 100,
   SWITCHING_PROTOCOLS = 101,
   PROCESSING = 102,

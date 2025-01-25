@@ -1,19 +1,36 @@
 import { Tabs } from 'nextra/components';
-import HelloWorker from '../downloaded-examples/worker/HelloWorker.mdx';
-import WorkerExample from '../downloaded-examples/worker/WorkerExample.mdx';
 import LiveWorkerExample from '../live-examples/LiveWorkerExample';
 import { Callout } from 'nextra/components'
 
-# WPC (Worker Procedure Call)
+# Web Worker with WPC (Worker Procedure Call)
+
+```sh filename="Create a new worker with CLI"
+npx vovk new worker appWorker
+```
+
+Quick demo:
+
+<div className="doc-live-example">
+    <LiveWorkerExample />
+</div>
+[Source code](https://github.com/finom/vovk-examples)
+
 
 <Callout type="info" emoji="ℹ️">
-  Since Vovk.ts is positioned as a back-end framework, you might think why it has a support for Web Workers. Indeed, a browser feature has nothing to do with the server-side code. However, the mechanism behind Vovk.ts allows to create an interface that accesses any other environment thru RPC-like mechanism if original code is implemented as a static class. Me as an [author](https://github.com/finom) of Vovk.ts thought of a way to move Web Worker capabilies to another library. But I haven't found any good reason to duplicate all the logic with schemas, generated code and other things besides the elegancy concern. So I decided to keep it as part of Vovk.ts.
+  Vovk.ts is primarily a back-end framework, so you might wonder why it supports Web Workers — a browser feature seemingly unrelated to server-side code. However, its RPC-like mechanism enables interfacing with other environments when implemented as a static class. Initially, I considered moving Web Worker support to a separate library, but duplicating logic for schemas, generated code, and other components offered no practical benefit beyond elegance. Therefore, I chose to retain this functionality within Vovk.ts.
 </Callout> 
 
+Terminology for this article:
 
-The standard Web Workers are awesome but they require to write additional logic by using `onmessage` handler on both sides (main thread and the Woker thread) and exchange data using `postMessage`. Vovk.ts applies the same principle that is used at controllers and builds main-thread client-side library using the auto-generated [schema](/schema). It uses built-in browser API aush as `addEventListener` and `postMessage` and does not utilise `eval` function or `Function` constructor.
+- **Vovk Worker class** — a static class that is decorated with `@worker()` and is used to define heavy calculations that are executed in a Web Worker thread.
+- **WPC** — stands for Worker Procedure Call. It's a client-side library that provides an interface to invoke heavy calculations in a Web Worker thread.
 
-Worker Class is created from a [Shared Service Class](/shared-service) by applying `@worker()` class decorator that defines `onmessage` handler in the Web Worker scope.
+
+----------
+
+The standard Web Workers are awesome but they require to implement additional logic by utilizing `onmessage` handler on both sides (the main thread and the Web Woker thread) and exchange data using `postMessage`. Vovk.ts applies the same principle that is used at controllers and builds main-thread client-side library using the auto-generated [schema](/schema). It uses built-in browser API aush as `addEventListener` and `postMessage` and doesn't use `eval` nor `Function` constructor.
+
+Vovk Worker class is created from a [shared service class](/shared-service) by applying `@worker()` class decorator that defines `onmessage` handler in the Web Worker scope.
 
 ```ts filename="/src/modules/hello/HelloWorker.ts"
 import { worker } from 'vovk';
@@ -31,7 +48,7 @@ export default class HelloWorker {
 
 In a non-worker scope `@worker()` does nothing. You can import the class safely in other modules, including back-end code where it's going to be behave as a normal collection of common functions. 
 
-To compile the worker interface, you need to pass them to `initVovk` as `workers` object option and export the type of this object as `Workers`.
+To compile the worker library, you need to pass them to `initVovk` as `workers` object option and export the type of this object as `Workers`.
 
 
 ```ts filename="/src/app/api/[[...vovk]]/route.ts"
@@ -53,7 +70,7 @@ export const { GET, POST, PUT, DELETE } = initVovk({ controllers, workers });
 ```
 
 
-Once this is done, **vovk-client** is going to export the WPC library that provides interface to invoke heavy calculations but doesn't initialise the Web Worker itself. To initialise the Web Worker at the main-thread interface it needs to be instantiated normally and passed as an argument of `employ` static method.
+Once this is done, [vovk-client](vovk-client) is going to export the WPC library that provides interface to invoke heavy calculations but doesn't initialise the Web Worker itself. To initialise the Web Worker at the main-thread interface it needs to be instantiated normally and passed as an argument of `employ` static method.
 
 ```ts
 import { HelloWPC } from 'vovk-client';
@@ -78,7 +95,7 @@ if(typeof Worker !== 'undefined') {
 }
 ```
 
-`employ` method returns the worker interface itself. As potentially nicer solution you can use ternary operator to make the Worker library to be nullish.
+`employ` method returns the WPC interface itself. As potentially nicer solution you can use ternary operator to make the Worker library to be nullish.
 
 ```ts
 import { HelloWPC } from 'vovk-client';
@@ -88,14 +105,6 @@ const MyWorker = typeof Worker === 'undefined'
     : HelloWPC.employ(new Worker(new URL('./path/to/HelloWorker.ts', import.meta.url)));
 
 await MyWorker?.heavyCalculation(1e9);
-```
-
-## Worker termination
-
-A worker can be terminated with built-in `terminate` method.
-
-```ts
-HelloWorker.terminate();
 ```
 
 ## Async generators
@@ -140,7 +149,7 @@ for await (const number of HelloWPC.asyncGenerator()) {
 
 ## Making HTTP requests at worker
 
-Since Web Workers are run in a browser (but just in another thread) it's capable to fetch server-side data as expected.
+A WPS is capable to fetch server-side data as expected.
 
 ```ts filename="/src/modules/hello/HelloController.ts"
 import { get } from 'vovk';
@@ -165,7 +174,7 @@ export default class HelloWorker {
 }
 ```
 
-## Using WPC at other Web Worker
+## Using WPC at other Vovk Worker classes
 
 Workers can use other workers. The syntax remains the same and you don't need to check for `Worker` variable to exist.
 
@@ -204,14 +213,11 @@ const [result1, result2, result3] = await Promise.all([
 ]);
 ```
 
-## Live Worker Example
+## Worker termination
 
-<div className="doc-live-example">
-    <LiveWorkerExample />
-</div>
-<Tabs items={['WPC Class', 'Component']}>
-  <Tabs.Tab><HelloWorker /></Tabs.Tab>
-  <Tabs.Tab><WorkerExample /></Tabs.Tab>
-</Tabs>
+The employed Web Worker can be terminated with built-in `terminate` method.
 
-[Source code](https://github.com/finom/vovk-examples)
+```ts
+HelloWPC.terminate();
+```
+

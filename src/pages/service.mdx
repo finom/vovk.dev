@@ -4,9 +4,9 @@ import BasicControllerWithService from '../../downloaded-examples/basic-with-ser
 import BasicExampleWithService from '../../downloaded-examples/basic-with-service/BasicExampleWithService.mdx';
 import LiveBasicExampleWithService from '../live-examples/LiveBasicExampleWithService';
 
-# Service Class
+# Service class
 
-In order to make the code cleaner it's recommended to move most of the logic to a Service. Service is a static class that serves as a library that performs database and third-party API calls.
+In order to make the code cleaner it's recommended to move most of the logic to a service. "Service" is a static class that serves as a library that performs database and third-party API calls.
 
 Let's say you have the following Controller Class:
 
@@ -30,9 +30,7 @@ export default class UserController {
 }
 ```
 
-Currently it looks fine since it doesn't contain a lot of logic. But as your app is getting more complex you're going to get more endpoints with more code. At this case it's recommended to move part of the logic to Back-End Service Class making controllers to be responsible for input extraction, validation and authorisation, but not for DB or API calls.
-
-Let's refactor the code above by introducing `UserService`. For this example it's going to be small but I hope that illustrates the idea clearly.
+Currently it looks fine since it doesn't contain a lot of logic. But as your app is getting more complex you're going to get more endpoints with more code. At this case it's recommended to move part of the logic to a service class making controllers to be responsible for input extraction, validation and authorisation, but not for DB or API calls.
 
 ```ts filename="/src/modules/user/UserService.ts"
 
@@ -64,7 +62,7 @@ export default class UserController {
 }
 ```
 
-Back-End Service Classes can use other Back-End Services (as well as so-called Isomorphic Service Classes explained in [separate article of this documentation](/framework)).
+Services can use other services as well. You can also create as many services as you need for a single controller.
 
 ```ts filename="/src/modules/user/UserService.ts"
 import PostService from '../post/PostService';
@@ -80,7 +78,44 @@ export default class UserService {
 }
 ```
 
-## "Hello World" Service Live Example
+## Extracting types from the controller
+
+Thanks to [Anders Hejlsberg
+](https://github.com/ahejlsberg) for a solution for [#58616](https://github.com/microsoft/TypeScript/issues/58616). A tiny fix in TypeScript language allows to use circular type references in service-controller pair, making contrtoller types such as body, query and params to be available in the service.
+
+```ts filename="/src/modules/user/UserController.ts"
+import { prefix, put, type VovkRequest } from 'vovk';
+import type { User } from '../../types';
+
+@prefix('users')
+export default class UserController {
+    @put(':id') 
+    static async updateUser(req: VovkRequest<Partial<User>, { role: 'string' }>, { id }: { id: string }) {
+        const data = await req.json();
+        return UserService.updateUser(id, data, req.nextUrl.searchParams.get('role'));
+    }
+}
+```
+
+```ts filename="/src/modules/user/UserService.ts"
+import type { VovkControllerBody, VovkControllerQuery, VovkControllerParams } from 'vovk';
+import type { User } from '../../types';
+import type UserController from './UserController';
+
+export default class UserService {
+    static async updateUser(
+        id: VovkControllerParams<typeof UserController.updateUser>['id'], 
+        data: VovkControllerBody<typeof UserController.updateUser>, 
+        role: VovkControllerQuery<typeof UserController.updateUser>['role']
+    ) {
+        // ...
+    }
+}
+```
+
+See more types at the [type extraction docs](/controller/type-extraction).
+
+## Live example
 
 <div className="doc-live-example">
 <LiveBasicExampleWithService />
@@ -91,6 +126,5 @@ export default class UserService {
   <Tabs.Tab><BasicExampleWithService /></Tabs.Tab>
 </Tabs>
 
-[Source code](https://github.com/finom/vovk-examples)
-
+[Link to this example](https://vovk-examples.vercel.app/basic-with-service)
 

@@ -6,11 +6,13 @@ import LiveStreamJSONResponseExample from '../../live-examples/LiveStreamRespons
 
 # `StreamJSONResponse` class
 
+Quick demo:
+
 <div className="doc-live-example">
     <LiveStreamJSONResponseExample />
 </div>
 
-[Source code for this example](https://vovk-examples.vercel.app/stream-response-object)
+[Source code](https://vovk-examples.vercel.app/stream-response-object)
 
 If generators aren't sutable for JSON streaming at a particular case, you can use `StreamJSONResponse` class inherited from `Response` class that uses `TransformStream#readable` as response body and adds required HTTP headers. 
 It's a lower-level API that is used behind the scenes to implement generator logic described at [the main section](/streaming).

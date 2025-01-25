@@ -1,0 +1,47 @@
+
+## Motivation
+
+Why not?
+
+## Features
+
+- Bridges two contrasting paradigms: REST and RPC, seamlessly combining their strengths.  
+- Prioritizes an exceptional developer experience.  
+- Adopts the highly effective **Controller-Service-Repository** pattern, ideal for building robust back-end architectures.  
+- Fully compatible with standard Next.js APIs, including `Response`, `headers`, `redirect`, and more.  
+- Lightweight with minimal overhead for optimized performance.  
+- Built for speed.  
+- Thoroughly tested for reliability and scalability.
+
+## Packages and repos
+
+[Main repo](https://github.com/finom/vovk) packages:
+
+- [vovk](https://www.npmjs.com/package/vovk) - the main library.
+- [vovk-cli](https://www.npmjs.com/package/vovk-cli) - the [CLI](/cli).
+- [vovk-init](https://www.npmjs.com/package/vovk-init) - shortcut for `vovk-cli init`.
+- [vovk-client](https://www.npmjs.com/package/vovk-client) - re-exports generated RPC client.
+- [vovk-dto](https://www.npmjs.com/package/vovk-dto) - [DTO](/validation/vovk-dto) validation.
+- [vovk-yup](https://www.npmjs.com/package/vovk-yup) - [Yup](/validation/vovk-yup) validation.
+- [vovk-zod](https://www.npmjs.com/package/vovk-zod) - [Zod](/validation/vovk-zod) validation.
+- [vovk-validate-client-ajv](https://www.npmjs.com/package/vovk-validate-client-ajv) - client-side validation with Ajv that's used by [vovk-zod](/validation/vovk-zod) internally and can be reused with other validation libraries that generate JSON schemas for validation.
+
+Other repos:
+
+- [vovk-examples](https://github.com/finom/vovk-examples) - Vovk.ts examples that you can view [here](https://vovk-examples.vercel.app/). This website (vovk.dev) is powered by gh-pages and uses a [bundled NPM package](https://www.npmjs.com/package/vovk-examples) to create live examples at some pages of this documentation.
+- [React Native example](https://github.com/finom/vovk-react-native-example) - example of using Vovk.ts with React Native with regular JSON requests but also with [streaming](/streaming) example.
+- [Mapped types](https://www.npmjs.com/package/vovk-mapped-types) - mapped types library forked from [@nestjs/mapped-types](https://www.npmjs.com/package/@nestjs/mapped-types) in order to make [vovk-dto](/validation/vovk-dto) classes created with [class-validator](https://www.npmjs.com/package/class-validator) to change their validation and type signatures.
+- [vovk.dev](https://github.com/finom/vovk.dev) - [this website](https://vovk.dev). Feel free to submit a PR if you find a typo or want to improve the documentation. The author of Vovk.ts is not a native English speaker and will appreciate any help.
+
+## How it works
+
+When `npm run dev` that includes `next dev` command, Vovk.ts makes a request to a special endpoint `_schema_` that's available only in development mode. This endpoint returns a [JSON schema](/schema) that describes all the available routes, their parameters, validation information and other details. The schema is written to **.vovk-schema/** folder in form of small .json files. The schema is used to generate a [TypeScript client library](/client) that uses types exported from **route.ts** files and imports schema files from **.vovk-schema/** folder to provide information about how to build the RPC library. It happens transparently and doesn't require any additional action from your side. Just run `npm run dev` and you're good to go, the client library is generated automatically.
+
+In production the only two packages that you're going to use (besides [validation](/validation) libraries) is **vovk** and **vovk-client**.
+
+- **vovk** is a wrapper around Next.js API routes and a library that provides a way to build RPC objects behind the scenes. It has [zero dependencies](https://bundlephobia.com/package/vovk) and takes less than 5KB of space when minified and gzipped.
+- **vovk-client** is nothing more than a re-export of code that's generated to **node_modules/.vovk-client** folder.
+
+
+
+

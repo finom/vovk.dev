@@ -1,26 +1,20 @@
 
-import { Tabs } from 'nextra/components';
-import StreamController from '../downloaded-examples/stream/StreamController.mdx';
-import StreamExample from '../downloaded-examples/stream/StreamExample.mdx';
+import { Tabs, Callout } from 'nextra/components';
 import LiveStreamExample from '../live-examples/LiveStreamExample';
 
-# Text Streaming for LLMs
+# JSON streaming for LLMs
 
-## Text Streaming Live Example
+Quick demo:
 
 <div className="doc-live-example">
     <LiveStreamExample />
 </div>
-<Tabs items={['Controller', 'Component']}>
-  <Tabs.Tab><StreamController /></Tabs.Tab>
-  <Tabs.Tab><StreamExample /></Tabs.Tab>
-</Tabs>
 
-[Source code](https://github.com/finom/vovk-examples)
+[Source code](https://vovk-examples.vercel.app/stream)
 
-## Async Iterators
+## Async iterators
 
-Controller methods can implement generators that use `*` syntax and utilise `yield` keyword instead of regular `return`.
+Controller methods can implement generators that use `*` syntax and utilise `yield` keyword instead of the regular `return`.
 
 ```ts filename="/src/modules/stream/StreamController.ts"
 import { get, prefix } from 'vovk';
@@ -45,7 +39,7 @@ export default class StreamController {
 }
 ```
 
-In order to refactor this code and utilise Back-end Service you can move the streaming logic to `StreamService` static class.
+In order to refactor this code and utilise [service class](/service) for code splitting, you can move the streaming logic to `StreamService` static class.
 
 ```ts filename="/src/modules/stream/StreamService.ts"
 type Token = { message: string };
@@ -81,14 +75,18 @@ export default class StreamController {
 }
 ```
 
-## Handling Stream Responses on the Client
+## Handling on the client
 
-Text response streaming (including usage of `StreamJSONResponse` class) generate client method that returns a disposable async generator. 
+<Callout type="warning" emoji="⚠️">
+    **Workaround notice**. In order to identify the stream response type, Vovk.ts internally uses a custom header `x-vovk-stream=true` and content-type `text/plain; charset=utf-8`.
+</Callout>
+
+JSON streaming endpoints (including usage of [StreamJSONResponse](/streaming/stream-response) class that works under the hood of this feature) generate client methods that return disposable/async-disposable async generators. 
 
 ```ts
 import { StreamRPC } from 'vovk-client';
 
-{
+async function stream() {
     using stream = await StreamRPC.streamTokens();
 
     for await (const token of stream) {
@@ -97,16 +95,10 @@ import { StreamRPC } from 'vovk-client';
 }
 ```
 
-`using` keyword (that you can freely replace by `let` or `const`) indicates that when code block is reached the end (in case of early `break` or if the code block encountered an error) the stream is going to be closed by invoking `stream.close()` method automatically. `stream.close()` can also be called explicitly if needed.
-
-To make sure that the stream is closed before moving to the next code block you can use `await using` syntax that disposes the stream asynchronous way.
+You can also use `await using` syntax to dispose the stream asynchronously.
 
 ```ts
-import { StreamRPC } from 'vovk-client';
-
-{
-    await using stream = await StreamRPC.streamTokens();
-    // ...
-}
-// on this line stream is already closed
+// ...
+await using stream = await StreamRPC.streamTokens();
 ```
+

@@ -17,7 +17,7 @@ export default function StreamExample() {
           }
         }}
       >
-        Get Streamed Greeting from Server
+        Get a streamed greeting from the server
       </button>
       <div>
         {tokens.map(({ message }, i) => (

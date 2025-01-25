@@ -1,4 +1,4 @@
-import { Steps, Tabs } from 'nextra/components'
+import { Steps, Tabs, Callout } from 'nextra/components'
 import BasicController from '../downloaded-examples/basic/BasicController.mdx';
 import BasicExample from '../downloaded-examples/basic/BasicExample.mdx';
 import LiveBasicExample from '../live-examples/LiveBasicExample';
@@ -19,13 +19,20 @@ npx create-next-app my-app --ts --app
 cd my-app
 ```
 
-## Init Vovk.ts
+## Install "vovk" and "vovk-client"
 
-The simplest way to init Vovk.ts is to run `npx vovk init` at the root of your project. This command does what is described below.
+<Callout type="info" emoji="ℹ️">
+  TODO MOVE BELOW
+  You can change the API folder name from `api` to any other name by modifying [config](/config) option `rootEntry`. For example you can use `"api/v1"` in order to serve the API from `/api/v1` path or set it as an empty string to serve it from the root path (if the Next.js app is used for back-end only).
+</Callout>
+
+The simplest way to init Vovk.ts and avoid some of the steps below is to run `npx vovk-cli init` or the shortcut `npx vovk-init` at the root of the Next.js project. This command asks a few questions and creates the [config](/config) file automatically.
 
 ```bash
 npx vovk-init
 ```
+
+---------
 
 At the newly created folder run:
 
@@ -47,24 +54,80 @@ At the newly created folder run:
   </Tabs.Tab>
 </Tabs>
 
+## Create an empty config file
 
-Then install [concurrently](https://www.npmjs.com/package/concurrently), the recommended way to run Vovk.ts and Next.js together.
+Create **vovk.config.ts** at the root of the project with the following content:
 
-<Tabs items={['npm', 'pnpm', 'yarn']}>
+```ts filename="vovk.config.mjs"
+// @ts-check
+/** @type {import('vovk-cli').VovkConfig} */
+const vovkConfig = {};
+
+export default vovkConfig;
+
+```
+
+## Install validation library and enable client validation
+
+Install one of the validation libraries with some additional packages.
+
+- [vovk-yup](/validation/vovk-yup)
+- [vovk-zod](/validation/vovk-zod)
+- [vovk-dto](/validation/vovk-dto)
+
+Set `validationLibrary` value at the config file to the name of the library you've installed.
+
+If you want to enable client validation by default, you can set `validateOnClient` option at the config file. Also it's recommended 
+
+```ts filename="vovk.config.mjs"
+export default {
+    // ...
+    validationLibrary: 'vovk-zod',
+    validateOnClient: 'vovk-zod/validateOnClient',
+};
+```
+
+## Update "dev" NPM script
+
+There are two ways to run Vovk.ts and Next.js server concurrently: explicitly and implicitly. The explicit way is to install `concurrently` package and run both scripts with it, this requires `PORT` variable to be set. The implicit way is to make Vovk.ts to run Next.js server by itself. At this case **vovk-cli** will assign the port automatically.
+
+<Tabs items={['Explicit', 'Implicit']}>
+  Install concurrently:
   <Tabs.Tab>
-  ```
-  npm i concurrently --save-dev
-  ```
-</Tabs.Tab>
-  <Tabs.Tab>
-  ```
-  pnpm i concurrently --dev
-  ```
+    <Tabs items={['npm', 'pnpm', 'yarn']} className="px-8 [&_+_div]:px-8">
+      <Tabs.Tab>
+      ```
+      npm i -D concurrently
+      ```
+      </Tabs.Tab>
+      <Tabs.Tab>
+      ```
+      pnpm i -D concurrently 
+      ```
+      </Tabs.Tab>
+      <Tabs.Tab>
+      ```
+      yarn add -D concurrently
+      ```
+      </Tabs.Tab>
+    </Tabs>
+
+    Update the "dev" script in **package.json**:
+
+    ```json
+    "scripts": {
+        "dev": "PORT=3000 concurrently 'vovk dev' 'next dev' --kill-others"
+    }
+    ```
   </Tabs.Tab>
   <Tabs.Tab>
-  ```
-  yarn add concurrently --dev
-  ```
+    Update the "dev" script in **package.json**:
+
+    ```json
+    "scripts": {
+        "dev": "npx vovk dev --next-dev"
+    }
+    ```
   </Tabs.Tab>
 </Tabs>
 
@@ -81,86 +144,57 @@ In your **tsconfig.json** set `"experimentalDecorators"` to `true`.
 }
 ```
 
-## Set up Next.js wildcard route handler and export types read by the client library
-
-Create file **/src/app/api/[[...vovk]]/route.ts** where **[[...vovk]]** is a folder name indicating what Next.js documentation calls ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) that can be customized. This is the core entry point for all **Vovk.ts** routes.
-
-```ts filename="/src/app/api/[[...vovk]]/route.ts"
-import { initVovk } from 'vovk';
-
-export const runtime = 'edge';
-
-const controllers = {};
-const workers = {};
-
-// export types used by the client
-export type Controllers = typeof controllers;
-export type Workers = typeof workers;
-
-export const { GET, POST, PUT, DELETE } = initVovk({ controllers, workers });
-```
-
-Enabling Edge Runtime is optional.
-
-
-## Create first controller and add it to the controller object
+## Create controller
 
 Create **HelloController.ts** at **/src/modules/hello/** with same-named static class. 
 
 ```ts filename="/src/modules/hello/HelloController.ts"
 import { get, prefix } from "vovk";
 
-@prefix('hello') // prefix is optional
+@prefix('greetings') // prefix is optional
 export default class HelloController {
     @get('greeting')
     static getHello() {
-        return { greeting: 'Hello world!' };
+        return { greeting: 'Hello, World!' };
     }
 }
 ```
 
-And add this class at **/src/app/api/[[...vovk]]/route.ts** to the `controllers` object.
+## Create root segment
+
+Create **/src/app/api/[[...vovk]]/route.ts** where **[[...vovk]]** is a folder name indicating what Next.js documentation calls ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) that can be customized. This is the root entry point for API routes.
+
+At the code below `HelloRPC` indicates the name of the exported client library and `HelloController` is the controller class created above.
 
 ```ts filename="/src/app/api/[[...vovk]]/route.ts"
-import HelloController from '../../../modules/hello/HelloController';
+import { initVovk } from 'vovk';
+import HelloController from '../modules/hello/HelloController';
 
-// ...
-const controllers = { HelloController };
-// ...
+export const runtime = 'edge'; // this setting is optional
+
+const controllers = { HelloRPC: HelloController };
+
+// export types used by the client
+export type Controllers = typeof controllers;
+
+export const { GET, POST, PUT, DELETE } = initVovk({ controllers });
 ```
 
-The code above creates GET endpoint to `/api/hello/greeting`. You can also use named export for the controller if needed.
+## Run "vovk dev"
 
-## Run `vovk dev` and `next dev` with concurrently
+Run `npm run dev` to start Vovk.ts and Next.js concurrently.
 
-Create an NPM script in **package.json** that runs `vovk dev` and `next dev` together specifying the port explicitly. 
-Vovk server also utilises the port by adding 6969 number to it (if Next.js `PORT` is 3000, Vovk.ts port is 9969). 
-
-Vovk.ts works by exchanging data between Next.js and Vovk Server, which means knowing the ports on both sides is essential.
-
-```json
-"scripts": {
-    "dev": "PORT=3000 concurrently 'vovk dev' 'next dev' --kill-others"
-}
+```sh
+npm run dev
 ```
 
-Once you run `npx run dev` you're going to notice the new file **.vovk.json** created in the root of your project. This file contains required information to build the client and it needs to be committed. 
-It's going to be updated automatically when your project structure is changed. Open [http://localhost:3000](http://localhost:3000).
+Navigate to [http://localhost:3000/api/greetings/greeting](http://localhost:3000/api/greetings/greeting) to see the result.
 
-Alternatively, you can use use built-in concurrently-like process runner to run both servers and assign ports automatically.
-
-```
-npx vovk dev --next-dev
-```
-
-
-Besides **.vovk.json** the command also generates client **.js** and **.ts** files inside **node_modules/.vovk** that are re-exported by **vovk-client** module to make no error if **vovk-client** is not installed. This approach is borrowed from Prisma ORM.
-
-## Create a React component 
+## Create a React component
 
 Now the client is generated you can safely import your client library from **vovk-client**.
 
-```tsx
+```tsx filename="/src/app/page.tsx"
 'use client';
 import { useState } from 'react';
 import { HelloRPC } from 'vovk-client';
@@ -185,56 +219,21 @@ export default function MyComponent() {
 }
 ```
 
-Note that if you're using VSCode you're probably going to need to [restart TS server](https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server) each time when you add a new controller or WPC class to your app because by the time being TS Server doesn't update types imported from **node_modules** automatically when they were changed. This is a well-known problem that bothers Prisma ORM developers for long time. In all other scenarios (when you add a new method, change body type, etc) you don't need to do that since TS server reads `Controllers` and `Workers` that you export from **/src/app/api/[[...vovk]]/route.ts**.
+Open [http://localhost:3000](http://localhost:3000) and see the result.
+
+<Callout type="info" emoji="ℹ️">
+Note that if you're using VSCode you're probably going to need to [restart TS server](https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server) each time when you add a new controller or WPC class to your app
+</Callout>
 
 Next.js Server Components are also supported but require to define absolute URL (by default all requests are made to `/api`). Check the [Server Component Example](https://vovk-examples.vercel.app/server-component) for more information.
 
-The only argument of methods of the generated library has approximately the following signature:
 
-```ts
-interface Options extends Omit<RequestInit, 'body' | 'method'> {
-  reactNative?: { textStreaming: boolean };
-  prefix?: string;
-  disableClientValidation?: boolean;
-  body: VovkBody<typeof Controller.method>
-  params: VovkParams<typeof Controller.method>
-  query: VovkQuery<typeof Controller.method>
-}
+
+## Deploy
+
+In order to build the client (not the schema) at **node_modules** you need to run the following command after dependency installation and before building the app.
+
+```bash
+npx vovk generate
 ```
-
-In other words it supports [custom Next.js options](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating) (because Next.js extends `RequestInit` global type) as well as [React Native Fetch API](https://www.npmjs.com/package/react-native-fetch-api).
-
-```ts
-await HelloController.hello({
-  body: { foo: 'bar' },
-  next: { revalidate: 3600 },
-});
-```
-
-
 </Steps>
-
-## Live Example
-
-<div className="doc-live-example">
-    <LiveBasicExample />
-</div>
-<Tabs items={['Controller', 'Component']}>
-  <Tabs.Tab><BasicController /></Tabs.Tab>
-  <Tabs.Tab><BasicExample /></Tabs.Tab>
-</Tabs>
-
-[Source code](https://github.com/finom/vovk-examples)
-
-
-## Build and deploy
-
-You're going to need to run `npx vovk generate` to generate the client before the build with the standard `npx next build` or when **node_modules** are re-installed.
-
-To easily build the project on Vercel you can create `"vercel-build"` npm script at **package.json**.
-
-```json
-"scripts": {
-    "vercel-build": "vovk generate && next build"
-}
-```
