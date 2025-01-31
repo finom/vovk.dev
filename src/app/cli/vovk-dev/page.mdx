@@ -3,6 +3,8 @@ import devSvg from '../../excalidraw/vovk-dev.svg';
 
 # vovk dev
 
+TODO: Flags here
+
 The `vovk dev` command runs Vovk Dev Watcher that watches for changes at controllers and workers and updates the [schema](/schema) and the [client](/client) accordingly when needed by making HTTP GET requests to the Next.js dev server. When a change is detected, the watcher sends a GET request to `/api/*segment-name*/_schema_` to get the updated schema. If schema is changed the watcher updates the schema and the client. 
 
 ## How it works
