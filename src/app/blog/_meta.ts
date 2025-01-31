@@ -1,12 +1,31 @@
 const meta = {
+  index: {
+    theme: {
+      sidebar: false,
+      breadcrumb: true,
+    }
+  },
   'vovk-2-0': {
     title: 'Vovk.ts 2.0 is here!',
-    type: 'page',
+    theme: {
+      sidebar: false,
+      breadcrumb: true,
+    }
   },
   'vovk-2-1': {
     title: 'Vovk.ts 2.1',
-    type: 'page',
+    theme: {
+      sidebar: false,
+      breadcrumb: true,
+    }
   },
+  'vovk-3-0': {
+    title: 'Vovk.ts 3',
+    theme: {
+      sidebar: false,
+      breadcrumb: true,
+    }
+  }
 };
 
 export default meta;

@@ -1,3 +1,6 @@
+@import "tailwindcss";
+
+
 :root {
     --gh-dark: #0d1117;
 }
@@ -57,7 +60,7 @@ a.link-docs {
     }
 
     button {
-        @apply button;
+        @apply py-2 px-4 rounded bg-blue-500 text-white hover:bg-blue-700 transition-colors cursor-pointer leading-none h-auto disabled:pointer-events-none disabled:opacity-70;
     }
 
     .input-group {

@@ -5,7 +5,7 @@ const SolvedProblems = () => {
   return (
     <div className="mt-4">
       <h2 className="text-center text-3xl font-semibold mb-8">Features</h2>
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 max-w-screen-lg mx-auto gap-10">
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 max-w-(--breakpoint-lg) mx-auto gap-10">
         {/* <div className="flex gap-4 items-start flex-col ">
           <IconWrapper>
             <svg

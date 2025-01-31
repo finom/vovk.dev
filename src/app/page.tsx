@@ -13,4 +13,4 @@ export const metadata = {
   }
 }
 
-<Home />
+export default Home;

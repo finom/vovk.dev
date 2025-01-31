@@ -26,7 +26,7 @@ const Arrow = ({ className }: { className: string }) => (
 const SplitSection = ({ left, right, reverse }: Props) => {
   return (
     <div
-      className={`lg:flex max-w-screen-2xl mx-auto mt-40 gap-16 justify-between ${reverse ? 'flex-row-reverse' : ''}`}
+      className={`lg:flex max-w-(--breakpoint-2xl) mx-auto mt-40 gap-16 justify-between ${reverse ? 'flex-row-reverse' : ''}`}
     >
       <div className="flex-1 lg:w-1/2 flex flex-col">{left}</div>
       <div className="min-w-0 flex-1 flex flex-col self-center">{right}</div>

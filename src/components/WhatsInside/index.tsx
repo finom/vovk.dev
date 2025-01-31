@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import CodeBox from '../CodeBox';
 import SourceService from './SourceService.mdx';
@@ -10,7 +11,6 @@ import SourceControllerYup from './SourceControllerYup.mdx';
 import SourceControllerDto from './SourceControllerDto.mdx';
 import SourceControllerZod from './SourceControllerZod.mdx';
 import SplitSection from '../SplitSection';
-import Arrow from '../Arrow';
 import TabPill from '../TabPill';
 import DocsLink from '../DocsLink';
 
@@ -36,7 +36,7 @@ const pills = [
 const WhatsInside = () => {
   const [validationLibrary, setValidationLibrary] = useState(pills[0].name);
   return (
-    <div className="max-w-screen-2xl mx-auto">
+    <div className="max-w-(--breakpoint-2xl) mx-auto">
       <SplitSection
         reverse
         left={

@@ -2,18 +2,18 @@ const meta = {
   index: {
     title: 'Home',
     type: 'page',
-    display: 'hidden',
     theme: {
-      layout: 'raw',
-      footer: false,
+      layout: 'full',
+      toc: false,
     },
   },
   blog: {
     title: 'Blog',
+    href: '/blog',
     type: 'page',
   },
   getting_started_link: {
-    title: 'Getting Started',
+    title: 'Getting Started x',
     href: '/getting-started',
     type: 'page',
   },

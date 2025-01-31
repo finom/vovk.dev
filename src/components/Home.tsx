@@ -41,7 +41,7 @@ const Home = () => {
           </div>
           <div className="border-t border-gray-200 dark:border-gray-700 mt-20">
             <footer>
-              <div className="flex flex-col md:flex-row gap-3 items-center justify-between py-4 md:py-8 max-w-screen-2xl mx-auto text-sm px-5 text-secondary">
+              <div className="flex flex-col md:flex-row gap-3 items-center justify-between py-4 md:py-8 max-w-(--breakpoint-2xl) mx-auto text-sm px-5 text-secondary">
                 <p>
                   Created by{' '}
                   <a href="https://github.com/finom" className="link" target="_blank" rel="noopener">

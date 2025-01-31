@@ -4,7 +4,7 @@ const Title = ({ children }: { children: ReactNode }) => {
   return (
     <div
       className={`
-      bg-gradient-to-br from-[#f2f2fd] to-[#f7f7ff]
+      bg-linear-to-br from-[#f2f2fd] to-[#f7f7ff]
       dark:bg-gray-950 dark:text-white dark:[background-image:none]
       p-[3px] flex items-center justify-between w-full py-1`}
     >

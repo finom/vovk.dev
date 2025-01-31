@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from 'react';
 import GalleryTabs, { GalleryTabType } from './GalleryTabs';
 import MultiSegment from './MultiSegment';

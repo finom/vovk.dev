@@ -1,3 +1,4 @@
+"use client";
 import Link from 'next/link';
 import Gallery from './Gallery';
 import SplitSection from '../SplitSection';
@@ -44,7 +45,7 @@ const Jumbotron = () => {
         </Link>
       </div> * /}
       </div>*/}
-        <div className="max-w-screen-2xl mx-auto pt-16 pb-24 px-5 grid lg:grid-cols-2 gap-4 grid-cols-1">
+        <div className="max-w-(--breakpoint-2xl) mx-auto pt-16 pb-24 px-5 grid lg:grid-cols-2 gap-4 grid-cols-1">
           <div className="pt-24">
             <div className="text-3xl font-bold mb-4 text-slate-600 dark:text-stone-500">REST + RPC = ♥️</div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Back-end meta-framework for&nbsp;Next.js</h1>
@@ -101,7 +102,7 @@ const Jumbotron = () => {
           </div>
         </div>
       </div>
-      <div className="mdx-with-style max-w-screen-md m-auto">
+      <div className="mdx-with-style max-w-(--breakpoint-md) m-auto">
         <SplitSection.SplitSectionInfo
           badge="Back-end in 60 seconds"
           title={`Quick install`}

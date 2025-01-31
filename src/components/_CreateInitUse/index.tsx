@@ -6,7 +6,7 @@ import UseCode from './UseCode.mdx';
 const CreateInitUse = () => {
   return (
     <div className="mb-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mx-auto max-w-screen-2xl">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mx-auto max-w-(--breakpoint-2xl)">
         <CreateInitUseSection
           title="Create"
           description="Create a static class and define API endpoints with decorators"

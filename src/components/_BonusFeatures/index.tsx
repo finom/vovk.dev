@@ -9,7 +9,7 @@ const BonusFeatures = () => {
   return (
     <div className="mt-24">
       <h2 className="text-center text-3xl font-semibold mb-4">Bonus Features</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mx-auto max-w-screen-2xl ">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mx-auto max-w-(--breakpoint-2xl) ">
         <BonusFeaturesSection
           title="Highly Customizable"
           description={

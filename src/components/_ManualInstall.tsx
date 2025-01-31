@@ -46,7 +46,7 @@ const ManualInstall = () => {
           </svg>
         </Link>
       </div>
-      {/*<div className="mx-auto max-w-screen-md  mb-16 mt-8">
+      {/*<div className="mx-auto max-w-(--breakpoint-md)  mb-16 mt-8">
 
         <h1
           className="flex gap-2 font-semibold text-2xl items-center justify-center mb-3 cursor-pointer"

@@ -30,7 +30,7 @@ const Arrow = ({ className }: { className: string }) => (
 const Example = ({ code, badge, title, docsLink, docsLinkText, Component, reverse }: ExampleProps) => {
   return (
     <div
-      className={`lg:flex max-w-screen-2xl mx-auto mt-40 gap-16 justify-between ${reverse ? 'flex-row-reverse' : ''}`}
+      className={`lg:flex max-w-(--breakpoint-2xl) mx-auto mt-40 gap-16 justify-between ${reverse ? 'flex-row-reverse' : ''}`}
     >
       <div className="flex-1 lg:w-1/2 flex flex-col">
         <ExampleInfo badge={badge} title={title} docsLink={docsLink} docsLinkText={docsLinkText}>
