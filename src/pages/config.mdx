@@ -40,6 +40,7 @@ export type VovkConfig = {
     worker?: string;
     [key: string]: string | undefined;
   };
+  experimental_clientGenerateTemplateNames?: string[];
 };
 ```
 
@@ -81,4 +82,4 @@ The config file allows to change default options in order to customise generated
 - `devHttps` - defines if the dev server is going to use HTTPS. By default it's `false`. Can be overriden by `VOVK_DEV_HTTPS=true` env variable. See [https docs](/dev-https) for more info.
 - `clientGenerateTemplateNames` - defines what kind of templates are going to be used `vovk generate` to generate the client. By default it equals to `['ts', 'compiled']` that means that the command is going to use `ts` template go generate `index.ts` and `compiled` template to generate `compiled.js` and `compiled.d.ts`. You can redefine it to generate the client from the custom templates, including an experimental Python template: `['ts', 'compiled', 'python', './client-templates/custom-template.js.ejs']`. Can't be overriden by env variable at the current version. 
 - `templates` - used by the [module generator](/cli/vovk-new) to define the templates for the service, controller, worker, state or any other kind of module. By default it uses templates from the [vovk-cli](/cli) package. There is no env variable to override it.
-
+- `experimental_clientGenerateTemplateNames` - defines the list of templates that are going to be used by `vovk generate` command. By default it's `['ts', 'compiled']`. Check [vovk generate](/cli/vovk-generate) for more info.

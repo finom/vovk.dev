@@ -1,6 +1,6 @@
 ---
 title: Vovk.ts 3.0
-date: '13/01/2025'
+date: '3/02/2025'
 description: 'Wubba lubba dub dub! Vovk.ts 3.0 is here!'
 ---
 
@@ -25,7 +25,7 @@ The new version intoduces massive improvements that fix probably every problem p
 - `req.vovk` object with `body()`, `query()`, `meta()` and `form()` methods.
 - Rethrow error cause.
 - Add `devHttps` setting to enable https in local development.
-- Support **.config** folder for config.
+- Support **.config** folder for the config.
 - Add `prettifyClient` config option
 - Finally figure out how to fix problems with query and single-item arrays.
 - Implement multi-segment mode.
@@ -38,12 +38,12 @@ The new version intoduces massive improvements that fix probably every problem p
 - Simplify types and allow to use circular references in service-controller pair. Big thanks to [Anders Hejlsberg
 ](https://github.com/ahejlsberg), the lead architect of TypeScript, for the solution for [#58616](https://github.com/microsoft/TypeScript/issues/58616).
 - Get rid of `VOVK_PORT` variable because it isn't needed anymore because of the new way how [vovk dev](/cli/vovk-dev) works.
-- JSON divider for streams is a new line instead of an ugly hard-coded string.
+- JSON divider for [streams](/streaming) is a new line instead of an ugly hard-coded string.
 
 ## CLI
 
 - Transfer CLI to TS.
-- Move to a separate project.
+- Move to a separate package.
 
 ### vovk init 
 
@@ -63,7 +63,7 @@ NEW
 
 It wasn't too fun to use vovk-zod because it required to provide a model to a decorator and a type to a method separately because decorators aren't able to change class signature.
 
-```ts filename="OLD SYNTAX"
+```ts filename="❌ Old syntax"
 import { z } from 'zod';
 import vovkZod from 'vovk-zod';
 // ... other imports ...
@@ -84,7 +84,7 @@ export default class UserController {
 
 This problem has been solved by introducing the `withZod` function that allows to use Zod validation in a more elegant way.
 
-```ts
+```ts filename="✅ New syntax"
 import { prefix, put } from 'vovk';
 import { withZod } from 'vovk-zod';
 import { UpdateUserModel, UpdateUserQueryModel } from './models';

@@ -34,7 +34,7 @@ const meta = {
   worker: 'Web Worker with WPC',
   config: 'vovk.config.js',
   cli: 'CLI',
-  'api-reference': 'API Reference',
+  'api-ref': 'API Reference',
 };
 
 export default meta;

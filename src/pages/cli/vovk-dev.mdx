@@ -3,7 +3,6 @@ import devSvg from '../../excalidraw/vovk-dev.svg';
 
 # vovk dev
 
-
 The `vovk dev` command runs Vovk Dev Watcher that watches for changes at controllers and workers and updates the [schema](/schema) and the [client](/client) accordingly when needed by making HTTP GET requests to the Next.js dev server. When a change is detected, the watcher sends a GET request to `/api/*segment-name*/_schema_` to get the updated schema. If schema is changed the watcher updates the schema and the client. 
 
 ## How it works
@@ -44,18 +43,38 @@ Behind the scenes the implicit way runs concurrently API which means that both w
 
 Read more about [HTTPS in development](/dev-https).
 
-When [vovk init](/cli/vovk-init) is used, the `dev` script is added to the `package.json` file preserving the flags that previous value had.
+When [vovk init](/cli/vovk-init) is used, the `dev` script is added to the `package.json` file preserving the flags that the previous value had.
 
 ```json
 {
     "scripts": {
-        // ...
+        // was
+        // "dev": "next dev --experimental-https --turbo",
+        // becomes
         "dev": "vovk dev --next-dev -- --experimental-https --turbo"
     }
 }
 ```
 
-`--next-dev` is the only flag supported by `vovk dev`.
+## Run and exit
 
+`--exit` flag can be used to kill the process created by `vovk dev` after the schema and the client were generated. This is useful when you want to run the script once and don't want to keep it running.
+
+```sh
+npx vovk dev --next-dev --exit
+```
+
+You can create a separate script in `package.json` for this purpose:
+
+```json
+{
+    "scripts": {
+        // ...
+        "dev-exit": "vovk dev --next-dev --exit",
+        // or 
+        "dev-exit": "PORT=3000 concurrently 'vovk dev --exit' 'next dev' --kill-others"
+    }
+}
+```
 
 

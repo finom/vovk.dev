@@ -38,12 +38,12 @@
     "react-transition-group": "^4.4.5",
     "tailwind-merge": "^2.6.0",
     "use-0": "^1.2.5",
-    "vovk": "^3.0.0-draft.25",
-    "vovk-client": "^0.0.4-draft.8",
-    "vovk-dto": "^0.0.1-draft.10",
+    "vovk": "^3.0.0-draft.52",
+    "vovk-client": "^0.0.4-draft.16",
+    "vovk-dto": "^0.0.1-draft.16",
     "vovk-examples": "^1.0.1",
-    "vovk-yup": "^0.0.1-draft.10",
-    "vovk-zod": "^1.0.0-draft.11",
+    "vovk-yup": "^0.0.1-draft.16",
+    "vovk-zod": "^1.0.0-draft.17",
     "zod": "^3.24.1"
   },
   "prettier": {
@@ -71,6 +71,6 @@
     "tsx": "^4.19.2",
     "typescript": "^5",
     "user-agent-data-types": "^0.4.2",
-    "vovk-cli": "^0.0.1-draft.40"
+    "vovk-cli": "^0.0.1-draft.46"
   }
 }

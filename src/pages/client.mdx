@@ -2,44 +2,27 @@ import { Callout } from 'nextra/components'
 
 # Generated RPC-ish client
 
-```sh filename="bash"
-npx vovk generate
-```
-
-`vovk generate` (as well as [vovk dev](/cli/vovk-dev)) command generates a client library that can be used in the client-side code from [controllers](/controller) and [workers](/worker) that be used in any environment that supports `fetch` function (including back-end).
-
-
-
-{/*
-TODO npm install
+TODO - Client method accepts `fetcher` and `validateOnClient` options.
 
 ```sh filename="bash"
 npx vovk generate
 ```
 
-## RPC library
+`vovk generate` (as well as [vovk dev](/cli/vovk-dev)) command creates client library that is generated from [schema](/schema). By default the files are stored in the **node_modules/.vovk-client/** folder (can be changes at [config](/config)) and re-exported by **vovk-client** package. 
 
-<Callout type="warning" emoji="⚠️">
-    **Workaround notice**. In order to identify arrays, [RPC methods](/client) use a custom parameter `_vovkarr`. See [request documentation](/controller/request) for more information.
-</Callout>
+It creates 3 files:
 
+- **index.ts** - an "uncompiled" TypeScript file. Used rarely but useful if code is generated to the root of the project. See [vovk-examples](https://github.com/finom/vovk-examples).
+- **compiled.js** - a "compiled" JavaScript file.
+- **compiled.d.ts** - TypeScript definitions.
 
-`initVovk` performs required actions to generate client-side library and no additional action from your side is required (but you probably would need to restart TS Server to update types if you use VSCode when a new controller is added).
+TODO: Tabs with generated examples + route.ts
 
-Name of an RPC library is defined by the key in the `controllers` object. The key is used to import the library in the client code.
+As you can see all the files export one variable per controller or worker and their functionality is built from the [schema](/schema) and types exported from **route.ts** file, making the client library type-safe and very compact in size for production use.
 
-```ts filename="/src/app/api/[[...vovk]]/route.ts"
-// ...
-const controllers = { 
-    UserRPC: UserController 
-};
-// ...
-export const { GET } = initVovk({ controllers });
-```
+The code for these files is built using [EJS](https://www.npmjs.com/package/ejs) templates instead of AST, making the generation take not more than a couple of milliseconds (takes more if `prettifyClient` is set to `true` in the config). The templates are located in the **client-templates** folder of [vovk-cli](/cli) package.
 
-The client library implements same-named methods but changes the method signature so you can pass required input data as options (`body`, `query` and `params`). **vovk-client** can be used in client components, server components, application state and even be distributed as a standalone package. For an illustration [vovk-examples](https://github.com/finom/vovk-examples) is published as a [standalone NPM package](https://www.npmjs.com/package/vovk-examples) to be used on [vovk.dev](https://vovk.dev) that, by itself, is a static website powered by gh-pages.
-
-Everything exported from **vovk-client** is plain old JavaScript with typings that calls the regular `fetch` function.
+The variables re-exported from **vovk-client** package is plain old JavaScript with typings that calls the regular `fetch` function.
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -59,9 +42,9 @@ fetch(`/api/users/${id}?role=admin`, {
 });
 ```
 
-The naming convention isn't strict and can be changed to fit the application's needs. For example `UserRPC` can be renamed to `users` or any other appropriate name.
+If you don't like the naming convention of the generated client library, you can change it in the **route.ts** file.
 
-```ts filename="/src/app/api/[[...vovk]]/route.ts"
+```ts
 // ...
 const controllers = { 
     users: UserController 
@@ -79,28 +62,17 @@ await api.users.updateUser({
 });
 ```
 
-The generated client library [can be customised](/customization) in order to follow custom logic required by the application.
+The client library's fetching function, as well as its types [can be customised](/client/customization) in order to follow logic required by the application.
 
 ```ts
- await UserRPC.updateUser({
+await UserRPC.updateUser({
     // ...
-    successMessage: 'Successfully created the user',
+    successMessage: 'Successfully updated the user',
     someOtherCustomFlag: true,
 });
 ```
 
-## Behind the scenes
-
-The client library is generated at **node_modules/.vovk-client/** and re-exported from **vovk-client** package. The folder contains 3 files:
-
-- **index.ts** - uncompiled TypeScript file. Used rarely but useful if code is generated to the root of the project. See [vovk-examples](https://github.com/finom/vovk-examples).
-- **compiled.js** - compiled JavaScript file. Used by the client.
-- **compiled.d.ts** - TypeScript definitions. Used by the client.
-
-TODO add example of generated client library
-TODO describe all client options
-
-## Type Override (MOVE TO CLIENT SECTION)
+## Type override
 
 In case if your code makes it impossible to recognise the return type, you can override it manually with no need to convert it to `unknown` first.
 
@@ -118,12 +90,18 @@ const updatedUser = await UserController.updateUser<SomeType>(/* ... * /);
 
 ```ts
 // ...
-static async *updateUser(/* ... * /) {
-    // ...
-    yield* iterable;
+export default class MyController {
+    @get()
+    static async *doSomething(/* ... */) {
+        yield* iterable;
+    }
 }
-// ...
 ```
 
-If iterable is returned, the client library is going to cast the method as a disposable async generator to implement response streaming. It's explained in more details on the [Text Streaming documentation page](/streaming).
-*/}
+If iterable is returned, the client library is going to cast the method as a disposable async generator to implement response streaming. It's explained in more details on the [JSON streaming documentation page](/streaming).
+
+## Custom client
+
+The [dev command](/cli/vovk-dev) creates [schema](/schema) files represented as JSON files. The generic way to build a custom client is to read the files of the schema output directory (by default **.vovk-schema**) and build the client library based on them.
+
+Good news is that Vovk.ts also provides an experimental way to generate a completely custom client library, including a client for a different programming language. Since the client is generated from [ejs](https://www.npmjs.com/package/ejs) templates, you can implement your own templates and generate a client library that fits your needs. Please refer to the [vovk generate](/cli/vovk-generate) documentation page for more details.
