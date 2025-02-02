@@ -8,7 +8,7 @@ TODO: v1, v2 segment names
 npx vovk new segment
 ```
 
-[Controllers](/controller) and [workers](/worker) are initialised at a ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) defined as **route.ts** file in **/src/app/api/[[...slug]]/** for root segment or **/src/app/api/segment-name/[[...slug]]/** folder for multi-segment apps (**[[...slug]]** is the folder name). It exports [route handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) such as `GET`, `POST` etc, created by `initVovk` function. The file can also export any of the Next.js [segment config options](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#segment-config-options) such as `runtime` or `maxDuration` to determine behaviour of the Next.js route.
+[Controllers](/controller) are initialised at a ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) defined as **route.ts** file in **/src/app/api/[[...slug]]/** for root segment or **/src/app/api/segment-name/[[...slug]]/** folder for multi-segment apps (**[[...slug]]** is the folder name). It exports [route handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) such as `GET`, `POST` etc, created by `initVovk` function. The file can also export any of the Next.js [segment config options](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#segment-config-options) such as `runtime` or `maxDuration` to determine behaviour of the Next.js route.
 
 The easiest way to create a new root segment is to use `npx vovk new segment` command that creates a new folder with a **route.ts** file. See [documentation](/cli/vovk-new).
 
@@ -16,7 +16,7 @@ The easiest way to create a new root segment is to use `npx vovk new segment` co
   You can change the API folder name from `api` to any other name by modifying [config](/config) option `rootEntry`. For example you can use `"api/v1"` in order to serve the API from `/api/v1` path or set it as an empty string to serve it from the root path (if the Next.js app is used for back-end only).
 </Callout>
 
-Besides the Next.js variables it's important to also export `Controller` and `Worker` types that are used to type the generated RPC library.
+Besides the Next.js variables it's important to also export `Controller` type that are used to type the generated RPC library.
 
 [The code generator](/cli/vovk-new) as well as this documentation uses "vovk" as the slug name but it can be called in any way since it's never used to determine something in the code.
 
@@ -25,7 +25,6 @@ Here is an example of a **route.ts** file for a single-segment app:
 ```ts filename="/src/app/api/[[...slug]]/route.ts"
 import { initVovk } from 'vovk'
 import UserController from '../../modules/user/UserController';
-import UserWorker from '../../modules/user/UserWorker';
 import PostController from '../../modules/post/PostController';
 
 // run code on the edge network — distributed globally across multiple data centers
@@ -39,16 +38,10 @@ const controllers = {
     PostRPC: PostController,
 };
 
-const workers = {
-    UserWPC: UserWorker,
-};
-
 export type Controller = typeof controllers;
-export type Worker = typeof workers;
 
 export const { GET, POST, PUT, DELETE } = initVovk({
     controllers,
-    workers,
 });
 ```
 
@@ -69,7 +62,6 @@ For non-root segments `initVovk` function requires to provide segment name as `s
 export const { GET, POST, PUT, DELETE } = initVovk({
     segmentName: 'foo',
     controllers,
-    workers,
 });
 ```
 
@@ -106,13 +98,12 @@ To utilise this feature, return `generateStaticAPI` results from `generateStatic
 ```ts filename="/src/app/api/[[...vovk]]/route.ts"
 // ...
 export type Controllers = typeof controllers;
-export type Workers = typeof workers;
 
 export function generateStaticParams() {
   return generateStaticAPI(controllers);
 }
 
-export const { GET } = initVovk({ controllers, workers });
+export const { GET } = initVovk({ controllers });
 ```
 
 In order to make it work on a static website hosting like Github Pages, you may need to define `.json` extension in your endpoint definition to make it return proper HTTP headers.

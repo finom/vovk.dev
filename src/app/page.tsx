@@ -3,14 +3,14 @@ import Home from '../components/Home';
 export const metadata = {
   title: {
     default: 'Nextra – Next.js Static Site Generator',
-    template: '%s | Nextra'
+    template: '%s | Nextra',
   },
   openGraph: {
     url: 'https://nextra.site',
     siteName: 'Nextra',
     locale: 'en_US',
-    type: 'website'
-  }
-}
+    type: 'website',
+  },
+};
 
 export default Home;

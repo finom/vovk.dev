@@ -1,21 +1,21 @@
 import Image from 'next/image';
-import devSvg from '../../excalidraw/vovk-dev.svg';
+import devSvg from '../../../excalidraw/vovk-dev.svg';
 
 # vovk dev
 
 TODO: Flags here
 
-The `vovk dev` command runs Vovk Dev Watcher that watches for changes at controllers and workers and updates the [schema](/schema) and the [client](/client) accordingly when needed by making HTTP GET requests to the Next.js dev server. When a change is detected, the watcher sends a GET request to `/api/*segment-name*/_schema_` to get the updated schema. If schema is changed the watcher updates the schema and the client. 
+The `vovk dev` command runs Vovk Dev Watcher that watches for changes at controllers and updates the [schema](/schema) and the [client](/client) accordingly when needed by making HTTP GET requests to the Next.js dev server. When a change is detected, the watcher sends a GET request to `/api/*segment-name*/_schema_` to get the updated schema. If schema is changed the watcher updates the schema and the client. 
 
 ## How it works
 
 1. `vovk dev` and `next dev` are run together with [concurrently](https://www.npmjs.com/package/concurrently).
 2. `vovk dev` watches for changes at **/src/modules** folder.
-3. When a change is detected, the script checks if the file is a controller or a worker and if it belongs to a segment by making some simple RegExp checks.
-4. If the file is a controller or a worker and belongs to a segment, the script sends a GET request to `/api/*segment-name*/_schema_` to get the updated schema.
+3. When a change is detected, the script checks if the file is a controller and if it belongs to a segment by making some simple RegExp checks.
+4. If the file is a controller and belongs to a segment, the script sends a GET request to `/api/*segment-name*/_schema_` to get the updated schema.
 5. The script checks if the schema is changed and if so:
-    - If list of controllers or worker is changed (added, removed, renamed), or method definition (including validation) is changed, the script updates the schema by saving it to **.vovk-schema** folder as a .json file making it fast to serialize and import after.
-    - If list of controllers or worker is changed (added, removed, renamed) the script updates the client. The client imports the schema in order build the exported library properly. The client is generated at **node_modules/.vovk-client** folder and is re-exported by **vovk-client** package. The client is generated with string concatenation and doesn't use any AST libraries making it lighning fast to generate (usually a couple of milliseconds).
+    - If list of controllers is changed (added, removed, renamed), or method definition (including validation) is changed, the script updates the schema by saving it to **.vovk-schema** folder as a .json file making it fast to serialize and import after.
+    - If list of controllers is changed (added, removed, renamed), the script updates the client. The client imports the schema in order build the exported library properly. The client is generated at **node_modules/.vovk-client** folder and is re-exported by **vovk-client** package. The client is generated with string concatenation and doesn't use any AST libraries making it lighning fast to generate (usually a couple of milliseconds).
 
 <Image src={devSvg} alt="vovk dev" className="dark:invert" />
 

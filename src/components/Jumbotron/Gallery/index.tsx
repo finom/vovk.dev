@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useEffect, useState } from 'react';
 import GalleryTabs, { GalleryTabType } from './GalleryTabs';
 import MultiSegment from './MultiSegment';
@@ -101,7 +101,12 @@ const Gallery = () => {
   };
 
   return (
-    <div onClick={handleUserInteraction} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
+    <div
+      onClick={handleUserInteraction}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      className="z-10 relative"
+    >
       <GalleryTabs
         currentTab={currentTab}
         setCurrentTab={(tab) => {

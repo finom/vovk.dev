@@ -29,10 +29,6 @@ const examples = {
     'src/modules/openai/OpenAiController.ts', 
     'src/app/openai/OpenAiExample.tsx'
   ],
-  worker: [
-    'src/modules/worker/HelloWorker.ts', 
-    'src/app/worker/WorkerExample.tsx'
-  ],
 };
 
 async function createFileWithDirectories(filePath: string, content: string) {

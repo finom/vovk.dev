@@ -393,13 +393,6 @@ const SolvedProblems = () => {
               <path d="M4 7H2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
-          <div>
-            <h3 className="font-semibold text-xl">Web Workers at your Fingertips</h3>
-            <p className="mt-1 text-secondary">
-              Leverage the new concept of "Worker Procedure Call" to execute resource-intensive code on a separate
-              browser thread using elegant syntax.
-            </p>
-          </div>
         </div>
       </div>
       <div className="mt-12 text-center">

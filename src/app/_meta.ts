@@ -13,7 +13,7 @@ const meta = {
     type: 'page',
   },
   getting_started_link: {
-    title: 'Getting Started x',
+    title: 'Getting Started',
     href: '/getting-started',
     type: 'page',
   },
@@ -31,7 +31,6 @@ const meta = {
   validation: 'Validation',
   'dev-https': 'HTTPS in Development',
   'shared-service': 'Shared Service',
-  worker: 'Web Worker with WPC',
   config: 'vovk.config.js',
   cli: 'CLI',
   'api-ref': 'API Reference',

@@ -3,25 +3,10 @@ title: "Index"
 description: "Blog"
 ---
 
-Hello Blog
+import BlogIndexArticle from "../../components/BlogIndexArticle";
+import { metadata as v2Metadata } from './vovk-2-0/page.mdx';
+import { metadata as v3Metadata } from './vovk-3-0/page.mdx';
 
-{/*
 
-<div key={page.route} className="mb-10">
-              <Link
-                href={page.route}
-                style={{ color: "inherit", textDecoration: "none" }} className="block font-semibold mt-8 text-2xl"
-                {...externalLinkProps}
-                >
-                  {page.meta?.title || page.frontMatter?.title || page.name}
-              </Link>
-              <p className="opacity-80" style={{ marginTop: ".5rem" }}>
-                {page.frontMatter?.description}{" "}
-                <span className="block mt-2 text-sm">
-                  <Link href={page.route}>{"Read more →"}</Link>
-                </span>
-              </p>
-              {page.frontMatter?.date ? (
-                <p className="opacity-50 text-sm mt-2">{page.frontMatter.date}</p>
-              ) : null}
-            </div>*/}
+<BlogIndexArticle title={v3Metadata.title} description={v3Metadata.description} date={v3Metadata.date} href="/blog/vovk-3-0" />
+<BlogIndexArticle title={v2Metadata.title} description={v2Metadata.description} date={v2Metadata.date} href="/blog/vovk-2-0" />

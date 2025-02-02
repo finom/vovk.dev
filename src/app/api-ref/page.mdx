@@ -1,6 +1,6 @@
 # API
 
-TODO: setClientValidatorsForHandler, VovkWorkerSchema, VovkControllerSchema, createWPC, createRPC,
+TODO: setClientValidatorsForHandler, VovkControllerSchema, createWPC, createRPC, VovkHandlerSchema
 
 Full list of available imports for quick reference: 
 
@@ -18,9 +18,7 @@ import {
   head, 
   options, 
   // controller class decorator
-  prefix, 
-  // WPC class decorator 
-  worker,
+  prefix,
   // core types
   type VovkClientFetcher,
   type VovkDefaultFetcherOptions,
@@ -64,7 +62,6 @@ import type {
 Creates the standard Next.js App Route handlers used by the main [Optional Catch-all Segment](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments). The function accepts the following options:
 - `segmentName?: string` - the name of the segment that's going to be used in the route. Default is empty string (root segment).
 - `controllers: Record<string, Function>` - the list of Controllers
-- `workers?: Record<string, Function>` - the list of WPC interfaces
 - `exposeValidation?: boolean` - set to `false` if you want to hide validation logic from the client-side code.
 - `onError?: (err: Error, req: VovkRequest) => void | Promise<void>` - called on Controller exceptions, can be used to log errors by a third-party service. The second argument can be utilised to retrieve reques URL, authorisation info, and other useful information about the failed request.
 
@@ -72,18 +69,13 @@ Creates the standard Next.js App Route handlers used by the main [Optional Catch
 import { initVovk } from 'vovk';
 import HelloController from '../../modules/hello/HelloController';
 import UserController from '../../modules/user/UserController';
-import HelloWorker from '../../modules/hello/HelloWorker';
-import UserWorker from '../../modules/user/UserWorker';
 
 const controllers = { HelloRPC: HelloController, UserRPC: UserController };
-const workers = { HelloWPC: HelloWorker, UserWPC: UserWorker };
 
 export type Controllers = typeof controllers;
-export type Workers = typeof workers;
 
 export const { GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS } = initVovk({
   controllers,
-  workers,
   exposeValidation: false,
   onError(e, req) {
     console.log('Error', e);
@@ -156,21 +148,6 @@ export default class HelloController {
     @post.auto({ headers: { 'x-hello': 'world' }})
     static postData(/* req: VovkRequest */) {
         return { success: true };
-    }
-}
-```
-
-## `worker` decorator
-
-Defines required `onmessage` handler for a [WPC Class](./worker).
-
-```ts filename="/src/modules/hello/HelloWorker.ts"
-import { worker } from 'vovk';
-
-@worker()
-export default class HelloWorker {
-    static heavyCalculation() {
-        // ...
     }
 }
 ```
@@ -516,13 +493,12 @@ See [segment](/segment) documenation for more info.
 ```ts filename="/src/app/api/[[...vovk]]/route.ts"
 // ...
 export type Controllers = typeof controllers;
-export type Workers = typeof workers;
 
 export function generateStaticParams() {
   return generateStaticAPI(controllers);
 }
 
-export const { GET } = initVovk({ controllers, workers });
+export const { GET } = initVovk({ controllers });
 ```
 
 ## CLI types

@@ -2,7 +2,7 @@ import { Callout } from 'nextra/components'
 
 # Generated RPC-ish client
 
-TODO - Client method accepts `fetcher` and `validateOnClient` options.
+TODO - Client method accepts `fetcher` and `validateOnClient` options. TODO handler.schema property
 
 ```sh filename="bash"
 npx vovk generate
@@ -18,7 +18,7 @@ It creates 3 files:
 
 TODO: Tabs with generated examples + route.ts
 
-As you can see all the files export one variable per controller or worker and their functionality is built from the [schema](/schema) and types exported from **route.ts** file, making the client library type-safe and very compact in size for production use.
+As you can see all the files export one variable per controller and their functionality is built from the [schema](/schema) and types exported from **route.ts** file, making the client library type-safe and very compact in size for production use.
 
 The code for these files is built using [EJS](https://www.npmjs.com/package/ejs) templates instead of AST, making the generation take not more than a couple of milliseconds (takes more if `prettifyClient` is set to `true` in the config). The templates are located in the **client-templates** folder of [vovk-cli](/cli) package.
 

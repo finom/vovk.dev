@@ -1,23 +1,38 @@
-import { Footer, Layout, Navbar } from 'nextra-theme-docs';
-import { Banner, Head } from 'nextra/components';
+import { Footer, Layout, Link, Navbar } from 'nextra-theme-docs';
+import { Head } from 'nextra/components';
 import { getPageMap } from 'nextra/page-map';
 import 'nextra-theme-docs/style.css';
+import VovkLogo from '@/components/VovkLogo';
 
 export const metadata = {
   // Define your metadata here
   // For more information on metadata API, see: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
 };
 
-const banner = <Banner storageKey="some-key">Nextra 4.0 is released 🎉</Banner>;
+// const banner = <Banner storageKey="3.0">Vovk.ts 3.0 is released 🔥</Banner>;
 const navbar = (
   <Navbar
-    logo={<b>Nextra</b>}
+    logo={<VovkLogo width={120} />}
+    projectLink="https://github.com/finom/vovk"
+    chatLink="https://discord.com/invite/qdT8WEHUuP"
     // ... Your additional navbar options
-  />
+  ></Navbar>
 );
-const footer = <Footer>MIT {new Date().getFullYear()} © Nextra.</Footer>;
+const footer = (
+  <Footer className="justify-between">
+    <div>
+      MIT © 2023-{new Date().getFullYear()}{' '}
+      <Link href="https://github.com/finom" className="ml-1">
+        Andrey Gubanov
+      </Link>
+    </div>
+    <Link href="https://github.com/sponsors/finom" target="_blank" className="ml-2 block">
+      Sponsor me ♥️
+    </Link>
+  </Footer>
+);
 
-export default async function RootLayout({ children }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       // Not required, but good for SEO
@@ -34,7 +49,7 @@ export default async function RootLayout({ children }) {
       </Head>
       <body>
         <Layout
-          banner={banner}
+          // banner={banner}
           navbar={navbar}
           pageMap={await getPageMap()}
           docsRepositoryBase="https://github.com/shuding/nextra/tree/main/docs"

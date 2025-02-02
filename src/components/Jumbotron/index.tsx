@@ -45,7 +45,7 @@ const Jumbotron = () => {
         </Link>
       </div> * /}
       </div>*/}
-        <div className="max-w-(--breakpoint-2xl) mx-auto pt-16 pb-24 px-5 grid lg:grid-cols-2 gap-4 grid-cols-1">
+        <div className="max-w-[1440px] mx-auto pt-16 pb-24 px-5 grid lg:grid-cols-2 gap-4 grid-cols-1">
           <div className="pt-24">
             <div className="text-3xl font-bold mb-4 text-slate-600 dark:text-stone-500">REST + RPC = ♥️</div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Back-end meta-framework for&nbsp;Next.js</h1>
@@ -56,7 +56,7 @@ const Jumbotron = () => {
               <div className="mt-8 gap-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 z-10 relative">
                   <Link
-                    className="min-w-8 bg-rose-500 justify-center inline-flex items-center gap-2 rounded-full py-3 px-6 text-white font-medium hover:bg-rose-700"
+                    className="min-w-8 transition-all bg-gradient-to-b from-[#238aff] to-[#07f] hover:shadow-[0_5px_30px_-10px_#0078ffab] filter hover:brightness-105 justify-center inline-flex items-center gap-2 rounded-full py-3 px-6 text-white font-medium"
                     href="https://github.com/finom/vovk"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -80,7 +80,7 @@ const Jumbotron = () => {
                   </Link>
 
                   <Link
-                    className="min-w-8 bg-rose-500 justify-center inline-flex items-center gap-2 rounded-full py-3 px-6 text-white font-medium hover:bg-rose-700"
+                    className="min-w-8 transition-all bg-gradient-to-b from-[#238aff] to-[#07f] hover:shadow-[0_5px_30px_-10px_#0078ffab] filter hover:brightness-105 justify-center inline-flex items-center gap-2 rounded-full py-3 px-6 text-white font-medium"
                     href="getting-started"
                   >
                     <span>Getting Started</span>{' '}

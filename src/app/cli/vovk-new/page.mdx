@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import newModuleSvg from '../../excalidraw/vovk-new-module.svg';
-import newSegmentSvg from '../../excalidraw/vovk-new-segment.svg';
+import newModuleSvg from '../../../excalidraw/vovk-new-module.svg';
+import newSegmentSvg from '../../../excalidraw/vovk-new-segment.svg';
 
 TODO: Flags here
 
@@ -26,14 +26,11 @@ import { initVovk } from 'vovk';
 export const runtime = 'edge';
 
 const controllers = {};
-const workers = {};
 
 export type Controllers = typeof controllers;
-export type Workers = typeof workers;
 
 export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initVovk({
   emitSchema: true,
-  workers,
   controllers,
 });
 ```
@@ -57,7 +54,6 @@ npx vovk new segment foo
 export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initVovk({
   segmentName: 'foo',
   emitSchema: true,
-  workers,
   controllers,
 });
 ```
@@ -87,7 +83,7 @@ npx vovk new controller service foo/user
 The command has the following structure:
 
 - `npx vovk new` - the command itself.
-- Components - types of modules to create (`controller`, `service`, `worker`, or a custom module).
+- Components - types of modules to create (`controller`, `service`, or a custom module).
 - Module name (singular) with an optional segment name separated by a slash. `foo/user`, where `foo` is a segment name and `user` is a module name, creates a module in the **/src/modules/foo/user/** folder and updates `foo` segment. The segment name is optional and can be omitted if the module is related to the root segment: `user` creates a module in the **/src/modules/user/** folder and updates the root segment.
 
 Paths to templates are defined at the [config](/config) file with the `templates` option.
@@ -100,7 +96,6 @@ const config = {
   templates: {
     controller: "vovk-dto/templates/controller.ejs",
     service: "vovk-cli/templates/service.ejs",
-    worker: "vovk-cli/templates/worker.ejs",
     state: "./templates/state.ejs",
     dto: "./templates/dto.ejs",
   },
@@ -114,24 +109,24 @@ export default config;
 
 ### Built-in templates
 
-**vovk-cli** provides built-in templates for controllers, services, and workers located at **templates** folder at the NPM package. Every [validation](/validation) library has its own template for controllers that's also located at **templates** folder of corresponding NPM package.
+**vovk-cli** provides built-in templates for controllers and services located at **templates** folder at the NPM package. Every [validation](/validation) library has its own template for controllers that's also located at **templates** folder of corresponding NPM package.
 
 [vovk init](/cli/vovk-init) initializes the Vovk.ts project with the corresponding templates defined at the [config](/config) file.
 
-When a new controller or a worker is created with `vovk new` command, the script updates the list of `controllers` or `workers` at the segment file and updates `route.ts` file with the new controller or worker using [AST](https://www.npmjs.com/package/ts-morph).
+When a new controller is created with `vovk new` command, the script updates the list of `controllers` at the segment file and updates `route.ts` file with the new controller using [AST](https://www.npmjs.com/package/ts-morph).
 
 ### Shortcuts
 
-Controller, service and worker can be created with shortcuts:
+Controller and service can be created with shortcuts:
 
 ```sh
-npx vovk n c s w user
+npx vovk n c s user
 ```
 
 This command is an equivalent of:
 
 ```sh
-npx vovk new controller service worker user
+npx vovk new controller service user
 ```
 
 ### Custom templates
@@ -161,4 +156,4 @@ export default class <%= stateName %> {
 }
 ```
 
-#### Controller and worker templates
+#### Controller template

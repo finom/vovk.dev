@@ -1,8 +1,8 @@
----
-title: Vovk.ts 3.0
-date: '3/02/2025'
-description: 'Wubba lubba dub dub! Vovk.ts 3.0 is here!'
----
+export const metadata = {
+  title: 'Vovk.ts 3.0',
+  description: 'Wubba lubba dub dub! Vovk.ts 3.0 is here!',
+  date: '3/02/2025',
+};
 
 # Vovk.ts 3.0
 
@@ -11,7 +11,6 @@ The new version intoduces massive improvements that fix probably every problem p
 ## Breaking changes
 
 - Rename `prefix` RPC option to `apiRoot`.
-- Detect JSON stream response by `x-vovk-stream` header and use `text/plain; charset=utf-8` content-type header.
 - Rename `StreamResponse` to `StreamJSONResponse`.
 - Update [schema](/schema) format and use **.vovk-schema/** folder to generate schema for each segment separately.
 - Generate client to **node_modules/.vovk-client/**
@@ -19,6 +18,7 @@ The new version intoduces massive improvements that fix probably every problem p
 - Rename some config options. See [documentation](/config)
 - Remove default client validation when `validateOnClient` is not set in settings.
 - Move `VovkEnv` and `VovkConfig` types to **vovk-cli** package.
+- Completely removed Web Worker features.
 
 ## New features
 
