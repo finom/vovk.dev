@@ -5,7 +5,6 @@ const config = {
   templates: {
     controller: 'vovk-zod/templates/controller.ejs',
     service: 'vovk-cli/templates/service.ejs',
-    worker: 'vovk-cli/templates/worker.ejs',
   },
 };
 module.exports = config;
