@@ -1,36 +1,10 @@
-"use client";
+'use client';
 import Link from 'next/link';
-import Gallery from './Gallery';
-import SplitSection from '../SplitSection';
-import InstallSteps from '../InstallSteps.mdx';
 
 const Jumbotron = () => {
   return (
     <div>
       <div className="jumbotron">
-        <style jsx>{`
-          .jumbotron {
-            position: relative;
-            background-image: radial-gradient(rgba(128, 128, 128, 0.2) 10%, transparent 0);
-            background-size: 20px 20px;
-          }
-
-          .jumbotron::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 75%, rgb(var(--nextra-bg)) 100%);
-            pointer-events: none; /* Ensure the pseudo-element doesn't interfere with pointer events */
-          }
-
-          .jumbotron:where(.dark, .dark *)::after {
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 75%, rgb(17, 17, 17, 0.95) 100%);
-          }
-        `}</style>
-
         {/* <div className="max-w-4xl text-center mx-auto pt-16 pb-36 px-5">
         
         {/* <div className="flex flex-col gap-4 md:flex-row md:gap-8 justify-center mt-6">
@@ -45,14 +19,14 @@ const Jumbotron = () => {
         </Link>
       </div> * /}
       </div>*/}
-        <div className="max-w-[1440px] mx-auto pt-16 pb-24 px-5 grid lg:grid-cols-2 gap-4 grid-cols-1">
+        <div className="max-w-[1440px] mx-auto pt-16 pb-24 px-5 text-center">
           <div className="pt-24">
-            <div className="text-3xl font-bold mb-4 text-slate-600 dark:text-stone-500">REST + RPC = ♥️</div>
+            <div className="text-3xl font-bold mb-4 text-slate-600 dark:text-stone-500">RESTful + RPC = ♥️</div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Back-end meta-framework for&nbsp;Next.js</h1>
             <p className="mt-4 text-secondary md:text-xl">
-              RPC-ish REST API framework with validation on server and client
+              RESTful API framework and type-safe cross-language RPC with validation on server and client
             </p>
-            <div className="max-w-[450px]">
+            <div className="max-w-[450px] mx-auto">
               <div className="mt-8 gap-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 z-10 relative">
                   <Link
@@ -97,19 +71,7 @@ const Jumbotron = () => {
               </div>
             </div>
           </div>
-          <div>
-            <Gallery />
-          </div>
         </div>
-      </div>
-      <div className="mdx-with-style max-w-(--breakpoint-md) m-auto">
-        <SplitSection.SplitSectionInfo
-          badge="Back-end in 60 seconds"
-          title={`Quick install`}
-          titleClassName="text-4xl"
-        />
-
-        <InstallSteps />
       </div>
     </div>
   );

@@ -1,0 +1,59 @@
+
+# Static segment
+
+Next.js is able to render API endpoints at build time using [generateStaticParams](https://nextjs.org/docs/app/api-reference/functions/generate-static-params). Vovk.ts provides `generateStaticAPI` function to utilize this feature and generate static API endpoints for the lowest latency possible. You can use it to serve OpenAPI data, historical data, or any other static data that doesn't change often. It can be used in a [Static Export mode](https://nextjs.org/docs/pages/building-your-application/deploying/static-exports) with the `output: 'export'` Next.js config setting:
+
+
+```ts filename="next.config.js"
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'export',
+};
+
+module.exports = nextConfig;
+```
+
+To utilise this feature, return `generateStaticAPI` results from `generateStaticParams` function.
+
+```ts filename="/src/app/api/[[...vovk]]/route.ts"
+// ...
+export type Controllers = typeof controllers;
+
+export function generateStaticParams() {
+  return generateStaticAPI(controllers);
+}
+
+export const { GET } = initVovk({ controllers });
+```
+
+In order to make it work on a static website hosting like Github Pages, you may need to define `.json` extension in your endpoint definition to make it return proper HTTP headers.
+
+```ts
+import { get, prefix } from 'vovk';
+
+@prefix('hello')
+export default class HelloController {
+  @get('greeting.json')
+  static async getHello() {
+    return { greeting: 'Hello world!' };
+  }
+}
+```
+
+As result you're going to get an endpoint that looks like that: [https://vovk.dev/api/hello/greeting.json](https://vovk.dev/api/hello/greeting.json) (hosted on Github Pages).
+
+In case if you use a custom slug (e.g. `/src/app/api/[[...custom]]/route.ts`) instead of `vovk`, the default value, you can provide it as a second argument.
+
+```ts
+export function generateStaticParams() {
+  return generateStaticAPI(controllers, 'custom');
+}
+```
+
+## JSONLines 
+
+Streams frozen in time
+
+Unknown purpose, but nice side-effect that 
+
+TODO

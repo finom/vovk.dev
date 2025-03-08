@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "next": "^15.1.6",
-    "nextra": "^4.2.1",
+    "nextra": "^4.2.15",
     "nextra-theme-blog": "^4.2.1",
     "nextra-theme-docs": "^4.2.1",
     "react": "^19.0.0",
@@ -42,6 +42,7 @@
     "vovk-client": "^0.0.4-draft.16",
     "vovk-dto": "^0.0.1-beta.0",
     "vovk-examples": "^1.0.1",
+    "vovk-openapi": "^0.0.1-draft.45",
     "vovk-yup": "^0.0.1-beta.0",
     "vovk-zod": "^1.0.0-draft.17",
     "zod": "^3.24.1"

@@ -1,0 +1,300 @@
+# About
+
+Vovk.ts is a back-end meta-framework for Next.js App Router that allows you to build RESTful APIs with auto-generated TypeScript RPC client. The framework based on standards and conventions that are widely used in the industry, making it easy to integrate with any HTTP client. The auto-emitted [schema](/schema) contains all the information about the API, including validation, represented as JSON schema. 
+
+## The syntax
+
+The framework uses classes with static methods that are wrapped by decorators. 
+
+```ts
+import { prefix, get } from 'vovk';
+
+@prefix('users')
+class UserController {
+    @get()
+    static getUsers() {
+        return [];
+    }
+}
+```
+
+On the client-side the RPC library exports objects that have the same structure as the controllers.
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+await UserRPC.getUsers();
+```
+
+## Server-side validation and type-safety
+
+The framework supports multiple validation libraries, including [Zod](/validation/vovk-zod), [Yup](/validation/vovk-yup), and [class-validator](/vovk-dto) that are used to validate the request body, query, parameters, output and iteration (for JSON streaming) in the server-side code. The libraries emit JSON schema (if not omitted) accessible by the client-side code.
+
+```ts
+import { z } from 'zod';
+import { prefix, post } from 'vovk';
+import { withZod } from 'vovk-zod';
+
+@prefix('users')
+class UserController {
+    @post(':id')
+    static updateUser = withZod({
+        body: z.object({
+            name: z.string(),
+            age: z.number().min(0),
+        }).describe('User object'),
+        params: z.object({
+            id: z.string().describe('User ID'),
+        }),
+        query: z.object({
+            notify: z.enum(['EMAIL', 'PUSH', 'NONE']),
+        }),
+        output: z.object({
+            success: z.boolean(),
+        }),
+        async handle(req, { id }) {
+            const { name, age } = await req.json(); // name is a string, age is a number
+            const { notify } = req.nextUrl.searchParams.get('notify'); // notify is a string
+
+            // do something with the data
+            return {
+                success: true,
+            };
+        },
+    });
+}
+```
+
+## Client-side validation and type-safety
+
+The RPC library uses the schema to provide endpoint information and perform client-side [validtion](/validation) with the help of [Ajv](https://www.npmjs.com/package/ajv).
+
+```ts {6-7}
+import { UserRPC } from 'vovk-client';
+
+// validates the request input with Ajv before sending it to /api/users/123?notify=EMAIL using POST method
+await UserRPC.updateUser({
+    body: {
+        nane: 'John Doe',
+        // ^ Object literal may only specify known properties, and 'nane' does not exist in type '{ name: string; age: number; }'.
+        age: 30,
+    },
+    params: {
+        id: '123',
+    },
+    query: {
+        notify: 'EMAIL',
+    },
+});
+```
+
+Since the validation schema is available at the client-side, you can access it to validate forms with no effort.
+
+```tsx {15-17}
+'use client';
+import { UserRPC } from 'vovk-client';
+import type { VovkBody } from 'vovk';
+import { useForm } from 'react-hook-form';
+import { ajvResolver } from '@hookform/resolvers/ajv';
+import { fastFormats } from 'ajv-formats/dist/formats';
+
+export default function ZodHookFormExample() {
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    formState: { errors },
+  } = useForm<VovkBody<typeof UserRPC.createUser>>({
+    resolver: ajvResolver(UserRPC.createUser.schema.validation.body, {
+      formats: fastFormats,
+    }),
+  });
+
+  const onSubmit = async () => {
+    await UserRPC.createUser({
+        body: getValues(),
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <input type="text" placeholder="Name" {...register('name')} />
+      {errors.name && <p>❌ {errors.name.message}</p>}
+      <input type="text" placeholder="Email" {...register('email')} />
+      {errors.email && <p>❌ {errors.email.message}</p>}
+      <button>Submit</button>
+    </form>
+  );
+}
+```
+
+## OpenAPI
+
+The emitted schema contains all the information that's needed to generate beautiful OpenAPI 3.1 documentation. 
+
+```ts
+import { z } from 'zod';
+import { prefix, post } from 'vovk';
+import { withZod } from 'vovk-zod';
+import { openapi } from 'vovk-openapi';
+
+@prefix('users')
+class UserController {
+    @openapi({
+        summary: 'Update user',
+        description: 'Update user by ID',
+    })
+    @post(':id')
+    static updateUser = withZod({
+        body: z.object({
+            name: z.string().describe('User name'),
+            age: z.number().min(0).describe('User age'),
+        }).describe('User object'),
+        params: z.object({
+            id: z.string().describe('User ID'),
+        }),
+        query: z.object({
+            notify: z.enum(['EMAIL', 'PUSH', 'NONE']).describe('Notification type'),
+        }),
+        output: z.object({
+            success: z.boolean().describe('Success status'),
+        }).describe('Response object'),
+        async handle(req, { id }) {
+            const { name, age } = await req.json();
+            const { notify } = req.nextUrl.searchParams.get('notify');
+
+            // do something with the data
+            return {
+                success: true,
+            };
+        },
+    });
+}
+```
+
+TODO Screenshot
+
+
+## Simple implementation
+
+Vovk.ts uses simple tachniques to implement its features. The schema is requested from Next.js dev server at `_schema_` endpoint of a segment. The client is generated with [EJS](https://www.npmjs.com/package/ejs) templates making it easy to implement a custom template and compile them in a few milliseconds. 
+
+On back-end 
+
+```ts
+export function GET(req: NextRequest) {
+    return handle(req);
+}
+ 
+export function POST(req: NextRequest) {
+    return handle(req);
+}
+ 
+export function PATCH(req: NextRequest) {
+    return handle(req);
+}
+```
+
+On front-end
+
+```ts
+const user = fetch(`/api/users/${id}?notify=EMAIL`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+});
+```
+
+## Customizable RPC client
+
+## Publish your RPC client on NPM
+
+## Cross-language RPC
+
+Simple and conventional design of Vovk.ts made possible to generate type-safe RPC clients with client-side validation for other programming languages that require a couple of well-known libraries for HTTP requests and JSON schema validation. The first implementation is made for [Python](/python) and more languages are coming soon.
+
+
+```py
+from vovk_client import UserRPC
+
+body: UserRPC.infer_update_user_body = {
+    'name': 'John Doe',
+    'age': 30,
+}
+
+params: UserRPC.infer_update_user_params = {
+    'id': '123',
+}
+
+query: UserRPC.infer_update_user_query = {
+    'notify': 'EMAIL',
+}
+
+result: UserRPC.infer_update_user_output = UserRPC.update_user(
+    body=body,
+    params=params,
+    query=query,
+)
+```
+
+
+## Edge runtime
+
+The framework is 100% compatible with Next.js edge runtime. 
+
+```ts
+// define the runtime for the segment
+export const runtime = 'edge';
+```
+
+## CLI
+
+## JSON streaming
+
+## Multi-segment
+
+## Code generator
+
+## Features
+
+TODO
+
+- Bridges two contrasting paradigms: REST and RPC, seamlessly combining their strengths.  
+- Prioritizes an exceptional developer experience.  
+- Adopts the highly effective **Controller-Service-Repository** pattern, ideal for building robust back-end architectures.  
+- Fully compatible with standard Next.js APIs, including `Response`, `headers`, `redirect`, and more.  
+- Lightweight with minimal overhead for optimized performance.  
+- Built for speed.  
+- Thoroughly tested for reliability and scalability.
+
+## Packages and repos
+
+[Main repo](https://github.com/finom/vovk) packages:
+
+- [vovk](https://www.npmjs.com/package/vovk) - the main library.
+- [vovk-cli](https://www.npmjs.com/package/vovk-cli) - the [CLI](/cli).
+- [vovk-init](https://www.npmjs.com/package/vovk-init) - shortcut for `vovk-cli init`.
+- [vovk-client](https://www.npmjs.com/package/vovk-client) - re-exports generated RPC client.
+- [vovk-dto](https://www.npmjs.com/package/vovk-dto) - [DTO](/validation/vovk-dto) validation.
+- [vovk-yup](https://www.npmjs.com/package/vovk-yup) - [Yup](/validation/vovk-yup) validation.
+- [vovk-zod](https://www.npmjs.com/package/vovk-zod) - [Zod](/validation/vovk-zod) validation.
+- [vovk-validate-client-ajv](https://www.npmjs.com/package/vovk-validate-client-ajv) - client-side validation with Ajv that's used by [vovk-zod](/validation/vovk-zod) internally and can be reused with other validation libraries that generate JSON schemas for validation.
+
+Other repos:
+
+- [vovk-examples](https://github.com/finom/vovk-examples) - Vovk.ts examples that you can view [here](https://vovk-examples.vercel.app/). This website (vovk.dev) is powered by gh-pages and uses a [bundled NPM package](https://www.npmjs.com/package/vovk-examples) to create live examples at some pages of this documentation.
+- [React Native example](https://github.com/finom/vovk-react-native-example) - example of using Vovk.ts with React Native with regular JSON requests but also with [streaming](/streaming) example.
+- [Mapped types](https://www.npmjs.com/package/vovk-mapped-types) - mapped types library forked from [@nestjs/mapped-types](https://www.npmjs.com/package/@nestjs/mapped-types) in order to make [vovk-dto](/validation/vovk-dto) classes created with [class-validator](https://www.npmjs.com/package/class-validator) to change their validation and type signatures.
+- [vovk.dev](https://github.com/finom/vovk.dev) - [this website](https://vovk.dev). Feel free to submit a PR if you find a typo or want to improve the documentation. The author of Vovk.ts is not a native English speaker and will appreciate any help.
+
+## How it works
+
+When `npm run dev` that includes `next dev` command, Vovk.ts makes a request to a special endpoint `_schema_` that's available only in development mode. This endpoint returns a [JSON schema](/schema) that describes all the available routes, their parameters, validation information and other details. The schema is written to **.vovk-schema/** folder in form of small .json files. The schema is used to generate a [TypeScript client library](/client) that uses types exported from **route.ts** files and imports schema files from **.vovk-schema/** folder to provide information about how to build the RPC library. It happens transparently and doesn't require any additional action from your side. Just run `npm run dev` and you're good to go, the client library is generated automatically.
+
+In production the only two packages that you're going to use (besides [validation](/validation) libraries) are **vovk** and **vovk-client**.
+
+- **vovk** is a wrapper around Next.js API routes and a library that provides a way to build RPC objects behind the scenes. It has [zero dependencies](https://bundlephobia.com/package/vovk) and takes less than 5KB of space when minified and gzipped.
+- **vovk-client** is nothing more than a re-export of code that's generated to **node_modules/.vovk-client** folder.
+
+
+
+

@@ -12,18 +12,26 @@ import OgToScreenshot from '@/components/OgToScreenshot';
 import './home.css';
 import WhatsInside from './WhatsInside';
 import SplitSection from './SplitSection';
+import InstallSteps from './InstallSteps.mdx';
 
 const Home = () => {
   return (
-    <>
-      <div>
-        {/* <OgToScreenshot /> */}
-        <Jumbotron />
-        <div className={`px-4 mb-28`}>
-          <WhatsInside />
-        </div>
+    <div>
+      <Jumbotron />
+      <Features />
+      <div className="mdx-with-style max-w-(--breakpoint-md) mx-auto mt-20">
+        <SplitSection.SplitSectionInfo
+          badge="Back-end in 60 seconds"
+          title={`Quick install`}
+          titleClassName="text-4xl"
+        />
+
+        <InstallSteps />
       </div>
-    </>
+      {/*<div className={`px-4 mb-28`}>
+        <WhatsInside />
+      </div> */}
+    </div>
   );
 };
 

@@ -1,7 +1,7 @@
 import { Steps, Tabs, Callout } from 'nextra/components'
-import BasicController from '../../downloaded-examples/basic/BasicController.mdx';
-import BasicExample from '../../downloaded-examples/basic/BasicExample.mdx';
-import LiveBasicExample from '../../live-examples/LiveBasicExample';
+import BasicController from '../../../downloaded-examples/basic/BasicController.mdx';
+import BasicExample from '../../../downloaded-examples/basic/BasicExample.mdx';
+import LiveBasicExample from '../../../live-examples/LiveBasicExample';
 
 # Manual install
 
@@ -20,16 +20,6 @@ cd my-app
 ```
 
 ## Install "vovk" and "vovk-client"
-
-The simplest way to init Vovk.ts and avoid some of the steps below is to run `npx vovk-cli init` or the shortcut `npx vovk-init` at the root of the Next.js project. This command asks a few questions and creates the [config](/config) file automatically.
-
-```bash
-npx vovk-init
-```
-
----------
-
-At the newly created folder run:
 
 <Tabs items={['npm', 'pnpm', 'yarn']}>
   <Tabs.Tab>
@@ -70,25 +60,13 @@ Install one of the validation libraries with some additional packages.
 - [vovk-zod](/validation/vovk-zod)
 - [vovk-dto](/validation/vovk-dto)
 
-Set `validationLibrary` value at the config file to the name of the library you've installed.
-
-If you want to enable client validation by default, you can set `validateOnClient` option at the config file. Also it's recommended 
-
-```ts filename="vovk.config.mjs"
-export default {
-    // ...
-    validationLibrary: 'vovk-zod',
-    validateOnClient: 'vovk-zod/validateOnClient',
-};
-```
-
 ## Update "dev" NPM script
 
 There are two ways to run Vovk.ts and Next.js server concurrently: explicitly and implicitly. The explicit way is to install `concurrently` package and run both scripts with it, this requires `PORT` variable to be set. The implicit way is to make Vovk.ts to run Next.js server by itself. At this case **vovk-cli** will assign the port automatically.
 
-<Tabs items={['Explicit', 'Implicit']}>
-  Install concurrently:
+<Tabs items={['Explicit', 'Implicit']} >
   <Tabs.Tab>
+    Install concurrently:
     <Tabs items={['npm', 'pnpm', 'yarn']} className="px-8 [&_+_div]:px-8">
       <Tabs.Tab>
       ```
@@ -217,7 +195,7 @@ export default function MyComponent() {
 Open [http://localhost:3000](http://localhost:3000) and see the result.
 
 <Callout type="info" emoji="ℹ️">
-Note that if you're using VSCode you're probably going to need to [restart TS server](https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server) each time when you add a new controller class to your app
+Note that if you're using VSCode you're probably going to need to [restart TS server](https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server) each time when you add a new controller class to your app.
 </Callout>
 
 Next.js Server Components are also supported but require to define absolute URL (by default all requests are made to `/api`). Check the [Server Component Example](https://vovk-examples.vercel.app/server-component) for more information.

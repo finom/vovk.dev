@@ -1,12 +1,15 @@
-import InstallSteps from '../../components/InstallSteps.mdx'
-import GettingStartedRestInfo from '../../components/GettingStartedRestInfo.mdx'
+---
+asIndexPage: true
+description:
+  Nextra's File Conventions guide details the structure and organization of
+  files and directories within a Nextra project, including the use of
+  `page.mdx`, `_meta.js`, and `mdx-components.js` files, as well as the
+  `content` and `src` directories.
+---
 
-# Getting Started
+import DocIndexCards from '../../components/DocIndexCards';
+import meta, { icons } from './_meta';
 
-## Quick install
+# Getting started
 
-<InstallSteps />
-
-{/* Because of a bug in Nextra I've had to move the content this page to a separate component */}
-
-<GettingStartedRestInfo />
+<DocIndexCards meta={meta} icons={icons} hrefPrefix="getting-started" />

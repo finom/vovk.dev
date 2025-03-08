@@ -1,3 +1,4 @@
+// https://github.com/shuding/nextra/blob/main/docs/app/docs/file-conventions/page.mdx?plain=1
 const meta = {
   index: {
     title: 'Home',
@@ -13,27 +14,25 @@ const meta = {
     type: 'page',
   },
   getting_started_link: {
-    title: 'Getting Started',
+    title: 'Getting started',
     href: '/getting-started',
     type: 'page',
   },
   'getting-started': {
-    title: 'Getting Started',
+    title: 'Getting started',
   },
-  'manual-install': 'Manual Install',
   segment: 'Segment',
   controller: 'Controller',
-  service: 'Service',
-  client: 'Client',
+  client: 'TypeScript client',
+  python: 'Python client',
   schema: 'Schema',
-  streaming: 'JSON Streaming',
+  streaming: 'JSON streaming',
+  openapi: 'OpenAPI',
   errors: 'Errors',
   validation: 'Validation',
-  'dev-https': 'HTTPS in Development',
-  'shared-service': 'Shared Service',
-  config: 'vovk.config.js',
+  config: 'Config',
   cli: 'CLI',
-  'api-ref': 'API Reference',
+  'api-ref': 'API reference',
 };
 
 export default meta;

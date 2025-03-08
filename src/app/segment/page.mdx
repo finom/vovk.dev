@@ -1,131 +1,15 @@
-import { Callout } from 'nextra/components'
+---
+asIndexPage: true
+description:
+  Nextra's File Conventions guide details the structure and organization of
+  files and directories within a Nextra project, including the use of
+  `page.mdx`, `_meta.js`, and `mdx-components.js` files, as well as the
+  `content` and `src` directories.
+---
 
-TODO: v1, v2 segment names
+import DocIndexCards from '../../components/DocIndexCards';
+import meta, { icons } from './_meta';
 
 # Segment
 
-```sh filename="Create root segment with CLI"
-npx vovk new segment
-```
-
-[Controllers](/controller) are initialised at a ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) defined as **route.ts** file in **/src/app/api/[[...slug]]/** for root segment or **/src/app/api/segment-name/[[...slug]]/** folder for multi-segment apps (**[[...slug]]** is the folder name). It exports [route handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) such as `GET`, `POST` etc, created by `initVovk` function. The file can also export any of the Next.js [segment config options](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#segment-config-options) such as `runtime` or `maxDuration` to determine behaviour of the Next.js route.
-
-The easiest way to create a new root segment is to use `npx vovk new segment` command that creates a new folder with a **route.ts** file. See [documentation](/cli/vovk-new).
-
-<Callout type="info" emoji="ℹ️">
-  You can change the API folder name from `api` to any other name by modifying [config](/config) option `rootEntry`. For example you can use `"api/v1"` in order to serve the API from `/api/v1` path or set it as an empty string to serve it from the root path (if the Next.js app is used for back-end only).
-</Callout>
-
-Besides the Next.js variables it's important to also export `Controller` type that are used to type the generated RPC library.
-
-[The code generator](/cli/vovk-new) as well as this documentation uses "vovk" as the slug name but it can be called in any way since it's never used to determine something in the code.
-
-Here is an example of a **route.ts** file for a single-segment app:
-
-```ts filename="/src/app/api/[[...slug]]/route.ts"
-import { initVovk } from 'vovk'
-import UserController from '../../modules/user/UserController';
-import PostController from '../../modules/post/PostController';
-
-// run code on the edge network — distributed globally across multiple data centers
-export const runtime = 'edge';
-
-// maximum duration of request in seconds, useful for AI apps
-export const maxDuration = 300;
-
-const controllers = {
-    UserRPC: UserController,
-    PostRPC: PostController,
-};
-
-export type Controller = typeof controllers;
-
-export const { GET, POST, PUT, DELETE } = initVovk({
-    controllers,
-});
-```
-
-[Schema](/schema) for the root segment is going to be stored as **.vovk-schema/_root.json** file.
-
-With the root segment as the only segment, the back-end code of the app is going to be bundled into a single serverless function. In most of cases it's enough to have only the root segment.
-
-## Multi-segment apps
-
-In case if back-end code is too big to be bundled into a single serverless function (I leave it to the reader to determine what "too big" means) it's possible to split it into multiple segments keeping the root segment there if needed. Each segment is located in a nested folder determining the API path and the segment name. For example, a segment located in **/src/app/api/segment-name/[[...slug]]/** folder is going to be served at **/api/segment-name** path. The level of nesting is unlimited. 
-
-For non-root segments `initVovk` function requires to provide segment name as `segmentName` option. By default it's an empty string that means the root segment.
-
-
-```ts filename="/src/app/api/foo/[[...slug]]/route.ts"
-// ...
-
-export const { GET, POST, PUT, DELETE } = initVovk({
-    segmentName: 'foo',
-    controllers,
-});
-```
-
-The schema for the segment is going to be stored as **.vovk-schema/foo.json** file.
-
-For segments of deeper nesting (let's say **/src/app/api/foo/bar/baz/[[...slug]]/**) the segment name is going to be `foo/bar/baz` and the schema is going to be stored as **.vovk-schema/foo/bar/baz.json** file.
-
-## Segment priority
-
-In case if you have multiple segments, more nested one is going to have higher priority. For example, if you have the following segments:
-
-- **/src/app/api/[[...slug]]/** for the root segment
-- **/src/app/api/foo/[[...slug]]/** for `foo` segment
-- **/src/app/api/foo/bar/[[...slug]]/** for `foo/bar` segment
-
-Then request to **/api/foo/bar** is going to have the highest priority and is going to be handled by the `foo/bar` segment. If the request doesn't match the `foo/bar` segment but matches the `foo` segment, it's going to be handled by the `foo` segment. If the request doesn't match the `foo` segment, it's going to be handled by the root segment.
-
-## Static API
-
-`generateStaticAPI(controllers: Record<string, Function>, slug?: string)` is used to generate static endpoints with [generateStaticParams](https://nextjs.org/docs/app/api-reference/functions/generate-static-params) at build time instead of on-demand at request time. It can be used in a [Static Export mode](https://nextjs.org/docs/pages/building-your-application/deploying/static-exports) with the `output: 'export'` Next.js config setting:
-
-
-```ts filename="next.config.js"
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  output: 'export',
-};
-
-module.exports = nextConfig;
-```
-
-To utilise this feature, return `generateStaticAPI` results from `generateStaticParams` function.
-
-```ts filename="/src/app/api/[[...vovk]]/route.ts"
-// ...
-export type Controllers = typeof controllers;
-
-export function generateStaticParams() {
-  return generateStaticAPI(controllers);
-}
-
-export const { GET } = initVovk({ controllers });
-```
-
-In order to make it work on a static website hosting like Github Pages, you may need to define `.json` extension in your endpoint definition to make it return proper HTTP headers.
-
-```ts
-import { get, prefix } from 'vovk';
-
-@prefix('hello')
-export default class HelloController {
-  @get('greeting.json')
-  static async getHello() {
-    return { greeting: 'Hello world!' };
-  }
-}
-```
-
-As result you're going to get an endpoint that looks like that: [https://vovk.dev/api/hello/greeting.json](https://vovk.dev/api/hello/greeting.json) (hosted on Github Pages).
-
-In case if you use a custom slug (e.g. `/src/app/api/[[...custom]]/route.ts`) instead of `vovk`, the default value, you can provide it as a second argument.
-
-```ts
-export function generateStaticParams() {
-  return generateStaticAPI(controllers, 'custom');
-}
-```
+<DocIndexCards meta={meta} icons={icons} hrefPrefix="segment" />
