@@ -1,4 +1,3 @@
-
 import path from 'path';
 import fs from 'fs/promises';
 import getGithubFiles from './getGithubFiles.mjs';
@@ -6,44 +5,38 @@ import getGithubFiles from './getGithubFiles.mjs';
 const examples = {
   basic: ['src/modules/basic/BasicController.ts', 'src/app/basic/BasicExample.tsx'],
   'basic-with-service': [
-    'src/modules/basic-with-service/BasicControllerWithService.ts', 
-    'src/modules/basic-with-service/BasicService.ts', 
-    'src/app/basic-with-service/BasicExampleWithService.tsx'
+    'src/modules/basic-with-service/BasicControllerWithService.ts',
+    'src/modules/basic-with-service/BasicService.ts',
+    'src/app/basic-with-service/BasicExampleWithService.tsx',
   ],
   form: [
-    'src/modules/form/FormController.ts', 
-    'src/app/form/FormExample.tsx', 
+    'src/modules/form/FormController.ts',
+    'src/app/form/FormExample.tsx',
     'src/app/hook-form/HookFormExample.tsx',
-    'src/zod.ts'
+    'src/zod.ts',
   ],
-  stream: [
-    'src/modules/stream/StreamController.ts', 
-    'src/app/stream/StreamExample.tsx'
-  ],
+  stream: ['src/modules/stream/StreamController.ts', 'src/app/stream/StreamExample.tsx'],
   'stream-response-object': [
-    'src/modules/stream-response-object/StreamService.ts', 
-    'src/modules/stream-response-object/StreamResponseObjectController.ts', 
+    'src/modules/stream-response-object/StreamService.ts',
+    'src/modules/stream-response-object/StreamResponseObjectController.ts',
     'src/app/stream-response-object/StreamExample.tsx',
   ],
-  openai: [
-    'src/modules/openai/OpenAiController.ts', 
-    'src/app/openai/OpenAiExample.tsx'
-  ],
+  openai: ['src/modules/openai/OpenAiController.ts', 'src/app/openai/OpenAiExample.tsx'],
 };
 
 async function createFileWithDirectories(filePath: string, content: string) {
   try {
-      const dirPath = path.dirname(filePath);
+    const dirPath = path.dirname(filePath);
 
-      try {
-          await fs.access(dirPath);
-      } catch (error) {
-          await fs.mkdir(dirPath, { recursive: true });
-      }
+    try {
+      await fs.access(dirPath);
+    } catch (error) {
+      await fs.mkdir(dirPath, { recursive: true });
+    }
 
-      await fs.writeFile(filePath, content, 'utf8');
+    await fs.writeFile(filePath, content, 'utf8');
   } catch (error) {
-      console.error('Error writing file:', error);
+    console.error('Error writing file:', error);
   }
 }
 
@@ -54,7 +47,7 @@ async function main() {
     const downloadedFiles = await getGithubFiles(paths);
     console.log(name, downloadedFiles);
 
-    for(const { path: filePath, content } of downloadedFiles) {
+    for (const { path: filePath, content } of downloadedFiles) {
       const fileName = path.basename(filePath);
       const parsedPath = path.parse(filePath);
 
@@ -64,9 +57,9 @@ async function main() {
 
       // await fs.mkdir(`$`, { recursive: true });
 
-      console.log(newPath)
+      console.log(newPath);
 
-      await createFileWithDirectories(newPath, "```tsx filename=\"/"+filePath+"\"\n" + content.trim() + "\n```");
+      await createFileWithDirectories(newPath, '```tsx filename="/' + filePath + '"\n' + content.trim() + '\n```');
     }
   }
 }

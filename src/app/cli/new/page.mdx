@@ -35,7 +35,7 @@ export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initVovk({
 });
 ```
 
-The segment is going to produce a new schema when the `vovk dev` command is run located at **.vovk-schema/_root.json**.
+The segment is going to produce a new schema when the `vovk dev` command is run located at **.vovk-schema/root.json**.
 
 The segment produces an API that's going to be available at **/api/...** endpoint.
 
@@ -62,7 +62,7 @@ The segment is going to produce a new schema when the `vovk dev` command is run 
 
 The segment produces an API that's going to be available at **/api/foo/...** endpoint.
 
----------
+---
 
 If `vovk new segment foo/bar/baz` is run, it creates a nested segment represented as **/src/app/api/foo/bar/baz/[[...vovk]]/route.ts** file. `segmentName` option equals to `foo/bar/baz`.
 
@@ -91,15 +91,15 @@ Paths to templates are defined at the [config](/config) file with the `templates
 ```js filename="vovk.config.mjs"
 /** @type {import('vovk-cli').VovkConfig} */
 const config = {
-  validationLibrary: "vovk-dto",
-  validateOnClient: "vovk-dto/validateOnClient",
+  validationLibrary: 'vovk-dto',
+  validateOnClient: 'vovk-dto/validateOnClient',
   templates: {
-    controller: "vovk-dto/templates/controller.ejs",
-    service: "vovk-cli/templates/service.ejs",
-    state: "./templates/state.ejs",
-    dto: "./templates/dto.ejs",
+    controller: 'vovk-dto/templates/controller.ejs',
+    service: 'vovk-cli/templates/service.ejs',
+    state: './templates/state.ejs',
+    dto: './templates/dto.ejs',
   },
-  logLevel: "info",
+  logLevel: 'info',
 };
 
 export default config;
@@ -111,7 +111,7 @@ export default config;
 
 **vovk-cli** provides built-in templates for controllers and services located at **templates** folder at the NPM package. Every [validation](/validation) library has its own template for controllers that's also located at **templates** folder of corresponding NPM package.
 
-[vovk init](/cli/vovk-init) initializes the Vovk.ts project with the corresponding templates defined at the [config](/config) file.
+[vovk init](/cli/init) initializes the Vovk.ts project with the corresponding templates defined at the [config](/config) file.
 
 When a new controller is created with `vovk new` command, the script updates the list of `controllers` at the segment file and updates `route.ts` file with the new controller using [AST](https://www.npmjs.com/package/ts-morph).
 

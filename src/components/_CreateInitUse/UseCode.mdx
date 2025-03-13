@@ -10,16 +10,18 @@ export default function Example() {
   return (
     <>
       <button
-        onClick={async () => setResponse(
-          await PostController.createComment({
-            body: { 
-              content: 'Hello, World!', 
-              userId: '1', 
-            },
-            params: { postId: '69' },
-            query: { notificationType: 'push' }
-          })
-        )}
+        onClick={async () =>
+          setResponse(
+            await PostController.createComment({
+              body: {
+                content: 'Hello, World!',
+                userId: '1',
+              },
+              params: { postId: '69' },
+              query: { notificationType: 'push' },
+            })
+          )
+        }
       >
         Post a comment
       </button>

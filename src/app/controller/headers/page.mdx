@@ -5,8 +5,10 @@ All HTTP decorators support custom response headers provided as the second argum
 ```ts
 // ...
 export default class UserController {
-    @put('do-something', { headers: { 'x-hello': 'world' } }) 
-    static async doSomething(/* ... */) { /* ... */ }
+  @put('do-something', { headers: { 'x-hello': 'world' } })
+  static async doSomething(/* ... */) {
+    /* ... */
+  }
 }
 ```
 
@@ -15,8 +17,10 @@ To enable CORS headers you can use `cors: true` option.
 ```ts
 // ...
 export default class UserController {
-    @put('do-something', { cors: true }) 
-    static async doSomething(/* ... */) { /* ... */ }
+  @put('do-something', { cors: true })
+  static async doSomething(/* ... */) {
+    /* ... */
+  }
 }
 ```
 
@@ -25,8 +29,10 @@ For auto-generated endpoints `cors` and `headers` are defined as the only argume
 ```ts
 // ...
 export default class UserController {
-    @put.auto({ cors: true, headers: { 'x-hello': 'world' } }) 
-    static async doSomething(/* ... */) { /* ... */ }
+  @put.auto({ cors: true, headers: { 'x-hello': 'world' } })
+  static async doSomething(/* ... */) {
+    /* ... */
+  }
 }
 ```
 
@@ -39,10 +45,10 @@ import { NextResponse } from 'next/server';
 
 // ...
 export default class UserController {
-    @put('do-something') 
-    static async doSomething() {
-        return NextResponse.json({ hello: 'world' }, { 'x-hello': 'world' });
-    }
+  @put('do-something')
+  static async doSomething() {
+    return NextResponse.json({ hello: 'world' }, { 'x-hello': 'world' });
+  }
 }
 ```
 
@@ -51,15 +57,14 @@ export default class UserController {
 To work with cookies you can use [cookies](https://nextjs.org/docs/app/api-reference/functions/cookies) function exported by Next.js headers module.
 
 ```ts
-import { cookies } from 'next/headers'
+import { cookies } from 'next/headers';
 
 export default class UserController {
-    @put('do-something') 
-    static async doSomething() {
-        const cookieStore = await cookies();
-        const theme = cookieStore.get('theme');
-        // ...
-    }
+  @put('do-something')
+  static async doSomething() {
+    const cookieStore = await cookies();
+    const theme = cookieStore.get('theme');
+    // ...
+  }
 }
 ```
-

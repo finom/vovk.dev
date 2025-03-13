@@ -1,12 +1,21 @@
 ---
-title: "Index"
-description: "Blog"
+title: 'Index'
+description: 'Blog'
 ---
 
-import BlogIndexArticle from "../../components/BlogIndexArticle";
+import BlogIndexArticle from '../../components/BlogIndexArticle';
 import { metadata as v2Metadata } from './vovk-2-0/page.mdx';
 import { metadata as v3Metadata } from './vovk-3-0/page.mdx';
 
-
-<BlogIndexArticle title={v3Metadata.title} description={v3Metadata.description} date={v3Metadata.date} href="/blog/vovk-3-0" />
-<BlogIndexArticle title={v2Metadata.title} description={v2Metadata.description} date={v2Metadata.date} href="/blog/vovk-2-0" />
+<BlogIndexArticle
+  title={v3Metadata.title}
+  description={v3Metadata.description}
+  date={v3Metadata.date}
+  href="/blog/vovk-3-0"
+/>
+<BlogIndexArticle
+  title={v2Metadata.title}
+  description={v2Metadata.description}
+  date={v2Metadata.date}
+  href="/blog/vovk-2-0"
+/>

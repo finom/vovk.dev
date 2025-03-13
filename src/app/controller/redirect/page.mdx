@@ -6,17 +6,17 @@ In order to perform a redirect or render the not-found file you can use built-in
 import { redirect, notFound } from 'next/navigation';
 
 export default class UserController {
-    @get('redirect') 
-    static async redirect() {
-        // ... if something
-        redirect('/some-other-endpoint');
-    }
+  @get('redirect')
+  static async redirect() {
+    // ... if something
+    redirect('/some-other-endpoint');
+  }
 
-    @get('not-found') 
-    static async notFound() {
-        // ... if something
-        notFound();
-    }
+  @get('not-found')
+  static async notFound() {
+    // ... if something
+    notFound();
+  }
 }
 ```
 

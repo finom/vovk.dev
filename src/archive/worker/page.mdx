@@ -11,22 +11,24 @@ npx vovk new worker appWorker
 Quick demo:
 
 <div className="doc-live-example">
-    <LiveWorkerExample />
+  <LiveWorkerExample />
 </div>
 [Source code](https://github.com/finom/vovk-examples)
 
-
 <Callout type="info" emoji="ℹ️">
-  Vovk.ts is primarily a back-end framework, so you might wonder why it supports Web Workers — a browser feature seemingly unrelated to server-side code. However, its RPC-like mechanism enables interfacing with other environments when implemented as a static class. Initially, I considered moving Web Worker support to a separate library, but duplicating logic for schemas, generated code, and other components offered no practical benefit beyond elegance. Therefore, I chose to retain this functionality within Vovk.ts.
-</Callout> 
+  Vovk.ts is primarily a back-end framework, so you might wonder why it supports Web Workers — a browser feature
+  seemingly unrelated to server-side code. However, its RPC-like mechanism enables interfacing with other environments
+  when implemented as a static class. Initially, I considered moving Web Worker support to a separate library, but
+  duplicating logic for schemas, generated code, and other components offered no practical benefit beyond elegance.
+  Therefore, I chose to retain this functionality within Vovk.ts.
+</Callout>{' '}
 
 Terminology for this article:
 
 - **Vovk Worker class** — a static class that is decorated with `@worker()` and is used to define heavy calculations that are executed in a Web Worker thread.
 - **WPC** — stands for Worker Procedure Call. It's a client-side library that provides an interface to invoke heavy calculations in a Web Worker thread.
 
-
-----------
+---
 
 The standard Web Workers are awesome but they require to implement additional logic by utilizing `onmessage` handler on both sides (the main thread and the Web Woker thread) and exchange data using `postMessage`. Vovk.ts applies the same principle that is used at controllers and builds main-thread client-side library using the auto-generated [schema](/schema). It uses built-in browser API aush as `addEventListener` and `postMessage` and doesn't use `eval` nor `Function` constructor.
 
@@ -37,19 +39,18 @@ import { worker } from 'vovk';
 
 @worker()
 export default class HelloWorker {
-    static heavyCalculation(iterations: number) {
-        let result: number;
-        // ... heavy calculations
+  static heavyCalculation(iterations: number) {
+    let result: number;
+    // ... heavy calculations
 
-        return result;
-    }
+    return result;
+  }
 }
 ```
 
-In a non-worker scope `@worker()` does nothing. You can import the class safely in other modules, including back-end code where it's going to be behave as a normal collection of common functions. 
+In a non-worker scope `@worker()` does nothing. You can import the class safely in other modules, including back-end code where it's going to be behave as a normal collection of common functions.
 
 To compile the worker library, you need to pass them to `initVovk` as `workers` object option and export the type of this object as `Workers`.
-
 
 ```ts filename="/src/app/api/[[...vovk]]/route.ts"
 import { initVovk } from 'vovk';
@@ -58,9 +59,9 @@ import HelloWorker from '../../modules/hello/HelloWorker';
 import ByeWorker from '../../modules/bye/ByeWorker';
 
 const controllers = { HelloRPC: HelloController };
-const workers = { 
-    HelloWPC: HelloWorker, 
-    ByeWPC: ByeWorker 
+const workers = {
+  HelloWPC: HelloWorker,
+  ByeWPC: ByeWorker,
 };
 
 export type Controllers = typeof controllers;
@@ -68,7 +69,6 @@ export type Workers = typeof workers;
 
 export const { GET, POST, PUT, DELETE } = initVovk({ controllers, workers });
 ```
-
 
 Once this is done, [vovk-client](vovk-client) is going to export the WPC library that provides interface to invoke heavy calculations but doesn't initialise the Web Worker itself. To initialise the Web Worker at the main-thread interface it needs to be instantiated normally and passed as an argument of `employ` static method.
 
@@ -89,9 +89,9 @@ Note that `Worker` class does not exist in Next.js SSR environment and in case i
 ```ts
 import { HelloWPC } from 'vovk-client';
 
-if(typeof Worker !== 'undefined') {
-    HelloWPC.employ(new Worker(new URL('./path/to/HelloWorker.ts', import.meta.url)));
-    // ...
+if (typeof Worker !== 'undefined') {
+  HelloWPC.employ(new Worker(new URL('./path/to/HelloWorker.ts', import.meta.url)));
+  // ...
 }
 ```
 
@@ -100,8 +100,9 @@ if(typeof Worker !== 'undefined') {
 ```ts
 import { HelloWPC } from 'vovk-client';
 
-const MyWorker = typeof Worker === 'undefined' 
-    ? null 
+const MyWorker =
+  typeof Worker === 'undefined'
+    ? null
     : HelloWPC.employ(new Worker(new URL('./path/to/HelloWorker.ts', import.meta.url)));
 
 await MyWorker?.heavyCalculation(1e9);
@@ -109,25 +110,25 @@ await MyWorker?.heavyCalculation(1e9);
 
 ## Async generators
 
-WPC classes support generators and async generators to implement continious event streaming. 
+WPC classes support generators and async generators to implement continious event streaming.
 
 ```ts filename="/src/modules/hello/HelloWorker.ts"
 import { worker } from 'vovk';
 
 @worker()
 export default class HelloWorker {
-    static *generator() {
-        for (let i = 0; i < 10; i++) {
-            yield i;
-        }
+  static *generator() {
+    for (let i = 0; i < 10; i++) {
+      yield i;
     }
+  }
 
-    static async *asyncGenerator() {
-        for (let i = 0; i < 10; i++) {
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            yield i;
-        }
+  static async *asyncGenerator() {
+    for (let i = 0; i < 10; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      yield i;
     }
+  }
 }
 ```
 
@@ -139,11 +140,11 @@ import { HelloWPC } from 'vovk-client';
 // ... plug in the Web Worker with "use" method ...
 
 for await (const number of HelloWPC.generator()) {
-    console.log(number); // 0 ... 9
+  console.log(number); // 0 ... 9
 }
 
 for await (const number of HelloWPC.asyncGenerator()) {
-    console.log(number); // 0 ... 9
+  console.log(number); // 0 ... 9
 }
 ```
 
@@ -155,10 +156,10 @@ A WPS is capable to fetch server-side data as expected.
 import { get } from 'vovk';
 
 export class HelloController {
-    @get.auto()
-    static getIterations() {
-        return { iterations: 100_000_000 };
-    }
+  @get.auto()
+  static getIterations() {
+    return { iterations: 100_000_000 };
+  }
 }
 ```
 
@@ -167,10 +168,10 @@ import { HelloRPC } from 'vovk-client';
 
 @worker()
 export default class HelloWorker {
-    static async heavyCalculation() {
-        const data = await HelloRPC.getData();
-        // ...
-    }
+  static async heavyCalculation() {
+    const data = await HelloRPC.getData();
+    // ...
+  }
 }
 ```
 
@@ -184,10 +185,10 @@ import { AnotherWPC } from 'vovk-client';
 AnotherWPC.employ(new Worker(new URL('./path/to/AnotherWorker.ts', import.meta.url)));
 
 export default class HelloWorker {
-    heavyCalculation() {
-        const anotherWorkerResult = await AnotherWPC.doSomethingHeavy();
-        // ...
-    }
+  heavyCalculation() {
+    const anotherWorkerResult = await AnotherWPC.doSomethingHeavy();
+    // ...
+  }
 }
 ```
 
@@ -199,7 +200,7 @@ To fork the worker and create as many parallel processes as needed you can use `
 import { HelloWorker } from 'vovk-client';
 
 function getFork() {
-    return HelloWorker.fork(new Worker(new URL('./path/to/HelloWorker.ts', import.meta.url)));
+  return HelloWorker.fork(new Worker(new URL('./path/to/HelloWorker.ts', import.meta.url)));
 }
 
 const HelloWorker1 = getFork();
@@ -207,9 +208,9 @@ const HelloWorker2 = getFork();
 const HelloWorker3 = getFork();
 
 const [result1, result2, result3] = await Promise.all([
-    HelloWorker1.heavyCalculation(),
-    HelloWorker2.heavyCalculation(),
-    HelloWorker3.heavyCalculation(),
+  HelloWorker1.heavyCalculation(),
+  HelloWorker2.heavyCalculation(),
+  HelloWorker3.heavyCalculation(),
 ]);
 ```
 
@@ -220,4 +221,3 @@ The employed Web Worker can be terminated with built-in `terminate` method.
 ```ts
 HelloWPC.terminate();
 ```
-

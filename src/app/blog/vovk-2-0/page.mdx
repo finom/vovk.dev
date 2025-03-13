@@ -1,38 +1,39 @@
 export const metadata = {
   title: 'Vovk.ts 2.0 is here!',
-  description: 'After testing in multiple large projects, thanks to community feedback, Vovk 2.0 is released with some insignificant breaking changes.',
+  description:
+    'After testing in multiple large projects, thanks to community feedback, Vovk 2.0 is released with some insignificant breaking changes.',
   date: '11/05/2024',
 };
 
 # Vovk.ts 2.0 is here!
- 
+
 ## Breaking changes
 
 The version 1 is heavily tested in production and the community feedback is taken into account. Great news is that no significant bugs are found since then! The main purpose of breaking changes in this release is to make Vovk more consistent and easier to use.
 
 - ✅ Renamed some types so that often used types are shorter and easier to type:
-    - `VovkReturnType` -> `VovkControllerReturnType`
-    - `VovkBody` -> `VovkControllerBody`
-    - `VovkQuery` -> `VovkControllerQuery`
-    - `VovkParams` -> `VovkControllerParams`
-    - `VovkYieldType` -> `VovkControllerYieldType`
-    - `VovkClientReturnType` -> `VovkReturnType`
-    - `VovkClientBody` -> `VovkBody`
-    - `VovkClientQuery` -> `VovkQuery`
-    - `VovkClientParams` -> `VovkParams`
-    - `VovkClientYieldType` -> `VovkYieldType`
+  - `VovkReturnType` -> `VovkControllerReturnType`
+  - `VovkBody` -> `VovkControllerBody`
+  - `VovkQuery` -> `VovkControllerQuery`
+  - `VovkParams` -> `VovkControllerParams`
+  - `VovkYieldType` -> `VovkControllerYieldType`
+  - `VovkClientReturnType` -> `VovkReturnType`
+  - `VovkClientBody` -> `VovkBody`
+  - `VovkClientQuery` -> `VovkQuery`
+  - `VovkClientParams` -> `VovkParams`
+  - `VovkClientYieldType` -> `VovkYieldType`
 - ✅ Replaced `--no-next-dev` flag with `--next-dev` flag in order to make it not run Next.js development server by default. In other words [concurrently](https://www.npmjs.com/package/concurrently) is now a recommended way to run Vovk and Next.js development servers together. This reduces potential problems with built-in command runner in Vovk.ts but also reduces very relevant confusion for new users.
-    - Without Concurrently:
-        - Before: `vovk dev`
-        - After: `vovk dev --next-dev` - not recommended but can be useful if it works on your machine :)
-    - With Concurrently:
-        - Before: `PORT=3000 concurrently "vovk dev --no-next-dev" "next dev" --kill-others`
-        - After: `PORT=3000 concurrently "vovk dev" "next dev" --kill-others` - this is the new recommended way to run Vovk and Next.js development servers together.
+  - Without Concurrently:
+    - Before: `vovk dev`
+    - After: `vovk dev --next-dev` - not recommended but can be useful if it works on your machine :)
+  - With Concurrently:
+    - Before: `PORT=3000 concurrently "vovk dev --no-next-dev" "next dev" --kill-others`
+    - After: `PORT=3000 concurrently "vovk dev" "next dev" --kill-others` - this is the new recommended way to run Vovk and Next.js development servers together.
 - ✅ Renamed `worker.use` to `worker.employ` to make it less confusing in React components.
 
 ## Minior changes
- 
-`onError` option of `initVovk` now gets request object as the second argument. This is useful if you want to extract some information about request like headers, method, authorisation, etc. 
+
+`onError` option of `initVovk` now gets request object as the second argument. This is useful if you want to extract some information about request like headers, method, authorisation, etc.
 
 ```ts
 import { initVovk } from 'vovk';
@@ -41,11 +42,11 @@ import ErrorService from '../../modules/ErrorService';
 // ...
 
 const { GET, POST, PUT, DELETE } = initVovk({
-    controllers,
-    workers,
-    onError: (error, request) => {
-      ErrorService.logError(error, request);
-    }
+  controllers,
+  workers,
+  onError: (error, request) => {
+    ErrorService.logError(error, request);
+  },
 });
 ```
 

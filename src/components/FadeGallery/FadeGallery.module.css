@@ -1,26 +1,25 @@
 .container {
-    position: relative;
-    width: 100%;
-    /* ensure the container doesn't overflow while stacking items */
-    overflow: hidden;
-  }
-  
-  .item {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    /* Start fully transparent. */
-    opacity: 0;
-  
-    /* We'll control the actual duration in the component inline style,
+  position: relative;
+  width: 100%;
+  /* ensure the container doesn't overflow while stacking items */
+  overflow: hidden;
+}
+
+.item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* Start fully transparent. */
+  opacity: 0;
+
+  /* We'll control the actual duration in the component inline style,
        but it's good to declare these properties here. */
-    transition-property: opacity;
-    transition-timing-function: ease-in-out;
-  }
-  
-  .itemActive {
-    /* The active item fades in. */
-    opacity: 1;
-  }
-  
+  transition-property: opacity;
+  transition-timing-function: ease-in-out;
+}
+
+.itemActive {
+  /* The active item fades in. */
+  opacity: 1;
+}

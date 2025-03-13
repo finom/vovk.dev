@@ -1,8 +1,6 @@
-
 # Static segment
 
 Next.js is able to render API endpoints at build time using [generateStaticParams](https://nextjs.org/docs/app/api-reference/functions/generate-static-params). Vovk.ts provides `generateStaticAPI` function to utilize this feature and generate static API endpoints for the lowest latency possible. You can use it to serve OpenAPI data, historical data, or any other static data that doesn't change often. It can be used in a [Static Export mode](https://nextjs.org/docs/pages/building-your-application/deploying/static-exports) with the `output: 'export'` Next.js config setting:
-
 
 ```ts filename="next.config.js"
 /** @type {import('next').NextConfig} */
@@ -50,10 +48,10 @@ export function generateStaticParams() {
 }
 ```
 
-## JSONLines 
+## JSONLines
 
 Streams frozen in time
 
-Unknown purpose, but nice side-effect that 
+Unknown purpose, but nice side-effect that
 
 TODO

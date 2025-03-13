@@ -1,4 +1,4 @@
-import { Steps, Tabs, Callout } from 'nextra/components'
+import { Steps, Tabs, Callout } from 'nextra/components';
 import BasicController from '../../../downloaded-examples/basic/BasicController.mdx';
 import BasicExample from '../../../downloaded-examples/basic/BasicExample.mdx';
 import LiveBasicExample from '../../../live-examples/LiveBasicExample';
@@ -22,21 +22,9 @@ cd my-app
 ## Install "vovk" and "vovk-client"
 
 <Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tabs.Tab>
-  ```
-  npm i vovk vovk-client
-  ```
-</Tabs.Tab>
-  <Tabs.Tab>
-  ```
-  pnpm i vovk vovk-client
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```
-  yarn add vovk vovk-client
-  ```
-  </Tabs.Tab>
+  <Tabs.Tab>``` npm i vovk vovk-client ```</Tabs.Tab>
+  <Tabs.Tab>``` pnpm i vovk vovk-client ```</Tabs.Tab>
+  <Tabs.Tab>``` yarn add vovk vovk-client ```</Tabs.Tab>
 </Tabs>
 
 ## Create an empty config file
@@ -49,7 +37,6 @@ Create **vovk.config.ts** at the root of the project with the following content:
 const vovkConfig = {};
 
 export default vovkConfig;
-
 ```
 
 ## Install validation library and enable client validation
@@ -92,6 +79,7 @@ There are two ways to run Vovk.ts and Next.js server concurrently: explicitly an
         "dev": "PORT=3000 concurrently 'vovk dev' 'next dev' --kill-others"
     }
     ```
+
   </Tabs.Tab>
   <Tabs.Tab>
     Update the "dev" script in **package.json**:
@@ -101,6 +89,7 @@ There are two ways to run Vovk.ts and Next.js server concurrently: explicitly an
         "dev": "npx vovk dev --next-dev"
     }
     ```
+
   </Tabs.Tab>
 </Tabs>
 
@@ -110,26 +99,26 @@ In your **tsconfig.json** set `"experimentalDecorators"` to `true`.
 
 ```json
 {
-    "compilerOptions": {
-        "experimentalDecorators": true,
-        // ...
-    }
+  "compilerOptions": {
+    "experimentalDecorators": true
+    // ...
+  }
 }
 ```
 
 ## Create controller
 
-Create **HelloController.ts** at **/src/modules/hello/** with same-named static class. 
+Create **HelloController.ts** at **/src/modules/hello/** with same-named static class.
 
 ```ts filename="/src/modules/hello/HelloController.ts"
-import { get, prefix } from "vovk";
+import { get, prefix } from 'vovk';
 
 @prefix('greetings') // prefix is optional
 export default class HelloController {
-    @get('greeting')
-    static getHello() {
-        return { greeting: 'Hello, World!' };
-    }
+  @get('greeting')
+  static getHello() {
+    return { greeting: 'Hello, World!' };
+  }
 }
 ```
 
@@ -195,12 +184,12 @@ export default function MyComponent() {
 Open [http://localhost:3000](http://localhost:3000) and see the result.
 
 <Callout type="info" emoji="ℹ️">
-Note that if you're using VSCode you're probably going to need to [restart TS server](https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server) each time when you add a new controller class to your app.
+  Note that if you're using VSCode you're probably going to need to [restart TS
+  server](https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server) each time when you add a new
+  controller class to your app.
 </Callout>
 
 Next.js Server Components are also supported but require to define absolute URL (by default all requests are made to `/api`). Check the [Server Component Example](https://vovk-examples.vercel.app/server-component) for more information.
-
-
 
 ## Deploy
 
@@ -209,4 +198,5 @@ In order to build the client (not the schema) at **node_modules** you need to ru
 ```bash
 npx vovk generate
 ```
+
 </Steps>

@@ -4,18 +4,14 @@ import { useState, type FormEvent } from 'react';
 import { FormController } from 'vovk-client';
 
 export default function FormExample() {
-    // ...
-    const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        await FormController.createUser({
-            body: { firstName, lastName, email },
-        })
-    };
+  // ...
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await FormController.createUser({
+      body: { firstName, lastName, email },
+    });
+  };
 
-    return (
-        <form onSubmit={onSubmit}>
-            {/* ... */}
-        </form>
-    );
+  return <form onSubmit={onSubmit}>{/* ... */}</form>;
 }
 ```

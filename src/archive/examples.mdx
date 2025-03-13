@@ -1,4 +1,4 @@
-import { Tabs } from 'nextra/components'
+import { Tabs } from 'nextra/components';
 import FormController from '../../downloaded-examples/form/FormController.mdx';
 import FormExample from '../../downloaded-examples/form/FormExample.mdx';
 import HookFormExample from '../../downloaded-examples/form/HookFormExample.mdx';
@@ -13,12 +13,18 @@ Here you can find examples of form validation. Both examples use the same Zod sc
 ## Live Example for Basic Form vaidation using Zod
 
 <div className="doc-live-example">
-<LiveFormExample />
+  <LiveFormExample />
 </div>
 <Tabs items={['Component', 'Controller', 'Zod Schema']}>
-  <Tabs.Tab><FormExample /></Tabs.Tab>
-  <Tabs.Tab><FormController /></Tabs.Tab>
-  <Tabs.Tab><ZodSchema /></Tabs.Tab>
+  <Tabs.Tab>
+    <FormExample />
+  </Tabs.Tab>
+  <Tabs.Tab>
+    <FormController />
+  </Tabs.Tab>
+  <Tabs.Tab>
+    <ZodSchema />
+  </Tabs.Tab>
 </Tabs>
 
 [Source code](https://github.com/finom/vovk-examples)
@@ -26,12 +32,18 @@ Here you can find examples of form validation. Both examples use the same Zod sc
 ## Live Example of a Form validation using react-hook-form and Zod
 
 <div className="doc-live-example">
-<LiveHookFormExample />
+  <LiveHookFormExample />
 </div>
 <Tabs items={['Component', 'Controller', 'Zod Schema']}>
-  <Tabs.Tab><HookFormExample /></Tabs.Tab>
-  <Tabs.Tab><FormController /></Tabs.Tab>
-  <Tabs.Tab><ZodSchema /></Tabs.Tab>
+  <Tabs.Tab>
+    <HookFormExample />
+  </Tabs.Tab>
+  <Tabs.Tab>
+    <FormController />
+  </Tabs.Tab>
+  <Tabs.Tab>
+    <ZodSchema />
+  </Tabs.Tab>
 </Tabs>
 
 [Source code](https://github.com/finom/vovk-examples)

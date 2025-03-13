@@ -1,17 +1,16 @@
-
 # Return type
 
 ## Custom object
 
-The decorated static methods of controllers can return several kinds of objects. For example, a regular object literal. 
+The decorated static methods of controllers can return several kinds of objects. For example, a regular object literal.
 
 ```ts
 // ...
 export default class HelloController {
-    @get()
-    static helloWorld() {
-        return { hello: 'world' };
-    }
+  @get()
+  static helloWorld() {
+    return { hello: 'world' };
+  }
 }
 ```
 
@@ -20,16 +19,16 @@ Another example - if the controller method returns Prisma ORM invocation the typ
 ```ts
 // ...
 export default class UserController {
-    @get()
-    static async updateUser(/* ... */) {
-        // ...
-        const updatedUser = await prisma.user.update({
-            where: { id },
-            data,
-        });
+  @get()
+  static async updateUser(/* ... */) {
+    // ...
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data,
+    });
 
-        return updatedUser;
-    }
+    return updatedUser;
+  }
 }
 ```
 
@@ -42,24 +41,24 @@ HTTP handlers can also return regular `Response` object, including `NextResponse
 ```ts
 // ...
 export default class HelloController {
-    @get()
-    static helloWorld() {
-        return new Response(JSON.stringify({ hello: 'world' }), {
-            headers: { 'Content-Type': 'application/json' },
-        }) as unknown as { hello: string };
-    }
+  @get()
+  static helloWorld() {
+    return new Response(JSON.stringify({ hello: 'world' }), {
+      headers: { 'Content-Type': 'application/json' },
+    }) as unknown as { hello: string };
+  }
 }
 ```
 
 When `NextResponse` is returned from the controller method, the client library is going to recognise the return type as expected.
 
 ```ts
-import {  NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 // ...
 export default class HelloController {
-    @get()
-    static helloWorld() {
-        return NextResponse.json({ hello: 'world' }, { status: 200 });
-    }
+  @get()
+  static helloWorld() {
+    return NextResponse.json({ hello: 'world' }, { status: 200 });
+  }
 }
 ```

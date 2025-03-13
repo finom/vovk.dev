@@ -5,10 +5,8 @@ import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
-    @patch(':id')
-    static updateUser = async (
-        req: VovkRequest<Omit<User, 'id'>>, 
-        { id }: { id: string }
-    ) => UserService.updateUser(id, await req.json())
+  @patch(':id')
+  static updateUser = async (req: VovkRequest<Omit<User, 'id'>>, { id }: { id: string }) =>
+    UserService.updateUser(id, await req.json());
 }
 ```

@@ -9,12 +9,12 @@ import LiveStreamJSONResponseExample from '../../../live-examples/LiveStreamResp
 Quick demo:
 
 <div className="doc-live-example">
-    <LiveStreamJSONResponseExample />
+  <LiveStreamJSONResponseExample />
 </div>
 
 [Source code](https://vovk-examples.vercel.app/stream-response-object)
 
-If generators aren't sutable for JSON streaming at a particular case, you can use `StreamJSONResponse` class inherited from `Response` class that uses `TransformStream#readable` as response body and adds required HTTP headers. 
+If generators aren't sutable for JSON streaming at a particular case, you can use `StreamJSONResponse` class inherited from `Response` class that uses `TransformStream#readable` as response body and adds required HTTP headers.
 It's a lower-level API that is used behind the scenes to implement generator logic described at [the main section](/streaming).
 A service method at this case is implemented as a regular function that accepts `StreamJSONResponse` instance as a pointer to send messages manually.
 
@@ -27,11 +27,7 @@ export type Token = { message: string };
 
 export default class StreamService {
   static async streamTokens(resp: StreamJSONResponse<Token>) {
-    const tokens: Token[] = [
-      { message: 'Hello,' },
-      { message: ' World' },
-      { message: '!' },
-    ];
+    const tokens: Token[] = [{ message: 'Hello,' }, { message: ' World' }, { message: '!' }];
 
     for (const token of tokens) {
       await new Promise((resolve) => setTimeout(resolve, 300));
@@ -69,4 +65,3 @@ export default class StreamController {
 ```ts
 await resp.throw(new Error('Stream error'));
 ```
-

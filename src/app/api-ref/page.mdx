@@ -2,7 +2,7 @@
 
 TODO: setClientValidatorsForHandler, VovkControllerSchema, createRPC, VovkHandlerSchema, VovkClient, KnownAny, VovkStreamAsyncIterator
 
-Full list of available imports for quick reference: 
+Full list of available imports for quick reference:
 
 ```ts
 import {
@@ -10,13 +10,13 @@ import {
   initVovk,
   createDecorator,
   // controller method decorators
-  get, 
-  post, 
-  put, 
-  patch, 
-  del, 
-  head, 
-  options, 
+  get,
+  post,
+  put,
+  patch,
+  del,
+  head,
+  options,
   // controller class decorator
   prefix,
   // core types
@@ -49,10 +49,7 @@ import {
 } from 'vovk';
 
 // CLI types
-import type { 
-  VovkConfig, 
-  VovkEnv, 
-} from 'vovk-cli';
+import type { VovkConfig, VovkEnv } from 'vovk-cli';
 ```
 
 ## Core
@@ -60,6 +57,7 @@ import type {
 ### `initVovk`
 
 Creates the standard Next.js App Route handlers used by the main [Optional Catch-all Segment](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments). The function accepts the following options:
+
 - `segmentName?: string` - the name of the segment that's going to be used in the route. Default is empty string (root segment).
 - `controllers: Record<string, Function>` - the list of Controllers
 - `exposeValidation?: boolean` - set to `false` if you want to hide validation logic from the client-side code.
@@ -79,7 +77,7 @@ export const { GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS } = initVovk({
   exposeValidation: false,
   onError(e, req) {
     console.log('Error', e);
-  }
+  },
 });
 ```
 
@@ -92,23 +90,26 @@ The middleware accepts at least 2 arguments: `VovkRequest`, `next` function that
 ```ts
 import { createDecorator, get, HttpException, HttpStatus } from 'vovk';
 
-const myDecorator = createDecorator((req, next, a: string, b: number) => {
-  console.log(a, b); // Outputs: "foo", 1
+const myDecorator = createDecorator(
+  (req, next, a: string, b: number) => {
+    console.log(a, b); // Outputs: "foo", 1
 
-  if(isSomething) { 
-    // override route method behavior and return { hello: 'world' } from the endpoint
-    return { hello: 'world' };
-  }
+    if (isSomething) {
+      // override route method behavior and return { hello: 'world' } from the endpoint
+      return { hello: 'world' };
+    }
 
-  if(isSomethingElse) {
-    // throw HTTP error if needed
-    throw new HttpException(HttpStatus.BAD_REQUEST, 'Something went wrong');
-  }
+    if (isSomethingElse) {
+      // throw HTTP error if needed
+      throw new HttpException(HttpStatus.BAD_REQUEST, 'Something went wrong');
+    }
 
-  return next();
-}, (a: string, b: number) => {
+    return next();
+  },
+  (a: string, b: number) => {
     console.info('Decorator is initialised with', a, b);
-});
+  }
+);
 
 class MyController {
   static controllerName = 'MyController';
@@ -140,15 +141,15 @@ import { prefix, get, post, put, patch, del, head, options } from 'vovk';
 
 @prefix('hello')
 export default class HelloController {
-    @get('world', { cors: true })
-    static getHelloWorld() {
-        return { hello: 'world' };
-    }
+  @get('world', { cors: true })
+  static getHelloWorld() {
+    return { hello: 'world' };
+  }
 
-    @post.auto({ headers: { 'x-hello': 'world' }})
-    static postData(/* req: VovkRequest */) {
-        return { success: true };
-    }
+  @post.auto({ headers: { 'x-hello': 'world' } })
+  static postData(/* req: VovkRequest */) {
+    return { success: true };
+  }
 }
 ```
 
@@ -246,7 +247,7 @@ export default class HelloController {
     @get()
     static getHello() {
         if(/* ... */) {
-            throw new HttpException(HttpStatus.BAD_REQUEST, 'Something went wrong'); 
+            throw new HttpException(HttpStatus.BAD_REQUEST, 'Something went wrong');
         }
     }
 }
@@ -258,13 +259,13 @@ Client-side:
 import { HelloRPC } from 'vovk-client';
 
 export async function getHello() {
-    try {
-        return await HelloRPC.getHello();
-    } catch (e) {
-        console.log(e instanceof HttpException);
-        const err = e as HttpException;
-        console.log(err.statusCode, err.message);
-    }
+  try {
+    return await HelloRPC.getHello();
+  } catch (e) {
+    console.log(e instanceof HttpException);
+    const err = e as HttpException;
+    console.log(err.statusCode, err.message);
+  }
 }
 ```
 
@@ -275,7 +276,6 @@ export async function getHello() {
 - `send(data: T)` - sends portion of data
 - `close()` - close the connection
 - `throw(error: any)` - throws an error on client-side and closes the connection
-
 
 ```ts
 import { prefix, get, StreamJSONResponse, type VovkRequest } from 'vovk';
@@ -289,15 +289,11 @@ export default class StreamController {
     const resp = new StreamJSONResponse<Token>();
 
     void (async () => {
-      const tokens: Token[] = [
-        { message: 'Hello,' },
-        { message: ' World' },
-        { message: '!' },
-      ];
+      const tokens: Token[] = [{ message: 'Hello,' }, { message: ' World' }, { message: '!' }];
 
       for (const token of tokens) {
         await new Promise((resolve) => setTimeout(resolve, 300));
-        if(somethingWentWrong) {
+        if (somethingWentWrong) {
           resp.throw(new Error('Somethiing went wrong'));
         }
         resp.send(token);
@@ -311,7 +307,6 @@ export default class StreamController {
 }
 ```
 
-
 The class also provides static property `defaultHeaders` that contains the standard headers for the keep-alive connections. Since `StreamJSONResponse` accepts standard `ResponseInit` as options argument you can override default headers and optionally spread `StreamJSONResponse.defaultHeaders`.
 
 ```ts
@@ -319,7 +314,7 @@ const resp = new StreamJSONResponse<Token>({
   headers: {
     ...StreamJSONResponse.defaultHeaders,
     'x-hello': 'world',
-  }
+  },
 });
 ```
 
@@ -353,17 +348,14 @@ Originally, the type is used to define types for `req.json` and `req.nextUrl.sea
 import { get, type VovkRequest } from 'vovk';
 
 export class HelloController {
-    @get(':someParam')
-    static doSomething(
-        req: VovkRequest<{ body: true }, { q: string }>, 
-        { someParam }: { someParam: string }
-    ) {
-        const body = await req.body(); // { body: true }
-        const q = req.nextUrl.searchParams.get('q'); // string
-        const nope = req.nextUrl.searchParams.get('nope'); // never
-        // ...
-        return { success: true };
-    }
+  @get(':someParam')
+  static doSomething(req: VovkRequest<{ body: true }, { q: string }>, { someParam }: { someParam: string }) {
+    const body = await req.body(); // { body: true }
+    const q = req.nextUrl.searchParams.get('q'); // string
+    const nope = req.nextUrl.searchParams.get('nope'); // never
+    // ...
+    return { success: true };
+  }
 }
 ```
 
@@ -375,7 +367,7 @@ Starting V3 the type is alsoused to define `req.vovk` object with `body()`, `que
   - If called without arguments it returns the current meta object.
   - If called with an object it sets the meta object by extending the current one and returns the new meta object.
   - If called with `null` it resets the meta object.
-- `await req.vovk.form<T>()` - returns a serialized object with form data. 
+- `await req.vovk.form<T>()` - returns a serialized object with form data.
 
 Check [request documentation](./controller/request) for more info.
 
@@ -383,18 +375,15 @@ Check [request documentation](./controller/request) for more info.
 import { get, type VovkRequest } from 'vovk';
 
 export class HelloController {
-    @get(':someParam')
-    static doSomething(
-        req: VovkRequest, 
-        { someParam }: { someParam: string }
-    ) {
-        const body = await req.vovk.body(); // { body: true }
-        const q = req.vovk.query(); // { q: string }
-        const meta = req.vovk.meta(); // { user: 'admin' }
-        const form = req.vovk.form(); // { foo: 'bar' }
-        // ...
-        return { success: true };
-    }
+  @get(':someParam')
+  static doSomething(req: VovkRequest, { someParam }: { someParam: string }) {
+    const body = await req.vovk.body(); // { body: true }
+    const q = req.vovk.query(); // { q: string }
+    const meta = req.vovk.meta(); // { user: 'admin' }
+    const form = req.vovk.form(); // { foo: 'bar' }
+    // ...
+    return { success: true };
+  }
 }
 ```
 
@@ -421,20 +410,20 @@ Extracts yield type from a controller method implemented as a generator.
 ```ts filename="/src/modules/hello/HelloController.ts"
 import {
   get,
-  type VovkControllerBody, 
-  type VovkControllerQuery, 
-  type VovkControllerParams, 
-  type VovkControllerReturnType, 
-  type VovkControllerYieldType 
+  type VovkControllerBody,
+  type VovkControllerQuery,
+  type VovkControllerParams,
+  type VovkControllerReturnType,
+  type VovkControllerYieldType,
 } from 'vovk';
 
 export class HelloController {
-    @get(':someParam')
-    static doSomething(/* ... */) {
-        // ...
-    }
+  @get(':someParam')
+  static doSomething(/* ... */) {
+    // ...
+  }
 
-    static *generator(/* ... */)
+  static *generator(/* ... */);
 }
 
 type DoSomethingBody = VovkControllerBody<typeof HelloController.doSomething>;
@@ -443,7 +432,6 @@ type DoSomethingParams = VovkControllerParams<typeof HelloController.doSomething
 type DoSomethingReturnType = VovkControllerReturnType<typeof HelloController.doSomething>;
 type GeneratorYieldtype = VovkControllerYieldType<typeof HelloController.generator>;
 ```
-
 
 ## Types for the client
 
@@ -466,7 +454,6 @@ Extracts return type from a clientized controller method and unwraps the promise
 ### `VovkYieldType` type
 
 Extracts yield type from a clientized generator controller method.
-
 
 ```ts
 import { HelloRPC } from 'vovk-client';
@@ -513,7 +500,7 @@ Defines [config](/config) types.
 /** @type {import('vovk-cli').VovkConfig} */
 const vovkConfig = {
   // ...
-}
+};
 
 export default vovkConfig;
 ```

@@ -1,26 +1,49 @@
-import { Callout } from 'nextra/components'
-
-TODO: Remove _vovkarr and explain nested objects
+import { Callout } from 'nextra/components';
 
 # VovkRequest
 
-Request object accepted by controller methods is represented by `VovkRequest` type. It extends `NextRequest` object from Next.js by defining body and query types.
+> [!TIP]
+>
+> [Validation libraries](/validation) define type of request by themselves so you don't usually need to use `VovkRequest` directly.
+
+Request object accepted by controller methods is represented by `VovkRequest` type. It extends `NextRequest` object from Next.js by defining body and query types. You can use it to strictly type built-in Next.js methods like `req.json()` and `req.nextUrl.searchParams` that originally purely typed as `any` and `string | null`.
 
 ```ts
 import { put, type VovkRequest } from 'vovk';
 export default class UserController {
-    @put() 
-    static async updateUser(req: VovkRequest<{ foo: 'foo' }, { bar: 'bar'}>) {
-        const data = await req.json(); // data type is { foo: 'foo' }
-        const bar = req.nextUrl.searchParams.get('bar'); // bar type is 'bar'
-        // ...
-    }
+  @put()
+  static async updateUser(req: VovkRequest<{ foo: 'foo' }, { bar: 'bar' }>, { id }: { id: string }) {
+    const data = await req.json(); // data type is { foo: 'foo' }
+    const bar = req.nextUrl.searchParams.get('bar'); // bar type is 'bar'
+    // ...
+  }
 }
 ```
 
-## req.vovk
+To summarize, if you don't use `req.vovk` object (see next section), you can get input data the following way:
 
-Version 3 of Vovk.ts introduces `req.vovk` object that contains additional methods for request processing.
+- For body use `req.json()` method.
+- For query use `req.nextUrl.searchParams.get('param')` method.
+- For parameters use the 2nd argument of the controller method.
+
+### req.vovk
+
+Version 3 of Vovk.ts introduces `req.vovk` object that contains additional methods for request processing. It provides additional features to the request object such as nested queries, response body override, metadata accessor and more.
+
+### req.vovk.body()
+
+Function `req.vovk.body` returns the request body serialized as an object. In most cases, you can use `req.json()` method to get the request body. But some validation libraries (like [vovk-dto](/validation/vovk-dto)) override the the function to return a DTO class instance.
+
+```ts
+import { post, type VovkRequest } from 'vovk';
+export default class UserController {
+  @post()
+  static async createUser(req: VovkRequest<{ foo: string }>) {
+    const body = await req.vovk.body(); // body type is { foo: string }
+    // ...
+  }
+}
+```
 
 ### req.vovk.query()
 
@@ -29,76 +52,76 @@ Function `req.vovk.query` returns serialized query parameters of the request.
 ```ts
 import { get, type VovkRequest } from 'vovk';
 export default class UserController {
-    @get() 
-    static async getUser(req: VovkRequest<null, { id: string }>) {
-        const query = req.vovk.query(); // query type is { id: string }
-        // ...
-    }
+  @get()
+  static async getUser(req: VovkRequest<null, { id: string }>) {
+    const query = req.vovk.query(); // query type is { id: string }
+    // ...
+  }
 }
 ```
 
-If you use [vovk-dto](/validation/vovk-dto) it will return an instance of DTO class with `plainToInstance` from [class-transformer](https://www.npmjs.com/package/class-transformer).
+#### Nested queries
+
+The nested data is serialized as a query string with square brackets. It's commonly known as "PHP-style query string notation" or "bracket notation".
+
+In this notation:
+
+- Square brackets `[ ]` are used to denote keys for arrays or nested objects.
+- Sequential numeric indices (e.g., `[0]`, `[1]`) represent array elements.
+- Named keys (e.g., `[f]`, `[u]`) represent properties of an object.
+- The structure can be nested to arbitrary depth, allowing for complex hierarchical data.
+
+The following query string:
+
+```
+?simple=value&array[0]=first&array[1]=second&object[key]=value&nested[obj][prop]=data&nested[arr][0]=item1&nested[arr][1]=item2&complex[items][0][name]=product&complex[items][0][price]=9.99&complex[items][0][tags][0]=new&complex[items][0][tags][1]=featured
+```
+
+Is parsed as:
+
+```ts
+{
+  simple: "value",
+  array: ["first", "second"],
+  object: {
+    key: "value"
+  },
+  nested: {
+    obj: {
+      prop: "data"
+    },
+    arr: ["item1", "item2"]
+  },
+  complex: {
+    items: [
+      {
+        name: "product",
+        price: "9.99",
+        tags: ["new", "featured"]
+      }
+    ]
+  }
+}
+```
+
+Some alidation libraries (like [vovk-dto](/validation/vovk-dto)) override the the function to return a DTO class instance.
+
+### req.vovk.params()
+
+Function `req.vovk.params` returns serialized parameters of the request. In order to define proper typing for it you can use 3rd generic argument for `VovkRequest` type.
 
 ```ts
 import { get, type VovkRequest } from 'vovk';
-import { withDto } from 'vovk-dto';
-import { GetUserDto } from './dto';
-
 export default class UserController {
-    @get() 
-    static async getUser = withDto(null, GetUserDto, async (req) => {
-        const query = req.vovk.query(); // query type is GetUserDto
-        console.log(query instanceof GetUserDto); // true
-        // ...
-    });
+  @get(':id')
+  static async getUser(req: VovkRequest<null, null, { id: string }>) {
+    const params = req.vovk.params(); // params type is { id: string }
+    // ...
+  }
 }
 ```
 
-#### Array query parameters
-
-<Callout type="warning" emoji="⚠️">
-    **Workaround notice**. In order to identify arrays, [RPC methods](/client) use a custom parameter `_vovkarr`.
-</Callout>
-
-If you pass an array of strings as a query option of the RPC method, the server-side is going to struggle with identifying the type of the query input. The query string will be the same for a string as a value and for an array of one string. `query: { q: 'foo' }` and `query: { q: ['foo'] }` will be both serialized as `?q=foo`. To avoid this issue, Vovk.ts uses a custom parameter `_vovkarr` that is added to the query string if the value is an array and contains comma-separated values. 
-
-```ts
-UserRPC.getUser({ query: { a: ['foo'], b: ['bar'], c: 'baz' } });
-```
-
-`query: { a: ['foo'], b: ['bar'], c: 'baz' }` will be serialized as `?a=foo&b=bar&c=baz&_vovkarr=a,b`.
-
-### async req.vovk.body()
-
-Async function `req.vovk.body` returns body of the request. In most of cases it's the same as `req.json()`. 
-
-```ts
-import { post, type VovkRequest } from 'vovk';
-export default class UserController {
-    @post() 
-    static async createUser(req: VovkRequest<{ foo: 'foo' }>) {
-        const body = await req.vovk.body(); // body type is { foo: 'foo' }
-        // ...
-    }
-}
-```
-
-
-If you use [vovk-dto](/validation/vovk-dto) it will return an instance of DTO class with `plainToInstance` from [class-transformer](https://www.npmjs.com/package/class-transformer).
-
-```ts
-import { post, type VovkRequest } from 'vovk';
-import { withDto } from 'vovk-dto';
-import { CreateUserDto } from './dto';
-export default class UserController {
-    @post() 
-    static async createUser = withDto(CreateUserDto, async (req) => {
-        const body = await req.vovk.body(); // body type is CreateUserDto
-        console.log(body instanceof CreateUserDto); // true
-        // ...
-    });
-}
-```
+Some validation libraries (like [vovk-dto](/validation/vovk-dto)) override the the function to return a DTO class instance.
 
 ### async req.vovk.form()
 
@@ -106,9 +129,9 @@ Function `req.vovk.form` returns form data of the request serialized as an objec
 
 ```ts
 interface Data {
-    foo: string;
-    bar: string;
-    file: File;
+  foo: string;
+  bar: string;
+  file: File;
 }
 
 const formDataObject = await req.vovk.form<Data>();
@@ -120,13 +143,13 @@ const formDataObject = await req.vovk.form<Data>();
 
 ### req.vovk.meta()
 
-Function `req.vovk.meta` allows to get and set meta information of the request. The only argument is optional and, if provided, it sets meta information extending the existing meta information and returns the current. If empty, it returns the current meta information. In order to define the type of meta information, you need to pass a generic argument.
+Function `req.vovk.meta` allows to get and set meta information of the request. The only argument is optional and, if provided, it sets meta information extending the existing meta information and returns the current. If empty, it returns the current meta information. In order to define the type of meta information, you need to pass a generic type.
 
 ```ts
 interface RequestMeta {
-    foo: string;
-    bar: string;
-    currentUser: User;
+  foo: string;
+  bar: string;
+  currentUser: User;
 }
 
 // set foo and bar meta information
@@ -140,6 +163,3 @@ const meta = req.vovk.meta<RequestMeta>(); // meta type is RequestMeta including
 ```
 
 The metadata is usually set in a custom [decorator](/controller/decorator).
-
-
-

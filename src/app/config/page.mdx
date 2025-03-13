@@ -1,4 +1,3 @@
-
 # vovk.config.js
 
 TODO rename fetcher to fetcherPath, rename validateOnClient to validateOnClientImport, createRPCImport, fetcherImport
@@ -67,7 +66,7 @@ export type VovkEnv = {
 };
 ```
 
-The config file allows to change default options in order to customise generated client or its path. The default config looks like that: 
+The config file allows to change default options in order to customise generated client or its path. The default config looks like that:
 
 - `clientOutDir` - where the client is going to be compiled to. Can be overriden by `VOVK_CLIENT_OUT_DIR` env variable.
 - `schemaOutDir` - where the schema is going to be compiled to. Can be overriden by `VOVK_SCHEMA_OUT_DIR` env variable.
@@ -77,10 +76,10 @@ The config file allows to change default options in order to customise generated
 - `modulesDir` - defines the directory where the modules are located. Can be overriden by `VOVK_MODULES_DIR` env variable. Used to watch for changes in the modules and recompile the client.
 - `rootEntry` - defines the root entry for the API routes (the root endpoint and the folder where [segments](/segments) are located). By default it's `api`. You can set it to `''` if you want to make the API served from the root of the domain. Can be overriden by `VOVK_ROOT_ENTRY` env variable.
 - `origin` - defines the origin for the client (for example https://example.com). By default it equals to `''`. Can be overriden by `VOVK_ORIGIN` env variable.
-- `rootSegmentModulesDirName` - the flag is used to define the name of the folder where the root segment modules are created by [the module generator](/cli/vovk-new) when multiple segments are used. By default root segment modules are located in the root of the `modulesDir`. If `rootSegmentModulesDirName` is set to a non-empty string, the root segment modules are going to be created in the folder with this name. For example if it's set to `"root"` then when `vovk new controller user` is executed the controller is going to be created at **src/modules/root/user/UserController.ts**. Can be overriden by `VOVK_ROOT_SEGMENT_MODULES_DIR_NAME` env variable.
+- `rootSegmentModulesDirName` - the flag is used to define the name of the folder where the root segment modules are created by [the module generator](/cli/new) when multiple segments are used. By default root segment modules are located in the root of the `modulesDir`. If `rootSegmentModulesDirName` is set to a non-empty string, the root segment modules are going to be created in the folder with this name. For example if it's set to `"root"` then when `vovk new controller user` is executed the controller is going to be created at **src/modules/root/user/UserController.ts**. Can be overriden by `VOVK_ROOT_SEGMENT_MODULES_DIR_NAME` env variable.
 - `logLevel` - defines the log level for the CLI. The values are `"trace"`, `"debug"`, `"info"`, `"warn"`, `"error"`. By default it's `"info"`. Can be overriden by `VOVK_LOG_LEVEL` env variable.
 - `prettifyClient` - defines if the client code that by default is located at **node_modules/.vovk-client** is going to be prettified (making compilation a bit slower). By default it's `false`. Can be overriden by `VOVK_PRETTIFY_CLIENT=true` env variable.
 - `devHttps` - defines if the dev server is going to use HTTPS. By default it's `false`. Can be overriden by `VOVK_DEV_HTTPS=true` env variable. See [https docs](/dev-https) for more info.
-- `clientGenerateTemplateNames` - defines what kind of templates are going to be used `vovk generate` to generate the client. By default it equals to `['ts', 'compiled']` that means that the command is going to use `ts` template go generate `index.ts` and `compiled` template to generate `compiled.js` and `compiled.d.ts`. You can redefine it to generate the client from the custom templates, including an experimental Python template: `['ts', 'compiled', 'python', './client-templates/custom-template.js.ejs']`. Can't be overriden by env variable at the current version. 
-- `templates` - used by the [module generator](/cli/vovk-new) to define the templates for the service, controller, state or any other kind of module. By default it uses templates from the [vovk-cli](/cli) package. There is no env variable to override it.
-- `experimental_clientGenerateTemplateNames` - defines the list of templates that are going to be used by `vovk generate` command. By default it's `['ts', 'compiled']`. Check [vovk generate](/cli/vovk-generate) for more info.
+- `clientGenerateTemplateNames` - defines what kind of templates are going to be used `vovk generate` to generate the client. By default it equals to `['ts', 'compiled']` that means that the command is going to use `ts` template go generate `index.ts` and `compiled` template to generate `compiled.js` and `compiled.d.ts`. You can redefine it to generate the client from the custom templates, including an experimental Python template: `['ts', 'compiled', 'python', './client-templates/custom-template.js.ejs']`. Can't be overriden by env variable at the current version.
+- `templates` - used by the [module generator](/cli/new) to define the templates for the service, controller, state or any other kind of module. By default it uses templates from the [vovk-cli](/cli) package. There is no env variable to override it.
+- `experimental_clientGenerateTemplateNames` - defines the list of templates that are going to be used by `vovk generate` command. By default it's `['ts', 'compiled']`. Check [vovk generate](/cli/generate) for more info.

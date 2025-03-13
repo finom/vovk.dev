@@ -2,21 +2,23 @@ import type { MetaRecord } from 'nextra';
 
 const meta: MetaRecord = {
   introduction: 'Getting started',
-  service: 'Service',
   request: 'VovkRequest',
-  return: 'Return Type',
-  headers: 'Response Headers',
+  service: 'Service',
+  return: 'Return type',
+  errors: 'Errors',
+  headers: 'Response headers',
   decorator: 'Decorators and metadata',
   redirect: 'redirect and notFound',
   proxy: 'Proxy',
-  'type-extraction': 'Type Extraction',
+  'type-extraction': 'Type extraction',
 };
 
 export const icons: Record<keyof typeof meta, string> = {
   introduction: 'i',
-  service: 'i',
   request: 'i',
+  service: 'i',
   return: 'i',
+  errors: 'i',
   headers: 'i',
   decorator: 'i',
   redirect: 'i',

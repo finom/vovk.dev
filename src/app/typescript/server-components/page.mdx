@@ -2,13 +2,13 @@
 
 See live [example](https://vovk-examples.vercel.app/server-component).
 
-In order to be able to use [client](/client) at server components, you need to provide API root URL to a function where the data is requested. 
+In order to be able to use [client](/client) at server components, you need to provide API root URL to a function where the data is requested.
 
 ```ts
 import { UserRPC } from 'vovk-client';
 
 // ...
-await UserRPC.getUsers({ apiRoot: 'https://example.com/api' });
+const user = await UserRPC.getUser({ apiRoot: 'https://example.com/api' });
 ```
 
 Alternatively, you can define `origin` at the config to avoid passing it every time. At the example below, the `origin` is set to `https://example.com` for production deployments and to `http://localhost:${process.env.PORT}` for development.
@@ -28,8 +28,8 @@ Component example:
 import { UserRPC } from 'vovk-client';
 
 export default async function ServerComponentExample() {
-  const serverResponse = await UserRPC.getUser({ params: { id: '123' } });
+  const user = await UserRPC.getUser({ params: { id: '123' } });
 
-  return <div>{serverResponse.email}</div>;
+  return <div>{user.email}</div>;
 }
 ```

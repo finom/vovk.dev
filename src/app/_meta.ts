@@ -1,5 +1,6 @@
-// https://github.com/shuding/nextra/blob/main/docs/app/docs/file-conventions/page.mdx?plain=1
-const meta = {
+import type { MetaRecord } from 'nextra';
+
+const meta: MetaRecord = {
   index: {
     title: 'Home',
     type: 'page',
@@ -21,15 +22,33 @@ const meta = {
   'getting-started': {
     title: 'Getting started',
   },
+  '###': {
+    type: 'separator',
+    title: 'Server-side',
+  },
   segment: 'Segment',
   controller: 'Controller',
-  client: 'TypeScript client',
+  openapi: 'OpenAPI',
+  '####': {
+    type: 'separator',
+    title: 'Client-side',
+  },
+  typescript: 'TypeScript client',
   python: 'Python client',
   schema: 'Schema',
-  streaming: 'JSON streaming',
-  openapi: 'OpenAPI',
-  errors: 'Errors',
+  'isolated-client': 'Isolated client',
+  'custom-client': 'Custom client',
+  'react-query': 'React Query',
+  '#####': {
+    type: 'separator',
+    title: 'Server & client',
+  },
   validation: 'Validation',
+  streaming: 'JSON streaming',
+  '######': {
+    type: 'separator',
+    title: 'Miscellaneous',
+  },
   config: 'Config',
   cli: 'CLI',
   'api-ref': 'API reference',

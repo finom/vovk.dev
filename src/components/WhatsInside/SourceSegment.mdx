@@ -2,13 +2,13 @@
 import UserController from '../../modules/user/UserController';
 
 const controllers = {
-    UserRPC: UserController,
+  UserRPC: UserController,
 };
 
 export type Controllers = typeof controllers;
 
 export const { GET, POST, PATCH } = initVovk({
-    emitSchema: true,
-    controllers,
+  emitSchema: true,
+  controllers,
 });
 ```

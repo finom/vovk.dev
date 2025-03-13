@@ -6,10 +6,9 @@ import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
-    @patch(':id')
-    static updateUser = withYup(
-        UserSchema.omit(['id']),
-        async (req, { id }: { id: string }) => UserService.updateUser(id, await req.json())
-    );
+  @patch(':id')
+  static updateUser = withYup(UserSchema.omit(['id']), async (req, { id }: { id: string }) =>
+    UserService.updateUser(id, await req.json())
+  );
 }
 ```

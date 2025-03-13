@@ -177,8 +177,8 @@ const examples: Omit<ExampleProps, 'reverse'>[] = [
             <Link href="https://vovk-examples.vercel.app/stream" target="_blank" className="link">
               Stream using Response Object
             </Link>{' '}
-            &ndash; an example that utilizes the StreamJSONResponse class instead of generators for more control over the
-            code.
+            &ndash; an example that utilizes the StreamJSONResponse class instead of generators for more control over
+            the code.
           </li>
         </ul>
       </>

@@ -2,31 +2,11 @@
 
 TODO config schema
 
-[vovk dev](/cli/vovk-dev) emits JSON files that contain information about endpoints, method names, validation, etc, defined at the controller to **.vovk-schema/** folder. Each **.json** file represents schema for one [segment](/segment). The schemas exported from auto-generated **.vovk-schema/index.js** and **.vovk-schema/index.d.ts**, that are modified when segments are added or removed. 
+[vovk dev](/cli/dev) emits JSON files that contain information about endpoints, method names, validation, openapi object, etc, defined at the controller to **.vovk-schema/segments/** folder. Each **.json** file represents schema for one [segment](/segment).
 
-```js filename=".vovk-schema/index.js"
-// auto-generated
-module.exports[''] = require('./_root.json');
-module.exports['foo'] = require('./foo.json');
-module.exports['bar/baz'] = require('./bar/baz.json');
-```
+Example of a segment schema file:
 
-```ts filename=".vovk-schema/index.d.ts"
-// auto-generated
-import type { VovkSchema } from 'vovk';
-declare const segmentSchema: {
-  '': VovkSchema;
-  'foo': VovkSchema;
-  'bar/baz': VovkSchema;
-};
-export default segmentSchema;
-```
-
-As you can see, the type of the schema is defined by `VovkSchema` type that's exported from the **vovk** package. As result, the full schema type is going to look like `Record<string, VovkSchema>`.
-
-Example of the schema file:
-
-```json filename=".vovk-schema/foo.json"
+```json filename=".vovk-schema/segments/foo.json"
 {
   // vovkInit function option that defines is the schema going to be emitted for this segment
   "emitSchema": true,
@@ -56,17 +36,15 @@ Example of the schema file:
           // Can contain any custom data, at this case it's JSON schema emitted by "vovk-zod"
           "validation": {
             "body": {
-                "type": "object",
-                "properties": {
-                  "foo": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "foo"
-                ],
-                "additionalProperties": false,
-                "$schema": "http://json-schema.org/draft-07/schema#"
+              "type": "object",
+              "properties": {
+                "foo": {
+                  "type": "string"
+                }
+              },
+              "required": ["foo"],
+              "additionalProperties": false,
+              "$schema": "http://json-schema.org/draft-07/schema#"
             },
             "query": {
               "type": "object",
@@ -75,12 +53,16 @@ Example of the schema file:
                   "type": "string"
                 }
               },
-              "required": [
-                "bar"
-              ],
+              "required": ["bar"],
               "additionalProperties": false,
               "$schema": "http://json-schema.org/draft-07/schema#"
             }
+            // ... "params", "output", "iteration"
+          },
+          // OpenAPI object that can be used to generate OpenAPI documentation
+          "openapi": {
+            "summary": "Hello world",
+            "description": "Hello world"
           },
           // Custom data that can be defined by a custom decorator
           "custom": {
@@ -92,5 +74,11 @@ Example of the schema file:
   }
 }
 ```
+
+The segment schema type is defined as `VovkSegmentSchema` that is exported from `vovk` package.
+
+Vovk also emits processed config file (by default it emits only `"libs"` key, see [config docs](/config)) as **config.json** file. Type of this file is `Partial<VovkStrictConfig>`.
+
+TODO
 
 Check how to emit custom schema and validation at [decorators documentation](/controller/decorator).

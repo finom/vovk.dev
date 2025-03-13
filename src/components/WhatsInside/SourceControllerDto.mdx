@@ -7,10 +7,9 @@ import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
-    @patch(':id')
-    static updateUser = withDto(
-        OmitType(UserDto, ['id'] as const), 
-        async (req, { id }: { id: string }) => UserService.updateUser(id, await req.json())
-    );
+  @patch(':id')
+  static updateUser = withDto(OmitType(UserDto, ['id'] as const), async (req, { id }: { id: string }) =>
+    UserService.updateUser(id, await req.json())
+  );
 }
 ```

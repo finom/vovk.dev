@@ -36,8 +36,8 @@ The new version intoduces massive improvements that fix probably every problem p
 ## Noteworthy fixes
 
 - Simplify types and allow to use circular references in service-controller pair. Big thanks to [Anders Hejlsberg
-](https://github.com/ahejlsberg), the lead architect of TypeScript, for the solution for [#58616](https://github.com/microsoft/TypeScript/issues/58616).
-- Get rid of `VOVK_PORT` variable because it isn't needed anymore because of the new way how [vovk dev](/cli/vovk-dev) works.
+  ](https://github.com/ahejlsberg), the lead architect of TypeScript, for the solution for [#58616](https://github.com/microsoft/TypeScript/issues/58616).
+- Get rid of `VOVK_PORT` variable because it isn't needed anymore because of the new way how [vovk dev](/cli/dev) works.
 - JSON divider for [streams](/streaming) is a new line instead of an ugly hard-coded string.
 
 ## CLI
@@ -45,7 +45,7 @@ The new version intoduces massive improvements that fix probably every problem p
 - Transfer CLI to TS.
 - Move to a separate package.
 
-### vovk init 
+### vovk init
 
 NEW
 
@@ -67,18 +67,16 @@ It wasn't too fun to use vovk-zod because it required to provide a model to a de
 import { z } from 'zod';
 import vovkZod from 'vovk-zod';
 // ... other imports ...
- 
+
 const UpdateUserModel = z.object({ name: z.string(), email: z.email() }).strict();
 const UpdateUserQueryModel = z.object({ id: z.uuid() }).strict();
- 
+
 export default class UserController {
-    @put.auto()
-    @vovkZod(UpdateUserModel, UpdateUserQueryModel)
-    static updateUser(
-        req: VovkRequest<z.infer<typeof UpdateUserModel>, z.infer<typeof UpdateUserQueryModel>>
-    ) {
-        // ...
-    }
+  @put.auto()
+  @vovkZod(UpdateUserModel, UpdateUserQueryModel)
+  static updateUser(req: VovkRequest<z.infer<typeof UpdateUserModel>, z.infer<typeof UpdateUserQueryModel>>) {
+    // ...
+  }
 }
 ```
 
@@ -93,8 +91,8 @@ import { UpdateUserModel, UpdateUserQueryModel } from './models';
 export default class UserController {
   @put()
   static updateUser = withZod(
-    z.object({ name: z.string(), email: z.email() }).strict(), 
-    z.object({ id: z.uuid() }).strict(), 
+    z.object({ name: z.string(), email: z.email() }).strict(),
+    z.object({ id: z.uuid() }).strict(),
     async (req) => {
       const { name, email } = await req.json();
 
@@ -102,7 +100,8 @@ export default class UserController {
         success: true,
         user: { name, email },
       };
-    });
+    }
+  );
 }
 ```
 
@@ -118,7 +117,7 @@ NEW
 
 ## vovk-dto v0
 
-Vovk.ts is heavily inspired by [NestJS](https://nestjs.com/) that heavily uses so-called [DTOs](https://docs.nestjs.com/techniques/validation) for data validation. Previous versions of Vovk.ts supported only [Zod](https://zod.dev/) validation without a way to use this idea that perfectly fits service-controller pattern. [vovk-dto](/validation/vovk-dto) introduces the new way of server-side and client-side validation using [class-validator](https://www.npmjs.com/package/class-validator) and [class-transformer](https://www.npmjs.com/package/class-transformer) that don't require [reflect-metadata](https://www.npmjs.com/package/reflect-metadata) to be used. 
+Vovk.ts is heavily inspired by [NestJS](https://nestjs.com/) that heavily uses so-called [DTOs](https://docs.nestjs.com/techniques/validation) for data validation. Previous versions of Vovk.ts supported only [Zod](https://zod.dev/) validation without a way to use this idea that perfectly fits service-controller pattern. [vovk-dto](/validation/vovk-dto) introduces the new way of server-side and client-side validation using [class-validator](https://www.npmjs.com/package/class-validator) and [class-transformer](https://www.npmjs.com/package/class-transformer) that don't require [reflect-metadata](https://www.npmjs.com/package/reflect-metadata) to be used.
 
 ```ts
 import { prefix, post } from 'vovk';
@@ -159,7 +158,7 @@ export default class UserController {
 }
 ```
 
-Since DTOs aren't serializable, the validation data is not emitted to the [schema](/schema). Instead, the schema receives `{ isDto: true }` flag as `validation` property. In order to validate the input data on the client side, you need to convert the it to DTO instances manually with [class-transformer](https://www.npmjs.com/package/class-transformer). 
+Since DTOs aren't serializable, the validation data is not emitted to the [schema](/schema). Instead, the schema receives `{ isDto: true }` flag as `validation` property. In order to validate the input data on the client side, you need to convert the it to DTO instances manually with [class-transformer](https://www.npmjs.com/package/class-transformer).
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -173,10 +172,9 @@ const user = await UserRPC.createUser({
   body: plainToClass(CreateUserDto, body),
   query: plainToClass(CreateUserQueryDto, query),
   validateOnClient,
-})
+});
 ```
 
 `validateOnClient` is optional if [config](/config) has `validateOnClient` set to `"vovk-dto/validateOnClient"`.
-
 
 TODO vovk-mapped-types, reflect-metadata

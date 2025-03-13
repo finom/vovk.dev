@@ -5,7 +5,7 @@ import devSvg from '../../../excalidraw/vovk-dev.svg';
 
 TODO: Flags here
 
-The `vovk dev` command runs Vovk Dev Watcher that watches for changes at controllers and updates the [schema](/schema) and the [client](/client) accordingly when needed by making HTTP GET requests to the Next.js dev server. When a change is detected, the watcher sends a GET request to `/api/*segment-name*/_schema_` to get the updated schema. If schema is changed the watcher updates the schema and the client. 
+The `vovk dev` command runs Vovk Dev Watcher that watches for changes at controllers and updates the [schema](/schema) and the [client](/client) accordingly when needed by making HTTP GET requests to the Next.js dev server. When a change is detected, the watcher sends a GET request to `/api/*segment-name*/_schema_` to get the updated schema. If schema is changed the watcher updates the schema and the client.
 
 ## How it works
 
@@ -14,29 +14,33 @@ The `vovk dev` command runs Vovk Dev Watcher that watches for changes at control
 3. When a change is detected, the script checks if the file is a controller and if it belongs to a segment by making some simple RegExp checks.
 4. If the file is a controller and belongs to a segment, the script sends a GET request to `/api/*segment-name*/_schema_` to get the updated schema.
 5. The script checks if the schema is changed and if so:
-    - If list of controllers is changed (added, removed, renamed), or method definition (including validation) is changed, the script updates the schema by saving it to **.vovk-schema** folder as a .json file making it fast to serialize and import after.
-    - If list of controllers is changed (added, removed, renamed), the script updates the client. The client imports the schema in order build the exported library properly. The client is generated at **node_modules/.vovk-client** folder and is re-exported by **vovk-client** package. The client is generated with string concatenation and doesn't use any AST libraries making it lighning fast to generate (usually a couple of milliseconds).
+   - If list of controllers is changed (added, removed, renamed), or method definition (including validation) is changed, the script updates the schema by saving it to **.vovk-schema** folder as a .json file making it fast to serialize and import after.
+   - If list of controllers is changed (added, removed, renamed), the script updates the client. The client imports the schema in order build the exported library properly. The client is generated at **node_modules/.vovk-client** folder and is re-exported by **vovk-client** package. The client is generated with string concatenation and doesn't use any AST libraries making it lighning fast to generate (usually a couple of milliseconds).
 
 <Image src={devSvg} alt="vovk dev" className="dark:invert" />
 
 Since Vovk Dev Watcher is expected to be run together with Next.js dev server, it can be run two ways, both of them involve [concurrently](https://www.npmjs.com/package/concurrently):
 
 1. Explicit way. This way might be pleasant for those who want to have less abstraction. The downside of this option is that you need to define the `PORT` variable explicitly:
+
 ```sh
 PORT=3000 npx concurrently 'vovk dev' 'next dev' --kill-others
 ```
 
 At this case `next dev` flags can be defined normally:
+
 ```sh
 PORT=3000 npx concurrently 'vovk dev' 'next dev --experimental-https --turbo' --kill-others
 ```
 
 2. Implicit way. At this case the port is assigned automatically and checks if a port (3000 by default) is already in use and attempts to find the next available one:
+
 ```sh
 npx vovk dev --next-dev
 ```
 
 In order to define additional flags to `next dev` you can pass them after `--`:
+
 ```sh
 npx vovk dev --next-dev -- --experimental-https --turbo
 ```
@@ -45,16 +49,16 @@ Behind the scenes the implicit way runs concurrently API which means that both w
 
 Read more about [HTTPS in development](/dev-https).
 
-When [vovk init](/cli/vovk-init) is used, the `dev` script is added to the `package.json` file preserving the flags that the previous value had.
+When [vovk init](/cli/init) is used, the `dev` script is added to the `package.json` file preserving the flags that the previous value had.
 
 ```json
 {
-    "scripts": {
-        // was
-        // "dev": "next dev --experimental-https --turbo",
-        // becomes
-        "dev": "vovk dev --next-dev -- --experimental-https --turbo"
-    }
+  "scripts": {
+    // was
+    // "dev": "next dev --experimental-https --turbo",
+    // becomes
+    "dev": "vovk dev --next-dev -- --experimental-https --turbo"
+  }
 }
 ```
 
@@ -70,13 +74,11 @@ You can create a separate script in `package.json` for this purpose:
 
 ```json
 {
-    "scripts": {
-        // ...
-        "dev-exit": "vovk dev --next-dev --exit",
-        // or 
-        "dev-exit": "PORT=3000 concurrently 'vovk dev --exit' 'next dev' --kill-others"
-    }
+  "scripts": {
+    // ...
+    "dev-exit": "vovk dev --next-dev --exit",
+    // or
+    "dev-exit": "PORT=3000 concurrently 'vovk dev --exit' 'next dev' --kill-others"
+  }
 }
 ```
-
-

@@ -7,10 +7,8 @@ import type UserController from './UserController';
 import prisma from '@/prisma';
 
 export default class UserService {
-    static updateUser = (
-        id: string, 
-        data: VovkControllerBody<typeof UserController.updateUser>
-    ) => prisma.user.update({ where: { id }, data });
+  static updateUser = (id: string, data: VovkControllerBody<typeof UserController.updateUser>) =>
+    prisma.user.update({ where: { id }, data });
 }
 
 // -------
@@ -21,10 +19,9 @@ import { prefix, patch, type VovkRequest } from 'vovk';
 
 @prefix('users')
 export default class UserController {
-    @patch(':id')
-    static updateUser = async (
-        req: VovkRequest<Omit<User, 'id'>>, { id }: { id: string }
-    ) => UserService.updateUser(id, await req.json())
+  @patch(':id')
+  static updateUser = async (req: VovkRequest<Omit<User, 'id'>>, { id }: { id: string }) =>
+    UserService.updateUser(id, await req.json());
 }
 
 // -------
@@ -32,35 +29,34 @@ export default class UserController {
 import UserController from '../../modules/user/UserController';
 
 const controllers = {
-    UserRPC: UserController,
+  UserRPC: UserController,
 };
 
 export type Controllers = typeof controllers;
 
 export const { GET, POST, PATCH } = initVovk({
-    emitSchema: true,
-    controllers,
+  emitSchema: true,
+  controllers,
 });
-
 
 // backend
 
 export function GET(req: NextRequest) {
-    return handle(req);
+  return handle(req);
 }
 
 export function POST(req: NextRequest) {
-    return handle(req);
+  return handle(req);
 }
 
 export function PATCH(req: NextRequest) {
-    return handle(req);
+  return handle(req);
 }
 
 // frontend
 fetch(`/api/users/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(body),
+  method: 'PATCH',
+  body: JSON.stringify(body),
 });
 
 // -------
@@ -68,7 +64,6 @@ fetch(`/api/users/${id}`, {
 import { UserRPC } from 'vovk-client';
 
 const user = await UserRPC.updateUser({
-    params: { id },
-    body,
+  params: { id },
+  body,
 });
-

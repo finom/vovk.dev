@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useState } from 'react';
 import CodeBox from '../CodeBox';
 import SourceService from './SourceService.mdx';
@@ -90,7 +90,8 @@ const WhatsInside = () => {
               <br />
               <br />
               Vovk.ts supports multiple validation libraries such as Zod, Yup, and class-validator (DTO) that nicely
-              define types that can be used both on back-end (services) and on the client side (another server can also be a client if it supports fetch function).
+              define types that can be used both on back-end (services) and on the client side (another server can also
+              be a client if it supports fetch function).
               <br />
               <DocsLink href="/docs/api-routes" className="mt-4">
                 Learn more about API routes TODO

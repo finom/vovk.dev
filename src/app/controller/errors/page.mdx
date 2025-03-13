@@ -20,13 +20,12 @@ import { HttpException } from 'vovk';
 
 // ...
 try {
-    const updatedUser = await UserController.updateUser(/* ... */);
-} catch(e) {
-    console.log(e instanceof HttpException); // true
-    const err = e as HttpException;
-    console.log(err.message, err.statusCode);
+  const updatedUser = await UserController.updateUser(/* ... */);
+} catch (e) {
+  console.log(e instanceof HttpException); // true
+  const err = e as HttpException;
+  console.log(err.message, err.statusCode);
 }
-
 ```
 
 Regular errors such as `Error` are equivalent to `HttpException` with code `500`.
@@ -110,5 +109,3 @@ export enum HttpStatus {
   HTTP_VERSION_NOT_SUPPORTED = 505,
 }
 ```
-
-

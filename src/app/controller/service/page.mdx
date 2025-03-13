@@ -1,8 +1,4 @@
-import { Tabs } from 'nextra/components'
-import BasicService from '../../downloaded-examples/basic-with-service/BasicService.mdx';
-import BasicControllerWithService from '../../downloaded-examples/basic-with-service/BasicControllerWithService.mdx';
-import BasicExampleWithService from '../../downloaded-examples/basic-with-service/BasicExampleWithService.mdx';
-import LiveBasicExampleWithService from '../live-examples/LiveBasicExampleWithService';
+import { Tabs } from 'nextra/components';
 
 # Service class
 
@@ -16,33 +12,32 @@ import type { User } from '../../types';
 
 @prefix('users')
 export default class UserController {
-    @put(':id') 
-    static async updateUser(req: VovkRequest<Partial<User>>, { id }: { id: string }) {
-        const data = await req.json();
+  @put(':id')
+  static async updateUser(req: VovkRequest<Partial<User>>, { id }: { id: string }) {
+    const data = await req.json();
 
-        const updatedUser = await prisma.user.update({
-            where: { id },
-            data,
-        });
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data,
+    });
 
-        return updatedUser;
-    }
+    return updatedUser;
+  }
 }
 ```
 
 Currently it looks fine since it doesn't contain a lot of logic. But as your app is getting more complex you're going to get more endpoints with more code. At this case it's recommended to move part of the logic to a service class making controllers to be responsible for input extraction, validation and authorisation, but not for DB or API calls.
 
 ```ts filename="/src/modules/user/UserService.ts"
-
 // ... import types and libraries ...
 
 export default class UserService {
-    static updateUser(id: string, data: Partial<User>) {
-        return prisma.user.update({
-            where: { id },
-            data,
-        });
-    }
+  static updateUser(id: string, data: Partial<User>) {
+    return prisma.user.update({
+      where: { id },
+      data,
+    });
+  }
 }
 ```
 
@@ -50,15 +45,15 @@ As you can see, `UserService` does not use decorators and used as a library that
 
 ```ts filename="/src/modules/user/UserController.ts"
 import { prefix, put, type VovkRequest } from 'vovk';
-import UserService from './UserService'
+import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
-    @put(':id') 
-    static async updateUser(req: VovkRequest<Partial<User>>, { id }: { id: string }) {
-        const data = await req.json();
-        return UserService.updateUser(id, data);
-    }
+  @put(':id')
+  static async updateUser(req: VovkRequest<Partial<User>>, { id }: { id: string }) {
+    const data = await req.json();
+    return UserService.updateUser(id, data);
+  }
 }
 ```
 
@@ -70,11 +65,11 @@ import CommentService from '../comment/CommentService';
 // ... other imports ...
 
 export default class UserService {
-    static async updateUser(id: string, data: Partial<User>) {
-        const latestPost = PostService.findLatestUserPost(id);
-        const latestPostComments = CommentService.findPostComments(latestPost.id);
-        // ...
-    }
+  static async updateUser(id: string, data: Partial<User>) {
+    const latestPost = PostService.findLatestUserPost(id);
+    const latestPostComments = CommentService.findPostComments(latestPost.id);
+    // ...
+  }
 }
 ```
 
@@ -89,11 +84,11 @@ import type { User } from '../../types';
 
 @prefix('users')
 export default class UserController {
-    @put(':id') 
-    static async updateUser(req: VovkRequest<Partial<User>, { role: 'string' }>, { id }: { id: string }) {
-        const data = await req.json();
-        return UserService.updateUser(id, data, req.nextUrl.searchParams.get('role'));
-    }
+  @put(':id')
+  static async updateUser(req: VovkRequest<Partial<User>, { role: 'string' }>, { id }: { id: string }) {
+    const data = await req.json();
+    return UserService.updateUser(id, data, req.nextUrl.searchParams.get('role'));
+  }
 }
 ```
 
@@ -103,28 +98,14 @@ import type { User } from '../../types';
 import type UserController from './UserController';
 
 export default class UserService {
-    static async updateUser(
-        id: VovkControllerParams<typeof UserController.updateUser>['id'], 
-        data: VovkControllerBody<typeof UserController.updateUser>, 
-        role: VovkControllerQuery<typeof UserController.updateUser>['role']
-    ) {
-        // ...
-    }
+  static async updateUser(
+    id: VovkControllerParams<typeof UserController.updateUser>['id'],
+    data: VovkControllerBody<typeof UserController.updateUser>,
+    role: VovkControllerQuery<typeof UserController.updateUser>['role']
+  ) {
+    // ...
+  }
 }
 ```
 
 See more types at the [type extraction docs](/controller/type-extraction).
-
-## Live example
-
-<div className="doc-live-example">
-<LiveBasicExampleWithService />
-</div>
-<Tabs items={['Service', 'Controller', 'Component']}>
-  <Tabs.Tab><BasicService /></Tabs.Tab>
-  <Tabs.Tab><BasicControllerWithService /></Tabs.Tab>
-  <Tabs.Tab><BasicExampleWithService /></Tabs.Tab>
-</Tabs>
-
-[Link to this example](https://vovk-examples.vercel.app/basic-with-service)
-

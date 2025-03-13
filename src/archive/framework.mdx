@@ -1,5 +1,4 @@
-import { FileTree } from 'nextra/components'
-
+import { FileTree } from 'nextra/components';
 
 # Project Framework
 
@@ -8,52 +7,51 @@ This page explains how you could structure an application introducing a framewor
 The framework combines back-end and front-end code into a single code base. The logical parts of the app are split into folders called "modules" given them corresponding name such as user, post, comment, app settings, auth features etc. Basically, a "module" can belong to 2 categories:
 
 1. An entity (a model) like "user" (or "post", "comment" etc).
-1. Anything what doesn't belong to some specific entity: app settings, auth, AI stuff... 
+1. Anything what doesn't belong to some specific entity: app settings, auth, AI stuff...
 
 The typical structure of files and folders in a Vovk.ts app would look like that:
 
 <FileTree>
   <FileTree.Folder name="src" defaultOpen>
     <FileTree.Folder name="modules" defaultOpen>
-        <FileTree.Folder name="hello" defaultOpen>
-            <FileTree.File name="HelloState.ts" />
-            <FileTree.File name="HelloService.ts" />
-            <FileTree.File name="HelloIsomorphicService.ts" />
-            <FileTree.File name="HelloWorker.ts" />
-            <FileTree.File name="HelloState.ts" />
-        </FileTree.Folder>
-        <FileTree.Folder name="app" defaultOpen>
-            <FileTree.File name="AppState.ts" />
-            <FileTree.File name="AppState.ts" />
-        </FileTree.Folder>
-        <FileTree.Folder name="auth" defaultOpen>
-            <FileTree.File name="AuthState.ts" />
-            <FileTree.File name="AuthService.ts" />
-            <FileTree.File name="AuthController.ts" />
-        </FileTree.Folder>
-        <FileTree.Folder name="user" defaultOpen>
-            <FileTree.File name="UserState.ts" />
-            <FileTree.File name="UserService.ts" />
-            <FileTree.File name="UserController.ts" />
-            <FileTree.File name="UserIsomorphicService.ts" />
-        </FileTree.Folder>
-        <FileTree.Folder name="post" defaultOpen>
-            <FileTree.File name="PostState.ts" />
-            <FileTree.File name="PostService.ts" />
-            <FileTree.File name="PostIsomorphicService.ts" />
-            <FileTree.File name="PostController.ts" />
-        </FileTree.Folder>
-        <FileTree.Folder name="comment" defaultOpen>
-            <FileTree.File name="CommentState.ts" />
-            <FileTree.File name="CommentService.ts" />
-            <FileTree.File name="CommentController.ts" />
-        </FileTree.Folder>
-        
+      <FileTree.Folder name="hello" defaultOpen>
+        <FileTree.File name="HelloState.ts" />
+        <FileTree.File name="HelloService.ts" />
+        <FileTree.File name="HelloIsomorphicService.ts" />
+        <FileTree.File name="HelloWorker.ts" />
+        <FileTree.File name="HelloState.ts" />
+      </FileTree.Folder>
+      <FileTree.Folder name="app" defaultOpen>
+        <FileTree.File name="AppState.ts" />
+        <FileTree.File name="AppState.ts" />
+      </FileTree.Folder>
+      <FileTree.Folder name="auth" defaultOpen>
+        <FileTree.File name="AuthState.ts" />
+        <FileTree.File name="AuthService.ts" />
+        <FileTree.File name="AuthController.ts" />
+      </FileTree.Folder>
+      <FileTree.Folder name="user" defaultOpen>
+        <FileTree.File name="UserState.ts" />
+        <FileTree.File name="UserService.ts" />
+        <FileTree.File name="UserController.ts" />
+        <FileTree.File name="UserIsomorphicService.ts" />
+      </FileTree.Folder>
+      <FileTree.Folder name="post" defaultOpen>
+        <FileTree.File name="PostState.ts" />
+        <FileTree.File name="PostService.ts" />
+        <FileTree.File name="PostIsomorphicService.ts" />
+        <FileTree.File name="PostController.ts" />
+      </FileTree.Folder>
+      <FileTree.Folder name="comment" defaultOpen>
+        <FileTree.File name="CommentState.ts" />
+        <FileTree.File name="CommentService.ts" />
+        <FileTree.File name="CommentController.ts" />
+      </FileTree.Folder>
     </FileTree.Folder>
   </FileTree.Folder>
 </FileTree>
 
-Every item in a module folder (Service Class, Controller Class, state etc) is optional. Some parts of your app would require to have state only, but no controller. 
+Every item in a module folder (Service Class, Controller Class, state etc) is optional. Some parts of your app would require to have state only, but no controller.
 In other case you can have a state and a controller, but database request in your controller is too simple to create a separate service class...
 
 The image below illustrates how different components of the application can be related to each other.
@@ -69,58 +67,56 @@ import { prefix, get } from 'vovk';
 import PostService from './PostService';
 
 @prefix('posts')
-export default class PostController {    
-    @get()
-    static getPosts() {
-        return PostService.getPosts();
-    }
+export default class PostController {
+  @get()
+  static getPosts() {
+    return PostService.getPosts();
+  }
 }
 ```
 
 ## Back-end Service Class
 
-Back-end Service Class (or just "Service") is a static class that implements third-party API calls or performs requests do the project database. 
+Back-end Service Class (or just "Service") is a static class that implements third-party API calls or performs requests do the project database.
 By design Services don't have access to the request object and play the role of a "back-end library".
 
 ```ts filename="/src/modules/post/PostService.ts"
 export default class PostService {
-    static getPosts() {
-        return prisma.post.findMany();
-    }
-    
-    static getPostById(postId: Post['id']) {
-        return prisma.post.findUniqueOrThrow({ where: { id: postId } });
-    }
+  static getPosts() {
+    return prisma.post.findMany();
+  }
+
+  static getPostById(postId: Post['id']) {
+    return prisma.post.findUniqueOrThrow({ where: { id: postId } });
+  }
 }
 ```
 
-
 ## Isomorphic Service Class
 
-Isomorphic Service is similar to a Back-end Service but can be used both by front-end (state, components, hooks, other Isomorphic Services, ...) and back-end (Back-End Services, Controllers, CLI scripts, ...). 
-The only difference is that its methods need to be implemented as [pure functions](https://en.wikipedia.org/wiki/Pure_function). It means that it shouldn't perform DB calls nor access application state but can use other Isomorphic Service Classes. 
+Isomorphic Service is similar to a Back-end Service but can be used both by front-end (state, components, hooks, other Isomorphic Services, ...) and back-end (Back-End Services, Controllers, CLI scripts, ...).
+The only difference is that its methods need to be implemented as [pure functions](https://en.wikipedia.org/wiki/Pure_function). It means that it shouldn't perform DB calls nor access application state but can use other Isomorphic Service Classes.
 
 ```ts filename="/src/modules/comment/CommentIsomorphicService.ts"
 import PostIsomorphicService from '../post/PostIsomorphicService';
 
 export default class CommentIsomorphicService {
-    // a pure function
-    static filterCommentsByPostId(comments: Comment[], posts: Post[], postId: Post['id']) {
-        // filterPostById is also a pure function
-        const post = PostIsomorphicService.filterPostById(posts, postId);
-        if(post.isDeleted) return [];
-        return comments.filter((comment) => comment.postId === postId);
-    }
+  // a pure function
+  static filterCommentsByPostId(comments: Comment[], posts: Post[], postId: Post['id']) {
+    // filterPostById is also a pure function
+    const post = PostIsomorphicService.filterPostById(posts, postId);
+    if (post.isDeleted) return [];
+    return comments.filter((comment) => comment.postId === postId);
+  }
 
-    // ...
+  // ...
 }
 ```
 
-
 ## WPC Class
 
-Every Isomorphic Service Class can be turned into a WPC Class (Worker Procedure Call) by applying `@worker()` decorator. 
-The decorator defines required `onmessage` listeners if it's used in a Web Worker scope. 
+Every Isomorphic Service Class can be turned into a WPC Class (Worker Procedure Call) by applying `@worker()` decorator.
+The decorator defines required `onmessage` listeners if it's used in a Web Worker scope.
 In other cases `@worker()` decorator does nothing and the class can still be used as an Isomorphic Service somewhere else.
 
 ```ts filename="/src/modules/hello/HelloWorker.ts"
@@ -128,9 +124,9 @@ import { worker } from 'vovk';
 
 @worker()
 export default class HelloWorker {
-    static performHeavyCalculations() {
-        // ...
-    }
+  static performHeavyCalculations() {
+    // ...
+  }
 }
 ```
 

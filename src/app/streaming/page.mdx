@@ -1,4 +1,3 @@
-
 import { Tabs, Callout } from 'nextra/components';
 import LiveStreamExample from '../../live-examples/LiveStreamExample';
 
@@ -9,7 +8,7 @@ TODO: application/jsonl
 Quick demo:
 
 <div className="doc-live-example">
-    <LiveStreamExample />
+  <LiveStreamExample />
 </div>
 
 [Source code](https://vovk-examples.vercel.app/stream)
@@ -27,11 +26,7 @@ type Token = { message: string };
 export default class StreamController {
   @get('tokens')
   static async *streamTokens() {
-    const tokens: Token[] = [
-      { message: 'Hello,' },
-      { message: ' World' },
-      { message: '!' },
-    ];
+    const tokens: Token[] = [{ message: 'Hello,' }, { message: ' World' }, { message: '!' }];
 
     for (const token of tokens) {
       await new Promise((resolve) => setTimeout(resolve, 300));
@@ -48,11 +43,7 @@ type Token = { message: string };
 
 export default class StreamService {
   static async *streamTokens() {
-    const tokens: Token[] = [
-      { message: 'Hello,' },
-      { message: ' World' },
-      { message: '!' },
-    ];
+    const tokens: Token[] = [{ message: 'Hello,' }, { message: ' World' }, { message: '!' }];
 
     for (const token of tokens) {
       await new Promise((resolve) => setTimeout(resolve, 300));
@@ -80,20 +71,21 @@ export default class StreamController {
 ## Handling on the client
 
 <Callout type="warning" emoji="⚠️">
-    **Workaround notice**. In order to identify the stream response type, Vovk.ts internally uses a custom header `x-vovk-stream=true` and content-type `text/plain; charset=utf-8`.
+  **Workaround notice**. In order to identify the stream response type, Vovk.ts internally uses a custom header
+  `x-vovk-stream=true` and content-type `text/plain; charset=utf-8`.
 </Callout>
 
-JSON streaming endpoints (including usage of [StreamJSONResponse](/streaming/stream-response) class that works under the hood of this feature) generate client methods that return disposable/async-disposable async generators. 
+JSON streaming endpoints (including usage of [StreamJSONResponse](/streaming/stream-response) class that works under the hood of this feature) generate client methods that return disposable/async-disposable async generators.
 
 ```ts
 import { StreamRPC } from 'vovk-client';
 
 async function stream() {
-    using stream = await StreamRPC.streamTokens();
+  using stream = await StreamRPC.streamTokens();
 
-    for await (const token of stream) {
-        console.log(token);
-    }
+  for await (const token of stream) {
+    console.log(token);
+  }
 }
 ```
 
@@ -103,4 +95,3 @@ You can also use `await using` syntax to dispose the stream asynchronously.
 // ...
 await using stream = await StreamRPC.streamTokens();
 ```
-

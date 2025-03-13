@@ -5,21 +5,9 @@ import { Tabs } from 'nextra/components';
 TODO: transform: (resp) => plainToInstance(ReturnDto, resp),
 
 <Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tabs.Tab>
-  ```
-  npm i vovk-dto vovk-mapped-types class-validator class-transformer reflect-metadata
-  ```
-</Tabs.Tab>
-  <Tabs.Tab>
-  ```
-  pnpm i vovk-dto vovk-mapped-types class-validator class-transformer reflect-metadata
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```
-  yarn add vovk-dto vovk-mapped-types class-validator class-transformer reflect-metadata
-  ```
-  </Tabs.Tab>
+  <Tabs.Tab>``` npm i vovk-dto vovk-mapped-types class-validator class-transformer reflect-metadata ```</Tabs.Tab>
+  <Tabs.Tab>``` pnpm i vovk-dto vovk-mapped-types class-validator class-transformer reflect-metadata ```</Tabs.Tab>
+  <Tabs.Tab>``` yarn add vovk-dto vovk-mapped-types class-validator class-transformer reflect-metadata ```</Tabs.Tab>
 </Tabs>
 
 See [live example](https://vovk-examples.vercel.app/dto).
@@ -34,27 +22,27 @@ import UserService from './UserService';
 
 // DTO for the body of the request
 class UpdateUserDto {
-    @IsString()
-    name: string;
+  @IsString()
+  name: string;
 
-    @IsEmail()
-    email: string;
+  @IsEmail()
+  email: string;
 }
 
 // DTO for the query parameters
 class UpdateUserQueryDto {
-    @IsUUID()
-    id: string;
+  @IsUUID()
+  id: string;
 }
 
 export default class UserController {
-    @put.auto()
-    static updateUser = withDto(UpdateUserDto, UpdateUserQueryDto, async (req) => {
-        const { name, email } = await req.json();
-        const id = req.nextUrl.searchParams.get('id');
+  @put.auto()
+  static updateUser = withDto(UpdateUserDto, UpdateUserQueryDto, async (req) => {
+    const { name, email } = await req.json();
+    const id = req.nextUrl.searchParams.get('id');
 
-        return UserService.updateUser(id, { name, email });
-    });
+    return UserService.updateUser(id, { name, email });
+  });
 }
 ```
 
@@ -82,10 +70,10 @@ To validate query only `withDto` accepts 3 arguments: `null`, the query DTO and 
 ```ts filename="/src/modules/user/UserController.ts"
 // ...
 export default class UserController {
-    @put.auto()
-    static updateUser = withDto(null, UpdateUserQueryDto, async (req) => {
-        // ...
-    });
+  @put.auto()
+  static updateUser = withDto(null, UpdateUserQueryDto, async (req) => {
+    // ...
+  });
 }
 ```
 
@@ -101,14 +89,14 @@ import { UpdateUserDto, UpdateUserQueryDto } from './UserDto';
 
 // ...
 UserRPC.updateUser({
-    body: plainToInstance(UpdateUserDto, {
-        name: 'John Doe',
-        email: 'john@example.com'
-    }),
-    query: plainToInstance(UpdateUserQueryDto, {
-        id: '123'
-    }),
-    validateOnClient,
+  body: plainToInstance(UpdateUserDto, {
+    name: 'John Doe',
+    email: 'john@example.com',
+  }),
+  query: plainToInstance(UpdateUserQueryDto, {
+    id: '123',
+  }),
+  validateOnClient,
 });
 ```
 
@@ -116,8 +104,8 @@ You can also define `validateOnClient` option at [/config](/config) file to appl
 
 ```ts filename="vovk.config.mjs"
 export default {
-    // ...
-    validateOnClient: 'vovk-dto/validateOnClient',
+  // ...
+  validateOnClient: 'vovk-dto/validateOnClient',
 };
 ```
 
@@ -127,20 +115,21 @@ In order to use `FormData` with `withDto` to validate the request query, you nee
 
 ```ts filename="/src/modules/user/UserController.ts"
 export default class UserController {
-    @put.auto()
-    static updateUser = withDto(
-        null as unknown as typeof FormData, // fake type casting
-        UpdateUserQueryDto, // query model
-        async (req) => {
-            // get the FormData instance
-            const formData = await req.formData();
-            
-            // or serialize the FormData to an object
-            const formData = req.vovk.form<{ email: string; file: File }>();
-        }
-    );
+  @put.auto()
+  static updateUser = withDto(
+    null as unknown as typeof FormData, // fake type casting
+    UpdateUserQueryDto, // query model
+    async (req) => {
+      // get the FormData instance
+      const formData = await req.formData();
+
+      // or serialize the FormData to an object
+      const formData = req.vovk.form<{ email: string; file: File }>();
+    }
+  );
 }
 ```
+
 See [VovkRequest](/controller/request) for more information.
 
 At this case the RPC function is going to expect `body` to be an instance of `FormData`.
@@ -153,8 +142,8 @@ body.append('email', 'john@example.com');
 body.append('file', new File(['Hello, World!'], 'file.txt'));
 
 UserRPC.updateUser({
-    body,
-    query: { id: '123' },
+  body,
+  query: { id: '123' },
 });
 ```
 
@@ -167,19 +156,17 @@ import { IsString, IsEmail } from 'class-validator';
 import { PartialType, OmitType } from 'vovk-mapped-types';
 
 export class UserDto {
-    @IsString()
-    id: string;
+  @IsString()
+  id: string;
 
-    @IsString()
-    name: string;
+  @IsString()
+  name: string;
 
-    @IsEmail()
-    email: string;
+  @IsEmail()
+  email: string;
 }
 
-export class UpdateUserDto extends PartialType(
-  OmitType(UserDto, ['id'] as const)
-) {}
+export class UpdateUserDto extends PartialType(OmitType(UserDto, ['id'] as const)) {}
 ```
 
 The library requires [reflect-metadata](https://www.npmjs.com/package/reflect-metadata) to be installed as a peer dependency.

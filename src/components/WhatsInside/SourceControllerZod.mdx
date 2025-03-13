@@ -6,10 +6,9 @@ import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
-    @patch(':id')
-    static updateUser = withZod(
-        UserSchema.omit({ id: true }), 
-        async (req, { id }: { id: string }) => UserService.updateUser(id, await req.json())
-    );
+  @patch(':id')
+  static updateUser = withZod(UserSchema.omit({ id: true }), async (req, { id }: { id: string }) =>
+    UserService.updateUser(id, await req.json())
+  );
 }
 ```

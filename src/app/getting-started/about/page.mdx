@@ -1,20 +1,22 @@
 # About
 
-Vovk.ts is a back-end meta-framework for Next.js App Router that allows you to build RESTful APIs with auto-generated TypeScript RPC client. The framework based on standards and conventions that are widely used in the industry, making it easy to integrate with any HTTP client. The auto-emitted [schema](/schema) contains all the information about the API, including validation, represented as JSON schema. 
+TODO folder structure
+
+Vovk.ts is a back-end meta-framework for Next.js App Router that allows you to build RESTful APIs with auto-generated TypeScript RPC client. The framework based on standards and conventions that are widely used in the industry, making it easy to integrate with any HTTP client. The auto-emitted [schema](/schema) contains all the information about the API, including validation, represented as JSON schema.
 
 ## The syntax
 
-The framework uses classes with static methods that are wrapped by decorators. 
+The framework uses classes with static methods that are wrapped by decorators.
 
 ```ts
 import { prefix, get } from 'vovk';
 
 @prefix('users')
 class UserController {
-    @get()
-    static getUsers() {
-        return [];
-    }
+  @get()
+  static getUsers() {
+    return [];
+  }
 }
 ```
 
@@ -37,31 +39,33 @@ import { withZod } from 'vovk-zod';
 
 @prefix('users')
 class UserController {
-    @post(':id')
-    static updateUser = withZod({
-        body: z.object({
-            name: z.string(),
-            age: z.number().min(0),
-        }).describe('User object'),
-        params: z.object({
-            id: z.string().describe('User ID'),
-        }),
-        query: z.object({
-            notify: z.enum(['EMAIL', 'PUSH', 'NONE']),
-        }),
-        output: z.object({
-            success: z.boolean(),
-        }),
-        async handle(req, { id }) {
-            const { name, age } = await req.json(); // name is a string, age is a number
-            const { notify } = req.nextUrl.searchParams.get('notify'); // notify is a string
+  @post(':id')
+  static updateUser = withZod({
+    body: z
+      .object({
+        name: z.string(),
+        age: z.number().min(0),
+      })
+      .describe('User object'),
+    params: z.object({
+      id: z.string().describe('User ID'),
+    }),
+    query: z.object({
+      notify: z.enum(['email', 'push', 'none']),
+    }),
+    output: z.object({
+      success: z.boolean(),
+    }),
+    async handle(req, { id }) {
+      const { name, age } = await req.json(); // name is a string, age is a number
+      const { notify } = req.nextUrl.searchParams.get('notify'); // notify is a string
 
-            // do something with the data
-            return {
-                success: true,
-            };
-        },
-    });
+      // do something with the data
+      return {
+        success: true,
+      };
+    },
+  });
 }
 ```
 
@@ -74,17 +78,17 @@ import { UserRPC } from 'vovk-client';
 
 // validates the request input with Ajv before sending it to /api/users/123?notify=EMAIL using POST method
 await UserRPC.updateUser({
-    body: {
-        nane: 'John Doe',
-        // ^ Object literal may only specify known properties, and 'nane' does not exist in type '{ name: string; age: number; }'.
-        age: 30,
-    },
-    params: {
-        id: '123',
-    },
-    query: {
-        notify: 'EMAIL',
-    },
+  body: {
+    nane: 'John Doe',
+    // ^ Object literal may only specify known properties, and 'nane' does not exist in type '{ name: string; age: number; }'.
+    age: 30,
+  },
+  params: {
+    id: '123',
+  },
+  query: {
+    notify: 'EMAIL',
+  },
 });
 ```
 
@@ -112,7 +116,7 @@ export default function ZodHookFormExample() {
 
   const onSubmit = async () => {
     await UserRPC.createUser({
-        body: getValues(),
+      body: getValues(),
     });
   };
 
@@ -130,7 +134,7 @@ export default function ZodHookFormExample() {
 
 ## OpenAPI
 
-The emitted schema contains all the information that's needed to generate beautiful OpenAPI 3.1 documentation. 
+The emitted schema contains all the information that's needed to generate beautiful OpenAPI 3.1 documentation.
 
 ```ts
 import { z } from 'zod';
@@ -140,58 +144,61 @@ import { openapi } from 'vovk-openapi';
 
 @prefix('users')
 class UserController {
-    @openapi({
-        summary: 'Update user',
-        description: 'Update user by ID',
-    })
-    @post(':id')
-    static updateUser = withZod({
-        body: z.object({
-            name: z.string().describe('User name'),
-            age: z.number().min(0).describe('User age'),
-        }).describe('User object'),
-        params: z.object({
-            id: z.string().describe('User ID'),
-        }),
-        query: z.object({
-            notify: z.enum(['EMAIL', 'PUSH', 'NONE']).describe('Notification type'),
-        }),
-        output: z.object({
-            success: z.boolean().describe('Success status'),
-        }).describe('Response object'),
-        async handle(req, { id }) {
-            const { name, age } = await req.json();
-            const { notify } = req.nextUrl.searchParams.get('notify');
+  @openapi({
+    summary: 'Update user',
+    description: 'Update user by ID',
+  })
+  @post(':id')
+  static updateUser = withZod({
+    body: z
+      .object({
+        name: z.string().describe('User name'),
+        age: z.number().min(0).describe('User age'),
+      })
+      .describe('User object'),
+    params: z.object({
+      id: z.string().describe('User ID'),
+    }),
+    query: z.object({
+      notify: z.enum(['email', 'push', 'none']).describe('Notification type'),
+    }),
+    output: z
+      .object({
+        success: z.boolean().describe('Success status'),
+      })
+      .describe('Response object'),
+    async handle(req, { id }) {
+      const { name, age } = await req.json();
+      const { notify } = req.nextUrl.searchParams.get('notify');
 
-            // do something with the data
-            return {
-                success: true,
-            };
-        },
-    });
+      // do something with the data
+      return {
+        success: true,
+      };
+    },
+  });
 }
 ```
 
 TODO Screenshot
 
-
 ## Simple implementation
 
-Vovk.ts uses simple tachniques to implement its features. The schema is requested from Next.js dev server at `_schema_` endpoint of a segment. The client is generated with [EJS](https://www.npmjs.com/package/ejs) templates making it easy to implement a custom template and compile them in a few milliseconds. 
+Vovk.ts uses simple tachniques to implement its features. The schema is requested from Next.js dev server at `_schema_` endpoint of a segment. The client is generated with [EJS](https://www.npmjs.com/package/ejs) templates making it easy to implement a custom template and compile them in a few milliseconds.
 
-On back-end 
+On back-end
 
 ```ts
 export function GET(req: NextRequest) {
-    return handle(req);
+  return handle(req);
 }
- 
+
 export function POST(req: NextRequest) {
-    return handle(req);
+  return handle(req);
 }
- 
+
 export function PATCH(req: NextRequest) {
-    return handle(req);
+  return handle(req);
 }
 ```
 
@@ -199,8 +206,8 @@ On front-end
 
 ```ts
 const user = fetch(`/api/users/${id}?notify=EMAIL`, {
-    method: 'PATCH',
-    body: JSON.stringify(body),
+  method: 'PATCH',
+  body: JSON.stringify(body),
 });
 ```
 
@@ -211,7 +218,6 @@ const user = fetch(`/api/users/${id}?notify=EMAIL`, {
 ## Cross-language RPC
 
 Simple and conventional design of Vovk.ts made possible to generate type-safe RPC clients with client-side validation for other programming languages that require a couple of well-known libraries for HTTP requests and JSON schema validation. The first implementation is made for [Python](/python) and more languages are coming soon.
-
 
 ```py
 from vovk_client import UserRPC
@@ -236,10 +242,9 @@ result: UserRPC.infer_update_user_output = UserRPC.update_user(
 )
 ```
 
-
 ## Edge runtime
 
-The framework is 100% compatible with Next.js edge runtime. 
+The framework is 100% compatible with Next.js edge runtime.
 
 ```ts
 // define the runtime for the segment
@@ -258,12 +263,12 @@ export const runtime = 'edge';
 
 TODO
 
-- Bridges two contrasting paradigms: REST and RPC, seamlessly combining their strengths.  
-- Prioritizes an exceptional developer experience.  
-- Adopts the highly effective **Controller-Service-Repository** pattern, ideal for building robust back-end architectures.  
-- Fully compatible with standard Next.js APIs, including `Response`, `headers`, `redirect`, and more.  
-- Lightweight with minimal overhead for optimized performance.  
-- Built for speed.  
+- Bridges two contrasting paradigms: REST and RPC, seamlessly combining their strengths.
+- Prioritizes an exceptional developer experience.
+- Adopts the highly effective **Controller-Service-Repository** pattern, ideal for building robust back-end architectures.
+- Fully compatible with standard Next.js APIs, including `Response`, `headers`, `redirect`, and more.
+- Lightweight with minimal overhead for optimized performance.
+- Built for speed.
 - Thoroughly tested for reliability and scalability.
 
 ## Packages and repos
@@ -294,7 +299,3 @@ In production the only two packages that you're going to use (besides [validatio
 
 - **vovk** is a wrapper around Next.js API routes and a library that provides a way to build RPC objects behind the scenes. It has [zero dependencies](https://bundlephobia.com/package/vovk) and takes less than 5KB of space when minified and gzipped.
 - **vovk-client** is nothing more than a re-export of code that's generated to **node_modules/.vovk-client** folder.
-
-
-
-

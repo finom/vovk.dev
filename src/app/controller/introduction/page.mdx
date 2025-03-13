@@ -1,4 +1,4 @@
-import { Callout } from 'nextra/components'
+import { Callout } from 'nextra/components';
 
 # Controller
 
@@ -12,13 +12,13 @@ vovk new controller service user # create user controller and service for the ro
 vovk new controller service admin/user # create user controller and service for the "admin" segment
 ```
 
-[`vovk new` documentation](/cli/vovk-new)
+[`vovk new` documentation](/cli/new)
 
 ## Definition
 
 Controller is a static class (a class that has static methods only and it's never instantiated) that handles incoming HTTP requests.
 
-Methods of this class, that are decorated with an HTTP decorator (like `@get()` or `@post()`), accept 2 arguments: [VovkRequest](/controllers/request) (that is inherited from `NextRequest`) and parameters that are defined by the decorator path. 
+Methods of this class, that are decorated with an HTTP decorator (like `@get()` or `@post()`), accept 2 arguments: [VovkRequest](/controllers/request) (that is inherited from `NextRequest`) and parameters that are defined by the decorator path.
 
 `NextRequest` type doesn't provide any information about the request body or query parameters, so the body is casted as `any` and query parameters are casted as `string | null`.
 
@@ -28,14 +28,14 @@ import { prefix, put } from 'vovk';
 
 @prefix('users')
 export default class UserController {
-    // Example request: PUT /api/users/69?role=moderator
-    @put(':id') 
-    static async updateUser(req: NextRequest, { id }: { id: string }) {
-        const data = await req.json(); // any
-        const userRole = req.nextUrl.searchParams.get('role'); // string | null
-        // ...
-        return updatedUser;
-    }
+  // Example request: PUT /api/users/69?role=moderator
+  @put(':id')
+  static async updateUser(req: NextRequest, { id }: { id: string }) {
+    const data = await req.json(); // any
+    const userRole = req.nextUrl.searchParams.get('role'); // string | null
+    // ...
+    return updatedUser;
+  }
 }
 ```
 
@@ -47,17 +47,17 @@ import type { User } from '../../types';
 
 @prefix('users')
 export default class UserController {
-    // Example request: PUT /api/users/69?role=moderator
-    @put(':id') 
-    static async updateUser(
-        req: VovkRequest<Partial<User>, { role: 'user' | 'moderator' | 'admin' }>, 
-        { id }: { id: string }
-    ) {
-        const data = await req.json(); // Partial<User>
-        const userRole = req.nextUrl.searchParams.get('role'); // 'user' | 'moderator' | 'admin'
-        // ...
-        return updatedUser;
-    }
+  // Example request: PUT /api/users/69?role=moderator
+  @put(':id')
+  static async updateUser(
+    req: VovkRequest<Partial<User>, { notify: 'email' | 'push' | 'none' }>,
+    { id }: { id: string }
+  ) {
+    const data = await req.json(); // Partial<User>
+    const notify = req.nextUrl.searchParams.get('notify'); // 'email' | 'push' | 'none'
+    // ...
+    return updatedUser;
+  }
 }
 ```
 
@@ -65,8 +65,11 @@ export default class UserController {
   Hint: to make sure that the class is never instantiated, you can make it abstract.
 
 ```ts
-export default abstract class UserController { /* ... */ }
+export default abstract class UserController {
+  /* ... */
+}
 ```
+
 </Callout>
 
 As you can see we've changed nothing more than the type of `req` but now `data` receives type of `Partial<User>` and `userRole` is casted as `'user' | 'moderator' | 'admin'` and does not extend `null` anymore.
@@ -79,8 +82,8 @@ Once the controller is defined it needs to be initialized at the wildcard route 
 import { initVovk } from 'vovk';
 import UserController from '../../../modules/user/UserController';
 
-const controllers = { 
-    UserRPC: UserController 
+const controllers = {
+  UserRPC: UserController,
 };
 
 export type Controllers = typeof controllers;
@@ -94,9 +97,9 @@ This will make the `UserRPC` fetch library available at **vovk-client**.
 import { UserRPC } from 'vovk-client';
 
 const updatedUser = await UserRPC.updateUser({
-    query: { role: 'moderator' },
-    params: { id: '69' },
-    body: { /* ...userData */ }
+  query: { notify: 'push' },
+  params: { id: '69' },
+  body: { ...userData },
 });
 ```
 
@@ -109,13 +112,12 @@ import { prefix, put } from 'vovk';
 
 @prefix('users')
 export default class UserController {
-    // Example request: PUT /api/users/do-something
-    @put.auto() 
-    static async doSomething(/* ... */) {
-        // ...
-    }
+  // Example request: PUT /api/users/do-something
+  @put.auto()
+  static async doSomething(/* ... */) {
+    // ...
+  }
 }
 ```
 
 Since the client is generated automatically, if your REST API is used internally only, you can use auto-generated endpoints to save a little bit of time thinking of a new endpoint name.
-

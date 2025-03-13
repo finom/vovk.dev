@@ -10,9 +10,7 @@ At the example below `validateEquality` decorator is created with `createDecorat
 
 ```ts filename="/src/decorators/validateEquality.ts"
 import { isEqual } from 'lodash';
-import { 
-  HttpException, HttpStatus, createDecorator, type VovkRequest, type VovkClientOptions 
-} from 'vovk';
+import { HttpException, HttpStatus, createDecorator, type VovkRequest, type VovkClientOptions } from 'vovk';
 
 type BodyValidate = Record<string, unknown> | null;
 type QueryValidate = Record<string, string> | null;
@@ -51,7 +49,7 @@ const validateEquality = createDecorator(
 export default validateEquality;
 ```
 
-Then create a file that defines client-side validation function as default export. 
+Then create a file that defines client-side validation function as default export.
 
 ```ts filename="/src/decorators/validateEqualityOnClient.ts"
 import { type VovkClientOptions, HttpException, HttpStatus } from 'vovk';
@@ -83,11 +81,11 @@ import type { VovkRequest } from 'vovk';
 import validateEquality from '../decorators/validateEquality';
 
 export default class HelloController {
-    @post.auto()
-    @validateEquality({ foo: 42 }, { bar: 'hello' })
-    static validatedRequest(req: VovkRequest<{ foo: 42 }, { bar: 'hello' }>) {
-        // ...
-    }
+  @post.auto()
+  @validateEquality({ foo: 42 }, { bar: 'hello' })
+  static validatedRequest(req: VovkRequest<{ foo: 42 }, { bar: 'hello' }>) {
+    // ...
+  }
 }
 ```
 
@@ -96,19 +94,19 @@ In order to enable client-side validation you need to define `validateOnClient` 
 ```js filename="/vovk.config.js"
 /** @type {import('vovk').VovkConfig} */
 const vovkConfig = {
-    validateOnClient: './src/decorators/validateEqualityOnClient',
-}
+  validateOnClient: './src/decorators/validateEqualityOnClient',
+};
 
 module.exports = vovkConfig;
 ```
 
-If your validation library is published on NPM it needs to follow the same approach but use module name instead of local path to the file. 
+If your validation library is published on NPM it needs to follow the same approach but use module name instead of local path to the file.
 
 ```js filename="/vovk.config.js"
 /** @type {import('vovk').VovkConfig} */
 const vovkConfig = {
-    validateOnClient: 'my-validation-library/validateEqualityOnClient',
-}
+  validateOnClient: 'my-validation-library/validateEqualityOnClient',
+};
 
 module.exports = vovkConfig;
 ```
@@ -121,10 +119,9 @@ import { HelloController } from 'vovk-client';
 // ...
 
 const result = await HelloController.validatedRequest({
-    body: { foo: 42 },
-    query: { bar: 'hello' },
+  body: { foo: 42 },
+  query: { bar: 'hello' },
 });
 ```
 
 `validateEqualityOnClient` is going to be invoked on every request before data is sent to the server.
-

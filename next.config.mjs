@@ -1,6 +1,10 @@
 import Nextra from 'nextra';
 
-const withNextra = Nextra({});
+const withNextra = Nextra({
+  search: {
+    codeblocks: false,
+  },
+});
 
 const nextra = withNextra({});
 

@@ -5,25 +5,12 @@ import { Tabs } from 'nextra/components';
 TODO: Explain AJV
 
 <Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tabs.Tab>
-  ```
-  npm i vovk-zod zod
-  ```
-</Tabs.Tab>
-  <Tabs.Tab>
-  ```
-  pnpm i vovk-zod zod
-  ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-  ```
-  yarn add vovk-zod zod
-  ```
-  </Tabs.Tab>
+  <Tabs.Tab>``` npm i vovk-zod zod ```</Tabs.Tab>
+  <Tabs.Tab>``` pnpm i vovk-zod zod ```</Tabs.Tab>
+  <Tabs.Tab>``` yarn add vovk-zod zod ```</Tabs.Tab>
 </Tabs>
 
 See live examples: [basic example](https://vovk-examples.vercel.app/zod) and [react-hook-form example](https://vovk-examples.vercel.app/zod-hook-form).
-
 
 [vovk-zod](https://github.com/finom/vovk-zod) is the library that implements [Zod](https://zod.dev/) validation. It performs validation on the Controller side with `ZodModel.parse`, [converts the Zod object to a JSON Schema](https://www.npmjs.com/package/zod-to-json-schema) that's stored at [schema](/schema) files, and runs validation on client before the HTTP request is made with [Ajv](https://ajv.js.org/). `withZod` accepts body model, an optional query model and the handler function.
 
@@ -37,13 +24,13 @@ const UpdateUserModel = z.object({ name: z.string(), email: z.email() }).strict(
 const UpdateUserQueryModel = z.object({ id: z.uuid() }).strict();
 
 export default class UserController {
-    @put.auto()
-    static updateUser = withZod(UpdateUserModel, UpdateUserQueryModel, async (req) => {
-        const { name, email } = await req.json();
-        const id = req.nextUrl.searchParams.get('id');
+  @put.auto()
+  static updateUser = withZod(UpdateUserModel, UpdateUserQueryModel, async (req) => {
+    const { name, email } = await req.json();
+    const id = req.nextUrl.searchParams.get('id');
 
-        return UserService.updateUser(id, { name, email });
-    });
+    return UserService.updateUser(id, { name, email });
+  });
 }
 ```
 
@@ -70,10 +57,10 @@ To validate query only `withZod` accepts 3 arguments: `null`, the query model an
 ```ts filename="/src/modules/user/UserController.ts"
 // ...
 export default class UserController {
-    @put.auto()
-    static updateUser = withZod(null, UpdateUserQueryModel, async (req) => {
-        // ...
-    });
+  @put.auto()
+  static updateUser = withZod(null, UpdateUserQueryModel, async (req) => {
+    // ...
+  });
 }
 ```
 
@@ -86,8 +73,8 @@ import { UserRPC } from 'vovk-client';
 import validateOnClient from 'vovk-zod/validateOnClient';
 
 UserRPC.updateUser({
-    body: { name: 'John', email: 'john@example.com' },
-    validateOnClient,
+  body: { name: 'John', email: 'john@example.com' },
+  validateOnClient,
 });
 ```
 
@@ -95,8 +82,8 @@ You can also define `validateOnClient` option at [/config](/config) file to appl
 
 ```ts filename="vovk.config.mjs"
 export default {
-    // ...
-    validateOnClient: 'vovk-zod/validateOnClient',
+  // ...
+  validateOnClient: 'vovk-zod/validateOnClient',
 };
 ```
 
@@ -106,20 +93,21 @@ In order to use `FormData` with `withZod` to validate the request query, you nee
 
 ```ts filename="/src/modules/user/UserController.ts"
 export default class UserController {
-    @put.auto()
-    static updateUser = withZod(
-        null as unknown as z.ZodType<FormData>, // fake type casting
-        z.object({ id: z.uuid() }).strict(), // query model
-        async (req) => {
-            // get the FormData instance
-            const formData = await req.formData();
-            
-            // or serialize the FormData to an object
-            const formData = req.vovk.form<{ email: string; file: File }>();
-        }
-    );
+  @put.auto()
+  static updateUser = withZod(
+    null as unknown as z.ZodType<FormData>, // fake type casting
+    z.object({ id: z.uuid() }).strict(), // query model
+    async (req) => {
+      // get the FormData instance
+      const formData = await req.formData();
+
+      // or serialize the FormData to an object
+      const formData = req.vovk.form<{ email: string; file: File }>();
+    }
+  );
 }
 ```
+
 See [VovkRequest](/controller/request) for more information.
 
 At this case the RPC function is going to expect `body` to be an instance of `FormData`.
@@ -132,7 +120,7 @@ body.append('email', 'john@example.com');
 body.append('file', new File(['Hello, World!'], 'file.txt'));
 
 UserRPC.updateUser({
-    body,
-    query: { id: '123' },
+  body,
+  query: { id: '123' },
 });
 ```

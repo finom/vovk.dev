@@ -23,6 +23,16 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "scripts/getGithubFiles.mts", "scripts/downloadExamples.mts", "src/app/openapi/page.mdx", "src/app/python/page.mdx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "scripts/getGithubFiles.mts",
+    "scripts/downloadExamples.mts",
+    "src/app/openapi/page.mdx",
+    "src/app/python/page.mdx",
+    "src/app/isolated-client/page.mdx"
+  ],
   "exclude": ["node_modules"]
 }
