@@ -56,8 +56,40 @@ Example of a segment schema file:
               "required": ["bar"],
               "additionalProperties": false,
               "$schema": "http://json-schema.org/draft-07/schema#"
+            },
+            "params": {
+              "type": "object",
+              "properties": {
+                "baz": {
+                  "type": "string"
+                }
+              },
+              "required": ["baz"],
+              "additionalProperties": false,
+              "$schema": "http://json-schema.org/draft-07/schema#"
+            },
+            "output": {
+              "type": "object",
+              "properties": {
+                "hello": {
+                  "type": "string"
+                }
+              },
+              "required": ["hello"],
+              "additionalProperties": false,
+              "$schema": "http://json-schema.org/draft-07/schema#"
+            },
+            "iteration": {
+              "type": "object",
+              "properties": {
+                "foo": {
+                  "type": "string"
+                }
+              },
+              "required": ["foo"],
+              "additionalProperties": false,
+              "$schema": "http://json-schema.org/draft-07/schema#"
             }
-            // ... "params", "output", "iteration"
           },
           // OpenAPI object that can be used to generate OpenAPI documentation
           "openapi": {

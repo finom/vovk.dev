@@ -61,7 +61,7 @@ export default class MyController {
 
 In order to create a cron job on Vercel, you can create a decorator that checks authorization header with a secret key defined as `CRON_SECRET` in the environment variable.
 
-```ts filename="/src/decorators/cronGuard.ts"
+```ts filename="src/decorators/cronGuard.ts"
 import { HttpException, HttpStatus, createDecorator } from 'vovk';
 
 const cronGuard = createDecorator(async (req, next) => {
@@ -75,7 +75,7 @@ const cronGuard = createDecorator(async (req, next) => {
 export default cronGuard;
 ```
 
-```ts filename="/src/modules/cron/CronController.ts"
+```ts filename="src/modules/cron/CronController.ts"
 import { get, prefix } from 'vovk';
 import cronGuard from '../decorators/cronGuard';
 
@@ -111,7 +111,7 @@ The `authGuard` decorator below does the following:
 - Adds a custom `x-permission` field to the OpenAPI operation object.
 - Implements role-based access control with `Permission` enum.
 
-```ts filename="/src/decorators/authGuard.ts"
+```ts filename="src/decorators/authGuard.ts"
 import { createDecorator, HttpException, HttpStatus, type VovkRequest } from 'vovk';
 import { User } from '@prisma/client';
 
@@ -167,7 +167,7 @@ export default authGuard;
 
 Usage:
 
-```ts filename="/src/modules/user/UserController.ts"
+```ts filename="src/modules/user/UserController.ts"
 import { get, prefix } from 'vovk';
 import { openapi } from 'vovk-openapi';
 import authGuard, { Permission, type AuthMeta } from '../decorators/authGuard';

@@ -11,7 +11,7 @@ The new version intoduces massive improvements that fix probably every problem p
 ## Breaking changes
 
 - Rename `prefix` RPC option to `apiRoot`.
-- Rename `StreamResponse` to `StreamJSONResponse`.
+- Rename `StreamResponse` to `JSONLinesResponse`.
 - Update [schema](/schema) format and use **.vovk-schema/** folder to generate schema for each segment separately.
 - Generate client to **node_modules/.vovk-client/**
 - Rename all occurrences of "metadata" to "schema". --- NAHUI
@@ -177,4 +177,4 @@ const user = await UserRPC.createUser({
 
 `validateOnClient` is optional if [config](/config) has `validateOnClient` set to `"vovk-dto/validateOnClient"`.
 
-TODO vovk-mapped-types, reflect-metadata
+TODO dto-mapped-types, reflect-metadata

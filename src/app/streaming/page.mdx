@@ -1,5 +1,13 @@
 import { Tabs, Callout } from 'nextra/components';
 import LiveStreamExample from '../../live-examples/LiveStreamExample';
+import JSONLinesResponseObjectController from '../../downloaded-examples/stream-response-object/StreamResponseObjectController.mdx';
+import StreamService from '../../downloaded-examples/stream-response-object/StreamService.mdx';
+import StreamExample from '../../downloaded-examples/stream-response-object/StreamExample.mdx';
+import LiveJSONLinesResponseExample from '../../live-examples/LiveStreamResponseExample';
+import OpenAiController from '../../downloaded-examples/openai/OpenAiController.mdx';
+import OpenAiExample from '../../downloaded-examples/openai/OpenAiExample.mdx';
+import LiveOpenAiExample from '../../live-examples/LiveOpenAiExample';
+
 
 TODO: application/jsonl
 
@@ -17,7 +25,7 @@ Quick demo:
 
 Controller methods can implement generators that use `*` syntax and utilise `yield` keyword instead of the regular `return`.
 
-```ts filename="/src/modules/stream/StreamController.ts"
+```ts filename="src/modules/stream/StreamController.ts"
 import { get, prefix } from 'vovk';
 
 type Token = { message: string };
@@ -36,9 +44,9 @@ export default class StreamController {
 }
 ```
 
-In order to refactor this code and utilise [service class](/service) for code splitting, you can move the streaming logic to `StreamService` static class.
+In order to refactor this code and utilise [service class](/controller/service) for code splitting, you can move the streaming logic to `StreamService` static class.
 
-```ts filename="/src/modules/stream/StreamService.ts"
+```ts filename="src/modules/stream/StreamService.ts"
 type Token = { message: string };
 
 export default class StreamService {
@@ -55,7 +63,7 @@ export default class StreamService {
 
 At the controller use `yield*` syntax to delegate iterable returned from `StreamService.streamTokens`.
 
-```ts filename="/src/modules/stream/StreamController.ts"
+```ts filename="src/modules/stream/StreamController.ts"
 import { get, prefix } from 'vovk';
 import StreamService from './StreamService';
 
@@ -75,7 +83,7 @@ export default class StreamController {
   `x-vovk-stream=true` and content-type `text/plain; charset=utf-8`.
 </Callout>
 
-JSON streaming endpoints (including usage of [StreamJSONResponse](/streaming/stream-response) class that works under the hood of this feature) generate client methods that return disposable/async-disposable async generators.
+JSON streaming endpoints (including usage of [JSONLinesResponse](/streaming/stream-response) class that works under the hood of this feature) generate client methods that return disposable/async-disposable async generators.
 
 ```ts
 import { StreamRPC } from 'vovk-client';
@@ -94,4 +102,178 @@ You can also use `await using` syntax to dispose the stream asynchronously.
 ```ts
 // ...
 await using stream = await StreamRPC.streamTokens();
+```
+
+
+
+## `JSONLinesResponse` class
+
+Quick demo:
+
+<div className="doc-live-example">
+  <LiveJSONLinesResponseExample />
+</div>
+
+[Source code](https://vovk-examples.vercel.app/stream-response-object)
+
+If generators aren't sutable for JSON streaming at a particular case, you can use `JSONLinesResponse` class inherited from `Response` class that uses `TransformStream#readable` as response body and adds required HTTP headers.
+It's a lower-level API that is used behind the scenes to implement generator logic described at [the main section](/streaming).
+A service method at this case is implemented as a regular function that accepts `JSONLinesResponse` instance as a pointer to send messages manually.
+
+There is what the streaming service might look like:
+
+```ts filename="src/modules/stream/StreamService.ts"
+import type { JSONLinesResponse } from 'vovk';
+
+export type Token = { message: string };
+
+export default class StreamService {
+  static async streamTokens(resp: JSONLinesResponse<Token>) {
+    const tokens: Token[] = [{ message: 'Hello,' }, { message: ' World' }, { message: '!' }];
+
+    for (const token of tokens) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      resp.send(token);
+    }
+
+    resp.close();
+  }
+}
+```
+
+As you can see tokens are sent using `JSONLinesResponse#send` method and, when the stream is completed, it needs to be closed with `JSONLinesResponse#close`.
+
+The controller class returns an instance of `JSONLinesResponse` and the streaming is performed a floating Promise above the `return` statement.
+
+```ts
+import { prefix, get, JSONLinesResponse, type VovkRequest } from 'vovk';
+import StreamService, { type Token } from './StreamService';
+
+@prefix('stream')
+export default class StreamController {
+  @get('tokens')
+  static async streamTokens() {
+    const resp = new JSONLinesResponse<Token>();
+
+    void StreamService.streamTokens(resp);
+
+    return resp;
+  }
+}
+```
+
+`JSONLinesResponse` class also provides `throw` method that safely closes the stream and makes the client to re-throw the received error.
+
+```ts
+await resp.throw(new Error('Stream error'));
+```
+
+
+## OpenAI chat live example
+
+<div className="doc-live-example">
+  <LiveOpenAiExample />
+</div>
+
+View full code for this example on the [examples website](https://vovk-examples.vercel.app/openai).
+
+`createChatCompletion` generator delegates the async iterable returned from `openai.chat.completions.create`
+and the component utilises `using` keyword in order to close the stream safely in case of an interruption, iterating the messages using `await for` syntax.
+
+```ts
+import { type VovkRequest, post, prefix } from 'vovk';
+import OpenAI from 'openai';
+
+@prefix('openai')
+export default class OpenAiController {
+  private static openai = new OpenAI();
+
+  @post('chat')
+  static async *createChatCompletion(
+    req: VovkRequest<{ messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] }>
+  ) {
+    const { messages } = await req.json();
+    yield* await this.openai.chat.completions.create({
+      messages,
+      model: 'gpt-4o-mini',
+      stream: true,
+    });
+  }
+}
+```
+
+Usage on client side:
+
+```ts
+import { OpenAiRPC } from 'vovk-client';
+
+// ...
+
+// you can use "await using" suntax as well
+using completion = await OpenAiRPC.createChatCompletion({
+  body: { messages: [...messages, userMessage] },
+});
+
+for await (const chunk of completion) {
+  // ...
+}
+```
+
+## Vercel AI SDK
+
+> The AI SDK is the TypeScript toolkit designed to help developers build AI-powered applications with React, Next.js, Vue, Svelte, Node.js, and more.
+
+Read more about the [Vercel AI SDK](https://sdk.vercel.ai/docs/introduction).
+
+Vovk.ts supports every built-in feature of Next.js and, as a result, it can be used with the Vercel AI SDK returning `Response` object from `toDataStreamResponse` function.
+
+```ts filename="src/modules/ai-sdk/AiSdkController.ts"
+import { post, prefix, type VovkRequest } from 'vovk';
+import { streamText, type CoreMessage } from 'ai';
+import { openai } from '@ai-sdk/openai';
+
+@prefix('ai-sdk')
+export default class AiSdkController {
+  @post('chat')
+  static async chat(req: VovkRequest<{ messages: CoreMessage[] }>) {
+    const { messages } = await req.json();
+
+    const result = streamText({
+      model: openai('gpt-4o-mini'),
+      system: 'You are a helpful assistant.',
+      messages,
+    });
+
+    return result.toDataStreamResponse();
+  }
+}
+```
+
+On the client-side, you can **ai/react** package to interact with the endpoint and build a chat interface.
+
+```tsx
+'use client';
+import { useChat } from 'ai/react';
+
+export default function Page() {
+  const { messages, input, handleSubmit, handleInputChange, isLoading, error } = useChat({
+    // assuming that the "entryPoint" config option is "api" and the controller is used at the root segment
+    api: '/api/ai-sdk/chat', 
+  });
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {messages.map((message, index) => (
+        <div key={index}>
+          {message.role === 'assistant' ? '🤖' : '👤'} {(message.content as string) || '...'}
+        </div>
+      ))}
+      {error && <div>❌ {error.message}</div>}
+      <div className="input-group">
+        <input type="text" placeholder="Send a message..." value={input} onChange={handleInputChange} />
+        <button disabled={isLoading}>Send</button>
+      </div>
+    </form>
+  );
+}
 ```

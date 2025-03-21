@@ -21,7 +21,7 @@ Besides the Next.js variables it's important to also export `Controller` type th
 
 Here is an example of a **route.ts** file for a single-segment app:
 
-```ts filename="/src/app/api/[[...slug]]/route.ts"
+```ts filename="src/app/api/[[...slug]]/route.ts"
 import { initVovk } from 'vovk';
 import UserController from '../../modules/user/UserController';
 import PostController from '../../modules/post/PostController';
@@ -61,7 +61,7 @@ Each segment is located in a nested folder determining the API path and the segm
 
 For non-root segments `initVovk` function requires to provide segment name as `segmentName` option. By default it's an empty string that means the root segment.
 
-```ts filename="/src/app/api/foo/[[...slug]]/route.ts"
+```ts filename="src/app/api/foo/[[...slug]]/route.ts"
 // ...
 
 export const { GET, POST, PUT, DELETE } = initVovk({

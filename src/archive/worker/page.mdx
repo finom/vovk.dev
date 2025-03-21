@@ -34,7 +34,7 @@ The standard Web Workers are awesome but they require to implement additional lo
 
 Vovk Worker class is created from a [shared service class](/shared-service) by applying `@worker()` class decorator that defines `onmessage` handler in the Web Worker scope.
 
-```ts filename="/src/modules/hello/HelloWorker.ts"
+```ts filename="src/modules/hello/HelloWorker.ts"
 import { worker } from 'vovk';
 
 @worker()
@@ -52,7 +52,7 @@ In a non-worker scope `@worker()` does nothing. You can import the class safely 
 
 To compile the worker library, you need to pass them to `initVovk` as `workers` object option and export the type of this object as `Workers`.
 
-```ts filename="/src/app/api/[[...vovk]]/route.ts"
+```ts filename="src/app/api/[[...vovk]]/route.ts"
 import { initVovk } from 'vovk';
 import HelloController from '../../modules/hello/HelloController';
 import HelloWorker from '../../modules/hello/HelloWorker';
@@ -112,7 +112,7 @@ await MyWorker?.heavyCalculation(1e9);
 
 WPC classes support generators and async generators to implement continious event streaming.
 
-```ts filename="/src/modules/hello/HelloWorker.ts"
+```ts filename="src/modules/hello/HelloWorker.ts"
 import { worker } from 'vovk';
 
 @worker()
@@ -152,7 +152,7 @@ for await (const number of HelloWPC.asyncGenerator()) {
 
 A WPS is capable to fetch server-side data as expected.
 
-```ts filename="/src/modules/hello/HelloController.ts"
+```ts filename="src/modules/hello/HelloController.ts"
 import { get } from 'vovk';
 
 export class HelloController {
@@ -163,7 +163,7 @@ export class HelloController {
 }
 ```
 
-```ts filename="/src/modules/hello/HelloWorker.ts"
+```ts filename="src/modules/hello/HelloWorker.ts"
 import { HelloRPC } from 'vovk-client';
 
 @worker()

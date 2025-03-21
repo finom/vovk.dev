@@ -1,6 +1,6 @@
 # Customizing
 
-## validateOnClient
+## `validateOnClient`
 
 The `validateOnClient` function implements `VovkValidateOnClient` interface and defines how the client-side validation is performed. By default, it uses `zod` library to validate the request params, body and query. It accepts two arguments:
 
@@ -97,7 +97,7 @@ await UserRPC.updateUser({
 });
 ```
 
-## fetcher
+## `fetcher`
 
 The `fetcher` function implements `VovkClientFetcher<Options>` interface and defines how the client-side fetching is performed. By default, it uses the `fetch` function to make HTTP requests. It allows you to customize the request options and handle the response in a way that fits your application needs.
 
@@ -132,7 +132,7 @@ The fetcher accepts two arguments:
 
 Your custom fetcher with a custom option `successMessage` may look like that:
 
-```ts filename="/src/lib/fetcher.ts" {51}
+```ts filename="src/lib/fetcher.ts" {51}
 import type { VovkDefaultFetcherOptions, VovkClientFetcher } from 'vovk';
 
 // Define custom options
@@ -260,7 +260,7 @@ await UserRPC.updateUser({
 });
 ```
 
-## createRPC
+## `createRPC`
 
 The `createRPC` function is used to create a custom RPC client and its redefinition can change each exported RPC client object. It's import path can be set in the `vovk.config.mjs` file:
 

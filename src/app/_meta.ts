@@ -41,14 +41,15 @@ const meta: MetaRecord = {
   'react-query': 'React Query',
   '#####': {
     type: 'separator',
-    title: 'Server & client',
+    title: 'Validation',
   },
   validation: 'Validation',
-  streaming: 'JSON streaming',
+  'custom-validation': 'Custom Validation',
   '######': {
     type: 'separator',
     title: 'Miscellaneous',
   },
+  streaming: 'JSON streaming',
   config: 'Config',
   cli: 'CLI',
   'api-ref': 'API reference',

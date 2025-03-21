@@ -51,7 +51,7 @@ const updatedUser = (await resp.json()) as User;
 
 If you don't like the naming convention of the generated client library, you can change it in the [segment](/segment).
 
-```ts filename="/src/app/api/[[...vovk]]/route.ts"
+```ts filename="src/app/api/[[...vovk]]/route.ts"
 // ...
 const controllers = {
   users: UserController,
@@ -68,6 +68,32 @@ await api.users.updateUser({
   // ...
 });
 ```
+
+## Options
+
+Every RPC method has a set of options that can be passed to it, besides `body`, `params` and `query`. The list of options can be [customized](/typescript/customization) with `fetcher` option.
+
+### `apiRoot`
+
+An option that allows to override the default API root. By default, it's `/api` and can be [configured](/config) by setting `rootEntry` and/or `origin`.
+
+### `disableClientValidation`
+
+Disables client-side validation for this method. See [validation page](/validation) for more details.
+
+### `fetcher`
+
+Overrides the default fetching function. See [customization](/typescript/customization) for more details.
+
+### `interpretAs`
+
+Overrides the response content-type. This is useful with [static segments](/segment/static), when the server returns `text/plain` content-type that is 
+
+TODO
+
+### `init`
+
+Allows to set `RequestInit` options (the `fetch` function options) for a method (the type signature is `Omit<RequestInit, 'body'> & { reactNative?: { textStreaming: boolean } }`). Can be used to set `headers`, `credentials`, and other options. See the full list of options [on MDN](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit). It also has a custom `reactNative` option that TODO.
 
 ## Customization
 
@@ -97,7 +123,7 @@ const updatedUser = await UserRPC.updateUser<SomeType>(/* ... * /);
 
 ## Async iterable
 
-```ts filename="/src/modules/user/UserController.ts"
+```ts filename="src/modules/user/UserController.ts"
 import { get } from 'vovk';
 export default class UserController {
   @get()

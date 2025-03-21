@@ -62,7 +62,7 @@ The image below illustrates how different components of the application can be r
 
 Controller Class is a static class that defines API endpoints. It can use Back-End Service Classes and Isomorphic Service Classes explained below.
 
-```ts filename="/src/modules/post/PostController.ts"
+```ts filename="src/modules/post/PostController.ts"
 import { prefix, get } from 'vovk';
 import PostService from './PostService';
 
@@ -80,7 +80,7 @@ export default class PostController {
 Back-end Service Class (or just "Service") is a static class that implements third-party API calls or performs requests do the project database.
 By design Services don't have access to the request object and play the role of a "back-end library".
 
-```ts filename="/src/modules/post/PostService.ts"
+```ts filename="src/modules/post/PostService.ts"
 export default class PostService {
   static getPosts() {
     return prisma.post.findMany();
@@ -97,7 +97,7 @@ export default class PostService {
 Isomorphic Service is similar to a Back-end Service but can be used both by front-end (state, components, hooks, other Isomorphic Services, ...) and back-end (Back-End Services, Controllers, CLI scripts, ...).
 The only difference is that its methods need to be implemented as [pure functions](https://en.wikipedia.org/wiki/Pure_function). It means that it shouldn't perform DB calls nor access application state but can use other Isomorphic Service Classes.
 
-```ts filename="/src/modules/comment/CommentIsomorphicService.ts"
+```ts filename="src/modules/comment/CommentIsomorphicService.ts"
 import PostIsomorphicService from '../post/PostIsomorphicService';
 
 export default class CommentIsomorphicService {
@@ -119,7 +119,7 @@ Every Isomorphic Service Class can be turned into a WPC Class (Worker Procedure 
 The decorator defines required `onmessage` listeners if it's used in a Web Worker scope.
 In other cases `@worker()` decorator does nothing and the class can still be used as an Isomorphic Service somewhere else.
 
-```ts filename="/src/modules/hello/HelloWorker.ts"
+```ts filename="src/modules/hello/HelloWorker.ts"
 import { worker } from 'vovk';
 
 @worker()
@@ -137,7 +137,7 @@ WPC Clases can use other WPC Classes, Isomorphic Service Classes and Back-End Co
 State file contains application state code that is going to be imported by React Components and other state files. It can use Isomorphic Services, WPC interfaces and clientized Controllers imported from **vovk-client**.
 State can be implemented with any application state library, since the framework does not cover state management topic.
 
-```ts filename="/src/modules/post/PostState.ts"
+```ts filename="src/modules/post/PostState.ts"
 import { PostController, PostWorker } from 'vovk-client';
 
 // ... init app state for posts

@@ -1,6 +1,121 @@
-TODO
+import { Tabs } from 'nextra/components';
 
-- disable_client_validation
-- api_root
-- inference
-- streaming
+# Python/mypy client
+
+```sh filename="Generate Python client with CLI"
+npx vovk generate --template "vovk-python-client/template/*" --out ./python_client
+```
+
+The Python template is published as [vovk-python-client](https://npmjs.com/package/vovk-python-client) NPM package.
+
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tabs.Tab>
+  ``` 
+npm i vovk-python-client
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ``` 
+pnpm i vovk-python-client
+  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  ``` 
+yarn add vovk-python-client
+  ```
+  </Tabs.Tab>
+</Tabs>
+
+It's used to generate a Python/mypy client from the [schema](/schema) with [validation data](/validation) providing syntax similar to [TypeScript client](/typescript).
+
+TODO Gif or video
+
+The validation data is used for client-side validation for params, body and query and to build [mypy types](https://mypy-lang.org/) for input type checking for params, body and query and for output inference for output and iteration.
+
+
+TODO:
+
+```ts
+export default class UserRPC {
+  static createUser(
+    body: {
+      name: string;
+      email: string;
+      age: number;
+    },
+    params: {
+      id: number;
+    },
+    query: {
+      notify?: 'push' | 'email';
+    }
+  ): Promise<{
+    id: number;
+    name: string;
+    email: string;
+    age: number;
+  }>;
+}
+```
+
+```python
+from python_client import UserRPC
+
+user = UserRPC.create_user(
+    body={
+        "name": "John Doe",
+        "email": "email@example.com",
+        "age": 30,
+    },
+    params={
+        "id": 69,
+    },
+    query={
+        "notify": 'push',
+    },
+)
+```
+
+## Naming convention
+
+The RPCs use Python class naming convention (PascalCase) and the methods use Python method naming convention (snake_case) transforming method names defined in camelCase.
+
+## Options
+
+- `api_root` - an optional API root URL. By default, it uses `origin` defined at the [config](/config).
+- `disable_client_validation` - disables client-side validation for params, body and query. By default, it's `false`.
+
+## Type inference
+
+You can infer types of `query`, `params`, `body`, `output` and `iteration` using types available in the RPC. The syntax is `infer_<handler_name>_<type>`.
+
+```python
+from python_client import UserRPC, OpenAIRPC
+
+params: UserRPC.infer_create_user_params = {
+    "id": 69,
+}
+
+body: UserRPC.infer_create_user_body = {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "age": 30,
+}
+
+query: UserRPC.infer_create_user_query = {
+    "notify": 'push',
+}
+
+result: UserRPC.infer_create_user_output = UserRPC.create_user(
+    body=body,
+    params=params,
+    query=query,
+)
+
+iterator: Generator[UserRPC.infer_handle_stream_iteration, None, None] = OpenAIRPC.create_completion(
+  body=[{ 'role': 'user', 'content': 'Hello!' }],
+)
+
+for data in iterator:
+    print(data)
+```

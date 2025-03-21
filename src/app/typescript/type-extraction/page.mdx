@@ -20,7 +20,7 @@ type Yield = VovkYieldType<typeof StreamRPC.streamTokens>;
 
 For example, if you want to create a custom function that makes requests to the server, you can borrow types from the RPC client to define the arguments.
 
-```ts filename="/src/modules/user/UserState.ts"
+```ts filename="src/modules/user/UserState.ts"
 import { UserRPC } from 'vovk-client';
 import type { VovkBody, VovkQuery, VovkParams } from 'vovk';
 

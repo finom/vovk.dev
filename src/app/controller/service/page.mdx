@@ -6,7 +6,7 @@ In order to make the code cleaner it's recommended to move most of the logic to 
 
 Let's say you have the following Controller Class:
 
-```ts filename="/src/modules/user/UserController.ts"
+```ts filename="src/modules/user/UserController.ts"
 import { prefix, put, type VovkRequest } from 'vovk';
 import type { User } from '../../types';
 
@@ -28,7 +28,7 @@ export default class UserController {
 
 Currently it looks fine since it doesn't contain a lot of logic. But as your app is getting more complex you're going to get more endpoints with more code. At this case it's recommended to move part of the logic to a service class making controllers to be responsible for input extraction, validation and authorisation, but not for DB or API calls.
 
-```ts filename="/src/modules/user/UserService.ts"
+```ts filename="src/modules/user/UserService.ts"
 // ... import types and libraries ...
 
 export default class UserService {
@@ -43,7 +43,7 @@ export default class UserService {
 
 As you can see, `UserService` does not use decorators and used as a library that performs required side-effects.
 
-```ts filename="/src/modules/user/UserController.ts"
+```ts filename="src/modules/user/UserController.ts"
 import { prefix, put, type VovkRequest } from 'vovk';
 import UserService from './UserService';
 
@@ -59,7 +59,7 @@ export default class UserController {
 
 Services can use other services as well. You can also create as many services as you need for a single controller.
 
-```ts filename="/src/modules/user/UserService.ts"
+```ts filename="src/modules/user/UserService.ts"
 import PostService from '../post/PostService';
 import CommentService from '../comment/CommentService';
 // ... other imports ...
@@ -78,7 +78,7 @@ export default class UserService {
 Thanks to [Anders Hejlsberg
 ](https://github.com/ahejlsberg) for a solution for [#58616](https://github.com/microsoft/TypeScript/issues/58616). A tiny fix in TypeScript language allows to use circular type references in service-controller pair, making contrtoller types such as body, query and params to be available in the service.
 
-```ts filename="/src/modules/user/UserController.ts"
+```ts filename="src/modules/user/UserController.ts"
 import { prefix, put, type VovkRequest } from 'vovk';
 import type { User } from '../../types';
 
@@ -92,7 +92,7 @@ export default class UserController {
 }
 ```
 
-```ts filename="/src/modules/user/UserService.ts"
+```ts filename="src/modules/user/UserService.ts"
 import type { VovkControllerBody, VovkControllerQuery, VovkControllerParams } from 'vovk';
 import type { User } from '../../types';
 import type UserController from './UserController';

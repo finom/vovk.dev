@@ -39,7 +39,7 @@ import {
   type VovkYieldType,
   type VovkClientOptions,
   // classes
-  StreamJSONResponse,
+  JSONLinesResponse,
   HttpException,
   // enums
   HttpStatus,
@@ -63,7 +63,7 @@ Creates the standard Next.js App Route handlers used by the main [Optional Catch
 - `exposeValidation?: boolean` - set to `false` if you want to hide validation logic from the client-side code.
 - `onError?: (err: Error, req: VovkRequest) => void | Promise<void>` - called on Controller exceptions, can be used to log errors by a third-party service. The second argument can be utilised to retrieve reques URL, authorisation info, and other useful information about the failed request.
 
-```ts filename="/src/app/api/[[...vovk]]/route.ts"
+```ts filename="src/app/api/[[...vovk]]/route.ts"
 import { initVovk } from 'vovk';
 import HelloController from '../../modules/hello/HelloController';
 import UserController from '../../modules/user/UserController';
@@ -241,7 +241,7 @@ Used to throw HTTP errors on server-side and re-throw, simulate and handle HTTP 
 
 Server-side:
 
-```ts filename="/src/modules/hello/HelloController.ts"
+```ts filename="src/modules/hello/HelloController.ts"
 // ...
 export default class HelloController {
     @get()
@@ -255,7 +255,7 @@ export default class HelloController {
 
 Client-side:
 
-```ts filename="/src/modules/hello/HelloState.ts"
+```ts filename="src/modules/hello/HelloState.ts"
 import { HelloRPC } from 'vovk-client';
 
 export async function getHello() {
@@ -269,16 +269,16 @@ export async function getHello() {
 }
 ```
 
-### StreamJSONResponse
+### JSONLinesResponse
 
-`StreamJSONResponse<T>(init?: ResponseInit)` class can be used as an alternative to generators to implement JSON response streaming. Instances of this class provide the following methods:
+`JSONLinesResponse<T>(init?: ResponseInit)` class can be used as an alternative to generators to implement JSON response streaming. Instances of this class provide the following methods:
 
 - `send(data: T)` - sends portion of data
 - `close()` - close the connection
 - `throw(error: any)` - throws an error on client-side and closes the connection
 
 ```ts
-import { prefix, get, StreamJSONResponse, type VovkRequest } from 'vovk';
+import { prefix, get, JSONLinesResponse, type VovkRequest } from 'vovk';
 
 type Token = { message: string };
 
@@ -286,7 +286,7 @@ type Token = { message: string };
 export default class StreamController {
   @get('tokens')
   static async streamTokens() {
-    const resp = new StreamJSONResponse<Token>();
+    const resp = new JSONLinesResponse<Token>();
 
     void (async () => {
       const tokens: Token[] = [{ message: 'Hello,' }, { message: ' World' }, { message: '!' }];
@@ -307,12 +307,12 @@ export default class StreamController {
 }
 ```
 
-The class also provides static property `defaultHeaders` that contains the standard headers for the keep-alive connections. Since `StreamJSONResponse` accepts standard `ResponseInit` as options argument you can override default headers and optionally spread `StreamJSONResponse.defaultHeaders`.
+The class also provides static property `defaultHeaders` that contains the standard headers for the keep-alive connections. Since `JSONLinesResponse` accepts standard `ResponseInit` as options argument you can override default headers and optionally spread `JSONLinesResponse.defaultHeaders`.
 
 ```ts
-const resp = new StreamJSONResponse<Token>({
+const resp = new JSONLinesResponse<Token>({
   headers: {
-    ...StreamJSONResponse.defaultHeaders,
+    ...JSONLinesResponse.defaultHeaders,
     'x-hello': 'world',
   },
 });
@@ -344,7 +344,7 @@ Original shape of an object returned from the server when an error is thrown.
 
 Originally, the type is used to define types for `req.json` and `req.nextUrl.searchParams.get` and allow to infer types in other environments.
 
-```ts filename="/src/modules/hello/HelloController.ts"
+```ts filename="src/modules/hello/HelloController.ts"
 import { get, type VovkRequest } from 'vovk';
 
 export class HelloController {
@@ -371,7 +371,7 @@ Starting V3 the type is alsoused to define `req.vovk` object with `body()`, `que
 
 Check [request documentation](./controller/request) for more info.
 
-```ts filename="/src/modules/hello/HelloController.ts"
+```ts filename="src/modules/hello/HelloController.ts"
 import { get, type VovkRequest } from 'vovk';
 
 export class HelloController {
@@ -407,7 +407,7 @@ Extracts return type from a controller method and unwraps the promise.
 
 Extracts yield type from a controller method implemented as a generator.
 
-```ts filename="/src/modules/hello/HelloController.ts"
+```ts filename="src/modules/hello/HelloController.ts"
 import {
   get,
   type VovkControllerBody,
@@ -477,7 +477,7 @@ Type that used internally and exposed to customize the client. See [customizatio
 
 See [segment](/segment) documenation for more info.
 
-```ts filename="/src/app/api/[[...vovk]]/route.ts"
+```ts filename="src/app/api/[[...vovk]]/route.ts"
 // ...
 export type Controllers = typeof controllers;
 

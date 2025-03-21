@@ -83,3 +83,28 @@ The config file allows to change default options in order to customise generated
 - `clientGenerateTemplateNames` - defines what kind of templates are going to be used `vovk generate` to generate the client. By default it equals to `['ts', 'compiled']` that means that the command is going to use `ts` template go generate `index.ts` and `compiled` template to generate `compiled.js` and `compiled.d.ts`. You can redefine it to generate the client from the custom templates, including an experimental Python template: `['ts', 'compiled', 'python', './client-templates/custom-template.js.ejs']`. Can't be overriden by env variable at the current version.
 - `templates` - used by the [module generator](/cli/new) to define the templates for the service, controller, state or any other kind of module. By default it uses templates from the [vovk-cli](/cli) package. There is no env variable to override it.
 - `experimental_clientGenerateTemplateNames` - defines the list of templates that are going to be used by `vovk generate` command. By default it's `['ts', 'compiled']`. Check [vovk generate](/cli/generate) for more info.
+
+
+## HTTPS in development
+
+[Progressive Web Apps](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/What_is_a_progressive_web_app) require HTTPS protocol to be used both in development and production. In order to enable HTTPS in development you can use `--experimental-https` flag with `next dev` command and enable HTTPS mode in [Vovk Dev Watcher](/cli/dev) by setting `devHttps` at [config](/config) to `true` or providing `VOVK_DEV_HTTPS=true` environment variable.
+
+```js filename="/vovk.config.mjs"
+const config = {
+  // ...
+  devHttps: true,
+};
+
+export default config;
+```
+
+If you don't want to set the HTTPS mode globally, you can simply create another NPM script that includes the environment variable and the flag:
+
+```json filename="/package.json"
+"scripts": {
+    "dev-https": "VOVK_DEV_HTTPS=true vovk dev --next-dev -- --experimental-https",
+    "dev": "vovk dev --next-dev",
+}
+```
+
+Read more about [vovk dev](/cli/dev) command.

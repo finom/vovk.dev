@@ -9,4 +9,9 @@ export function generateStaticParams() {
   return generateStaticAPI(controllers);
 }
 
-export const { GET } = initVovk({ controllers });
+export const { GET } = initVovk({
+  controllers,
+  onError: (error) => {
+    console.error(error);
+  },
+});

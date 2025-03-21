@@ -38,13 +38,16 @@
     "react-transition-group": "^4.4.5",
     "tailwind-merge": "^3.0.1",
     "use-0": "^1.2.5",
-    "vovk": "^3.0.0-draft.52",
-    "vovk-client": "^0.0.4-draft.16",
-    "vovk-dto": "^0.0.1-beta.0",
+    "vovk": "^3.0.0-draft.114",
+    "vovk-ajv": "^0.0.0-draft.39",
+    "vovk-client": "^0.0.4-draft.68",
+    "vovk-dto": "^0.0.1-draft.40",
     "vovk-examples": "^1.0.1",
-    "vovk-openapi": "^0.0.1-draft.45",
-    "vovk-yup": "^0.0.1-beta.0",
-    "vovk-zod": "^1.0.0-draft.17",
+    "vovk-openapi": "^0.0.1-draft.60",
+    "vovk-python-client": "^0.0.1-draft.9",
+    "vovk-react-query": "^0.0.1-draft.56",
+    "vovk-yup": "^0.0.1-draft.44",
+    "vovk-zod": "^1.0.0-draft.52",
     "zod": "^3.24.1"
   },
   "prettier": {
@@ -73,6 +76,6 @@
     "tsx": "^4.19.2",
     "typescript": "^5",
     "user-agent-data-types": "^0.4.2",
-    "vovk-cli": "^0.0.1-beta.0"
+    "vovk-cli": "^0.0.1-draft.141"
   }
 }

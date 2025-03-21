@@ -4,7 +4,7 @@ import { Callout } from 'nextra/components';
 
 Shared service is a static class that is used to store common functions that are used in any environment (main thread, Web Worker, controller). It's a way to avoid code duplication and keep the codebase clean. The methods of a shared service should not have any global side effects and should be implemented _mostly_ pure functions (meaning that you still can modify class properties or use scoped variables).
 
-```ts filename="/src/modules/user/UserSharedService.ts"
+```ts filename="src/modules/user/UserSharedService.ts"
 import type { User } from '../../types';
 
 export default class UserSharedService {

@@ -41,7 +41,7 @@ export default class UserController {
 
 To add the required body and query types you need replace `NextRequest` by `VovkRequest` and define the types as generic arguments.
 
-```ts filename="/src/modules/user/UserController.ts"
+```ts filename="src/modules/user/UserController.ts"
 import { prefix, put, type VovkRequest } from 'vovk';
 import type { User } from '../../types';
 
@@ -78,7 +78,7 @@ As you can see we've changed nothing more than the type of `req` but now `data` 
 
 Once the controller is defined it needs to be initialized at the wildcard route (we call it "segment") by adding it to the `controllers` object. The key is the name of the resulting library variable exported from `"vovk-client"`. Read more about that in the [client](/client) section.
 
-```ts filename="/src/app/api/[[...vovk]]/route.ts"
+```ts filename="src/app/api/[[...vovk]]/route.ts"
 import { initVovk } from 'vovk';
 import UserController from '../../../modules/user/UserController';
 
@@ -107,7 +107,7 @@ const updatedUser = await UserRPC.updateUser({
 
 All HTTP decorators provide `.auto` method that generates endpoint name automatically from the method name.
 
-```ts filename="/src/modules/user/UserController.ts"
+```ts filename="src/modules/user/UserController.ts"
 import { prefix, put } from 'vovk';
 
 @prefix('users')
@@ -121,3 +121,6 @@ export default class UserController {
 ```
 
 Since the client is generated automatically, if your REST API is used internally only, you can use auto-generated endpoints to save a little bit of time thinking of a new endpoint name.
+
+
+TODO FormData for controller
