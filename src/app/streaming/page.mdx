@@ -11,7 +11,7 @@ import LiveOpenAiExample from '../../live-examples/LiveOpenAiExample';
 
 TODO: application/jsonl
 
-# JSON streaming for LLMs
+# JSON streaming
 
 Quick demo:
 
@@ -43,6 +43,12 @@ export default class StreamController {
   }
 }
 ```
+
+## Validation
+
+TODO
+
+## Using with service class
 
 In order to refactor this code and utilise [service class](/controller/service) for code splitting, you can move the streaming logic to `StreamService` static class.
 
@@ -78,12 +84,7 @@ export default class StreamController {
 
 ## Handling on the client
 
-<Callout type="warning" emoji="⚠️">
-  **Workaround notice**. In order to identify the stream response type, Vovk.ts internally uses a custom header
-  `x-vovk-stream=true` and content-type `text/plain; charset=utf-8`.
-</Callout>
-
-JSON streaming endpoints (including usage of [JSONLinesResponse](/streaming/stream-response) class that works under the hood of this feature) generate client methods that return disposable/async-disposable async generators.
+JSON streaming endpoints (including usage of lower-level `JSONLinesResponse` class described below) generate client methods that return disposable/async-disposable async generators.
 
 ```ts
 import { StreamRPC } from 'vovk-client';
@@ -105,7 +106,6 @@ await using stream = await StreamRPC.streamTokens();
 ```
 
 
-
 ## `JSONLinesResponse` class
 
 Quick demo:
@@ -116,8 +116,8 @@ Quick demo:
 
 [Source code](https://vovk-examples.vercel.app/stream-response-object)
 
-If generators aren't sutable for JSON streaming at a particular case, you can use `JSONLinesResponse` class inherited from `Response` class that uses `TransformStream#readable` as response body and adds required HTTP headers.
-It's a lower-level API that is used behind the scenes to implement generator logic described at [the main section](/streaming).
+If generators aren't sutable for JSON streaming at a particular case, you can use `JSONLinesResponse` class inherited from `Response` class that uses `TransformStream#readable` as response body.
+It's a lower-level API that is used behind the scenes to implement generator logic described above.
 A service method at this case is implemented as a regular function that accepts `JSONLinesResponse` instance as a pointer to send messages manually.
 
 There is what the streaming service might look like:
@@ -168,6 +168,9 @@ export default class StreamController {
 await resp.throw(new Error('Stream error'));
 ```
 
+## How it works
+
+The `JSONLinesResponse` class TODO
 
 ## OpenAI chat live example
 
@@ -219,13 +222,13 @@ for await (const chunk of completion) {
 }
 ```
 
-## Vercel AI SDK
+## A note about Vercel AI SDK
 
 > The AI SDK is the TypeScript toolkit designed to help developers build AI-powered applications with React, Next.js, Vue, Svelte, Node.js, and more.
 
 Read more about the [Vercel AI SDK](https://sdk.vercel.ai/docs/introduction).
 
-Vovk.ts supports every built-in feature of Next.js and, as a result, it can be used with the Vercel AI SDK returning `Response` object from `toDataStreamResponse` function.
+Vovk.ts supports every built-in feature of Next.js and, as a result, it can be used with the Vercel AI SDK returning `Response` object from `toDataStreamResponse` function with no additional changes.
 
 ```ts filename="src/modules/ai-sdk/AiSdkController.ts"
 import { post, prefix, type VovkRequest } from 'vovk';
@@ -238,13 +241,11 @@ export default class AiSdkController {
   static async chat(req: VovkRequest<{ messages: CoreMessage[] }>) {
     const { messages } = await req.json();
 
-    const result = streamText({
+    return streamText({
       model: openai('gpt-4o-mini'),
       system: 'You are a helpful assistant.',
       messages,
-    });
-
-    return result.toDataStreamResponse();
+    }).toDataStreamResponse();
   }
 }
 ```

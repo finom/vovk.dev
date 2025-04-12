@@ -1,7 +1,5 @@
 import { Tabs } from 'nextra/components';
 
-TODO DTO transform
-
 # Validation
 
 The framework provides a set of validation libraries and related tools to help you validate your requests on the server and client side. 
@@ -373,7 +371,7 @@ export default vovkConfig;
 
 Or pass it as an option to the RPC method as described above.
 
-### DTO client-side validation
+### DTO client-side validation and transform
 
 Since DTOs are regular classes, they can be directly used as a type. This feature made possible to use DTOs for client-side validation. **vovk-dto** provides its own `validateOnClient` function imported from **vovk-dto/validateOnClient** that uses [class-validator](https://www.npmjs.com/package/class-validator) to validate the request. The function is used in the same way as described above.
 
@@ -404,6 +402,21 @@ await UserRPC.updateUser({
 });
 ```
 
+If you want the response to be transformed to a DTO class, you can use `transform` option described at [TypeScript client documentation](/typescript).
+
+```ts
+import { UserRPC } from 'vovk-client';
+import { plainToInstance } from 'class-transformer';
+import { UpdateUserOutputDTO } from './UserDTO';
+
+const response = await UserRPC.updateUser({
+  // ...
+  transform: (data) => plainToInstance(UpdateUserOutputDTO, data),
+});
+
+console.log(response instanceof UpdateUserOutputDTO); // true
+```
+
 ### Disable client validation
 
 To disable client-side validation, you can set `disableClientValidation` option to `true` when calling the RPC method. This is can useful for debugging purposes to validate the request on the server-side only.
@@ -423,17 +436,41 @@ await UserRPC.updateUser({
 
 ## FormData
 
-If no validation is used, in order to make the RPC method to accept form data, you need to define the handler with `VovkRequest<FormData>` type (see example at the [TypeScript client documentation](/typescript/form-data)). The form data is not validated, but you need to fake the type of the request body to be `FormData` in order to make the RPC method accept it but set the body validation model to `null`. For example for Zod validation you'd need to use an unpleasant workaround by defining the validation body with `null as unknown as z.ZodType<FormData>`.
+> [!WARNING]
+>
+> By the time being `FormData` is **not validated** and **does not emit JSON schema** (you can provide it manually at [openapi decorator](/openapi)) due to unsolved library design issues. This problem has high priority and will be fixed as soon as a good solution is found. If you want to help to brainstorm the solution that allows not just validate the data but also emit schema (that can be converted into OpenAPI schema), please create an issue. For now you can create a [custom decorator](/controller/decorator) that might look like `@validateFormData(validateFn, multipartFormDataOpenAPISchema)` that performs validation at the first argument and extends handler's `openapi` schema with the second argument.
 
-```ts filename="src/modules/user/UserController.ts"
+In order to make the RPC method to accept form data, you need to define the body type as `FormData` (see [the controller docs](/controller/form-data)) and set the body validation model to `null`.
+
+```ts filename="src/modules/user/UserController.ts" {8}
 import { prefix, post } from 'vovk';
 import { withZod } from 'vovk-zod';
 import { z } from 'zod';
 
 export default class UserController {
-  @post('form')
+  @openapi({
+    summary: 'Update user',
+    description: 'Update user by ID with form data',
+    requestBody: {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              age: { type: 'number' },
+              file: { type: 'string', format: 'binary' },
+            },
+          },
+        },
+      },
+    },
+  })
+  @post('form', {
+    before: (req) => req.formData(), // TODO
+  })
   static updateUser = withZod({
-    body: null as unknown as z.ZodType<FormData>, // ¯\_(ツ)_/¯
+    body: null as unknown as z.ZodType<FormData>, // doesn't look good
     async handle(req) {
       const formData = await req.formData();
       // or serialize it to an object with req.vovk.form<T>()
@@ -447,7 +484,7 @@ export default class UserController {
 }
 ```
 
-Since it looks quite ugly, every validation library provides `formData` property that does the same but makes the code look nicer.
+Since it looks quite bulky, every validation library provides `formData` property that does the same but makes the code look nicer.
 
 <Tabs items={['Zod', 'Yup', 'class-validator']}>
 <Tabs.Tab>
@@ -493,6 +530,8 @@ export default class UserController {
 ```
 </Tabs.Tab>
 </Tabs>
+
+TODO RPC example
 
 ## Disabling validation schema emission for a segment
 
@@ -569,6 +608,8 @@ You can perform the same idea with Yup or DTOs.
 
 ### Using with react-hook-form
 
+TODO ajv resolver example
+
 If you use [react-hook-form](https://react-hook-form.com/) the models can also be used for the form validation. You can check an example [here](https://vovk-examples.vercel.app/zod-hook-form).
 
 ```ts
@@ -587,7 +628,35 @@ export default function UserForm() {
 
 Find an appropriate resolver at [@hookform/resolvers](https://www.npmjs.com/package/@hookform/resolvers) README.
 
-
 ### DTO mapped types
 
-TODO
+Both Yup and Zod have built-in utilities to turn one model into another using `pick`, `omit`, `partial`, etc. **class-validator** in its turn requires to install [@nestjs/mapped-types](https://www.npmjs.com/package/@nestjs/mapped-types) to use the same functionality. Since the package has peer dependencies that are unnesessary but also break the build, you can use its fork [dto-mapped-types](https://github.com/finom/dto-mapped-types) instead that provides the same functionality in Edge Runtime but without **@nestjs/common** dependency. For more information see the [article about the original package](https://trilon.io/blog/introducing-mapped-types-for-nestjs).
+
+
+```ts
+import { IsString, IsEmail, MinLength, MaxLength, IsUUID } from 'class-validator';
+import { OmitType } from 'dto-mapped-types';
+import { JSONSchema } from 'class-validator-jsonschema';
+
+@JSONSchema({
+  description: 'User DTO',
+})
+export default class UserDto {
+  @IsUUID(4, { message: 'Invalid uuid format' })
+  id: string;
+
+  @IsString({ message: 'Name must be a string' })
+  @MinLength(2, { message: 'Name must be at least 2 characters' })
+  @MaxLength(20, { message: 'Name cannot exceed 20 characters' })
+  name: string;
+
+  @IsString({ message: 'Email must be a string' })
+  @IsEmail({}, { message: 'Invalid email format' })
+  email: string;
+}
+
+@JSONSchema({
+  description: 'Create user DTO',
+})
+export class CreateUserDto extends OmitType(UserDto, ['id'] as const) {}
+```
