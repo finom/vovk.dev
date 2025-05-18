@@ -3,7 +3,7 @@
   "segmentName": "",
   "controllers": {
     "HelloRPC": {
-      "rpcModuleName": "HelloRPC",
+      "controllerName": "HelloRPC",
       "originalControllerName": "HelloController",
       "prefix": "hello",
       "handlers": {
@@ -13,6 +13,5 @@
         }
       }
     }
-  },
-  "workers": {}
+  }
 }

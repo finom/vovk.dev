@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import IconWrapper from './IconWrapper';
+import { ReactNode } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 /*
 With Vovk.ts you get most of the features available at well-known RPC frameworks such as tRPC also:
@@ -13,12 +15,223 @@ With Vovk.ts you get most of the features available at well-known RPC frameworks
 - Server-side generated endpoints to serve static JSON responses
 - Customizable RPC client
 - Ability to pack and distribute the RPC library
+
+
+TypeScript client:
+- `npx vovk bundle --out ./out`
+- Types inferred from server
+- Customizable
+- Client-side validation
+- Composed & segmented client
+- Pack & ship
+- JSON streaming client using async iterable & disposable
+
+Python client:
+- `npx vovk generate --from py --out ./out`
+- Types generated
+- Client-side validation
+- Composed & segmented client
+- Pack & ship
+- JSON streaming client using Generator function
+
+Rust client:
+- `npx vovk generate --from rs --out ./out`
+- Types generated
+- Client-side validation
+- Composed & segmented client
+- Pack & ship
+- JSON streaming client using Iterator traits
+
 */
+
+const FeatureItem = ({ children }: { children: ReactNode }) => {
+  return (
+    <li className="mb-2">
+      <span className="text-green-600 dark:text-green-900 font-semibold text-2xl mr-1.5">✓</span>
+      {children}
+    </li>
+  );
+};
+
+const FeatureBox = ({ children, className }: { children: ReactNode; className?: string }) => {
+  return (
+    <div
+      className={twMerge(
+        'border rounded-2xl border-slate-200 dark:border-slate-900/60 p-6 bg-gray-100/30 dark:bg-slate-800/30 justify-between flex flex-col',
+        // 'border rounded-2xl border-slate-200 dark:border-slate-900 p-8 bg-gray-100/30 dark:bg-black/30 m-auto justify-between flex flex-col',
+        // className="border rounded-2xl border-slate-200 dark:border-slate-900 p-8 bg-gray-100/30 dark:bg-black/30 flex-1 flex flex-col justify-between"
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+};
 
 const SolvedProblems = () => {
   return (
-    <div className="mt-4 max-w-(--breakpoint-lg) mx-auto">
-      <h2 className="text-center text-3xl font-semibold mb-4">Features</h2>
+    <div className="max-w-(--breakpoint-lg) mx-auto z-0 relative">
+      <div className="w-[580px] max-w-full mx-auto">
+        <h2 className="text-center text-4xl font-semibold mb-6">Features</h2>
+        <ul>
+          <FeatureItem>
+            Use built-in Next.js API &ndash; Vovk.ts is a wrapper over{' '}
+            <Link
+              className="link"
+              href="https://nextjs.org/docs/app/building-your-application/routing/route-handlers"
+              target="_blank"
+            >
+              Route Handlers
+            </Link>
+          </FeatureItem>
+          <FeatureItem>
+            Primary validation and JSON Schema emission with{' '}
+            <Link className="link" href="https://zod.dev/" target="_blank">
+              Zod 4
+            </Link>
+          </FeatureItem>
+          <FeatureItem>
+            Good old RESTful API with
+            <code className="code">&#123; body &#125;</code>,<code className="code">?query</code>, and
+            <code className="code">/:parameters</code>
+          </FeatureItem>
+          <FeatureItem>Based on standards and conventions</FeatureItem>
+          <FeatureItem>Clear and reasonable HTTP/REST implementation details for the RPC</FeatureItem>
+          <FeatureItem>Cross-language type-safe RPC clients</FeatureItem>
+          <FeatureItem>Multi-segment API to host multiple "back-ends" in a single Next.js project</FeatureItem>
+          <FeatureItem>
+            First-class OpenAPI and{' '}
+            <Link className="link" href="https://scalar.com/" target="_blank">
+              Scalar
+            </Link>{' '}
+            support
+          </FeatureItem>
+          <FeatureItem>Best practices with Controller-Service-Repository pattern</FeatureItem>
+          <FeatureItem>
+            JSON streaming for LLMs with{' '}
+            <Link className="link" href="https://jsonlines.org/" target="_blank">
+              JSON Lines
+            </Link>
+          </FeatureItem>
+          <FeatureItem>Static API for historical data that can be accessed with an RPC client</FeatureItem>
+          <FeatureItem>Made with respect to developers and with love to programming</FeatureItem>
+        </ul>
+        <Link
+          className="front-page-button mt-8 block text-center"
+          href="https://github.com/finom/vovk"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Read more
+        </Link>
+      </div>
+      <div className="grid grid-cols-2 gap-8 justify-stretch mt-16">
+        <FeatureBox className="flex-1">
+          <h2 className="text-center text-3xl font-semibold mb-4 text-[#0076c6]">TypeScript RPC</h2>
+          <div className="text-center mb-4">
+            <code className="code mx-auto">npx vovk generate --out ./out</code>
+          </div>
+          <ul>
+            <FeatureItem>Great for single-page apps</FeatureItem>
+            <FeatureItem>Types inferred from server definition</FeatureItem>
+            <FeatureItem>Customizable TypeScript library for extra features</FeatureItem>
+            <FeatureItem>Client-side input validation</FeatureItem>
+            <FeatureItem>Composed & segmented client</FeatureItem>
+            <FeatureItem>
+              Pack & ship with <b>README.md</b> and <b>package.json</b>
+            </FeatureItem>
+            <FeatureItem>
+              JSON streaming client using <code className="code">AsyncIterator</code>
+            </FeatureItem>
+          </ul>
+          <Link
+            className="front-page-button mt-8 block text-center"
+            href="https://github.com/finom/vovk"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Read more
+          </Link>
+        </FeatureBox>
+        <FeatureBox className="flex-1">
+          <div>
+            <h2 className="text-center text-3xl font-semibold mb-4 text-[#ffd343]">Python/mypy RPC</h2>
+            <div className="text-center mb-4">
+              <code className="code mx-auto">npx vovk generate --from py --out ./out</code>
+            </div>
+            <ul>
+              <FeatureItem>Modules, methods and types generated from JSON</FeatureItem>
+              <FeatureItem>Client-side input validation</FeatureItem>
+              <FeatureItem>Composed & segmented client</FeatureItem>
+              <FeatureItem>
+                Pack & ship with <b>README.md</b> and <b>pyproject.toml</b>
+              </FeatureItem>
+              <FeatureItem>
+                JSON streaming client using <code className="code">Generator</code> function
+              </FeatureItem>
+            </ul>
+          </div>
+          <Link
+            className="front-page-button mt-8 block text-center"
+            href="https://github.com/finom/vovk"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Read more
+          </Link>
+        </FeatureBox>
+      </div>
+      <div className="flex flex-col md:flex-row gap-8 justify-stretch mt-8">
+        <FeatureBox className="flex-1">
+          <div>
+            <h2 className="text-center text-3xl font-semibold mb-4 text-[#cd402a]">Rust RPC</h2>
+            <div className="text-center mb-4">
+              <code className="code mx-auto">npx vovk generate --from rs --out ./out</code>
+            </div>
+            <ul>
+              <FeatureItem>Modules, methods and types generated from JSON</FeatureItem>
+              <FeatureItem>Client-side input validation</FeatureItem>
+              <FeatureItem>Composed & segmented client</FeatureItem>
+              <FeatureItem>
+                Pack & ship with <b>README.md</b> and <b>Cargo.toml</b>
+              </FeatureItem>
+              <FeatureItem>
+                JSON streaming client using <code className="code">Iterator</code> traits
+              </FeatureItem>
+            </ul>
+          </div>
+          <Link
+            className="front-page-button mt-8 block text-center"
+            href="https://github.com/finom/vovk"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Read more
+          </Link>
+        </FeatureBox>
+
+        <FeatureBox className="flex-1">
+          <div>
+            <h2 className="text-center text-3xl font-semibold mb-4 text-gray-400">`$&#123;language&#125; RPC`</h2>
+            <div className="text-center mb-4">
+              <code className="code mx-auto">npx vovk generate --from [def] --out ./out</code>
+            </div>
+            <ul>
+              <FeatureItem>Any language with an HTTP client can be supported</FeatureItem>
+              <FeatureItem>Any other framework or language can emit the schema</FeatureItem>
+              <FeatureItem>Modules, methods and types are generated from JSON</FeatureItem>
+              <FeatureItem>
+                Fast and simple template system based on{' '}
+                <Link className="link" href="https://ejs.co/" target="_blank">
+                  EJS
+                </Link>
+              </FeatureItem>
+              <FeatureItem>Client-side validation and JSON streaming are optional</FeatureItem>
+              <FeatureItem>More languages are coming soon</FeatureItem>
+            </ul>
+          </div>
+        </FeatureBox>
+      </div>
       <p className="text-center text-secondary mb-8 max-w-[900px] mx-auto">
         With Vovk.ts you get most of the features available at well-known RPC frameworks such as tRPC, including
         server-side validation, type-safety, React Query support, and more. It uses different approaches that extend

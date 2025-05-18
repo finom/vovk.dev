@@ -18,7 +18,7 @@ Example of a segment schema file:
   "controllers": {
     "HelloRPC": {
       // RPC name that's going to be used in the client
-      "controllerName": "HelloRPC",
+      "rpcModuleName": "HelloRPC",
       // Original name of the controller class
       "originalControllerName": "HelloController",
       // An argument of @prefix class decorator
@@ -32,7 +32,7 @@ Example of a segment schema file:
           "path": "greeting",
           // HTTP method
           "httpMethod": "POST",
-          // Validation for "body" and "query"
+          // Validation for "body", "query", "params", "output" and "iteration"
           // Can contain any custom data, at this case it's JSON schema emitted by "vovk-zod"
           "validation": {
             "body": {

@@ -27,7 +27,7 @@ const footer = (
       </Link>
     </div>
     <Link href="https://github.com/sponsors/finom" target="_blank" className="ml-2 block">
-      Sponsor me ♥️
+      Sponsor
     </Link>
   </Footer>
 );

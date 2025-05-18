@@ -12,7 +12,7 @@ body {
 }
 
 .text-secondary {
-  @apply text-gray-500 dark:text-gray-300;
+  @apply text-gray-800 dark:text-gray-300;
 }
 
 a.link {
@@ -25,6 +25,10 @@ a.link-docs {
 
 .button {
   @apply py-2 px-4 rounded bg-blue-500 text-white hover:bg-blue-700 transition-colors cursor-pointer leading-none h-auto disabled:pointer-events-none disabled:opacity-70;
+}
+
+.front-page-button {
+  @apply min-w-8 transition-all bg-gradient-to-b from-[#238aff] to-[#07f] hover:shadow-[0_5px_30px_-10px_#0078ffab] filter hover:brightness-105 justify-center items-center gap-2 rounded-full py-3 px-6 text-white font-medium;
 }
 
 .code {

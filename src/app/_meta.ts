@@ -1,4 +1,17 @@
 import type { MetaRecord } from 'nextra';
+/*
+- Segmented/composed client
+- Rust client
+- Valiation (primary, secondary libs(?))
+- Bundle
+- Templates
+- Template definition
+
+----- 
+Segments
+- Segments
+- Segmented and composed client
+*/
 
 const meta: MetaRecord = {
   index: {

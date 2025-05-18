@@ -1,9 +1,54 @@
 'use client';
 import Link from 'next/link';
 
+/*
+Back-end framework:
+- Use built-in Next.js API
+- Zod 4 and other validation libraries
+- Restful API
+- Standards & conventions: no hidden implementation
+- Cross-language RPC
+- Multi-segment API: collection of serverless functions
+- OpenAPI with examples
+- Code splitting (service-controller)
+- JSON streaming with jsonlines
+- Static API generation
+- Powerful CLI
+- All about DX
+
+TypeScript client:
+- `npx vovk bundle --out ./out`
+- Types inferred from server
+- Customizable
+- Client-side validation
+- Composed & segmented client
+- Pack & ship
+- JSON streaming client using async iterable & disposable
+
+Python client:
+- `npx vovk generate --from py --out ./out`
+- Types generated
+- Client-side validation
+- Composed & segmented client
+- Pack & ship
+- JSON streaming client using Generator function
+
+Rust client:
+- `npx vovk generate --from rs --out ./out`
+- Types generated
+- Client-side validation
+- Composed & segmented client
+- Pack & ship
+- JSON streaming client using Iterator traits
+
+Custom client:
+- Using JSON schema to generate types
+- Using Vovk schema to get meta info such as method name and module name
+*/
+
 const Jumbotron = () => {
   return (
-    <div>
+    <div className="z-0 relative">
       <div className="jumbotron">
         {/* <div className="max-w-4xl text-center mx-auto pt-16 pb-36 px-5">
         
@@ -30,7 +75,7 @@ const Jumbotron = () => {
               <div className="mt-8 gap-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 z-10 relative">
                   <Link
-                    className="min-w-8 transition-all bg-gradient-to-b from-[#238aff] to-[#07f] hover:shadow-[0_5px_30px_-10px_#0078ffab] filter hover:brightness-105 justify-center inline-flex items-center gap-2 rounded-full py-3 px-6 text-white font-medium"
+                    className="front-page-button inline-flex"
                     href="https://github.com/finom/vovk"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -53,10 +98,7 @@ const Jumbotron = () => {
                     </svg>
                   </Link>
 
-                  <Link
-                    className="min-w-8 transition-all bg-gradient-to-b from-[#238aff] to-[#07f] hover:shadow-[0_5px_30px_-10px_#0078ffab] filter hover:brightness-105 justify-center inline-flex items-center gap-2 rounded-full py-3 px-6 text-white font-medium"
-                    href="getting-started"
-                  >
+                  <Link className="front-page-button inline-flex" href="getting-started">
                     <span>Getting Started</span>{' '}
                     <svg width={15} height={15} viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path

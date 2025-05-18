@@ -112,7 +112,7 @@ const myDecorator = createDecorator(
 );
 
 class MyController {
-  static controllerName = 'MyController';
+  static rpcModuleName = 'MyController';
 
   @get.auto()
   @myDecorator('foo', 1) // Passes 'foo' as 'a', and 1 as 'b'

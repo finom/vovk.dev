@@ -2,6 +2,88 @@ import { Callout } from 'nextra/components';
 
 # Segment
 
+## Overview
+
+Commonly used back-end frameworks such as NextJS provide the following hierarchical structure for the server code:
+
+- Back-end sever - the highest level of the hierarchy, made of controllers.
+- Controllers - the second level of the hierarchy, made of handlers.
+- Handlers - the lowest level of the hierarchy, they perform request processing.
+
+(We skip services since they don't play a role in the hierarchy.)
+
+Vovk.ts adds a new level to this hierarchy in between the back-end server and controllers.
+
+- Back-end server - the highest level of the hierarchy, made of segments.
+- Segments - the second level of the hierarchy, made of controllers.
+- Controllers - the third level of the hierarchy, made of handlers.
+- Handlers - the lowest level of the hierarchy, they perform request processing.
+
+Let's take a look at the following example. Let's say you have 3 "areas" in your back-end server: root, customer and admin.
+
+- Root - responsible for landing page API calls: email subscription, contact form etc. Controllers: `EmailSubscriptionController`, `ContactFormController`.
+- Customer - responsible for customer area API calls: change own password and profile, get own orders etc. Controllers: `CustomerProfileController`, `CustomerOrdersController`.
+- Admin - responsible for admin area API calls: create new customer, get all orders etc. Controllers: `AdminCustomersController`, `AdminOrdersController`.
+
+
+In a traditional back-end server, you would have a single server with controllers that are composed into the back-end server.
+
+- Back-end server
+  - EmailSubscriptionController
+  - ContactFormController
+  - CustomerProfileController
+  - CustomerOrdersController
+  - AdminCustomersController
+  - AdminOrdersController
+
+In Vovk.ts the controllers are grouped into segments:
+
+- Back-end server
+  - Segment: root `/api`
+    - EmailSubscriptionController
+    - ContactFormController
+  - Segment: customer `/api/customer`
+    - CustomerProfileController
+    - CustomerOrdersController
+  - Segment: admin `/api/admin`
+    - AdminCustomersController
+    - AdminOrdersController
+
+
+Each segment is responsible for a specific area of the back-end server. 
+
+Since Vovk.ts provides RPC library that requires to import JSON files, this segmentation allows to hide schema files of other segments from the client code during reverse-engineering of the bundled code. In other words, when customer uses the app, they are not able to see the schema of the admin segment if they don't have access to it. Besides solving the security concern, the back-end segmentation gives the following benefits:
+
+- **Code splitting**: each segment is bundled into a separate serverless function. This allows to reduce the size of the serverless function bundle and improve performance.
+- **Segment configuration**: each segment can have its own set of features, solving variety of concerns:
+  - For back-end segment code that isn't supposed to provide RPC you can disable schema emission completely by setting `emitSchema` to `false`.
+  - For back-end segment code that should secure its implementation details by hiding validation data you can set `exposeValidation` to `false`. At this case the RPC functions wouldn't perform the client-side validation and the types generated for other programmming languages will be missing. All other features remain the same and the TypeScript inference is going to work as expected.
+  - You can turn the segment into so-called [static](/segment/static) segment to serve data generated on build time, such as OpenAPI specification, historical data, etc.
+  - Using `onError` you can perform different error logging.
+
+This feature is optional to use and for simple apps you can use the root segment as the only segment. In this case, the back-end code of the app is going to be bundled into a single serverless function.
+
+## Creating segments
+
+Vovk.ts implements the segments via ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) defined as **route.ts** file in **/src/app/api/[[...slug]]/** for root segment or **/src/app/api/`segment-name`/[[...slug]]/** folder for multi-segment apps (**[[...slug]]** is the folder name). It exports [route handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) such as `GET`, `POST` etc, created by `initVovk` function. The file can also export any of the Next.js [segment config options](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#segment-config-options) such as `runtime` or `maxDuration` to determine behaviour of the Next.js route.
+
+A segment is initialised by calling `initVovk` function in the **route.ts** file. The function takes an object with the following properties:
+- `controllers` 
+
+## Segment priority
+
+In case if you have multiple segments, more nested one is going to have higher priority. For example, if you have the following segments:
+
+- **/src/app/api/[[...slug]]/** for the root segment
+- **/src/app/api/foo/[[...slug]]/** for `foo` segment
+- **/src/app/api/foo/bar/[[...slug]]/** for `foo/bar` segment
+
+Then request to **/api/foo/bar** is going to have the highest priority and is going to be handled by the `foo/bar` segment. If the request doesn't match the `foo/bar` segment but matches the `foo` segment, it's going to be handled by the `foo` segment. If the request doesn't match the `foo` segment, it's going to be handled by the root segment.
+
+---------
+
+# Segment
+
 ```sh filename="Create root segment with CLI"
 npx vovk new segment # create root segment
 npx vovk new segment admin # create "admin" segment
@@ -15,7 +97,7 @@ npx vovk new segment admin # create "admin" segment
   You can change the API folder name from `api` to any other name by modifying [config](/config) option `rootEntry`.
 </Callout>
 
-Besides the Next.js variables it's important to also export `Controller` type that is used to type the generated RPC library.
+Besides the Next.js variables it's important to also export `Controllers` type that is used to type the generated RPC library.
 
 [The code generator](/cli/new) as well as this documentation uses "vovk" as the slug name but it can be called in any way since it's never used to determine something in the code.
 
@@ -37,7 +119,7 @@ const controllers = {
   PostRPC: PostController,
 };
 
-export type Controller = typeof controllers;
+export type Controllers = typeof controllers;
 
 export const { GET, POST, PUT, DELETE } = initVovk({
   controllers,
@@ -74,12 +156,4 @@ The schema for the segment `foo` is going to be stored as **.vovk-schema/segment
 
 For segments of deeper nesting (let's say **/src/app/api/`foo/bar/baz`/[[...slug]]/**) the segment name is going to be `foo/bar/baz` and the schema is going to be stored as **.vovk-schema/segments/`foo/bar/baz`.json** file.
 
-## Segment priority
 
-In case if you have multiple segments, more nested one is going to have higher priority. For example, if you have the following segments:
-
-- **/src/app/api/[[...slug]]/** for the root segment
-- **/src/app/api/foo/[[...slug]]/** for `foo` segment
-- **/src/app/api/foo/bar/[[...slug]]/** for `foo/bar` segment
-
-Then request to **/api/foo/bar** is going to have the highest priority and is going to be handled by the `foo/bar` segment. If the request doesn't match the `foo/bar` segment but matches the `foo` segment, it's going to be handled by the `foo` segment. If the request doesn't match the `foo` segment, it's going to be handled by the root segment.
