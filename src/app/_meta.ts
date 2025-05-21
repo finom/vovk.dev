@@ -1,17 +1,4 @@
 import type { MetaRecord } from 'nextra';
-/*
-- Segmented/composed client
-- Rust client
-- Valiation (primary, secondary libs(?))
-- Bundle
-- Templates
-- Template definition
-
------ 
-Segments
-- Segments
-- Segmented and composed client
-*/
 
 const meta: MetaRecord = {
   index: {
@@ -32,33 +19,49 @@ const meta: MetaRecord = {
     href: '/getting-started',
     type: 'page',
   },
-  'getting-started': {
+  '##': {
+    type: 'separator',
     title: 'Getting started',
+  },
+  about: {
+    title: 'About',
+  },
+  'quick-install': {
+    title: 'Quick install',
+  },
+  'manual-install': {
+    title: 'Manual install',
   },
   '###': {
     type: 'separator',
-    title: 'Server-side',
+    title: 'Basics',
   },
   segment: 'Segment',
+  schema: 'Schema',
+  templates: 'RPC Templates',
+  '####': {
+    type: 'separator',
+    title: 'Server-side',
+  },
   controller: 'Controller',
   openapi: 'OpenAPI',
-  '####': {
+  '#####': {
     type: 'separator',
     title: 'Client-side',
   },
-  typescript: 'TypeScript client',
-  python: 'Python client',
-  schema: 'Schema',
-  'isolated-client': 'Isolated client',
+  'composed-and-segmented': 'Composed vs segmented RPC',
+  typescript: 'TypeScript RPC client',
+  python: 'Python RPC client',
+  rust: 'Rust RPC client',
   'custom-client': 'Custom client',
   'react-query': 'React Query',
-  '#####': {
+  '######': {
     type: 'separator',
     title: 'Validation',
   },
   validation: 'Validation',
   'custom-validation': 'Custom Validation',
-  '######': {
+  '#######': {
     type: 'separator',
     title: 'Miscellaneous',
   },

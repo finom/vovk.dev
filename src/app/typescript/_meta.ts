@@ -3,6 +3,7 @@ import type { MetaRecord } from 'nextra';
 const meta: MetaRecord = {
   introduction: 'Getting started',
   customization: 'Customization',
+  bundle: 'Bundle',
   'form-data': 'FormData',
   'server-components': 'Server Components',
   'type-extraction': 'Type Extraction',
