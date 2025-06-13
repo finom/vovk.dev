@@ -9,8 +9,8 @@ const meta: MetaRecord = {
   headers: 'Response headers',
   decorator: 'Decorators and metadata',
   redirect: 'redirect and notFound',
-  proxy: 'Proxy',
   'type-extraction': 'Type extraction',
+  jsonlines: 'JSON Lines',
 };
 
 export const icons: Record<keyof typeof meta, string> = {
@@ -22,8 +22,8 @@ export const icons: Record<keyof typeof meta, string> = {
   headers: 'i',
   decorator: 'i',
   redirect: 'i',
-  proxy: 'i',
   'type-extraction': 'i',
+  jsonlines: 'i',
 };
 
 export default meta;

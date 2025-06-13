@@ -32,6 +32,9 @@ const meta: MetaRecord = {
   'manual-install': {
     title: 'Manual install',
   },
+  guides: {
+    title: 'Guides',
+  },
   '###': {
     type: 'separator',
     title: 'Basics',
@@ -44,7 +47,6 @@ const meta: MetaRecord = {
     title: 'Server-side',
   },
   controller: 'Controller',
-  openapi: 'OpenAPI',
   '#####': {
     type: 'separator',
     title: 'Client-side',
@@ -54,7 +56,6 @@ const meta: MetaRecord = {
   python: 'Python RPC client',
   rust: 'Rust RPC client',
   'custom-client': 'Custom client',
-  'react-query': 'React Query',
   '######': {
     type: 'separator',
     title: 'Validation',
@@ -65,7 +66,6 @@ const meta: MetaRecord = {
     type: 'separator',
     title: 'Miscellaneous',
   },
-  streaming: 'JSON streaming',
   config: 'Config',
   cli: 'CLI',
   'api-ref': 'API reference',

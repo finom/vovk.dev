@@ -1,0 +1,78 @@
+
+### Authorization with RBAC
+
+The `authGuard` decorator below does the following:
+
+- Checks if a user is authorised and returns an `Unauthorised` status if not.
+- Adds `currentUser` to the request metadata object, represented as `AuthMeta` interface, to make it accessible in the controller.
+- Adds a custom `x-permission` field to the OpenAPI operation object.
+- Implements role-based access control with `Permission` enum.
+
+```ts filename="src/decorators/authGuard.ts"
+import { createDecorator, HttpException, HttpStatus, type VovkRequest } from 'vovk';
+import { User } from '@prisma/client';
+
+export enum Permission {
+  CAN_DO_THIS = 'CAN_DO_THIS',
+  CAN_DO_THAT = 'CAN_DO_THAT',
+}
+
+// Metadata interface allows to access the currentUser in the controller
+export interface AuthMeta {
+  currentUser: User;
+}
+
+// Create a function that identifies the user, checks permissions and updates the request metadata
+const checkAuth = async (req: VovkRequest, permission: Permission) => {
+  const currentUser = identifyUserSomehowAndCheckPermissions(req, permission);
+
+  if (!currentUser) {
+    return false;
+  }
+
+  // Add currentUser to the request metadata
+  req.vovk.meta<AuthMeta>({ currentUser });
+
+  return true;
+};
+
+// Create the decorator
+const authGuard = createDecorator(
+  async (req, next, permission: Permission) => {
+    const isAuthorized = await checkAuth(req, permission);
+
+    if (!isAuthorized) {
+      throw new HttpException(HttpStatus.UNAUTHORIZED, 'Unauthorized');
+    }
+
+    return next();
+  }
+);
+
+export default authGuard;
+```
+
+Usage:
+
+```ts filename="src/modules/user/UserController.ts"
+import { get, prefix } from 'vovk';
+import { openapi } from 'vovk-openapi';
+import authGuard, { Permission, type AuthMeta } from '../decorators/authGuard';
+
+@prefix('users')
+export default class UserController {
+  // ...
+  @openapi({
+    summary: 'Get something',
+    description: 'Returns something',
+  })
+  @get('something')
+  @authGuard(Permission.CAN_DO_THIS)
+  static async getSomething(req: VovkRequest) {
+    const { currentUser } = req.vovk.meta<AuthMeta>();
+    // ...
+  }
+
+  // ...
+}
+```

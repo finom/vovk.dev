@@ -12,6 +12,29 @@
           "httpMethod": "GET"
         }
       }
+    },
+    "SpecRPC": {
+      "controllerName": "SpecRPC",
+      "originalControllerName": "SpecController",
+      "prefix": "spec",
+      "handlers": {
+        "getSegmentDefinition": {
+          "path": "v3/segment.json",
+          "httpMethod": "GET"
+        },
+        "getConfigDefinition": {
+          "path": "v3/config.json",
+          "httpMethod": "GET"
+        },
+        "getMetaDefinition": {
+          "path": "v3/meta.json",
+          "httpMethod": "GET"
+        },
+        "getFullDefinition": {
+          "path": "v3/schema.json",
+          "httpMethod": "GET"
+        }
+      }
     }
   }
 }

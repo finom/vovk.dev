@@ -2,7 +2,6 @@ import type { MetaRecord } from 'nextra';
 
 const meta: MetaRecord = {
   introduction: 'Getting started',
-  customization: 'Customization',
   bundle: 'Bundle',
   'form-data': 'FormData',
   'server-components': 'Server Components',
@@ -11,7 +10,6 @@ const meta: MetaRecord = {
 
 export const icons: Record<keyof typeof meta, string> = {
   introduction: 'i',
-  customization: 'i',
   'form-data': 'i',
   'server-components': 'i',
   'type-extraction': 'i',

@@ -1,15 +1,21 @@
+import { JSONSchema7 } from 'json-schema';
+import { config } from 'process';
+
 const VERSION = '3';
 
 export default class V3Service {
-  static getSegmentDefinition() {
+  static getSegmentDefinition(): JSONSchema7 {
+    const validationOneOf = [
+      { $ref: 'https://json-schema.org/draft-07/schema' },
+      { $ref: 'https://json-schema.org/draft/2020-12/schema' },
+    ];
     return {
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      $schema: 'https://json-schema.org/draft-07/schema',
       $id: `https://vovk.dev/api/spec/v${VERSION}/segment.json`,
-      title: 'Vovk segment definition',
+      title: 'Vovk.ts segment definition',
       description: '',
-      version: VERSION + '.0.0',
       type: 'object',
-      required: ['emitSchema', 'segmentName', 'controllers'],
+      required: ['$schema', 'emitSchema', 'segmentName', 'controllers'],
       properties: {
         $schema: {
           type: 'string',
@@ -23,6 +29,11 @@ export default class V3Service {
         segmentName: {
           type: 'string',
           description: "Segment name, for the root segment it's an empty string",
+        },
+        forceApiRoot: {
+          type: 'string',
+          description:
+            'Force API root URL for this segment, overrides the global one. Used internally to convert OpenAPI spec to Vovk schema',
         },
         controllers: {
           type: 'object',
@@ -64,24 +75,24 @@ export default class V3Service {
                       description: 'Validation for body, query, params, output and iteration',
                       properties: {
                         body: {
-                          type: 'object',
+                          oneOf: validationOneOf,
                           description: 'Validation for request body',
                         },
                         query: {
-                          type: 'object',
+                          oneOf: validationOneOf,
                           description: 'Validation for query parameters',
                         },
                         params: {
-                          type: 'object',
+                          oneOf: validationOneOf,
                           description: 'Validation for route parameters',
                         },
                         output: {
-                          type: 'object',
+                          oneOf: validationOneOf,
                           description: 'Validation for response',
                         },
                         iteration: {
-                          type: 'object',
-                          description: 'Validation for iteration',
+                          oneOf: validationOneOf,
+                          description: 'Validation for JSONLines iteration',
                         },
                       },
                       additionalProperties: false,
@@ -104,13 +115,12 @@ export default class V3Service {
     };
   }
 
-  static getConfigDefinition() {
+  static getConfigDefinition(): JSONSchema7 {
     return {
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      $schema: 'https://json-schema.org/draft-07/schema',
       $id: `https://vovk.dev/api/spec/v${VERSION}/config.json`,
-      title: 'Schema for Vovk config.json file',
+      title: 'Schema for Vovk config',
       description: '',
-      version: VERSION + '.0.0',
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -123,13 +133,33 @@ export default class V3Service {
     };
   }
 
-  static getFullDefinition() {
+  static getMetaDefinition(): JSONSchema7 {
     return {
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      $schema: 'https://json-schema.org/draft-07/schema',
+      $id: `https://vovk.dev/api/spec/v${VERSION}/meta.json`,
+      title: 'Schema for Vovk _meta.json file',
+      description: 'Meta information',
+      type: 'object',
+      additionalProperties: true,
+      properties: {
+        $schema: {
+          type: 'string',
+          description: 'Schema URL',
+          enum: [`https://vovk.dev/api/schema/v${VERSION}/meta.json`],
+        },
+        config: {
+          $ref: `https://vovk.dev/api/schema/v${VERSION}/config.json`,
+        },
+      },
+    };
+  }
+
+  static getFullDefinition(): JSONSchema7 {
+    return {
+      $schema: 'https://json-schema.org/draft-07/schema',
       $id: `https://vovk.dev/api/spec/v${VERSION}/schema.json`,
       title: 'Vovk full schema definition',
       description: 'Combined schema containing config and segments',
-      version: VERSION + '.0.0',
       type: 'object',
       required: ['config', 'segments'],
       properties: {

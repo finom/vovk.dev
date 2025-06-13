@@ -1,0 +1,23 @@
+## HTTPS in development
+
+[Progressive Web Apps](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/What_is_a_progressive_web_app) require HTTPS protocol to be used both in development and production. In order to enable HTTPS in development you can use `--experimental-https` flag with `next dev` command and enable HTTPS mode in [Vovk Dev Watcher](/cli/dev) by setting `devHttps` at [config](/config) to `true` or providing `VOVK_DEV_HTTPS=true` environment variable.
+
+```js filename="/vovk.config.mjs"
+const config = {
+  // ...
+  devHttps: true,
+};
+
+export default config;
+```
+
+If you don't want to set the HTTPS mode globally, you can simply create another NPM script that includes the environment variable and the flag:
+
+```json filename="/package.json"
+"scripts": {
+    "dev-https": "VOVK_DEV_HTTPS=true vovk dev --next-dev -- --experimental-https",
+    "dev": "vovk dev --next-dev",
+}
+```
+
+Read more about [vovk dev](/cli/dev) command.

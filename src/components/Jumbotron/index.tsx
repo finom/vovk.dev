@@ -66,10 +66,10 @@ const Jumbotron = () => {
       </div>*/}
         <div className="max-w-[1440px] mx-auto pt-16 pb-24 px-5 text-center">
           <div className="pt-24">
-            <div className="text-3xl font-bold mb-4 text-slate-600 dark:text-stone-500">RESTful + RPC = ♥️</div>
+            <div className="text-3xl font-bold mb-4 text-slate-600 dark:text-stone-500">REST + RPC = ♥️</div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Back-end meta-framework for&nbsp;Next.js</h1>
             <p className="mt-4 text-secondary md:text-xl">
-              RESTful API framework and type-safe cross-language RPC with validation on server and client
+              RESTful API TypeScript framework and type-safe interlingual RPC with validation on server and client
             </p>
             <div className="max-w-[450px] mx-auto">
               <div className="mt-8 gap-3">

@@ -2,21 +2,132 @@ import { Steps, Tabs, Callout } from 'nextra/components';
 
 # About
 
-## Project mission
+## Back-end for Next.js App Router and conventional RESTful API
 
-### Linking the conventional RESTful API with RPC-style calls
+Vovk.ts offers a back-end framework for Next.js App Router that allows you to build RESTful APIs and structure the back-end code with Controller-Service-Repository pattern and validation with `zod/v4`. It's inspired by NestJS utilizing classes and decorators to define endpoints.
+<Tabs items={['Controller', 'Service', 'route.ts']}>
+  <Tabs.Tab>
+    ```ts
+    export default class UserController {
+      @prefix('users')
+      @get(':id')
+      static getUser(req: NextRequest, { id }: { id: string }) {
+        return { id, name: 'John Doe' };
+      }
+    }
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```ts
+    export default class UserService {
+      static getUser(id: string) {
+        return { id, name: 'John Doe' };
+      }
+    }
+    ```
+  </Tabs.Tab>
+   <Tabs.Tab>
+    ```ts
+    // route.ts
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+Notice how the service method infers types of the controller's handler, that in its turn, returns service method call. Zod schema and OpenAPI metadata are the only things that you need to define.
+
+`withZod` supports input validation such as `body`, `params`, `query` and output validation such as `output` and `iteration` (for JSON streaming).
+
+Vovk.ts supports Next.js edge runtime and uses built-in Next.js APIs such as `Response`, `headers`, `redirect` and others, so you can use them in your handlers. The `req` parameter is an instance of `NextRequest` extended by input data types, but also provides `req.vovk` utility methods such as `req.vovk.query()` to get nested query parameters.
+
+
+### Segments
+
+Vovk.ts adds a hierarchical level to the back-end called [segments](/segment) that allows to split the back-end into smaller sections configured differently that emit RPC schema separately for each segment. Traditional hierarchy that looks like `back-end -> controller -> handler` gets extended to `back-end -> segment -> controller -> handler`. Each segment is a separate Next.js route that can be configured independently and compiled into a separate serverless function on build. In Edge Runtime segments are deployed as smaller "back-ends", whose controllers can use services of other segments.
+
+[illustration]
+
+A segment can be turned into a "static segment" that makes its endpoints to be compiled into static JSON files during the build time, allowing to use them for historical data, OpenAPI documentation, or any other data that is generated on build time.
+
+
+### Schema
+
+`npm run dev` script runs `next dev` and `vovk dev` commands concurrently. The second one watches for changes in the **modules** folder and the **route.ts** files, makes request to Next.js dev server endpoint `_schema_` that is available when `NODE_ENV` is `development`, generates schema files in the **.vovk-schema** (a `.json` file is generated individually for each segment) folder and by default generates RPC client library in the **node_modules/.vovk-client** folder that is re-exported from `vovk-client` package.
+
+An individual schema file called "segment schema" contains information about the segment path, RPC module names, their handlers and input/output schemas: for the root segment it is `.vovk-schema/root.json`, for the customer segment it is `.vovk-schema/customer.json`, for the nested segment `foo/bar/baz` it is `.vovk-schema/foo/bar/baz.json`.
+
+### RPC code generation
+
+Vovk.ts has built-in code generator that uses schema files to generate RPC client libraries primarely for TypeScript (involving type inference), and other languages (types are generared from JSON schema). 
+
+Why it is different from the well-known way to generate client libraries from OpenAPI schema? Well, I think I need to list key differences between Vovk Schema and OpenAPI schema:
+
+- OpenAPI emphasizes the API endpoints and their methods, while Vovk Schema emphasizes the RPC modules and their handlers.
+- In order to generate types, OpenAPI generators use `components/schemas` section that contains the definitions of used models, while Vovk Schema stores validation models in self-contained schemas.
+- OpenAPI stores a mix of URL params and query params in the `parameters` section, while Vovk Schema stores them in the `params` and `query` separately.
+
+At the same time, Vovk is able to use OpenAPI schema as a source of truth...
+
+
+--------
+
+
+### OpenAPI
+
+
+## Interlingual RPC (ilRPC)
+
+### Schema
+
+
+### TypeScript RPC client
+
+- segmented
+- client-side validation
+- customizable
+- bundle
+
+### Python/mypy and Rust RPC clients
+
+- template system
+
+
+ 
+
+## Pack and distribute
+
+-------
+
+## JSON Schema as lingua franca for types
+
+JSON Schema is a format for describing the structure of JSON data. JSON in its turn is a lightweight data interchange format that is supported by the most of the programming languages. A modern strictly typed programming language that supports JSON allows to represent its data structures as types, supporting all types of JSON values: `object` for name/value pairs, `array` for collection of values, and 4 primitives: `string`, `number`, `boolean` and `null`. That means if a programming language supports JSON and has corresponding type system, JSON Schema that describes the JSON values can be used to emit types for these languages.
+
+Extra information such as `minimum`, `maximum`, `enum` etc, allow to describe the data in more detail, making it possible get types of different properties, such as `u8` for unsigned 8-bit integer or enums for limited set of values.
+
+|                     | Key-value                | Collection           | Union                   | Intersection           | Optional                      | Enum       | String       | Float                      | Integer                 | Boolean       | Null-ish   |
+|---------------------|--------------------------|----------------------|-------------------------|------------------------|-------------------------------|------------|--------------|----------------------------|-------------------------|---------------|------------|
+| **zod/v4**          | `z.object()`             | `z.array()`          | `z.union()`, `.or()`    | `z.intersection()`     | `.optional()`                 | `z.enum()` | `z.string()` | `z.float()`, `z.float32()` | `z.int()`               | `z.boolean()` | `z.null()` |
+| **JSON&nbsp;Schema**| `"object"`               | `"array"`            | `"oneOf"`, `"anyOf"`    | `"allOf"`              | not in `"required"`           | `"enum"`   | `"string"`   | `"number"`                 | `"integer"`             | `"boolean"`   | `"null"`   |
+| **TypeScript**      | `interface`, `object`    | `Array<T>`, `T[]`    | `A \| B`                | `A & B`                | `property?: T`                | `enum`     | `string`     | `number`                   | `number`                | `boolean`     | `null`     |
+| **Python**          | `class`, `dict`          | `List[T]  `          | `Union[A, B]`, `A \| B` | See ***(1)***          | `Optional[T]`                 | `Enum`     | `str`        | `float`                    | `int`                   | `bool`        | `None`     |
+| **Rust**            | `struct`                 | `Vec\<T\>    `       | `enum`                  | See ***(1)***          | `Option<T>`                   | `enum`     | `String`     | `f32`, `f64`               | `i8`-`i128`, `u8`-`u128`| `bool`        | `None`     |
+
+***(1)** - Intersection can be made during generation by creating a single key-value type that includes all properties of the intersected key-value types.*
+
+
+
+## Linking the conventional RESTful API with RPC-style calls
 
 REST and RPC are commonly considered as two different approaches to building APIs. REST is based on the idea of resources and uses HTTP methods to perform CRUD operations on them, while RPC is based on the idea of remote procedure calls and uses a single endpoint to perform different actions. Frameworks like [tRPC](https://trpc.io/) solve the problem by adding a layer of abstraction on top of REST, allowing you to use RPC-style calls while still using RESTful principles. Unfortunately, this approach requires to use custom format for the requests and responses, which makes it hard to integrate with other HTTP clients and tools. Indeed, it makes sense: the traditional REST APIs can't be used with RPC-style calls. The client-side doesn't know what endpoint to call and what parameters to pass and the server-side needs to implement well-known endpoints such as `/api/trpc/user.updateUser` mutation endpoint instead of the format `/api/users/:id` with `PATCH` or `PUT` HTTP method that is used for decades becoming a standard way to use RESTful APIs de-facto. 
 
-The only known way to link these two approaches is to make the back-end to emit a schema that describes the API and use it to generate a client-side library that can be used to make RPC-style calls. But there is the catch: while on the first glance it sounds like an attractive workaround, it forces the whole schema of the back-end to be exposed to the client-side code. In a classical case when there are multiple areas such as a customer's area and an admin's area, the customer's area should not be aware of the admin's area endpoints.
+The only known way to link these two approaches is to make the back-end to emit a schema that describes the API and use it to generate a client-side library that can be used to make RPC-style calls. But there is the catch: while on the first glance it sounds like an attractive workaround, it forces the whole schema of the back-end to be exposed to the client-side code. In a classical case when there are multiple areas such as a customer's area and an admin's area, the customer's area should not be aware of the admin's area endpoints. This problem limits scalability or makes protected implementation of other areas visible to everyone.
 
-Vovk.ts solves this problem by adding an additional hierarchical level to the back-end called [segments](/segment) that splits back-end into smaller sections that emit back-end schema separately for each segment and introducing two ways to generate RPC code: **composed** where the RPC client library includes all segments and **segmented** where each segment has its own `.ts` file. See [here](/composed-and-segmented) for more details.
+Vovk.ts solves this problem by adding an additional hierarchical level to the back-end called [segments](/segment) that splits back-end into smaller sections that emit back-end schema separately for each segment and introducing two ways to generate RPC code: **composed** where the RPC client library includes all segments and **segmented** where each segment has its own folder with the module. See [here](/composed-and-segmented) for more details.
 
 This approach also has a nice side effect: since each segment is a separate Next.js route, they compiled in separate serverless functions, making them to be separate "back-ends" that can have their own settings and features, such as OpenAPI specification, static export, etc. The static export in its turn also provides an RPC client library that does not differ from dynamic one, but requests static JSON files compiled in the build time.
 
 The schema can be used to validate request data on the client-side before sending it to the server, validate forms, build structured outputs for LLMs, generate documentation (OpenAPI, README etc), build RPC libraries for other programming languages and more.
 
-### Make client-side thinner
+## Make client-side thinner
 
 When the conventional RESTful API format is used, the developer needs to implement a client-side code that makes HTTP requests to the back-end. In strictly typed languages like TypeScript, Rust or Go, the developer needs to know the shape of the request and response objects in order to create type-safe code. This takes a lot of time and effort, especially when the API is large and complex. Let's say your RESTful API is implemented in TypeScript but there is requirement to use the API in Rust. There is what you would need to know in order to implement the client-side code:
 
@@ -36,7 +147,7 @@ At this scenario, if back-end is changed (for example, `name` field is changed t
 
 That's not it. Vovk.ts emits corresponding package info file (package.json, Cargo.toml, pyproject.toml) extracting package name, description, version, authors etc from the **package.json** from the root of your project or from the [config file](/config) where the values can be configured for each language independently. It also emits **README.md** that uses package information (name, version, description, authors, etc) and the schema to build documentation with code examples. A distributable RPC library is built in one command (`npx vovk bundle [...flags]` for TypeScript and `npx vovk generate [...flags]`) for other languages and after that it can be published corresponding to the language ecosystem or used locally.
 
-Another good news is that the schema is designed the way it it can be emitted by any framework and any language and then be used by Vovk.ts to generate RPC libraries for all supported languages (a standalone TypeScript RPC client would require a separate implementation). That's why I call it "cross-language", but not "multi-language" or similar.
+Another good news is that the schema is designed the way it it can be emitted by any framework and any language and then be used by Vovk.ts to generate RPC libraries for all supported languages (a standalone TypeScript RPC client would require a separate implementation). That's why I call it interlingual.
 
 By the time being the following languages are supported:
 
@@ -77,7 +188,7 @@ This is the only thing you need to define the endpoint, the rest is automaticall
 
 TODO Exemple goes here
 
-#### JSON schema and type matching
+### JSON schema and type matching
 
 As you can see at the example, the schema includes all the information required to generate a typed client-side library, such as:
 
@@ -86,15 +197,6 @@ As you can see at the example, the schema includes all the information required 
 - Handler name
 - Input schemas
 - Output schemas
-
-That's all information needed to 
-
-|                | Module       | Nested data          | Collections          | String     | Float            | Integer              | Boolean     | Null-ish |
-|----------------|--------------|----------------------|----------------------|------------|------------------|----------------------|-------------|----------|
-| **JSON Schema**| -            | "object"             | "array"              | "string"   | "number"         | "integer"            | "boolean"   | "null"   |
-| **TypeScript** | export       | interface, object    | Array\<T\>, T[]      | string     | number           | number               | boolean     | null     |
-| **Python**     | def          | class, dict          | List[T]              | str        | float            | int                  | bool        | None     |
-| **Rust**       | pub&nbsp;mod | struct               | Vec\<T\>             | String     | f32, f64         | i8-i128, u8-u128     | bool        | None     |
 
 
 ## How it works
@@ -391,7 +493,7 @@ const user = fetch(`/api/users/${id}?notify=EMAIL`, {
 
 ## Publish your RPC client on NPM
 
-## Cross-language RPC
+## Interlingual RPC (ilRPC)
 
 Simple and conventional design of Vovk.ts made possible to generate type-safe RPC clients with client-side validation for other programming languages that require a couple of well-known libraries for HTTP requests and JSON schema validation. The first implementation is made for [Python](/python) and more languages are coming soon.
 

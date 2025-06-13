@@ -1,7 +1,8 @@
 import { initVovk, generateStaticAPI } from 'vovk';
 import HelloController from '../../../modules/hello/HelloController';
+import SpecController from '../../../modules/spec/SpecController';
 
-const controllers = { HelloRPC: HelloController };
+const controllers = { HelloRPC: HelloController, SpecRPC: SpecController };
 
 export type Controllers = typeof controllers;
 

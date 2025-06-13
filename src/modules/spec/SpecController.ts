@@ -13,6 +13,11 @@ export default class SpecController {
     return V3Service.getConfigDefinition();
   }
 
+  @get('v3/meta.json')
+  static getMetaDefinition() {
+    return V3Service.getMetaDefinition();
+  }
+
   @get('v3/schema.json')
   static getFullDefinition() {
     return V3Service.getFullDefinition();
