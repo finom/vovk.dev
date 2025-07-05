@@ -1,2 +1,68 @@
+import { Tabs } from 'nextra/components';
+
 # OpenAPI code generation
 
+Vovk.ts provides a powerful code generation feature that allows you to generate client-side RPC modules from OpenAPI specifications and merge them into.
+
+-------
+
+Vovk.ts CLI can be used as a standalone OpenAPI code generator, allowing to generate TypeScript, Rust, and Python code from OpenAPI specification files. The generated code is split into modules, allowing to mix multiple OpenAPI specifications into a single codebase and optionally use together with modules emitted by Vovk.ts back-end framework.
+
+<Tabs items={['TypeScript', 'Rust', 'Python']}>
+<Tabs.Tab>
+```ts
+import {
+    UserRPC, // Vovk.ts RPC module for UserController
+    GithubIssuesRPC, // Codegen RPC module for GitHub Issues API
+    MedusaCartRPC, // Codegen RPC module for Medusa Cart API
+} from 'vovk-client';
+```
+</Tabs.Tab>
+<Tabs.Tab>
+
+```rs
+use vovk_client::{user_rpc, github_issues_rpc, medusa_cart_rpc};
+```
+</Tabs.Tab>
+<Tabs.Tab>
+
+```py
+from vovk_client import UserRPC, GithubIssuesRPC, MedusaCartRPC
+```
+</Tabs.Tab>
+</Tabs>
+
+The generated modules have similar signature, accepting `params` for URL parameters such as `users/:id`, `query` for query parameters such as `?page=1`, and `body` for request body. Every method supports client-side validation out if the box, that can be disabled by passing `disableClientValidation: true` option to the method.
+
+<Tabs items={['TypeScript', 'Rust', 'Python']}>
+<Tabs.Tab>
+```ts
+await UserRPC.updateUser({
+    params: { id: '123' },
+    query: { hello: 'world' },
+    body: { name: 'John Doe' },
+    disableClientValidation: true, // optional
+});
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```rs
+user_rpc::update_user(
+    id: "123",
+    query: Some("hello=world"),
+    body: Some("{\"name\": \"John Doe\"}"),
+    disable_client_validation: true, // optional
+);
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```py
+UserRPC.update_user(
+    params={"id": "123"},
+    query={"hello": "world"},
+    body={"name": "John Doe"},
+    disable_client_validation=True,  # optional
+)
+```
+</Tabs.Tab>
+</Tabs>

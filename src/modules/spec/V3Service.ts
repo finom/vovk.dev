@@ -15,7 +15,7 @@ export default class V3Service {
       title: 'Vovk.ts segment definition',
       description: '',
       type: 'object',
-      required: ['$schema', 'emitSchema', 'segmentName', 'controllers'],
+      required: ['$schema', 'emitSchema', 'segmentName', 'segmentType', 'controllers'],
       properties: {
         $schema: {
           type: 'string',
@@ -30,10 +30,14 @@ export default class V3Service {
           type: 'string',
           description: "Segment name, for the root segment it's an empty string",
         },
+        segmentType: {
+          type: 'string',
+          enum: ['segment', 'mixin'],
+          description: 'Defines if the segment is a regular segment or an OpenAPI mixin',
+        },
         forceApiRoot: {
           type: 'string',
-          description:
-            'Force API root URL for this segment, overrides the global one. Used internally to convert OpenAPI spec to Vovk schema',
+          description: 'Force API root URL for this segment, overrides the global one',
         },
         controllers: {
           type: 'object',
@@ -53,6 +57,10 @@ export default class V3Service {
               prefix: {
                 type: 'string',
                 description: 'An argument of @prefix class decorator',
+              },
+              forceApiRoot: {
+                type: 'string',
+                description: 'Force API root URL for this RPC module, overrides the global one',
               },
               handlers: {
                 type: 'object',
@@ -110,6 +118,11 @@ export default class V3Service {
               },
             },
           },
+        },
+        meta: {
+          type: 'object',
+          description: 'Additional metadata for the segment',
+          additionalProperties: true,
         },
       },
     };

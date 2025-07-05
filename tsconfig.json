@@ -33,6 +33,6 @@
     "src/app/openapi/page.mdx",
     "src/app/python/page.mdx",
     "src/app/isolated-client/page.mdx"
-  ],
+, "src/app/progressive/page.mdx"  ],
   "exclude": ["node_modules"]
 }

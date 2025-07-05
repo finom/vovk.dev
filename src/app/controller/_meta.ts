@@ -11,6 +11,8 @@ const meta: MetaRecord = {
   redirect: 'redirect and notFound',
   'type-extraction': 'Type extraction',
   jsonlines: 'JSON Lines',
+  callable: 'Callable controllers',
+  meta: 'Request meta',
 };
 
 export const icons: Record<keyof typeof meta, string> = {
@@ -24,6 +26,8 @@ export const icons: Record<keyof typeof meta, string> = {
   redirect: 'i',
   'type-extraction': 'i',
   jsonlines: 'i',
+  callable: 'i',
+  meta: 'i',
 };
 
 export default meta;

@@ -2,23 +2,94 @@ import { Steps } from 'nextra/components'
 
 # Framework for SaaS applications
 
-
-Next.js in tandem with Vovk.ts offer a framework for building SaaS applications. The app is implemented as a single Next.js application, that, when deployed, split into multiple Edge Functions (smaller "back-ends"), each serving a specific purpose. This makes deployment infrastructure cheaper, having only one Next.js app to deploy with minimal configuration, while still being able to scale horizontally by adding more functions defined as Next.js `page.tsx` (UI) and `route.ts` (server-side code) files. The offering also makes development cheaper, as you don't need to maintain monorepo with common UI and libraries, that require additional configuration and tooling, and planning in general.
-
-As a SaaS framework Vovk.ts also offers a set of features that are usually implemented separately:
-
-- Multi-domain support, allowing to serve areas of the application from different domains, for example `https://example.com`, `https://admin.example.com`, `https://customer.example.com`, `https://acme.customer.example.com` (wildcard subdomains).
-- First-party OpenAPI support, allowing to describe the API of the application or a single segment of the application, so that it can be used by third-party developers to integrate with your application.
-- Typed code generation of so-called "RPC modules" that can be distributed as public or private packages for TypeScript, Python, or Rust, allowing to call the API endpoints from the client-side code.
+Next.js in tandem with Vovk.ts offer a framework for building SaaS applications that is easy to deploy, scale, and maintain, but also provides a lot of features out of the box
 
 <Steps>
 
-## Split the app into multiple areas
+## Cheap development and deployment
+
+The whole app is implemented as a single Next.js application, that, when deployed, split into multiple serverless functions (smaller "back-ends"), each serving a specific purpose. This makes deployment infrastructure cheaper, having only one Next.js app to deploy with minimal configuration, while still being able to scale horizontally by adding more functions defined as Next.js `page.tsx` (UI) and `route.ts` (server-side code) files. The offering also makes development cheaper, as you don't need to maintain monorepo with common UI and libraries, that require additional configuration, tooling, and planning in general.
+
+**Read more**
+
+- [TODO: Next.js serverless functions](/guides/serverless)
+- [Build Single Page Application](/guides/spa)
+
+
+## Enable multi-tenancy
 
 In the most classical case a SaaS application is split into 3 "areas" or "tenants":
 1. Root area - serves landing page with some features like "subscribe to newsletter", stats collection, etc. It's available to all unauthenticated users serving marketing content, pricing plans, etc.
 2. Customer area - serves authenticated paid or trial customers, providing access to the main features of the application.
 3. Admin area - serves authenticated administrators, providing access to the admin features of the application, managing customer, billing, etc.
+
+Each area is served from a separate Next.js `route.ts` file, allowing to split the application into multiple segments, each served as a separate Edge Function. This allows to scale the application horizontally by adding more functions, while still being able to serve different areas of the application from different domains, such as `https://example.com`, `https://admin.example.com`, `https://customer.example.com`, and so on.
+
+**Read more**
+
+- TODO nextjs routes
+- [More info about multi-tenancy](/guides/multitenant)
+
+## Enable AI features
+
+TODO
+
+**Read more**
+
+- [LLMs: AI SDK and JSONLines](/guides/llm)
+- [MCP server](/guides/mcp)
+- [AI tools](/guides/ai-tools)
+- [AI-powered client](/guides/ai-ui)
+
+## Offer public API to your customers
+
+Vovk.ts implements the conventional REST API, allowing to expose the API endpoints to the public without additional explanation. TODO
+
+**Read more**
+
+- [TODO More info about API](/guides/api)
+
+
+## Offer installable libraries for your public API
+
+TODO
+
+**Read more**   
+- [OpenAPI code generation](/guides/codegen)
+
+## Mix RPC library with other serverless
+
+TODO
+
+**Read more**
+
+-[OpenAPI code generation](/guides/openapi)
+
+
+</Steps>
+
+-------
+
+
+Next.js in tandem with Vovk.ts offer a framework for building SaaS applications. 
+
+
+When using Vovk.ts as a SaaS framework you get:
+
+- Controller-service-repository architecture, that has been proven to be effective in building scalable back-end applications.
+- Typed RPC libraries for TypeScript, Rust, and Python (more are coming soon), allowing to call the API endpoints from the client-side code with type safety and auto-completion.
+- Built-in support for OpenAPI code generation, allowing to generate client-side libraries from OpenAPI specifications and merge them into the RPC client.
+- Built-in support for multi-tenancy, allowing to serve different areas of the application from different domains, such as `https://example.com`, `https://admin.example.com`, `https://customer.example.com`, and so on.
+- AI-powered back-end, and with some additional front-end magic, AI-powered client, allowing to use LLMs to call the API endpoints with LLM chats or real-time voice assistants, that is especially useful for people with disabilities.
+
+TODO multiDB
+
+<Steps>
+
+## Enable multi-tenancy
+
+### Split the app into multiple areas
+
 
 Each area is going to have its own `route.ts` file, representing so-called [segment](/segment) in Vovk.ts that is served as a separate Edge Function:
 
@@ -34,17 +105,6 @@ Each controller of the segments automaticaly transformed into so-called RPC modu
 
 CODE TODO
 
-## Enable segmented client
-
-The generated TypeScript client library imports `.json` files from the `.vovk-schema/` directory that is generated by `npm run dev`. This makes the entire back-end schema available to the client-side inspection, revealing all the API endpoints (customer area gets access to the schema of admin area). In order to fix that you can switch to using "segmented client" that only exposes the API endpoints of the current segment. The client is split by segment, having its own folder and importing `.json` files that are responsible for one segment only. This way the customer area will only have access to the customer segment API endpoints, while the admin area will have access to both customer and admin segments if needed.
-
-SEGMENTD CLIENT DRAWING TODO
-
-This can be achieved by updating [config](/config) or by using flags with [vovk generate](/cli/generate) command:
-
-EXAMPLE TODO
-
-## Enable multi-tenancy
 
 MULTITENANT DRAWING TODO
 

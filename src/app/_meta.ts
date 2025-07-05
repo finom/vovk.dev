@@ -56,16 +56,12 @@ const meta: MetaRecord = {
   python: 'Python RPC client',
   rust: 'Rust RPC client',
   'custom-client': 'Custom client',
-  '######': {
-    type: 'separator',
-    title: 'Validation',
-  },
-  validation: 'Validation',
   'custom-validation': 'Custom Validation',
   '#######': {
     type: 'separator',
     title: 'Miscellaneous',
   },
+  packages: 'Packages',
   config: 'Config',
   cli: 'CLI',
   'api-ref': 'API reference',

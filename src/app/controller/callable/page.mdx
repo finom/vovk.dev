@@ -1,4 +1,21 @@
-# Requesting data at server compoents
+# Callable methods
+
+Every controller method created with `withValidationLibrary` function, that works behind the scenes of all validation libraries, can be used outside of HTTP request context as a regular function. It provides `fn` method that can be used to call the method directly, simulating signature of a resulting RPC module function. 
+
+```ts
+// example
+```
+
+The callable controller methods can be used in the following ways:
+
+Use cases:
+- For SSR or SSG: You can use the method as a server-side function, allowing you to call it from the server-side code.
+- **Via LLM Function Calling**: You can use the method as a tool in LLM Function Calling, allowing AI to call it as a function.
+- **As detached HTTP handler**: You can use the method as a detached HTTP handler, which can be useful for testing or other purposes.
+- **As validated service method**: You can use the method as a validated service method, which can be useful for creating a more structured and type-safe service layer.
+
+
+# Requesting data at server compoents TODO
 
 See live [example](https://vovk-examples.vercel.app/server-component).
 

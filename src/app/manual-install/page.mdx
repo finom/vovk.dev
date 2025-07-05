@@ -11,33 +11,20 @@ import LiveBasicExample from '../../../live-examples/LiveBasicExample';
 
 Follow [this instruction](https://nextjs.org/docs/getting-started/installation) to install Next.js. Use TypeScript, App Router and `src/` directory.
 
-```bash
+```sh npm2yarn
 npx create-next-app my-app --ts --app
 ```
 
-```bash
+```sh pnpm2yarn
 cd my-app
 ```
 
 ## Install "vovk" and "vovk-client"
 
-<Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tabs.Tab>
-``` 
+```sh npm2yarn
 npm i vovk vovk-client
 ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-``` 
-pnpm i vovk vovk-client 
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```
-yarn add vovk vovk-client 
-```
-</Tabs.Tab>
-</Tabs>
+
 
 ## Create an empty config file
 
@@ -66,23 +53,9 @@ There are two ways to run Vovk.ts and Next.js server concurrently: explicitly an
 <Tabs items={['Explicit', 'Implicit']} >
   <Tabs.Tab>
     Install concurrently:
-    <Tabs items={['npm', 'pnpm', 'yarn']} className="px-8 [&_+_div]:px-8">
-      <Tabs.Tab>
-      ```
-      npm i -D concurrently
-      ```
-      </Tabs.Tab>
-      <Tabs.Tab>
-      ```
-      pnpm i -D concurrently 
-      ```
-      </Tabs.Tab>
-      <Tabs.Tab>
-      ```
-      yarn add -D concurrently
-      ```
-      </Tabs.Tab>
-    </Tabs>
+```sh npm2yarn
+npm i -D concurrently
+```
 
     Update the "dev" script in **package.json**:
 
@@ -207,7 +180,7 @@ Next.js Server Components are also supported but require to define absolute URL 
 
 In order to build the client (not the schema) at **node_modules** you need to run the following command after dependency installation and before building the app.
 
-```bash
+```sh npm2yarn
 npx vovk generate
 ```
 

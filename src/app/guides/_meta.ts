@@ -1,23 +1,41 @@
 import type { MetaRecord } from 'nextra';
 
+const separator = (title: string) => ({ type: 'separator', title });
+
 const meta: MetaRecord = {
-  saas: 'SaaS',
-  'public-api': 'Public API',
+  '#common': separator('Common'),
+  'hello-world': '"Hello World!"',
   spa: 'Single Page Application',
+  'public-api': 'Public RESTful API',
+  multitenant: 'Multitenancy',
+  saas: 'SaaS framework',
+
+  '#customization': separator('Customization'),
+  validation: 'Validation',
+  customization: 'Customization',
+
+  '#codegen': separator('Code Generation'),
+  codegen: 'Code generation',
   nestjs: 'RPC for NestJS',
-  proxy: 'Proxy endpoints',
+
+  '#ai': separator('AI'),
   llm: 'LLM integration',
-  ai: 'AI integration',
+  'ai-tools': 'AI tools',
+  'ai-ui': 'AI-powered UI',
+  mcp: 'MCP Server',
+
+  '#techniques': separator('Experimental techniques'),
+  polling: 'Real-time Polling',
+  progressive: 'Progressive Response',
+
+  '#misc': separator('Miscellaneous'),
   cron: 'Vercel Cron jobs',
   authorization: 'Authorization',
-  customization: 'Customization',
-  prisma: 'Prisma integration',
-  codegen: 'Code generation',
-  multitenant: 'Multitenancy',
+  prisma: 'Prisma Generators',
+  proxy: 'Proxy endpoints',
   'react-hook-form': 'React Hook Form',
   'react-query': 'React Query',
   'dev-https': 'Development HTTPS',
-  openapi: 'OpenAPI',
 };
 
 export const icons: Record<keyof typeof meta, string> = {
@@ -27,7 +45,8 @@ export const icons: Record<keyof typeof meta, string> = {
   nestjs: 'i',
   proxy: 'i',
   llm: 'i',
-  ai: 'i',
+  'ai-tools': 'i',
+  'ai-ui': 'i',
   cron: 'i',
   authorization: 'i',
   customization: 'i',
@@ -35,8 +54,13 @@ export const icons: Record<keyof typeof meta, string> = {
   codegen: 'i',
   multitenant: 'i',
   'react-hook-form': 'i',
+  'react-query': 'i',
   'dev-https': 'i',
-  openapi: 'i',
+  validation: 'i',
+  'hello-world': 'i',
+  progressive: 'i',
+  mcp: 'i',
+  polling: 'i',
 };
 
 export default meta;
