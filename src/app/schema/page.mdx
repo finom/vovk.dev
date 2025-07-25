@@ -1,25 +1,123 @@
+import { FileTree } from 'nextra/components';
+
 # Schema
 
-TODO config schema
+The `npm run dev` command runs [vovk dev](/cli/dev) together with `next dev` via [concurrently](https://www.npmjs.com/package/concurrently). The first one watches for changes in `modules` folder, looking for updates of controllers. On the initial run, or when the change is detected, it makes an HTTP request to the Next.js dev server endpoint `_schema_` of a corresponding segment, that is exposed when `process.env.NODE_ENV` is set to `development`. The endpoint returns schema for the corresponding segment, allowing to isolate emitted .json files from each other. This approach works even in Edge Runtime, since `route.ts` files don't have to import Node.js modules such as `fs`.
 
-[vovk dev](/cli/dev) emits JSON files that contain information about endpoints, method names, validation, openapi object, etc, defined at the controller to **.vovk-schema/segments/** folder. Each **.json** file represents schema for one [segment](/segment).
+Each segment emits back-end schema into an individual JSON file that in its turn is used to generate client-side RPC modules. If you have different areas of your application (e.g. root, admin, customer), each area will have its own JSON schema file. For a segment structure like this:
+
+<FileTree>
+  <FileTree.Folder name="src/app/api" defaultOpen>
+    <FileTree.Folder name="[[...vovk]]" defaultOpen>
+      <FileTree.File
+        name={
+          <span>
+            route.ts{' '}
+            <span className="text-gray-500">
+              (root segment <code>/api/</code>)
+            </span>
+          </span>
+        }
+      />
+    </FileTree.Folder>
+    <FileTree.Folder name="admin/[[...vovk]]" defaultOpen>
+      <FileTree.File
+        name={
+          <span>
+            route.ts{' '}
+            <span className="text-gray-500">
+              (admin segment <code>/api/admin</code>)
+            </span>
+          </span>
+        }
+      />
+    </FileTree.Folder>
+    <FileTree.Folder name="customer/[[...vovk]]" defaultOpen>
+      <FileTree.File
+        name={
+          <span>
+            route.ts{' '}
+            <span className="text-gray-500">
+              (customer segment <code>/api/customer</code>)
+            </span>
+          </span>
+        }
+      />
+      <FileTree.Folder name="static/[[...vovk]]" defaultOpen>
+        <FileTree.File
+          name={
+            <span>
+              route.ts{' '}
+              <span className="text-gray-500">
+                (static segment <code>/api/customer/static</code> for OpenAPI)
+              </span>
+            </span>
+          }
+        />
+      </FileTree.Folder>
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+The resulting schema files will be located in `.vovk-schema/` directory like this:
+
+<FileTree>
+  <FileTree.Folder name=".vovk-schema" defaultOpen>
+    <FileTree.File name="root.json" />
+    <FileTree.File name="admin.json" />
+    <FileTree.File name="customer.json" />
+    <FileTree.Folder name="customer" defaultOpen>
+      <FileTree.File name="static.json" />
+    </FileTree.Folder>
+    <FileTree.File name="_meta.json" />
+  </FileTree.Folder>
+</FileTree>
+
+As you can see, the emited files follow recursive structure of the segments, and a segment `foo/bar/baz` will have a file `.vovk-schema/foo/bar/baz.json`. The root segment as the only exception from the rule is represented by `root.json` file.
+
+The `_meta.json` file contains additional metadata, such as explicitly emitted fields of the [vovk.config](/config) file using `config` key and some other information, having loose format, free to be extended.
+
+When Vovk CLI reads these files, it builds a single object (called "full schema") of keys `segments` and `meta`, where `segments` have flat structure of segment names as keys and their schema as values, and `meta` contains the `_meta.json` file content. This object is then used to generate client-side RPC modules, OpenAPI documentation, but also available on both client-side and server-side as `schema` export.
+
+```ts
+import { schema } from 'vovk-client';
+// or
+import { schema } from 'vovk-client/schema'; // exports only the schema object, not the client-side RPC modules
+
+import type { VovkSchema, VovkSegmentSchema } from 'vovk';
+
+console.log(schema satisfies VovkSchema); // schema for the admin segment
+console.log(schema.segments.admin satisfies VovkSegmentSchema); // schema for the admin segment
+```
+
+The `schema` is also available in the [segmented client](/composed-and-segmented), containing schema for the current segment.
+
+```ts
+import { schema } from '@client/root';
+// or
+import { schema } from '@client/root/schema';
+```
+
+---
 
 Example of a segment schema file:
 
 ```json filename=".vovk-schema/segments/foo.json"
 {
+  // Segment schema version
+  "$schema": "https://vovk.dev/api/spec/v3/segment.json",
   // vovkInit function option that defines is the schema going to be emitted for this segment
   "emitSchema": true,
   // Segment name, for the root segment it's an empty string
   "segmentName": "foo",
   // List of controllers as key-value pairs for fast access
-  // Key is a name of the variable thst's going to be exported from "vovk-client"
+  // Key is a name of the variable that's going to be exported from "vovk-client"
   // Value is controller information
   "controllers": {
     "HelloRPC": {
       // RPC name that's going to be used in the client
       "rpcModuleName": "HelloRPC",
-      // Original name of the controller class
+      // Original name of the controller class, used to determine segment name when the controller is changed on "vovk dev"
       "originalControllerName": "HelloController",
       // An argument of @prefix class decorator
       "prefix": "hello",
@@ -44,7 +142,7 @@ Example of a segment schema file:
               },
               "required": ["foo"],
               "additionalProperties": false,
-              "$schema": "http://json-schema.org/draft-07/schema#"
+              "$schema": "https://json-schema.org/draft/2020-12/schema"
             },
             "query": {
               "type": "object",
@@ -55,7 +153,7 @@ Example of a segment schema file:
               },
               "required": ["bar"],
               "additionalProperties": false,
-              "$schema": "http://json-schema.org/draft-07/schema#"
+              "$schema": "https://json-schema.org/draft/2020-12/schema"
             },
             "params": {
               "type": "object",
@@ -66,9 +164,10 @@ Example of a segment schema file:
               },
               "required": ["baz"],
               "additionalProperties": false,
-              "$schema": "http://json-schema.org/draft-07/schema#"
+              "$schema": "https://json-schema.org/draft/2020-12/schema"
             },
             "output": {
+              // or "iteration" for JSONLines response
               "type": "object",
               "properties": {
                 "hello": {
@@ -77,27 +176,17 @@ Example of a segment schema file:
               },
               "required": ["hello"],
               "additionalProperties": false,
-              "$schema": "http://json-schema.org/draft-07/schema#"
-            },
-            "iteration": {
-              "type": "object",
-              "properties": {
-                "foo": {
-                  "type": "string"
-                }
-              },
-              "required": ["foo"],
-              "additionalProperties": false,
-              "$schema": "http://json-schema.org/draft-07/schema#"
+              "$schema": "https://json-schema.org/draft/2020-12/schema"
             }
           },
-          // OpenAPI object that can be used to generate OpenAPI documentation
+          // OpenAPI object that can be used to generate OpenAPI documentation, LLM tools, MCP etc.
           "openapi": {
             "summary": "Hello world",
-            "description": "Hello world"
+            "description": "Hello world",
+            "x-tool-description": "Hello world" // custom description for an LLM tool
           },
           // Custom data that can be defined by a custom decorator
-          "custom": {
+          "misc": {
             "hello": "World"
           }
         }
@@ -106,11 +195,3 @@ Example of a segment schema file:
   }
 }
 ```
-
-The segment schema type is defined as `VovkSegmentSchema` that is exported from `vovk` package.
-
-Vovk also emits processed config file (by default it emits only `"libs"` key, see [config docs](/config)) as **config.json** file. Type of this file is `Partial<VovkStrictConfig>`.
-
-TODO
-
-Check how to emit custom schema and validation at [decorators documentation](/controller/decorator).

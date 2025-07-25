@@ -15,21 +15,22 @@ Commonly used back-end frameworks that use the Controller-Service-Repository pat
 Vovk.ts adds a new level to this hierarchy in between the back-end server and controllers:
 
 - Back-end server - the highest level of the hierarchy, made of segments.
-- Segments - the second level of the hierarchy, made of controllers.
+- **Segments** - the second level of the hierarchy, made of controllers.
 - Controllers - the third level of the hierarchy, made of handlers.
 - Handlers - the lowest level of the hierarchy, they perform request processing.
 
-Each segment controls a specific path such as `/api/foo`, `/api/bar` etc. and compiled as a separate serverless function in Edge runtime. This allows to split the back-end code into multiple smaller "back-ends" that are responsible for a specific area of the app and similar to how the front-end code is split into multiple pages in Next.js. Segments are implemented with the help of [Next.js optional catch-all segments](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) and initialised by calling `initVovk` function in the **route.ts** file that is stored at **[[...slug]]** folders.
+Each segment controls a specific path such as `/api/foo`, `/api/bar` etc. and compiled as a separate serverless function. This allows to split the back-end code into multiple smaller "back-ends" that are responsible for a specific area of the app and similar to how the front-end code is split into multiple pages in Next.js. Segments are implemented with the help of [Next.js optional catch-all segments](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) and initialised by calling `initSegment` function in the **route.ts** file that is stored at **[[...slug]]** folders.
 
 Eeach segment can have its own set of features, solving variety of concerns:
+
 - For back-end segment code that isn't supposed to provide RPC you can disable schema emission completely by setting `emitSchema` to `false`.
 - For back-end segment code that should secure its implementation details by hiding validation data you can set `exposeValidation` to `false`. At this case the RPC functions wouldn't perform the client-side validation and the types generated for other programmming languages will be missing. All other features remain the same and the TypeScript inference is going to work as expected.
 - You can turn the segment into so-called [static](/segment/static) segment to serve data generated on build time, such as OpenAPI specification, historical data, etc.
 - Using `onError` you can perform different error logging.
 
-In development mode (when `NODE_ENV` env variable is set to `"development"`) each segment provides `_schema_` endpoint that serves the schema of the segment and they're invoked by [dev CLI](/cli/dev) to retrieve the schema of the segment and build corresponding JSON files at **.vovk-schema/segments/** folder. This approach allows to skip importing native Node.js modules on the Next.js side and use `export const runtime = 'edge'` in the **route.ts** file with no errors even in development mode. 
+In development mode (when `NODE_ENV` env variable is set to `"development"`) each segment provides `_schema_` endpoint that serves the schema of the segment and they're invoked by [dev CLI](/cli/dev) to retrieve the schema of the segment and build corresponding JSON files at **.vovk-schema/** folder. This approach allows to skip importing native Node.js modules on the Next.js side and use `export const runtime = 'edge'` in the **route.ts** file with no errors even in development mode.
 
-Segments also solve code inspection and reverse-engineering concerns in complex apps when Vovk.ts RPC is used. Since back-end schema files are imported by the client-side code to build RPCs, the client-side code can be reverse-engineered to get the schema of the back-end parts that are not supposed to be exposed (for example customer's area shouldin't include schema for the admin area). This problem is solved elegantly by introducing [segmented client](/composed-and-segmented) that splits the RPC client into separate chunks, each imports its corresponding schema file and doesn't import others. For example, importing `@/client/foo` the client-side gets access to the schema of the `foo` segment stored in **.vovk-schema/segments/foo.json** file but doesn't get access to the schema of the `bar` segment stored in **.vovk-schema/segments/bar.json** file.
+Segments also solve code inspection and reverse-engineering concerns in complex apps when Vovk.ts RPC is used. Since back-end schema files are imported by the client-side code to build RPCs, the client-side code can be reverse-engineered to get the schema of the back-end parts that are not supposed to be exposed (for example customer's area shouldin't include schema for the admin area). This problem is solved by introducing [segmented client](/composed-and-segmented) that splits the RPC client into separate chunks, each imports its corresponding schema file and doesn't import others. For example, importing `@/client/foo` the client-side gets access to the schema of the `foo` segment stored in **.vovk-schema/segments/foo.json** file but doesn't get access to the schema of the `bar` segment stored in **.vovk-schema/segments/bar.json** file.
 
 ## Segment priority
 
@@ -47,40 +48,41 @@ Then request to **/api/foo/bar** is going to have the highest priority and is go
 
 ## Creating segments
 
-Vovk.ts implements the segments via ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) defined as **route.ts** file in **/src/app/api/[[...slug]]/** for root segment or **/src/app/api/`segment-name`/[[...slug]]/** folder for multi-segment apps (**[[...slug]]** is the folder name). It exports [route handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) such as `GET`, `POST` etc, created by `initVovk` function. The file can also export any of the Next.js [segment config options](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#segment-config-options) such as `runtime` or `maxDuration` to determine behaviour of the Next.js route. If a segment is supposed to be available at front-end for RPC calls, it should also export `Controllers` type that is used to type the generated TypeScript RPC library.
+Vovk.ts implements the segments via ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) defined as **route.ts** file in **/src/app/api/[[...slug]]/** for root segment or **/src/app/api/`segment-name`/[[...slug]]/** folder for multi-segment apps (**[[...slug]]** is the folder name). It exports [route handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) such as `GET`, `POST` etc, created by `initSegment` function. The file can also export any of the Next.js [segment config options](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#segment-config-options) such as `runtime` or `maxDuration` to determine behaviour of the Next.js route. If a segment is supposed to be available at front-end for RPC calls, it should also export `Controllers` type that is used to type the generated TypeScript RPC library.
 
-[The code generator](/cli/new) as well as this documentation uses `"vovk"` as the slug name but it can be called in any way since it's never used to determine something in the code.
+[The code generator](/cli/new) as well as this documentation uses `vovk` as the slug name but it can be named in any valid way since it's never used to determine something in the code.
 
-A segment is initialised by calling `initVovk` function in the **route.ts** file. The function takes an object with the following properties:
+A segment is initialised by calling `initSegment` function in the **route.ts** file. The function takes an object with the following properties:
+
 - `controllers` - an object with the controllers that are going to be used in the segment. The keys of the object define the names of the generated RPC objects and the values are the controllers.
 - `segmentName` - the name of the segment. By default it's an empty string that defines the root segment described below.
-- `emitSchema` - a boolean value that defines whether to emit the schema for the segment. By default it's `true`. If set to `false`, the schema for the segment is not going to be emitted and the segment is going to be treated as a static segment.
-- `exposeValidation` - a boolean value that defines whether to expose the validation data for the segment. By default it's `true`. If set to `false`, the validation data is not going to be exposed and the segment is going to be treated as a static segment.
+- `emitSchema` - a boolean value that defines whether to emit the schema for the segment. By default it's `true`. If set to `false`, the schema for the segment is not going to be emitted.
+- `exposeValidation` - a boolean value that defines whether to expose the validation data for the segment. By default it's `true`. If set to `false`, the validation data is not going to be exposed.
 - `onError` - a function that is going to be called when an error occurs in the segment. The function takes an object with the following properties:
-  - `error` - the error that occurred.
-  - `request` - the request that caused the error that allows to get the request body, headers, etc.
+  - `error: HttpError` - the error that occurred.
+  - `request: NextRequest` - the request object that allows to get headers, URL, etc.
 
 ### The root segment
 
-```sh filename="Create root segment with CLI"
+```sh npm2yarn
 npx vovk new segment # will create a new segment at src/app/api/[[...vovk]]/route.ts
 ```
 
 [`vovk new` documentation](/cli/new)
 
-Using segments feature is optional and for simple apps you can use the root segment as the only segment. In this case, the back-end code of the app is going to be bundled into a single serverless function. In most of cases would be enough to have only the root segment.
+For simple single page apps you can use the root segment as the only segment. In this case, the back-end code of the app is going to be bundled into a single serverless function when deployed.
 
 Here is an example of a **route.ts** file for a single-segment app:
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
-import { initVovk } from 'vovk';
+import { initSegment } from 'vovk';
 import UserController from '../../modules/user/UserController';
 import PostController from '../../modules/post/PostController';
 
-// run code on the edge network — distributed globally across multiple data centers
+// run code on the edge network
 export const runtime = 'edge';
 
-// maximum duration of request in seconds, useful for AI apps
+// maximum duration of request in seconds, useful for long-running JSONLines requests
 export const maxDuration = 300;
 
 const controllers = {
@@ -91,17 +93,18 @@ const controllers = {
 // export the controllers type to be used in the client code
 export type Controllers = typeof controllers;
 
-export const { GET, POST, PUT, DELETE } = initVovk({
+// export the Next.js route handlers
+export const { GET, POST, PUT, DELETE } = initSegment({
   controllers,
 });
 ```
 
-[Schema](/schema) for the root segment is going to be stored as **.vovk-schema/segments/root.json** file.
+[Schema](/schema) for the root segment is going to be stored at **.vovk-schema/root.json** file.
 
 <Callout type="info" emoji="ℹ️">
-  The `root` name is used for file naming purposes only. In all other cases, including configuration, the root segment name is going to be an empty string.
+  The `root` name is used for file naming purposes only. In all other cases, including configuration, the root segment
+  name is going to be an empty string.
 </Callout>
-
 
 ### Multiple segments
 
@@ -110,63 +113,21 @@ You can create multiple segments in your app to split the back-end code into mul
 - Split the back-end code into multiple serverless functions to reduce the size of the function bundle.
 - Divide the back-end code into multiple areas e. g. root, `admin`, `customer`, `customer/public` etc.
 - Support different versions of the same API (e.g. `v1`, `v2`).
-- Create a static segment explained on the next page for OpenAPI or other purposes.
+- Create a [static segment](./static) for OpenAPI spec, historical data, etc.
 
 Each segment is located in a nested folder determining the API path and the segment name. For example, a segment located in **/src/app/api/`segment-name`/[[...slug]]/** folder is going to be served at **/api/`segment-name`** path. The level of nesting is unlimited.
 
-For non-root segments `initVovk` function requires to provide segment name as `segmentName` option. 
+For non-root segments `initSegment` function requires to provide segment name as `segmentName` option.
 
 ```ts filename="src/app/api/foo/[[...vovk]]/route.ts"
 // ...
 
-export const { GET, POST, PUT, DELETE } = initVovk({
+export const { GET, POST, PUT, DELETE } = initSegment({
   segmentName: 'foo',
   controllers,
 });
 ```
 
-The schema for the segment `foo` is going to be stored as **.vovk-schema/segments/`foo`.json** file.
+The schema for the segment `foo` is going to be stored at **.vovk-schema/`foo`.json** file.
 
-For segments of deeper nesting such as **/src/app/api/`foo/bar/baz`/[[...slug]]/** the segment name is going to be `foo/bar/baz` and the schema is going to be stored as **.vovk-schema/segments/`foo/bar/baz`.json** file.
-
--------
-
-TODO
-
-Let's take a look at the following example. Let's say you have 3 "areas" in your back-end server: root, customer and admin.
-
-- Root - responsible for landing page API calls: email subscription, contact form etc. Controllers: `EmailSubscriptionController`, `ContactFormController`.
-- Customer - responsible for customer area API calls: change own password and profile, get own orders etc. Controllers: `CustomerProfileController`, `CustomerOrdersController`.
-- Admin - responsible for admin area API calls: create new customer, get all orders etc. Controllers: `AdminCustomersController`, `AdminOrdersController`.
-
-
-In a traditional back-end server, you would have a single server with controllers that are composed into the back-end server.
-
-- Back-end server
-  - EmailSubscriptionController
-  - ContactFormController
-  - CustomerProfileController
-  - CustomerOrdersController
-  - AdminCustomersController
-  - AdminOrdersController
-
-In Vovk.ts the controllers are grouped into segments:
-
-- Back-end server
-  - Segment: root `/api`
-    - EmailSubscriptionController
-    - ContactFormController
-  - Segment: customer `/api/customer`
-    - CustomerProfileController
-    - CustomerOrdersController
-  - Segment: admin `/api/admin`
-    - AdminCustomersController
-    - AdminOrdersController
-
-
-
-
-
-
-
-
+For segments of deeper nesting such as **/src/app/api/`foo/bar/baz`/[[...slug]]/** the segment name is going to be `foo/bar/baz` and the schema is going to be stored at **.vovk-schema/`foo/bar/baz`.json** file.

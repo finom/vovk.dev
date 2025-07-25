@@ -33,15 +33,15 @@ The version 1 is heavily tested in production and the community feedback is take
 
 ## Minior changes
 
-`onError` option of `initVovk` now gets request object as the second argument. This is useful if you want to extract some information about request like headers, method, authorisation, etc.
+`onError` option of `initSegment` now gets request object as the second argument. This is useful if you want to extract some information about request like headers, method, authorisation, etc.
 
 ```ts
-import { initVovk } from 'vovk';
+import { initSegment } from 'vovk';
 import ErrorService from '../../modules/ErrorService';
 
 // ...
 
-const { GET, POST, PUT, DELETE } = initVovk({
+const { GET, POST, PUT, DELETE } = initSegment({
   controllers,
   workers,
   onError: (error, request) => {

@@ -18,10 +18,10 @@ The command `vovk new` (`vovk n`) allows to create new segments and modules in t
 npx vovk new segment
 ```
 
-If `vovk new segment` is run without the segment argument, it creates a root segment represented as [prettified](https://www.npmjs.com/package/prettier) **/src/app/api/[[...vovk]]/route.ts** file. `segmentName` option of `initVovk` equals to an empty string and can be omitted.
+If `vovk new segment` is run without the segment argument, it creates a root segment represented as [prettified](https://www.npmjs.com/package/prettier) **/src/app/api/[[...vovk]]/route.ts** file. `segmentName` option of `initSegment` equals to an empty string and can be omitted.
 
 ```ts
-import { initVovk } from 'vovk';
+import { initSegment } from 'vovk';
 
 export const runtime = 'edge';
 
@@ -29,7 +29,7 @@ const controllers = {};
 
 export type Controllers = typeof controllers;
 
-export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initVovk({
+export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
   emitSchema: true,
   controllers,
 });
@@ -51,7 +51,7 @@ npx vovk new segment foo
 
 ```ts
 // ...
-export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initVovk({
+export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
   segmentName: 'foo',
   emitSchema: true,
   controllers,

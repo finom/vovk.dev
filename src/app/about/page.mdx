@@ -1,11 +1,28 @@
-import { Steps, Tabs, Callout } from 'nextra/components';
-
 # About
+
+**Vovk.ts** is a RESTful API framework that seamlessly integrates with Next.js, enabling you to build scalable APIs without the complexity of monorepos or separate deployments.
+
+Born from the challenge of scaling beyond Next.js's `route.ts` files, Vovk.ts solves the problem of managing dozens or hundreds of endpoints while maintaining full RESTful compatibility for third-party integrations—something RPC-only solutions can't provide.
+
+**Key features:**
+
+- Authentic RESTful APIs with an RPC-like developer experience
+- Client-side validation with TypeScript inference
+- First-class OpenAPI support
+- Single deployment for frontend and backend
+- Built on standards and battle-tested conventions
+
+After two years of development and hundreds of iterations, Vovk.ts&nbsp;3+ delivers a framework that respects existing standards while providing modern developer ergonomics.
+
+This documentation is divided into guides explaining how to use the framework within the existing TypeScript ecosystem (sometimes barely touching Vovk.ts features), and reference documentation detailing the API and features.
+
+[Report issues or contribute on GitHub](https://github.com/finom/vovk)
+
+{/*
 
 I couldn't find a way to build a back-end for Next.js with NestJS-like syntax that elegantly combines RESTful API and RPC capabilities. After searching extensively, I discovered there wasn't a project implementing both the conventional REST with RPC in any language that could serve as a reference, making Vovk.ts likely the first of its kind. Next.js as a full-stack framework often forces developers to either navigate through complex `route.ts` implementations or use tools with hidden RPC implementations.
 
-
--------
+---
 
 Vovk.ts emits a committable schema and generates a TypeScript library because implementing both RESTful API and RPC in a single framework required this compromise. However, this approach has led to some remarkable side-effects, enabling unique features such as:
 
@@ -27,19 +44,9 @@ Vovk.ts is designed to maximize the use of standards and conventions while provi
 
 This documentation is divided into guides explaining how to use the framework within the existing ecosystem, and reference documentation detailing the API and features.
 
----------
+---
 
 OLD:
-
-
-### Segments
-
-Vovk.ts adds a hierarchical level to the back-end called [segments](/segment) that allows to split the back-end into smaller sections configured differently that emit RPC schema separately for each segment. Traditional hierarchy that looks like `back-end -> controller -> handler` gets extended to `back-end -> segment -> controller -> handler`. Each segment is a separate Next.js route that can be configured independently and compiled into a separate serverless function on build. In Edge Runtime segments are deployed as smaller "back-ends", whose controllers can use services of other segments.
-
-[illustration]
-
-A segment can be turned into a "static segment" that makes its endpoints to be compiled into static JSON files during the build time, allowing to use them for historical data, OpenAPI documentation, or any other data that is generated on build time.
-
 
 ### Schema
 
@@ -67,14 +74,14 @@ When `NODE_ENV` is set to `development`, Vovk.ts makes a request to each segment
 ### Watches for changes in the **modules** folder and the **route.ts** files
 
 The Vovk.ts dev command watches for changes with [chokidar](https://www.npmjs.com/package/chokidar) in the **modules** folder and the **route.ts** segment files. When a change is detected, it extracts information about the changed segment or controller and makes a request to the `_schema_` endpoint of the segment that was changed, updates the schema file and generates the RPC client library. The RPC library is generated with [EJS](https://www.npmjs.com/package/ejs) code templates that are compiled in a few milliseconds.
+
 </Steps>
 
 In order to generate the schema and client once and stop the process, you can utilize `--exit` flag passed to the `vovk dev` command. This will make the process to exit once the schema and client are generated.
 
 To generate the RPC client when schema already exists, you can use [generate](/cli/generate) command that should be run after node modules are reinstalled and before the `next build` command in CI/CD pipeline.
 
-
----------------
+---
 
 Since the validation schema is available at the client-side, you can access it to validate forms with no effort.
 
@@ -132,7 +139,7 @@ class UserController {
     summary: 'Update user',
     description: 'Update user by ID',
   })
-  @post(':id')
+  @post('{id}')
   static updateUser = withZod({
     body: z
       .object({
@@ -194,3 +201,5 @@ const user = fetch(`/api/users/${id}?notify=EMAIL`, {
   body: JSON.stringify(body),
 });
 ```
+
+\*/}

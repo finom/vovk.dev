@@ -1,4 +1,4 @@
-import { Steps } from 'nextra/components'
+import { Steps } from 'nextra/components';
 
 # Framework for SaaS applications
 
@@ -15,10 +15,10 @@ The whole app is implemented as a single Next.js application, that, when deploye
 - [TODO: Next.js serverless functions](/guides/serverless)
 - [Build Single Page Application](/guides/spa)
 
-
 ## Enable multi-tenancy
 
 In the most classical case a SaaS application is split into 3 "areas" or "tenants":
+
 1. Root area - serves landing page with some features like "subscribe to newsletter", stats collection, etc. It's available to all unauthenticated users serving marketing content, pricing plans, etc.
 2. Customer area - serves authenticated paid or trial customers, providing access to the main features of the application.
 3. Admin area - serves authenticated administrators, providing access to the admin features of the application, managing customer, billing, etc.
@@ -49,12 +49,12 @@ Vovk.ts implements the conventional REST API, allowing to expose the API endpoin
 
 - [TODO More info about API](/guides/api)
 
-
 ## Offer installable libraries for your public API
 
 TODO
 
-**Read more**   
+**Read more**
+
 - [OpenAPI code generation](/guides/codegen)
 
 ## Mix RPC library with other serverless
@@ -65,14 +65,11 @@ TODO
 
 -[OpenAPI code generation](/guides/openapi)
 
-
 </Steps>
 
--------
+---
 
-
-Next.js in tandem with Vovk.ts offer a framework for building SaaS applications. 
-
+Next.js in tandem with Vovk.ts offer a framework for building SaaS applications.
 
 When using Vovk.ts as a SaaS framework you get:
 
@@ -90,7 +87,6 @@ TODO multiDB
 
 ### Split the app into multiple areas
 
-
 Each area is going to have its own `route.ts` file, representing so-called [segment](/segment) in Vovk.ts that is served as a separate Edge Function:
 
 - Root area is served from `/api` endpoint, implemented in `src/app/api/route.ts` file.
@@ -104,7 +100,6 @@ SHARED LIB DRAWING TODO
 Each controller of the segments automaticaly transformed into so-called RPC module, represented as an object that implements the same methods as the controller's methods. The RPC modules can be imported from `"vovk-client"` package and used in the client-side code to call the API endpoints.
 
 CODE TODO
-
 
 MULTITENANT DRAWING TODO
 

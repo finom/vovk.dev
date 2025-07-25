@@ -1,0 +1,128 @@
+# Standard Schema Validation
+
+[Standard Schema](https://github.com/standard-schema/standard-schema) is a convention supported by modern validation libraries that implements a common interface for defining and validating data structures. It's supported by libraries like [Zod 4](https://www.npmjs.com/package/zod), [Arktype](https://www.npmjs.com/package/arktype), [Valibot](https://www.npmjs.com/package/valibot), [Effect Schema](https://effect.website/docs/schema/introduction/) and many others. Check full list of libraries that implement Standard Schema [at the original repository](https://github.com/standard-schema/standard-schema?tab=readme-ov-file#what-schema-libraries-implement-the-spec).
+
+Vovk.ts provides a simple `createStandardValidation` function that creates a custom validation library that uses Standard Schema. The only option of this function is `toJSONSchema` function that defines how to convert the models to JSON Schema format.
+
+## Arktype example
+
+Create `withArk` somewhere in your codebase:
+
+```ts filename="src/lib/withArk.ts"
+import type { type } from 'arktype';
+import { createStandardValidation } from 'vovk';
+
+export const withArk = createStandardValidation({
+  toJSONSchema: (model: type) => model.toJsonSchema(),
+});
+```
+
+Then use it in your controller:
+
+```ts filename="src/modules/user/UserController.ts"
+import { prefix, post, openapi } from 'vovk';
+import { type } from 'arktype';
+import { withArk } from '@/lib/withArk';
+
+@prefix('users')
+export default class UserController {
+  @openapi({
+    summary: 'Update user (Arktype)',
+    description: 'Update user by ID with Arktype validation',
+  })
+  @post('{id}')
+  static updateUser = withArk({
+    body: type({
+      name: type('string').describe('User full name'),
+      age: type('0 < number < 120').describe('User age'),
+      email: type('string.email').describe('User email'),
+    }),
+    params: type({
+      id: type('string.uuid').describe('User ID'),
+    }),
+    query: type({
+      notify: type('"email" | "push" | "none"').describe('Notification type'),
+    }),
+    output: type({
+      success: type('boolean').describe('Success status'),
+    }),
+    async handle(req, { id }) {
+      const { name, age } = await req.json();
+      const notify = req.nextUrl.searchParams.get('notify');
+
+      // do something with the data
+      console.log(`Updating user ${id}:`, { name, age, notify });
+      return {
+        success: true,
+      };
+    },
+  });
+}
+```
+
+## Valibot example
+
+Create `withValibot` somewhere in your codebase:
+
+```ts filename="src/lib/withValibot.ts"
+import { createStandardValidation, type KnownAny } from 'vovk';
+import { toJsonSchema } from '@valibot/to-json-schema';
+import type { BaseSchema } from 'valibot';
+
+export const withValibot = createStandardValidation({
+  toJSONSchema: (model: BaseSchema<KnownAny, KnownAny, KnownAny>) => toJsonSchema(model),
+});
+```
+
+Then use it in your controller:
+
+```ts filename="src/modules/user/UserController.ts"
+import { prefix, post, openapi } from 'vovk';
+import * as v from 'valibot';
+import { withValibot } from '@/lib/withValibot';
+
+@prefix('users')
+export default class UserController {
+  @openapi({
+    summary: 'Update user (Valibot)',
+    description: 'Update user by ID with Valibot validation',
+  })
+  @post('{id}')
+  static updateUser = withValibot({
+    body: v.pipe(
+      v.object({
+        name: v.pipe(v.string(), v.description('User full name')),
+        age: v.pipe(v.number(), v.minValue(0), v.maxValue(120), v.description('User age')),
+        email: v.pipe(v.string(), v.email(), v.description('User email')),
+      }),
+      v.description('User object')
+    ),
+    params: v.object({
+      id: v.pipe(v.string(), v.uuid(), v.description('User ID')),
+    }),
+    query: v.object({
+      notify: v.pipe(v.picklist(['email', 'push', 'none']), v.description('Notification type')),
+    }),
+    output: v.pipe(
+      v.object({
+        success: v.pipe(v.boolean(), v.description('Success status')),
+      }),
+      v.description('Response object')
+    ),
+    async handle(req, { id }) {
+      const { name, age } = await req.json();
+      const notify = req.nextUrl.searchParams.get('notify');
+
+      // do something with the data
+      console.log(`Updating user ${id}:`, { name, age, notify });
+      return {
+        success: true,
+      };
+    },
+  });
+}
+```
+
+All other libraries are implemented in a similar way. The only difference might be different `toJSONSchema` implementations. Once [standard-schema/issues/21](https://github.com/standard-schema/standard-schema/issues/21) is resolved, the requirement to use `createStandardValidation` will probably become obsolete in most of cases.
+
+Vovk.ts originally planned to support definite set of validation libraries, but with Standard Schema it doesn't make sense to create a separate package for each library anymore.

@@ -117,7 +117,7 @@ NEW
 
 ## vovk-dto v0
 
-Vovk.ts is heavily inspired by [NestJS](https://nestjs.com/) that heavily uses so-called [DTOs](https://docs.nestjs.com/techniques/validation) for data validation. Previous versions of Vovk.ts supported only [Zod](https://zod.dev/) validation without a way to use this idea that perfectly fits service-controller pattern. [vovk-dto](/validation/vovk-dto) introduces the new way of server-side and client-side validation using [class-validator](https://www.npmjs.com/package/class-validator) and [class-transformer](https://www.npmjs.com/package/class-transformer) that don't require [reflect-metadata](https://www.npmjs.com/package/reflect-metadata) to be used.
+Vovk.ts is heavily inspired by [NestJS](https://nestjs.com/) that heavily uses so-called [DTOs](https://docs.nestjs.com/techniques/validation) for data validation. Previous versions of Vovk.ts supported only [Zod](https://zod.dev/) validation without a way to use this idea that perfectly fits service-controller pattern. [vovk-dto](/validation/dto) introduces the new way of server-side and client-side validation using [class-validator](https://www.npmjs.com/package/class-validator) and [class-transformer](https://www.npmjs.com/package/class-transformer) that don't require [reflect-metadata](https://www.npmjs.com/package/reflect-metadata) to be used.
 
 ```ts
 import { prefix, post } from 'vovk';

@@ -7,7 +7,7 @@ Full list of available imports for quick reference:
 ```ts
 import {
   // core
-  initVovk,
+  initSegment,
   createDecorator,
   // controller method decorators
   get,
@@ -54,7 +54,7 @@ import type { VovkConfig, VovkEnv } from 'vovk-cli';
 
 ## Core
 
-### `initVovk`
+### `initSegment`
 
 Creates the standard Next.js App Route handlers used by the main [Optional Catch-all Segment](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments). The function accepts the following options:
 
@@ -64,7 +64,7 @@ Creates the standard Next.js App Route handlers used by the main [Optional Catch
 - `onError?: (err: Error, req: VovkRequest) => void | Promise<void>` - called on Controller exceptions, can be used to log errors by a third-party service. The second argument can be utilised to retrieve reques URL, authorisation info, and other useful information about the failed request.
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
-import { initVovk } from 'vovk';
+import { initSegment } from 'vovk';
 import HelloController from '../../modules/hello/HelloController';
 import UserController from '../../modules/user/UserController';
 
@@ -72,7 +72,7 @@ const controllers = { HelloRPC: HelloController, UserRPC: UserController };
 
 export type Controllers = typeof controllers;
 
-export const { GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS } = initVovk({
+export const { GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS } = initSegment({
   controllers,
   exposeValidation: false,
   onError(e, req) {
@@ -348,7 +348,7 @@ Originally, the type is used to define types for `req.json` and `req.nextUrl.sea
 import { get, type VovkRequest } from 'vovk';
 
 export class HelloController {
-  @get(':someParam')
+  @get('{someParam}')
   static doSomething(req: VovkRequest<{ body: true }, { q: string }>, { someParam }: { someParam: string }) {
     const body = await req.body(); // { body: true }
     const q = req.nextUrl.searchParams.get('q'); // string
@@ -361,8 +361,8 @@ export class HelloController {
 
 Starting V3 the type is alsoused to define `req.vovk` object with `body()`, `query()`, `meta()` and `form()` methods.
 
-- `await req.vovk.body()` - returns request body. In most of cases works the same way as `req.json()` but if used with [vovk-dto](/validation/vovk-dto) it's going to return an instance of the DTO class.
-- `req.vovk.query()` - returns serialized object with query string parameters. If used with [vovk-dto](/validation/vovk-dto) it's going to return an instance of the DTO class.
+- `await req.vovk.body()` - returns request body. In most of cases works the same way as `req.json()` but if used with [vovk-dto](/validation/dto) it's going to return an instance of the DTO class.
+- `req.vovk.query()` - returns serialized object with query string parameters. If used with [vovk-dto](/validation/dto) it's going to return an instance of the DTO class.
 - `req.vovk.meta<T>([metadata])` - allows to get and set meta information for the request (for example, to store current user authorization info, etc).
   - If called without arguments it returns the current meta object.
   - If called with an object it sets the meta object by extending the current one and returns the new meta object.
@@ -375,7 +375,7 @@ Check [request documentation](./controller/request) for more info.
 import { get, type VovkRequest } from 'vovk';
 
 export class HelloController {
-  @get(':someParam')
+  @get('{someParam}')
   static doSomething(req: VovkRequest, { someParam }: { someParam: string }) {
     const body = await req.vovk.body(); // { body: true }
     const q = req.vovk.query(); // { q: string }
@@ -418,7 +418,7 @@ import {
 } from 'vovk';
 
 export class HelloController {
-  @get(':someParam')
+  @get('{someParam}')
   static doSomething(/* ... */) {
     // ...
   }
@@ -485,7 +485,7 @@ export function generateStaticParams() {
   return generateStaticAPI(controllers);
 }
 
-export const { GET } = initVovk({ controllers });
+export const { GET } = initSegment({ controllers });
 ```
 
 ## CLI types

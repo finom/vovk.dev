@@ -21,7 +21,7 @@ Quick demo:
   when implemented as a static class. Initially, I considered moving Web Worker support to a separate library, but
   duplicating logic for schemas, generated code, and other components offered no practical benefit beyond elegance.
   Therefore, I chose to retain this functionality within Vovk.ts.
-</Callout>{' '}
+</Callout>
 
 Terminology for this article:
 
@@ -50,10 +50,10 @@ export default class HelloWorker {
 
 In a non-worker scope `@worker()` does nothing. You can import the class safely in other modules, including back-end code where it's going to be behave as a normal collection of common functions.
 
-To compile the worker library, you need to pass them to `initVovk` as `workers` object option and export the type of this object as `Workers`.
+To compile the worker library, you need to pass them to `initSegment` as `workers` object option and export the type of this object as `Workers`.
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
-import { initVovk } from 'vovk';
+import { initSegment } from 'vovk';
 import HelloController from '../../modules/hello/HelloController';
 import HelloWorker from '../../modules/hello/HelloWorker';
 import ByeWorker from '../../modules/bye/ByeWorker';
@@ -67,7 +67,7 @@ const workers = {
 export type Controllers = typeof controllers;
 export type Workers = typeof workers;
 
-export const { GET, POST, PUT, DELETE } = initVovk({ controllers, workers });
+export const { GET, POST, PUT, DELETE } = initSegment({ controllers, workers });
 ```
 
 Once this is done, [vovk-client](vovk-client) is going to export the WPC library that provides interface to invoke heavy calculations but doesn't initialise the Web Worker itself. To initialise the Web Worker at the main-thread interface it needs to be instantiated normally and passed as an argument of `employ` static method.

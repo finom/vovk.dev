@@ -1,4 +1,4 @@
-import { Steps } from 'nextra/components'
+import { Steps } from 'nextra/components';
 
 # Grant access of your back-end to Function Calling
 
@@ -13,6 +13,7 @@ The feature is implemented with a zero-dependency function `createLLMTools` impo
 - `execute`: a JavaScript function should be invoked when LLM calls this tool.
 
 The function `createLLMTools` accepts an object with the following properties:
+
 - `modules`: a record of modules explained below.
 - `caller`: an optional function that declares how an RPC method or controller's callable method should be executed to create `execute` function, introduced for advanced use cases.
 - `onExecute`: an optional callback that is called when a `execute` is successfully executed.
@@ -21,14 +22,14 @@ The function `createLLMTools` accepts an object with the following properties:
 Each module represents either an RPC module or a controller. Each function should include `schema` property that extends `VovkHandlerSchema` interface that has `openapi` property populated by `@openapi` decorator or other approach that extends handler's schema. Each function can include `isRPC` property (set automatically for an RPC module) or `fn` property (set automatically for a controller method when `withValidationLibrary` is used). The `fn` function mimic the signature of the resulting RPC module function, read more about it in the [callable controller methods](/controller/callable).
 
 ```ts
-import { createLLMTools } from "vovk";
+import { createLLMTools } from 'vovk';
 import { PostRPC } from 'vovk-client';
 import UserController from '../user/UserController';
 
 const { tools } = createLLMTools({
   modules: {
     PostRPC,
-    UserController
+    UserController,
   },
   onExecute: (tool, result) => {
     console.log(`Tool ${tool.name} executed successfully with result:`, result);
@@ -54,7 +55,7 @@ import UserController from '../user/UserController';
 const { tools } = createLLMTools({
   modules: {
     PostRPC: pick(PostRPC, ['createPost', 'getPost']),
-    UserController: omit(UserController, ['deleteUser'])
+    UserController: omit(UserController, ['deleteUser']),
   },
 });
 ```
@@ -66,18 +67,21 @@ The `tools` is going to include LLM functions `createPost`, `getPost` from `Post
 In order to add authorization to the RPC calls made by LLM Function Calling, an individual module can be used as a touple of `module` itself and `options` object that contains `init` object that extends `RequestInit` interface. This allows you to pass additional headers, such as authentication tokens, to the RPC calls made by LLM Function Calling.
 
 ```ts
-import { createLLMTools } from "vovk";
+import { createLLMTools } from 'vovk';
 import { PostRPC } from 'vovk-client';
 
 const { tools } = createLLMTools({
   modules: {
-    PostRPC: [PostRPC, {
-      init: {
-        headers: {
-          Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
+    PostRPC: [
+      PostRPC,
+      {
+        init: {
+          headers: {
+            Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
+          },
         },
       },
-    }],
+    ],
   },
 });
 ```
@@ -85,20 +89,22 @@ const { tools } = createLLMTools({
 Pick/omit can be combined with the init syntax to select specific methods and authorize them at the same time:
 
 ```ts
-import { createLLMTools } from "vovk";
+import { createLLMTools } from 'vovk';
 import { PostRPC } from 'vovk-client';
 import { pick } from 'lodash';
 
-
 const { tools } = createLLMTools({
   modules: {
-    PostRPC: [pick(PostRPC, ['createPost', 'getPost']), {
-      init: {
-        headers: {
-          Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
+    PostRPC: [
+      pick(PostRPC, ['createPost', 'getPost']),
+      {
+        init: {
+          headers: {
+            Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
+          },
         },
       },
-    }],
+    ],
   },
 });
 ```
@@ -108,7 +114,7 @@ const { tools } = createLLMTools({
 Vovk.ts supports 3rd-party APIs, that expose their OpenAPI specification, so you can mix your own back-end functions with 3rd-party APIs in a single LLM Function Calling interface. See [Codegen guide](/guides/codegen) for more details.
 
 ```ts
-import { createLLMTools } from "vovk";
+import { createLLMTools } from 'vovk';
 import { GithubIssuesRPC, TaskRPC } from 'vovk-client';
 const { tools } = createLLMTools({
   modules: {
@@ -143,25 +149,18 @@ npx vovk new controller aiSdk --empty
 Paste the following code into the `src/modules/ai-sdk/AiSdkController.ts` file:
 
 ```ts filename="src/modules/ai-sdk/AiSdkController.ts"
-import {
-  createLLMTools,
-  KnownAny,
-  post,
-  prefix,
-  openapi,
-  type VovkRequest,
-} from "vovk";
-import { jsonSchema, streamText, tool, type CoreMessage } from "ai";
-import { openai } from "@ai-sdk/openai";
-import UserController from "../user/UserController";
-import TaskController from "../task/TaskController";
+import { createLLMTools, KnownAny, post, prefix, openapi, type VovkRequest } from 'vovk';
+import { jsonSchema, streamText, tool, type CoreMessage } from 'ai';
+import { openai } from '@ai-sdk/openai';
+import UserController from '../user/UserController';
+import TaskController from '../task/TaskController';
 
-@prefix("ai-sdk")
+@prefix('ai-sdk')
 export default class AiSdkController {
   @openapi({
-    summary: "Function Calling example",
+    summary: 'Function Calling example',
   })
-  @post("function-calling")
+  @post('function-calling')
   static async functionCalling(req: VovkRequest<{ messages: CoreMessage[] }>) {
     const { messages } = await req.json();
     const { tools } = createLLMTools({
@@ -169,16 +168,15 @@ export default class AiSdkController {
         UserController,
         TaskController,
       },
-      onExecute: (_d, { moduleName, handlerName }) =>
-        console.log(`${moduleName}.${handlerName} executed`),
-      onError: (e) => console.error("Error", e),
+      onExecute: (_d, { moduleName, handlerName }) => console.log(`${moduleName}.${handlerName} executed`),
+      onError: (e) => console.error('Error', e),
     });
 
     return streamText({
-      model: openai("gpt-4.1"),
+      model: openai('gpt-4.1'),
       toolCallStreaming: true,
       maxSteps: 20,
-      system: "You execute functions sequentially, one by one.",
+      system: 'You execute functions sequentially, one by one.',
       messages,
       tools: Object.fromEntries(
         tools.map(({ name, execute, description, parameters }) => [
@@ -188,12 +186,12 @@ export default class AiSdkController {
             description,
             parameters: jsonSchema(parameters as KnownAny),
           }),
-        ]),
+        ])
       ),
-      onError: (e) => console.error("streamText error", e),
+      onError: (e) => console.error('streamText error', e),
       onFinish: ({ finishReason, toolCalls }) => {
-        if (finishReason === "tool-calls") {
-          console.log("Tool calls finished", toolCalls);
+        if (finishReason === 'tool-calls') {
+          console.log('Tool calls finished', toolCalls);
         }
       },
     }).toDataStreamResponse();
@@ -203,11 +201,9 @@ export default class AiSdkController {
 
 As you can see, the `tools` are mapped into Vercel AI SDK `tool` instances with the help of `jsonSchema` helper. For another case they can be mapped differently.
 
-
 ### Create a front-end component
 
-On the front-end side, create a component that utilizes [useChat](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat) hook 
-
+On the front-end side, create a component that utilizes [useChat](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat) hook
 
 ```ts filename="src/app/guides/ai-tools/page.tsx"
 

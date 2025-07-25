@@ -1,0 +1,81 @@
+# Zod Validation
+
+```sh npm2yarn
+npm install vovk-zod
+```
+
+## Zod 4
+
+Validation with [Zod 4](https://www.npmjs.com/package/zod) is performed using [vovk-zod](https://www.npmjs.com/package/vovk-zod) package by importing `withZod` function.
+
+```ts
+import { z } from 'zod';
+import { withZod } from 'vovk-zod';
+import { prefix, post, openapi } from 'vovk';
+
+@prefix('users')
+export default class UserController {
+  @openapi({
+    summary: 'Update user (Zod)',
+    description: 'Update user by ID with Zod validation',
+  })
+  @post('{id}')
+  static updateUser = withZod({
+    body: z
+      .object({
+        name: z.string().describe('User full name'),
+        age: z.number().min(0).max(120).describe('User age'),
+        email: z.email().describe('User email'),
+      })
+      .describe('User object'),
+    params: z.object({
+      id: z.uuid().describe('User ID'),
+    }),
+    query: z.object({
+      notify: z.enum(['email', 'push', 'none']).describe('Notification type'),
+    }),
+    output: z
+      .object({
+        success: z.boolean().describe('Success status'),
+      })
+      .describe('Response object'),
+    async handle(req, { id }) {
+      const { name, age } = await req.json();
+      const notify = req.nextUrl.searchParams.get('notify');
+
+      // do something with the data
+      console.log(`Updating user ${id}:`, { name, age, notify });
+      return {
+        success: true,
+      };
+    },
+  });
+}
+```
+
+It's implemented using the `createStandardValidation` function from Vovk.ts and it's source code basically looks like this:
+
+```ts
+import { z } from 'zod';
+import { createStandardValidation } from 'vovk';
+
+export const withZod = createStandardValidation({
+  toJSONSchema: (model: z.core.$ZodType) => z.toJSONSchema(model),
+});
+```
+
+In other words, if you need to pass additional options to `toJSONSchema`, you can easily implement your own version of `withZod`. See [Standard Schema Validation](./standard) for more details.
+
+## Zod 3
+
+Zod 3 uses [zod-to-json-schema](https://www.npmjs.com/package/zod-to-json-schema) package to convert Zod models to JSON Schema, that's shown pretty good conversion results, but as it's 3rd-party it may have some minor limitations. It's going to be imported as `withZod` function from `vovk-zod/v3` module. The main purpose of this module is to provide a way to use legacy libraries such as Prisma generators that still use Zod 3.
+
+The syntax is the same as for Zod 4, but you need to import `withZod` from `vovk-zod/v3` and the `z` from `zod/v3`:
+
+```ts
+import { z } from 'zod/v3';
+import { withZod } from 'vovk-zod/v3';
+import { prefix, post, openapi } from 'vovk';
+
+// ... the rest of the code is the same as for Zod 4
+```

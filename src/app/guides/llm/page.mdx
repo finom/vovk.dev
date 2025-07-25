@@ -41,7 +41,7 @@ import { useChat } from 'ai/react';
 export default function Page() {
   const { messages, input, handleSubmit, handleInputChange, isLoading, error } = useChat({
     // assuming that the "entryPoint" config option is "api" and the controller is used at the root segment
-    api: '/api/ai-sdk/chat', 
+    api: '/api/ai-sdk/chat',
   });
 
   return (

@@ -4,7 +4,7 @@ import { Tabs } from 'nextra/components';
 
 Vovk.ts provides a powerful code generation feature that allows you to generate client-side RPC modules from OpenAPI specifications and merge them into.
 
--------
+---
 
 Vovk.ts CLI can be used as a standalone OpenAPI code generator, allowing to generate TypeScript, Rust, and Python code from OpenAPI specification files. The generated code is split into modules, allowing to mix multiple OpenAPI specifications into a single codebase and optionally use together with modules emitted by Vovk.ts back-end framework.
 
@@ -23,12 +23,14 @@ import {
 ```rs
 use vovk_client::{user_rpc, github_issues_rpc, medusa_cart_rpc};
 ```
+
 </Tabs.Tab>
 <Tabs.Tab>
 
 ```py
 from vovk_client import UserRPC, GithubIssuesRPC, MedusaCartRPC
 ```
+
 </Tabs.Tab>
 </Tabs>
 

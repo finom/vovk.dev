@@ -1,4 +1,4 @@
-import { initVovk, generateStaticAPI } from 'vovk';
+import { generateStaticAPI, initSegment } from 'vovk';
 import HelloController from '../../../modules/hello/HelloController';
 import SpecController from '../../../modules/spec/SpecController';
 
@@ -10,7 +10,7 @@ export function generateStaticParams() {
   return generateStaticAPI(controllers);
 }
 
-export const { GET } = initVovk({
+export const { GET } = initSegment({
   controllers,
   onError: (error) => {
     console.error(error);

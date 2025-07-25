@@ -2,110 +2,77 @@ import { Tabs } from 'nextra/components';
 
 # Service class
 
-In order to make the code cleaner it's recommended to move most of the logic to a service. "Service" is a static class that serves as a library that performs database and third-party API calls.
+Service is a part of the Controller-Service-Repository pattern that is used to separate business logic from the controller. It allows you to keep your controllers clean and focused on handling HTTP requests, while the service class contains the actual business logic and data manipulation.
 
-Let's say you have the following Controller Class:
+Similarly to controllers, services are implemented as static classes with static methods that don't require decorators or any special design. This means that the static class syntax for services is being just a convention and you can use any applicable way to define business logic: normal classes that need to be instantiated, separate functions, or plain objects.
 
-```ts filename="src/modules/user/UserController.ts"
-import { prefix, put, type VovkRequest } from 'vovk';
-import type { User } from '../../types';
+The best thing about service methods is that their typing can be inferred from controller methods that call them, without causing "implicit any" TS errors. Thanks to [Anders Hejlsberg](https://github.com/ahejlsberg) for a solution for [#58616](https://github.com/microsoft/TypeScript/issues/58616), without this fix to TypeScript language I wouldn't continue working on Vovk.ts.
 
-@prefix('users')
-export default class UserController {
-  @put(':id')
-  static async updateUser(req: VovkRequest<Partial<User>>, { id }: { id: string }) {
-    const data = await req.json();
+Let's say you have the following controller class:
 
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data,
-    });
-
-    return updatedUser;
-  }
-}
-```
-
-Currently it looks fine since it doesn't contain a lot of logic. But as your app is getting more complex you're going to get more endpoints with more code. At this case it's recommended to move part of the logic to a service class making controllers to be responsible for input extraction, validation and authorisation, but not for DB or API calls.
-
-```ts filename="src/modules/user/UserService.ts"
-// ... import types and libraries ...
-
-export default class UserService {
-  static updateUser(id: string, data: Partial<User>) {
-    return prisma.user.update({
-      where: { id },
-      data,
-    });
-  }
-}
-```
-
-As you can see, `UserService` does not use decorators and used as a library that performs required side-effects.
-
-```ts filename="src/modules/user/UserController.ts"
-import { prefix, put, type VovkRequest } from 'vovk';
+```ts filename="src/modules/user/UserController.ts" {38}
+import { z } from 'zod';
+import { prefix, post, openapi } from 'vovk';
+import { withZod } from 'vovk-zod';
 import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
-  @put(':id')
-  static async updateUser(req: VovkRequest<Partial<User>>, { id }: { id: string }) {
-    const data = await req.json();
-    return UserService.updateUser(id, data);
-  }
+  @openapi({
+    summary: 'Update user',
+    description: 'Update user by ID with Zod validation',
+  })
+  @post('{id}')
+  static updateUser = withZod({
+    body: z
+      .object({
+        name: z.string().describe('User full name'),
+        age: z.number().min(0).max(120).describe('User age'),
+        email: z.email().describe('User email'),
+      })
+      .describe('User object'),
+    params: z.object({
+      id: z.uuid().describe('User ID'),
+    }),
+    query: z.object({
+      notify: z.enum(['email', 'push', 'none']).describe('Notification type'),
+    }),
+    output: z
+      .object({
+        success: z.boolean().describe('Success status'),
+        id: z.uuid().describe('User ID'),
+      })
+      .describe('Response object'),
+    async handle(req) {
+      const body = await req.vovk.body();
+      const query = req.vovk.query();
+      const params = req.vovk.params();
+
+      return UserService.updateUser(body, query, params);
+    },
+  });
 }
 ```
 
-Services can use other services as well. You can also create as many services as you need for a single controller.
+As you can see, the `handler` method returns the result of the `UserService.updateUser` method. The method `UserService.updateUser` in its turn infers types from the controller method, making the validation models (at this case, Zod schemas) to be the only source of truth for the input and output types, without the need to define them as separate variables.
 
-```ts filename="src/modules/user/UserService.ts"
-import PostService from '../post/PostService';
-import CommentService from '../comment/CommentService';
-// ... other imports ...
 
-export default class UserService {
-  static async updateUser(id: string, data: Partial<User>) {
-    const latestPost = PostService.findLatestUserPost(id);
-    const latestPostComments = CommentService.findPostComments(latestPost.id);
-    // ...
-  }
-}
-```
-
-## Extracting types from the controller
-
-Thanks to [Anders Hejlsberg
-](https://github.com/ahejlsberg) for a solution for [#58616](https://github.com/microsoft/TypeScript/issues/58616). A tiny fix in TypeScript language allows to use circular type references in service-controller pair, making contrtoller types such as body, query and params to be available in the service.
-
-```ts filename="src/modules/user/UserController.ts"
-import { prefix, put, type VovkRequest } from 'vovk';
-import type { User } from '../../types';
-
-@prefix('users')
-export default class UserController {
-  @put(':id')
-  static async updateUser(req: VovkRequest<Partial<User>, { role: 'string' }>, { id }: { id: string }) {
-    const data = await req.json();
-    return UserService.updateUser(id, data, req.nextUrl.searchParams.get('role'));
-  }
-}
-```
-
-```ts filename="src/modules/user/UserService.ts"
-import type { VovkControllerBody, VovkControllerQuery, VovkControllerParams } from 'vovk';
-import type { User } from '../../types';
+```ts filename="src/app/controller/service/page.mdx"
+import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from 'vovk';
 import type UserController from './UserController';
 
 export default class UserService {
-  static async updateUser(
-    id: VovkControllerParams<typeof UserController.updateUser>['id'],
-    data: VovkControllerBody<typeof UserController.updateUser>,
-    role: VovkControllerQuery<typeof UserController.updateUser>['role']
+  static updateUser(
+    body: VovkBody<typeof UserController.updateUser>,
+    query: VovkQuery<typeof UserController.updateUser>,
+    params: VovkParams<typeof UserController.updateUser>
   ) {
-    // ...
+    // perform DB operations or other business logic here
+    console.log(body, query, params);
+    return { success: true, id: params.id } satisfies VovkOutput<typeof UserController.updateUser>;
   }
 }
 ```
 
-See more types at the [type extraction docs](/controller/type-extraction).
+In other words, service methods can infer types from the controller methods and controller methods can call service methods without causing self-referencing issues.
+

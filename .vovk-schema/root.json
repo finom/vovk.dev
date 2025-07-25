@@ -1,0 +1,42 @@
+{
+  "$schema": "https://vovk.dev/api/spec/v3/segment.json",
+  "emitSchema": true,
+  "segmentName": "",
+  "segmentType": "segment",
+  "controllers": {
+    "HelloRPC": {
+      "rpcModuleName": "HelloRPC",
+      "originalControllerName": "HelloController",
+      "prefix": "hello",
+      "handlers": {
+        "getHello": {
+          "path": "greeting.json",
+          "httpMethod": "GET"
+        }
+      }
+    },
+    "SpecRPC": {
+      "rpcModuleName": "SpecRPC",
+      "originalControllerName": "SpecController",
+      "prefix": "spec",
+      "handlers": {
+        "getSegmentDefinition": {
+          "path": "v3/segment.json",
+          "httpMethod": "GET"
+        },
+        "getConfigDefinition": {
+          "path": "v3/config.json",
+          "httpMethod": "GET"
+        },
+        "getMetaDefinition": {
+          "path": "v3/meta.json",
+          "httpMethod": "GET"
+        },
+        "getFullDefinition": {
+          "path": "v3/schema.json",
+          "httpMethod": "GET"
+        }
+      }
+    }
+  }
+}

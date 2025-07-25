@@ -36,17 +36,15 @@ const checkAuth = async (req: VovkRequest, permission: Permission) => {
 };
 
 // Create the decorator
-const authGuard = createDecorator(
-  async (req, next, permission: Permission) => {
-    const isAuthorized = await checkAuth(req, permission);
+const authGuard = createDecorator(async (req, next, permission: Permission) => {
+  const isAuthorized = await checkAuth(req, permission);
 
-    if (!isAuthorized) {
-      throw new HttpException(HttpStatus.UNAUTHORIZED, 'Unauthorized');
-    }
-
-    return next();
+  if (!isAuthorized) {
+    throw new HttpException(HttpStatus.UNAUTHORIZED, 'Unauthorized');
   }
-);
+
+  return next();
+});
 
 export default authGuard;
 ```

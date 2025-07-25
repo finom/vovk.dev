@@ -1,16 +1,11 @@
 import { Callout } from 'nextra/components';
+import { VovkNewDynamic } from './VovkNewDynamic';
 
 # Controller
 
-```sh filename="Create a new controller with CLI"
-# without service class
-vovk new controller user # create user controller for the root segment
-vovk new controller admin/user # create user controller for the "admin" segment
+**Create a controller with CLI**
 
-# with service class
-vovk new controller service user # create user controller and service for the root segment
-vovk new controller service admin/user # create user controller and service for the "admin" segment
-```
+<VovkNewDynamic />
 
 [`vovk new` documentation](/cli/new)
 
@@ -18,9 +13,9 @@ vovk new controller service admin/user # create user controller and service for 
 
 Controller is a static class (a class that has static methods only and it's never instantiated) that handles incoming HTTP requests.
 
-Methods of this class, that are decorated with an HTTP decorator (like `@get()` or `@post()`), accept 2 arguments: [VovkRequest](/controllers/request) (that is inherited from `NextRequest`) and parameters that are defined by the decorator path.
+Methods of this class, that are decorated with an HTTP decorator (like `@get()` or `@post()`), become request handlers and accept 2 arguments: [VovkRequest](/controllers/request) (that is inherited from `NextRequest`) and parameters that are defined by the decorator path.
 
-`NextRequest` type doesn't provide any information about the request body or query parameters, so the body is casted as `any` and query parameters are casted as `string | null`.
+The `NextRequest` type doesn't provide any information about the request body or query parameters, so the body is casted as `any` and query parameters are casted as `string | null`.
 
 ```ts
 import type { NextRequest } from 'next';
@@ -29,7 +24,7 @@ import { prefix, put } from 'vovk';
 @prefix('users')
 export default class UserController {
   // Example request: PUT /api/users/69?role=moderator
-  @put(':id')
+  @put('{id}')
   static async updateUser(req: NextRequest, { id }: { id: string }) {
     const data = await req.json(); // any
     const userRole = req.nextUrl.searchParams.get('role'); // string | null
@@ -48,7 +43,7 @@ import type { User } from '../../types';
 @prefix('users')
 export default class UserController {
   // Example request: PUT /api/users/69?role=moderator
-  @put(':id')
+  @put('{id}')
   static async updateUser(
     req: VovkRequest<Partial<User>, { notify: 'email' | 'push' | 'none' }>,
     { id }: { id: string }
@@ -74,12 +69,61 @@ export default abstract class UserController {
 
 As you can see we've changed nothing more than the type of `req` but now `data` receives type of `Partial<User>` and `userRole` is casted as `'user' | 'moderator' | 'admin'` and does not extend `null` anymore.
 
+### Validation
+
+To validate the request body, query parameters, and headers you can use [validation libraries](/validation). At this case you don't need to use `VovkRequest` manually, as the validation library will define the request type by itself.
+
+```ts
+import { z } from 'zod';
+import { withZod } from 'vovk-zod';
+import { prefix, post, openapi } from 'vovk';
+
+@prefix('users')
+export default class UserController {
+  @openapi({
+    summary: 'Update user (Zod)',
+    description: 'Update user by ID with Zod validation',
+  })
+  @post('{id}')
+  static updateUser = withZod({
+    body: z
+      .object({
+        name: z.string().describe('User full name'),
+        age: z.number().min(0).max(120).describe('User age'),
+        email: z.email().describe('User email'),
+      })
+      .describe('User object'),
+    params: z.object({
+      id: z.uuid().describe('User ID'),
+    }),
+    query: z.object({
+      notify: z.enum(['email', 'push', 'none']).describe('Notification type'),
+    }),
+    output: z
+      .object({
+        success: z.boolean().describe('Success status'),
+      })
+      .describe('Response object'),
+    async handle(req, { id }) {
+      const { name, age } = await req.json();
+      const notify = req.nextUrl.searchParams.get('notify');
+
+      // do something with the data
+      console.log(`Updating user ${id}:`, { name, age, notify });
+      return {
+        success: true,
+      };
+    },
+  });
+}
+```
+
 ## Initialization
 
-Once the controller is defined it needs to be initialized at the wildcard route (we call it "segment") by adding it to the `controllers` object. The key is the name of the resulting library variable exported from `"vovk-client"`. Read more about that in the [client](/client) section.
+Once the controller is defined it needs to be initialized at the wildcard route (also called [segment](/segment)) by adding it to the `controllers` object. The key of this object defines the name of the resulting library variable exported from `"vovk-client"` or [segmented client module](/composed-and-segmented).
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
-import { initVovk } from 'vovk';
+import { initSegment } from 'vovk';
 import UserController from '../../../modules/user/UserController';
 
 const controllers = {
@@ -88,14 +132,15 @@ const controllers = {
 
 export type Controllers = typeof controllers;
 
-export const { GET, POST, PUT, DELETE } = initVovk({ controllers });
+export const { GET, POST, PUT, DELETE } = initSegment({ controllers });
 ```
 
-This will make the `UserRPC` fetch library available at **vovk-client**.
+This will "turn" the `UserController` into `UserRPC` that performs `fetch` requests to the `/api/users` subpath.
 
 ```ts
 import { UserRPC } from 'vovk-client';
 
+// performs PUT /api/users/69?notify=push
 const updatedUser = await UserRPC.updateUser({
   query: { notify: 'push' },
   params: { id: '69' },
@@ -105,14 +150,14 @@ const updatedUser = await UserRPC.updateUser({
 
 ## Auto-generated endpoints
 
-All HTTP decorators provide `.auto` method that generates endpoint name automatically from the method name.
+All HTTP decorators provide `.auto` method that generates endpoint name automatically from the method name that makes the handler definition more RPC-ish.
 
 ```ts filename="src/modules/user/UserController.ts"
 import { prefix, put } from 'vovk';
 
 @prefix('users')
 export default class UserController {
-  // Example request: PUT /api/users/do-something
+  // creates PUT /api/users/do-something
   @put.auto()
   static async doSomething(/* ... */) {
     // ...
@@ -120,7 +165,65 @@ export default class UserController {
 }
 ```
 
-Since the client is generated automatically, if your REST API is used internally only, you can use auto-generated endpoints to save a little bit of time thinking of a new endpoint name.
+## Return types
 
+### Custom object
 
-TODO FormData for controller
+The HTTP-decorated static methods of controllers can return several kinds of objects. For example, a regular object literal.
+
+```ts
+// ...
+export default class HelloController {
+  @get()
+  static helloWorld() {
+    return { hello: 'world' };
+  }
+}
+```
+
+Another example - if the controller method returns Prisma ORM invocation the type is going to be recognised accordingly.
+
+```ts
+// ...
+export default class UserController {
+  @get()
+  static async updateUser(/* ... */) {
+    // ...
+    return prisma.user.update({
+      where: { id },
+      data,
+    });
+  }
+}
+```
+
+At this case the returned value of client method `UserRPC.updateUser` gets `User` type generated at **@prisma/client**.
+
+### Response object
+
+HTTP handlers can also return regular `Response` object, including `NextResponse`.
+
+```ts
+// ...
+export default class HelloController {
+  @get()
+  static helloWorld() {
+    return new Response(JSON.stringify({ hello: 'world' }), {
+      headers: { 'Content-Type': 'application/json' },
+    }) as unknown as { hello: string };
+  }
+}
+```
+
+When `NextResponse` is returned from the controller method, the client library is going to recognise the return type as expected.
+
+```ts
+import { NextResponse } from 'next/server';
+// ...
+export default class HelloController {
+  @get()
+  static helloWorld() {
+    return NextResponse.json({ hello: 'world' }, { status: 200 });
+  }
+}
+```

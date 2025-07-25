@@ -1,0 +1,193 @@
+# Callable handlers
+
+## Why?
+
+Coming soon.
+
+-----
+
+Every controller method created with [withValidationLibrary](/validation/introduction) function, that works behind the scenes of all validation libraries, can be used outside of HTTP request context as a regular function. It provides `fn` method that can be used to call the method directly, simulating signature of a resulting RPC module function.
+
+Let's say you have the following controller class:
+
+```ts filename="src/modules/user/UserController.ts"
+import { z } from 'zod';
+import { prefix, post, openapi } from 'vovk';
+import { withZod } from 'vovk-zod';
+import UserService from './UserService';
+
+@prefix('users')
+export default class UserController {
+  @openapi({
+    summary: 'Update user',
+    description: 'Update user by ID with Zod validation',
+  })
+  @post('{id}')
+  static updateUser = withZod({
+    body: z
+      .object({
+        name: z.string().describe('User full name'),
+        age: z.number().min(0).max(120).describe('User age'),
+        email: z.email().describe('User email'),
+      })
+      .describe('User object'),
+    params: z.object({
+      id: z.uuid().describe('User ID'),
+    }),
+    query: z.object({
+      notify: z.enum(['email', 'push', 'none']).describe('Notification type'),
+    }),
+    output: z
+      .object({
+        success: z.boolean().describe('Success status'),
+        id: z.uuid().describe('User ID'),
+      })
+      .describe('Response object'),
+    async handle(req) {
+      const body = await req.vovk.body();
+      const query = req.vovk.query();
+      const params = req.vovk.params();
+      const meta = req.vovk.meta<{ hello: string, xMetaHeader: { hello: string } }>();
+
+      // ...
+    },
+  });
+}
+```
+
+When it's compiled to an RPC module, the HTTP request can be performed like this:
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+const response = await UserRPC.updateUser({
+  params: { id: '69' },
+  body: {
+    name: 'John Doe',
+    age: 30,
+    email: 'john.doe@example.com',
+  },
+  query: {
+    notify: 'email',
+  },
+  disableClientValidation: true, // disables client-side JSON validation
+  meta: { hello: 'world' }, // available as xMetaHeader metadata
+});
+
+console.log('Response:', response);
+```
+
+But the `fn` method allows you to call the controller method directly:
+
+```ts
+import UserController from '@/modules/user/UserController';
+
+const response = await UserController.updateUser.fn({
+  params: { id: '69' },
+  body: {
+    name: 'John Doe',
+    age: 30,
+    email: 'john.doe@example.com',
+  },
+  query: {
+    notify: 'email',
+  },
+  disableClientValidation: true, // disables Zod validation
+  meta: { hello: 'world' }, // available as root metadata
+});
+
+console.log('Response:', response);
+```
+
+This will invoke `UserController.updateUser` method just like a normal function, performing validation with Zod (or [other library](/validation)) before executing the handler and imitating the same signature as the RPC module function.
+
+
+## Rules of callable handlers
+
+`fn` functions do not imitate the `Request` object, but partially simulates [VovkRequest](/controller/request) object, providing only the custom `vovk` property with methods to access input data, such as `async vovk.body()`, `vovk.query()`, `vovk.params()`, and `vovk.meta()`. In other words, `req` properties such as `req.url` or `req.headers` are not defined in the callable handler context. A proper signature of the `req` object looks like `Pick<VovkRequest<BODY, QUERY, PARAMS>, 'vovk'>{:ts}`. In order to make sure that the implemented HTTP handler can be also called with `fn`, you can use object destructing when defining the handler:
+
+```ts {8}
+export default class UserController {
+  @post('{id}')
+  static updateUser = withZod({
+    body: z.object({ /* ... */ }),
+    params: z.object({ /* ... */ }),
+    query: z.object({ /* ... */ }),
+    output: z.object({ /* ... */ }),
+    async handle({ vovk }) { // destructuring req to get "vovk"
+      const body = await vovk.body();
+      const query = vovk.query();
+      const params = vovk.params();
+      const meta = vovk.meta<{ hello: string }>();
+      // ...
+    },
+  });
+}
+```
+
+Another thing to keep in mind is that the callable handler is [decorated](./decorator) with the same decorators as the original HTTP handler, so when you create a decorator that is going to wrap the HTTP handler that is going to be callable, you need to make sure that you don't use `req` properties relative to `NextRequest`, such as `req.url`, `req.headers` or `req.nextUrl`.
+
+
+```ts {4}
+import { createDecorator } from 'vovk';
+
+const myDecorator = createDecorator(
+  ({ vovk }, next) => {
+    const meta = vovk.meta<{ foo: string }>();
+    // ...
+    return next();
+  }
+);
+```
+
+You can check if the handler is called as a callable handler by checking `req.url` property, which is `undefined` in the callable handler context:
+
+```ts {5}
+import { createDecorator } from 'vovk';
+
+const myDecorator = createDecorator(
+  (req, next) => {
+    if(typeof req.url === 'undefined') {
+      console.log('Callable handler context');
+    } else {
+      console.log('HTTP request context');
+    }
+    // ...
+    return next();
+  }
+);
+```
+
+## Good to know
+
+An HTTP decorator such as `@get`, `@post` etc isn't required for the callable handler to work, the only requirement is to use `withValidationLibrary` function (via `withZod` for example) to create the handler. 
+
+```ts filename="src/modules/user/UserHandlers.ts"
+import { z } from 'zod';
+import { withZod } from 'vovk';
+
+export default class UserHandlers {
+  static updateUser = withZod({
+    body: z.object({ /* ... */ }),
+    // ...
+  });
+}
+
+UserHandlers.updateUser.fn({ /* ... */ });
+```
+
+### Validated service method
+
+### SSR, SSG, PPR
+
+
+
+
+The callable controller methods can be used in the following ways:
+
+Use cases:
+
+- **For SSR, SSG, PPR etc**: You can use the method as a server-side function, allowing you to call it from the server-side code.
+- **Via LLM Function Calling**: You can use the method as a tool in LLM Function Calling, allowing AI to call it as a function.
+- **As detached HTTP handler**: You can use the method as a detached HTTP handler, which can be useful for testing or other purposes.
+- **As validated service method**: You can use the method as a validated service method, which can be useful for creating a more structured and type-safe service layer.

@@ -1,6 +1,7 @@
+import type { Meta } from 'nextra';
 import Home from '../components/Home';
 
-export const metadata = {
+export const metadata: Meta = {
   title: {
     default: 'Nextra – Next.js Static Site Generator',
     template: '%s | Nextra',

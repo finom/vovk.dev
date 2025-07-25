@@ -19,7 +19,7 @@ import { prefix, patch, type VovkRequest } from 'vovk';
 
 @prefix('users')
 export default class UserController {
-  @patch(':id')
+  @patch('{id}')
   static updateUser = async (req: VovkRequest<Omit<User, 'id'>>, { id }: { id: string }) =>
     UserService.updateUser(id, await req.json());
 }
@@ -34,7 +34,7 @@ const controllers = {
 
 export type Controllers = typeof controllers;
 
-export const { GET, POST, PATCH } = initVovk({
+export const { GET, POST, PATCH } = initSegment({
   emitSchema: true,
   controllers,
 });

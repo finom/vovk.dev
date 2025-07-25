@@ -1,10 +1,10 @@
 import { Steps } from 'nextra/components'
  
 <Steps>
-### Set up a Next.js project with app router and TypeScript
+### Set up a Next.js project with App Router and TypeScript
  
-```bash
-npx create-next-app my-app --ts --app
+```bash npm2yarn
+npx create-next-app my-app --ts --app --src-dir
 ```
 ```bash
 cd my-app
@@ -14,15 +14,15 @@ cd my-app
 
 You will be asked preferred validation library, and a couple of other questions. The command also creates **vovk.config.mjs** or **vovk.config.cjs**.
 
-```bash
-npx vovk-init
+```bash npm2yarn
+npx vovk-init@draft --channel draft
 ```
 
 ### Create a new segment
 
 The following will create a root segment at **./src/app/api/[[...vovk]]/route.ts**.
 
-```bash
+```bash npm2yarn
 npx vovk new segment
 ```
 
@@ -30,7 +30,7 @@ npx vovk new segment
 
 The following command will create an example controller and a service for users at **./src/modules/user/** and update the **route.ts** file.
 
-```bash
+```bash npm2yarn
 npx vovk new controller service user
 ```
 
@@ -38,7 +38,7 @@ npx vovk new controller service user
 
 The dev script runs Next.js server and Vovk.ts watcher in parallel. Once the command is running, Vovk.ts will generate schema files at **.vovk-schema/** (needs to be committed) and client library at **node_modules/.vovk-client**.
 
-```bash
+```bash npm2yarn
 npm run dev
 ```
 
@@ -62,7 +62,7 @@ const result = await UserRPC.getUsers({ query: { search: 'John' } });
 
 In order to build the client (not the schema) at **node_modules** you need to run the following command after dependency installation and before building the app.
 
-```bash
+```bash npm2yarn
 npx vovk generate
 ```
 

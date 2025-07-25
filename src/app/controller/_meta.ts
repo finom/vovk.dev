@@ -1,33 +1,33 @@
 import type { MetaRecord } from 'nextra';
 
-const meta: MetaRecord = {
+const meta = {
   introduction: 'Getting started',
-  request: 'VovkRequest',
+  request: 'VovkRequest type',
   service: 'Service',
-  return: 'Return type',
   errors: 'Errors',
-  headers: 'Response headers',
-  decorator: 'Decorators and metadata',
+  headers: 'Headers',
   redirect: 'redirect and notFound',
-  'type-extraction': 'Type extraction',
+  decorator: 'Decorators',
   jsonlines: 'JSON Lines',
-  callable: 'Callable controllers',
-  meta: 'Request meta',
-};
+  fn: 'Callable handlers 🚧',
+  meta: 'Request meta 🚧',
+  progressive: 'Progressive Response 🧪 🚧',
+  'form-data': 'FormData 🚧',
+} satisfies MetaRecord;
 
 export const icons: Record<keyof typeof meta, string> = {
   introduction: 'i',
   request: 'i',
   service: 'i',
-  return: 'i',
   errors: 'i',
   headers: 'i',
-  decorator: 'i',
   redirect: 'i',
-  'type-extraction': 'i',
+  decorator: 'i',
   jsonlines: 'i',
-  callable: 'i',
+  fn: 'i',
   meta: 'i',
+  progressive: 'i',
+  'form-data': 'i',
 };
 
 export default meta;

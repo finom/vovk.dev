@@ -1,7 +1,4 @@
 import { Steps, Tabs, Callout } from 'nextra/components';
-import BasicController from '../../../downloaded-examples/basic/BasicController.mdx';
-import BasicExample from '../../../downloaded-examples/basic/BasicExample.mdx';
-import LiveBasicExample from '../../../live-examples/LiveBasicExample';
 
 # Manual install
 
@@ -15,7 +12,7 @@ Follow [this instruction](https://nextjs.org/docs/getting-started/installation) 
 npx create-next-app my-app --ts --app
 ```
 
-```sh pnpm2yarn
+```sh
 cd my-app
 ```
 
@@ -24,7 +21,6 @@ cd my-app
 ```sh npm2yarn
 npm i vovk vovk-client
 ```
-
 
 ## Create an empty config file
 
@@ -42,9 +38,9 @@ export default vovkConfig;
 
 Install one of the validation libraries with some additional packages.
 
-- [vovk-yup](/validation/vovk-yup)
-- [vovk-zod](/validation/vovk-zod)
-- [vovk-dto](/validation/vovk-dto)
+- [vovk-yup](/validation/yup)
+- [vovk-zod](/validation/zod)
+- [vovk-dto](/validation/dto)
 
 ## Update "dev" NPM script
 
@@ -114,7 +110,7 @@ Create **/src/app/api/[[...vovk]]/route.ts** where **[[...vovk]]** is a folder n
 At the code below `HelloRPC` indicates the name of the exported client library and `HelloController` is the controller class created above.
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
-import { initVovk } from 'vovk';
+import { initSegment } from 'vovk';
 import HelloController from '../modules/hello/HelloController';
 
 export const runtime = 'edge'; // this setting is optional
@@ -124,7 +120,7 @@ const controllers = { HelloRPC: HelloController };
 // export types used by the client
 export type Controllers = typeof controllers;
 
-export const { GET, POST, PUT, DELETE } = initVovk({ controllers });
+export const { GET, POST, PUT, DELETE } = initSegment({ controllers });
 ```
 
 ## Run "vovk dev"
