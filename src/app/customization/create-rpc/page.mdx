@@ -1,0 +1,58 @@
+
+
+# `createRPC`
+
+The `createRPC` function is used to create a custom RPC client and its redefinition can change each exported RPC client object. It's import path can be set in the `vovk.config.mjs` file:
+
+```ts filename="vovk.config.mjs" {4}
+/** @type {import('vovk').VovkConfig} */
+const vovkConfig = {
+  imports: {
+    createRPC: './src/lib/createRPC.ts',
+  },
+};
+export default vovkConfig;
+```
+
+This also can be done by setting `VOVK_IMPORTS_CREATE_RPC` env variable:
+
+```sh
+VOVK_IMPORTS_CREATE_RPC="./src/lib/createRPC" npx vovk dev
+```
+
+At this case RPCs imported from **vovk-client** will utilize the custom `createRPC` function.
+
+```ts filename="./node_modules/.vovk-client/index.ts (rendered using 'ts' template)" {3}
+import type { VovkClientFetcher } from 'vovk';
+import { fetcher } from 'vovk';
+import { createRPC } from '../../src/lib/createRPC.ts';
+import { fullSchema } from './fullSchema.cjs';
+import type { Controllers as Controllers0 } from '../../app/api/[[...vovk]]/route.ts';
+import { validateOnClient } from 'vovk-ajv';
+
+type Options = typeof fetcher extends VovkClientFetcher<infer U> ? U : never;
+
+const apiRoot = '/api';
+
+export const UserRPC = createRPC<Controllers0['UserRPC'], Options>(fullSchema, '', 'UserRPC', {
+  fetcher,
+  validateOnClient,
+  defaultOptions: { apiRoot },
+});
+```
+
+That's the way how other libraries can patch the default `createRPC` function. [React Query](/react-query) uses this approach to define `useQuery` and `useMutation` hooks at the RPC methods.
+
+```ts filename="vovk.config.mjs" {4}
+/** @type {import('vovk').VovkConfig} */
+const vovkConfig = {
+  imports: {
+    createRPC: 'vovk-react-query',
+  },
+};
+export default vovkConfig;
+```
+
+## Custom RPC client template
+
+If you want to create completely custom RPC client, check [custom client documentation](/custom-client).

@@ -1,4 +1,12 @@
+import { JSONLinesExample } from '../../../components/vovk-examples';
+import { Suspense } from 'react';
+
 # JSON Lines streaming
+
+<div className="example">
+  <JSONLinesExample />
+</div>
+
 
 Vovk.ts includes first class support for [JSONLines](https://jsonlines.org/) format, which is a convenient way to implement "one request - many responses". It's perfect for LLM completions, but also opens up a new field for experiments, such as [progressive responses](/controller/progressive) and [polling](/guides/polling). JSONLines is another kind of output that uses `iteration` validation field and produces `application/jsonl` content-type if client-side sends `Accept: application/jsonl` header. If the `Accepts` header doesn't include `application/jsonl`, the output is returned as `text/plain` to be available when the endpoint URL is opened directly in the browser.
 
@@ -89,6 +97,7 @@ for await (const { message } of stream) {
 }
 ```
 
+<a name="jsonlinesresponse" />
 ## `JSONLinesResponse` class
 
 If generators aren't sutable for JSON streaming at a particular case, you can use `JSONLinesResponse` class inherited from `Response` class that uses `TransformStream#readable` as response body.

@@ -7,7 +7,7 @@ const meta = {
   ajv: 'Client-side with Ajv',
   standard: 'Standard Schema',
   zod: 'Zod 3 and 4',
-  dto: 'class-validator',
+  dto: 'class-validator 🚧',
   yup: 'Yup (obsolete)',
 } satisfies MetaRecord;
 

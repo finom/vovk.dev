@@ -31,33 +31,35 @@ html {
   scroll-behavior: smooth;
 }
 
-.doc-live-example {
+.example {
   @apply mt-4;
+
+  h2 {
+    @apply text-xl font-bold mb-2;
+  }
+
   button {
-    @apply py-2 px-4 rounded-sm bg-blue-500 text-white hover:bg-blue-700 transition-colors cursor-pointer leading-none h-auto disabled:pointer-events-none disabled:opacity-70;
+    @apply py-2 px-4 cursor-pointer rounded-2xl transition-colors my-2 
+          disabled:opacity-70 disabled:pointer-events-none
+          bg-violet-600 text-white hover:bg-violet-800
+          dark:bg-slate-600 dark:text-white dark:hover:bg-slate-700;
   }
 
-  input[type='text'] {
-    @apply appearance-none rounded-sm w-full py-2 px-4 dark:text-gray-200 dark:bg-slate-800;
-    @apply leading-tight focus:outline my-1 border border-gray-200 dark:border-gray-700;
+  input[type='text'],
+  input[type='number'] {
+    @apply appearance-none rounded-sm w-full py-1 px-3 leading-tight focus:outline-hidden my-2
+              border border-gray-200 dark:border-slate-600
+              dark:bg-slate-800 dark:text-gray-200;
   }
 
-  .input-group {
-    @apply shadow-sm flex flex-row mt-2;
+  ul {
+    @apply list-disc pl-5 mb-2;
 
-    & > input {
-      @apply rounded-r-none my-0;
-    }
-
-    & > button {
-      @apply rounded-l-none my-0;
+    li {
+      @apply mb-1;
     }
   }
 }
-
-/*
-  ---break---
-*/
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);

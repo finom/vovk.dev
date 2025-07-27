@@ -1,11 +1,5 @@
 # Callable handlers
 
-## Why?
-
-Coming soon.
-
------
-
 Every controller method created with [withValidationLibrary](/validation/introduction) function, that works behind the scenes of all validation libraries, can be used outside of HTTP request context as a regular function. It provides `fn` method that can be used to call the method directly, simulating signature of a resulting RPC module function.
 
 Let's say you have the following controller class:
@@ -101,6 +95,48 @@ console.log('Response:', response);
 
 This will invoke `UserController.updateUser` method just like a normal function, performing validation with Zod (or [other library](/validation)) before executing the handler and imitating the same signature as the RPC module function.
 
+There are several core use cases for callable handlers:
+
+**For SSR, SSG, PPR etc**: You can use the method as a server-side function, allowing you to call it from the server-side code without performing an HTTP request.
+
+```tsx filename="src/app/page.tsx"
+import UserController from '@/modules/user/UserController';
+
+export default async function Page() {
+  const response = await UserController.updateUser.fn({
+    params: { id: '69' },
+    body: {
+      name: 'John Doe',
+      age: 30,
+      email: 'john.doe@example.com',
+    },
+    query: {
+      notify: 'email',
+    },
+  });
+
+  console.log('Response:', response);
+
+  return (
+    <div>
+      <h1>User Updated</h1>
+      <p>Response: {JSON.stringify(response)}</p>
+    </div>
+  );
+}
+```
+
+**For LLM Function Calling**: Each controller can be used as a "module" for LLM Function Calling, implemented with `createLLMTools` utility. This allows you to call the controller method as a function from AI models, providing a structured way to interact with your application.
+
+```ts
+import { createLLMTools } from 'vovk';
+
+const { tools } = createLLMTools({
+  modules: { UserController },
+});
+
+console.log(tools); // [{ name, description, parameters, execute }, ...]
+```
 
 ## Rules of callable handlers
 
@@ -158,6 +194,22 @@ const myDecorator = createDecorator(
 );
 ```
 
+Even though the `req` argument isn't a `Request` object, you can still use built-in Next.js features such as `headers`  or `cookies` from `next/headers` to access headers and cookies in the callable handler context:
+
+
+```ts {5}
+import { createDecorator } from 'vovk';
+import { headers } from 'next/headers';
+
+const myDecorator = createDecorator(
+  async ({ vovk }, next) => {
+    const headers = await headers();
+    // ...
+    return next();
+  }
+);
+```
+
 ## Good to know
 
 An HTTP decorator such as `@get`, `@post` etc isn't required for the callable handler to work, the only requirement is to use `withValidationLibrary` function (via `withZod` for example) to create the handler. 
@@ -176,18 +228,15 @@ export default class UserHandlers {
 UserHandlers.updateUser.fn({ /* ... */ });
 ```
 
-### Validated service method
+When static class is implemented this way, it behaves like "validated [service](./service)", or "detouched HTTP handlers library", which can be attached to the controller later, or used as a standalone collection of validated functions.
 
-### SSR, SSG, PPR
+```ts filename="src/modules/user/UserController.ts" {7}
+import { prefix, post } from 'vovk';
+import UserHandlers from './UserHandlers';
 
-
-
-
-The callable controller methods can be used in the following ways:
-
-Use cases:
-
-- **For SSR, SSG, PPR etc**: You can use the method as a server-side function, allowing you to call it from the server-side code.
-- **Via LLM Function Calling**: You can use the method as a tool in LLM Function Calling, allowing AI to call it as a function.
-- **As detached HTTP handler**: You can use the method as a detached HTTP handler, which can be useful for testing or other purposes.
-- **As validated service method**: You can use the method as a validated service method, which can be useful for creating a more structured and type-safe service layer.
+@prefix('users')
+export default class UserController {
+  @post('{id}')
+  static updateUser = UserHandlers.updateUser;
+}
+```

@@ -8,5 +8,12 @@ const config = {
     controller: 'vovk-zod/templates/controller.ejs',
     service: 'vovk-cli/templates/service.ejs',
   },
+  segmentConfig: {
+    '': {
+      reExports: {
+        'ProgressiveRPC, JSONLinesRPC': 'vovk-examples',
+      },
+    },
+  },
 };
 module.exports = config;

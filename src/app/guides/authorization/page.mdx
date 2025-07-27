@@ -1,15 +1,16 @@
-# Authorization with RBAC
+# Authorization with decorators
 
-The `authGuard` decorator below does the following:
+Authorization of requests can be implemented using [decorators](/controller/decorator) that checks if a user is authorised and passes down useful information such as current user to the controller handler via [metadata](/controller/meta) that can be accessed via `req.vovk.meta()` method.
+
+For an illustration, let's create a simple authorization decorator that checks if a user is authorised and has the required permissions to access the resource. The `authGuard` decorator below does the following:
 
 - Checks if a user is authorised and returns an `Unauthorised` status if not.
-- Adds `currentUser` to the request metadata object, represented as `AuthMeta` interface, to make it accessible in the controller.
-- Adds a custom `x-permission` field to the OpenAPI operation object.
+- Adds `currentUser` to the request metadata object, represented as `AuthMeta` interface.
 - Implements role-based access control with `Permission` enum.
 
 ```ts filename="src/decorators/authGuard.ts"
 import { createDecorator, HttpException, HttpStatus, type VovkRequest } from 'vovk';
-import { User } from '@prisma/client';
+import type { User } from '@/types';
 
 export enum Permission {
   CAN_DO_THIS = 'CAN_DO_THIS',
@@ -23,7 +24,7 @@ export interface AuthMeta {
 
 // Create a function that identifies the user, checks permissions and updates the request metadata
 const checkAuth = async (req: VovkRequest, permission: Permission) => {
-  const currentUser = identifyUserSomehowAndCheckPermissions(req, permission);
+  const currentUser = identifyUserAndCheckPermissions(req, permission);
 
   if (!currentUser) {
     return false;
@@ -42,14 +43,14 @@ const authGuard = createDecorator(async (req, next, permission: Permission) => {
   if (!isAuthorized) {
     throw new HttpException(HttpStatus.UNAUTHORIZED, 'Unauthorized');
   }
-
+  // The user is authorized, and the metadata is set; proceed to the next decorator or controller handler
   return next();
 });
 
 export default authGuard;
 ```
 
-Usage:
+Then import the `authGuard` decorator and related members and apply it to the controller methods, passing it after the `@get`, `@post`, etc. decorators.
 
 ```ts filename="src/modules/user/UserController.ts"
 import { get, prefix } from 'vovk';

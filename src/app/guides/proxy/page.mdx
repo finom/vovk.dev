@@ -2,7 +2,7 @@
 
 ## JSON
 
-You can easily create a proxy endpoint by fetching data from another server with `fetch` function that returns `Response` instance that's automatically handled by Next.js. The only thing you need to do is to define a different return type.
+You can easily create a proxy endpoint by fetching data from another server with `fetch` function that, in its turn, returns `Response` instance that's automatically handled by Next.js. The only thing you need to do is to define a different return type.
 
 ```ts
 import { get } from 'vovk';
@@ -17,7 +17,7 @@ export default class ProxyController {
 
 See this [example in action](http://vovk-examples.vercel.app/proxy).
 
-On the client-side the return type is going to be used as expected.
+On the client-side the return type is going to be inferred as expected.
 
 ```ts
 import { ProxyRPC } from 'vovk-client';
@@ -26,7 +26,7 @@ import { ProxyRPC } from 'vovk-client';
 const { greeting } = await ProxyRPC.getHello();
 ```
 
-You can also define response type at the client method if you want to keep the return type to be a generic `Response`.
+You can also define response type at the client method if you want to keep the original return type to be `Response`.
 
 ```ts
 import { ProxyRPC } from 'vovk-client';
@@ -37,10 +37,11 @@ const { greeting } = await ProxyRPC.getHello<{ greeting: string }>();
 
 ## Blob
 
-If you don't change the return type, the client will automatically resolve the response as `Response` object. This is useful when you need to fetch a file or a binary data.
+When return type isn't changed, the client will automatically resolve the response as `Response` object. This is useful when you need to fetch a file or a binary data.
 
 ```ts
 import { get } from 'vovk';
+
 export default class ProxyController {
   @get('proxy')
   static proxy() {

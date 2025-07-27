@@ -1,0 +1,162 @@
+import { FileTree } from 'nextra/components';
+
+## "Composed" vs "segmented" RPC client
+
+By default Vovk.ts emits a single RPC client that contains all RPC modules from all segments. This approach is called **"composed RPC client"** and it's useful for single-page applications where you want to have a single entry point for all RPC modules.
+
+However, in larger applications, exposing schema for all segments in a single RPC client isn't always desirable. In this case, with a simple configuration change, you can instruct Vovk.ts to generate separate RPC clients for each segment.
+
+<FileTree>
+  <FileTree.Folder name="app/client" defaultOpen>
+    <FileTree.Folder name="root" defaultOpen>
+      <FileTree.File
+        name={
+          <span>
+            index.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>./schema.ts</code>)
+            </span>
+          </span>
+        }
+      />
+      <FileTree.File
+        name={
+          <span>
+            schema.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>.vovk-schema/root.json)</code>
+            </span>
+          </span>
+        }
+      />
+    </FileTree.Folder>
+    <FileTree.Folder name="admin" defaultOpen>
+      <FileTree.File
+        name={
+          <span>
+            index.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>./schema.ts</code>)
+            </span>
+          </span>
+        }
+      />
+      <FileTree.File
+        name={
+          <span>
+            schema.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>.vovk-schema/admin.json)</code>
+            </span>
+          </span>
+        }
+      />
+    </FileTree.Folder>
+    <FileTree.Folder name="customer" defaultOpen>
+      <FileTree.File
+        name={
+          <span>
+            index.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>./schema.ts</code>)
+            </span>
+          </span>
+        }
+      />
+      <FileTree.File
+        name={
+          <span>
+            schema.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>.vovk-schema/customer.json</code>)
+            </span>
+          </span>
+        }
+      />
+      <FileTree.Folder name="static" defaultOpen>
+        <FileTree.File
+          name={
+            <span>
+              index.ts{' '}
+              <span className="text-gray-500">
+                (imports <code>./schema.ts</code>)
+              </span>
+            </span>
+          }
+        />
+        <FileTree.File
+          name={
+            <span>
+              schema.ts{' '}
+              <span className="text-gray-500">
+                (imports <code>.vovk-schema/customer/static.json</code>)
+              </span>
+            </span>
+          }
+        />
+      </FileTree.Folder>
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+This approach is called **"segmented RPC client"** and it allows to split the client into smaller TypeScript files that can be imported separately, hiding RPC modules and corresponding schema on specific pages. For example, pages responsible for "customer" functionality isn't going to import "admin" RPC modules, therefore "admin" implementation details are hidden from the customer pages.
+
+
+
+# Isolated client
+
+You can generate RPC libraries for every individual segment. This would allow you to import RPC modules that use specific segments of the schema and to protect schema for other segments to be available for inspection in a resulting JS bundle of an app area.
+
+At this case the client code should be generated at the project level, instead of **node_modules/.vovk-client** folder and you don't need to use **vovk-client** package in your project.
+
+To achieve that you need to update the [config](/config) file with the following options:
+
+- `generateSegmentClient` - should be set to `true` to enable isolated client generation.
+- `generateFrom` - should be set to `['ts']` to generate **.ts** files instead of **.mjs** and **.cjs**.
+- `clientOutDir` - should be set to the path where you want to generate the client code. By default, it uses `node_modules/.vovk-client` folder.
+- `generateFullClient` - can be optionally set to `false` to disable full client generation.
+- `prettifyClient` - optionally set to `true` to prettify the generated client code. By default, it's `false`.
+
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk-cli').VovkConfig} */
+const config = {
+  generateSegmentClient: true,
+  generateFrom: ['ts'],
+  clientOutDir: './src/client',
+  generateFullClient: false,
+  prettifyClient: true,
+};
+export default config;
+```
+
+The config above will generate the client code in the **./src/client** folder. Each segment will have its own folder with the generated client code. For example, client for the root segment will be generated in the **./src/client/root** folder, client for the segment `admin` will be generated in the **./src/client/admin** folder, client for the segment `foo/bar/baz` will be generated in the **./src/client/foo/bar/baz** folder, etc.
+
+You can optionally update **tsconfig.json** in order to define the path to the generated client code. This will allow you to import the client code from the generated folder without using relative paths.
+
+```json filename="tsconfig.json" {4}
+{
+  "compilerOptions": {
+    "paths": {
+      "@/client/*": ["./src/client/*"]
+    }
+  }
+}
+```
+
+After that you can import the RPCs the following way:
+
+```ts
+import { ProductRPC } from '@/client/root';
+import { UserRPC } from '@/client/admin';
+import { CheckoutRPC } from '@/client/customer';
+
+// ...
+```
+
+If `generateFullClient` is not set to `false`, the RPCs are going to be available at the root of the **./src/client** folder.
+
+```ts
+import { ProductRPC, UserRPC, CheckoutRPC } from '@/client';
+
+// ...
+```

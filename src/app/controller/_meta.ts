@@ -9,9 +9,9 @@ const meta = {
   redirect: 'redirect and notFound',
   decorator: 'Decorators',
   jsonlines: 'JSON Lines',
-  fn: 'Callable handlers 🚧',
-  meta: 'Request meta 🚧',
-  progressive: 'Progressive Response 🧪 🚧',
+  fn: 'Callable handlers',
+  meta: 'Request meta',
+  progressive: 'Progressive response 🧪',
   'form-data': 'FormData 🚧',
 } satisfies MetaRecord;
 
