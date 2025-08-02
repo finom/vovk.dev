@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Route } from 'next';
 
 const options = [
   {
@@ -58,7 +59,7 @@ const WhatToBuild = () => {
               className="group hover:shadow-md transition-all duration-200 cursor-pointer border-border/50 hover:border-border bg-card/50 backdrop-blur-sm"
               key={option.title}
             >
-              <Link key={option.title} href={option.href} className="h-full">
+              <Link key={option.title} href={option.href as Route} className="h-full">
                 <CardHeader className="pb-4">
                   <div className="text-2xl mb-3 group-hover:scale-110 transition-transform duration-200">
                     {option.icon}
