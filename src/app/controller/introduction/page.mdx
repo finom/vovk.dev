@@ -73,7 +73,7 @@ As you can see we've changed nothing more than the type of `req` but now `data` 
 
 To validate the request body, query parameters, and headers you can use [validation libraries](/validation). At this case you don't need to use `VovkRequest` manually, as the validation library will define the request type by itself.
 
-```ts
+```ts filename="src/modules/user/UserController.ts"
 import { z } from 'zod';
 import { withZod } from 'vovk-zod';
 import { prefix, post, openapi } from 'vovk';
@@ -88,22 +88,22 @@ export default class UserController {
   static updateUser = withZod({
     body: z
       .object({
-        name: z.string().describe('User full name'),
-        age: z.number().min(0).max(120).describe('User age'),
-        email: z.email().describe('User email'),
+        name: z.string().meta({ description: 'User full name' }),
+        age: z.number().min(0).max(120).meta({ description: 'User age' }),
+        email: z.email().meta({ description: 'User email' }),
       })
-      .describe('User object'),
+      .meta({ description: 'User object' }),
     params: z.object({
-      id: z.uuid().describe('User ID'),
+      id: z.uuid().meta({ description: 'User ID' }),
     }),
     query: z.object({
-      notify: z.enum(['email', 'push', 'none']).describe('Notification type'),
+      notify: z.enum(['email', 'push', 'none']).meta({ description: 'Notification type' }),
     }),
     output: z
       .object({
-        success: z.boolean().describe('Success status'),
+        success: z.boolean().meta({ description: 'Success status' }),
       })
-      .describe('Response object'),
+      .meta({ description: 'Response object' }),
     async handle(req, { id }) {
       const { name, age } = await req.json();
       const notify = req.nextUrl.searchParams.get('notify');
@@ -135,7 +135,7 @@ export type Controllers = typeof controllers;
 export const { GET, POST, PUT, DELETE } = initSegment({ controllers });
 ```
 
-This will "turn" the `UserController` into `UserRPC` that performs `fetch` requests to the `/api/users` subpath.
+This will "compile" the `UserController` into `UserRPC` that performs `fetch` requests to the `/api/users` subpath.
 
 ```ts
 import { UserRPC } from 'vovk-client';

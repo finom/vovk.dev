@@ -27,14 +27,14 @@ I couldn't find a way to build a back-end for Next.js with NestJS-like syntax th
 Vovk.ts emits a committable schema and generates a TypeScript library because implementing both RESTful API and RPC in a single framework required this compromise. However, this approach has led to some remarkable side-effects, enabling unique features such as:
 
 - Client-side validation that validates request inputs and outputs using JSON Schema before sending requests to the server.
-- Function Calling that enables API endpoint interaction with LLMs, both on client-side and server-side. Client-side calls are particularly valuable when implementing [Realtime conversations](https://platform.openai.com/docs/guides/realtime-conversations) through WebRTC protocol.
+- Function Calling that enables API endpoint interaction with LLMs, both on client-side and server-side. Client-side calls are particularly valuable when implementing [Realtime conversations](https://platform.openai.com/docs/realtime-conversations) through WebRTC protocol.
 - Validation schema accessibility on the client-side for form validation or other purposes. For example, the schema for `UserController.updateUser` is available as `UserRPC.updateUser.schema.validation`.
 
 Vovk.ts also implements other features common to modern back-end frameworks:
 
 - OpenAPI documentation generation
 - Code generation for TypeScript, Python, and Rust
-- Multitenancy support via the [multitenant](/guides/multitenant) function applied in Next.js `middleware.ts`
+- Multitenancy support via the [multitenant](/multitenant) function applied in Next.js `middleware.ts`
 - JSON streaming support using [JSON Lines](https://jsonlines.org/)
 - Developer-friendly CLI
 

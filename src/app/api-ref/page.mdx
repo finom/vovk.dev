@@ -1,3 +1,365 @@
+{/*
+
+
+export {
+// types
+  type KnownAny,
+  type VovkClient,
+  type VovkClientFetcher,
+  type VovkDefaultFetcherOptions,
+  type VovkStreamAsyncIterable,
+  type VovkValidateOnClient,
+  type VovkSegmentSchema,
+  type VovkErrorResponse,
+  type VovkRequest,
+  type VovkOutput,
+  type VovkIteration,
+  type VovkBody,
+  type VovkQuery,
+  type VovkParams,
+  type VovkYieldType,
+  type VovkReturnType,
+  type VovkMetaSchema,
+  type VovkControllerSchema,
+  type VovkHandlerSchema,
+  type VovkSchema,
+  type VovkConfig,
+  type VovkStrictConfig,
+  type VovkValidationType,
+  type VovkLLMTool,
+  type VovkTypedMethod,
+  type VovkSimpleJSONSchema,
+  VovkSchemaIdEnum,
+  JSONLinesResponse,
+  HttpException,
+  HttpStatus,
+  HttpMethod,
+  createVovkApp,
+  createDecorator,
+  createRPC,
+  fetcher,
+  createFetcher,
+  generateStaticAPI,
+  withValidationLibrary,
+  createStandardValidation,
+  multitenant,
+  createLLMTools,
+  createCodeExamples,
+  createValidateOnClient,
+  progressive,
+  openapi,
+  openAPIToVovkSchema,
+  vovkSchemaToOpenAPI,
+};
+
+export const { get, post, put, patch, del, head, options, prefix, initSegment } = createVovkApp();
+*/}
+
+# API Reference
+
+## Core
+
+### `createVovkApp`
+
+An internal function that creates the Vovk.ts app with the decorators and init function.
+
+```ts
+export const { get, post, put, patch, del, head, options, prefix, initSegment } = createVovkApp();
+```
+
+### `initSegment`
+
+Createsd Next.js App Route handlers used by the main [Optional Catch-all Segment](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments). The function accepts the following options:
+
+- `segmentName?: string` - the name of the segment that's going to be used in the route. Default is empty string (root segment).
+- `controllers: Record<string, Function>` - the list of Controllers.
+- `exposeValidation?: boolean` - set to `false` if you want to hide validation logic from the client-side code.
+- `emitSchema?: boolean` - set to `true` if you want to emit the schema for the segment. The schema is going to be emitted to the **.vovk-schema** folder.
+- `onError?: (err: Error, req: VovkRequest) => void | Promise<void>` - called on Controller exceptions, can be used to log errors by a third-party service. The second argument can be utilised to retrieve request URL, authorisation info, and other useful information about the failed request.
+
+## Decorators
+
+### `@get`, `@post`, `@put`, `@patch`, `@del`, `@head`, `@options`
+
+HTTP method decorators define an HTTP method for a handler. They accept two optional arguments:
+
+- `path? = ''` - the path for the route.
+- `opts?: { cors?: boolean, headers?: Record<string, string>, staticParams?: Record<string, string>[] }` - options for the route. If `cors` is set to `true`, it will add CORS headers to the response and make `OPTIONS` HTTP method be properly handled. `headers` is an object with headers to be added to the response. `staticParams` (`@get` decorator only) is an array of objects with static parameters that can be used in the route path, e.g. `[{ id: '123' }]`.
+
+```ts
+import { get } from 'vovk';
+
+export default class HelloController {
+  @get('world', { cors: true, headers: { 'x-hello': 'world' }, staticParams: [{ id: '123' }] })
+  static getHelloWorld(req, { id }: { id: string }) {
+    return { hello: 'world', id };
+  }
+}
+```
+
+Each decorator has an `.auto()` method that can be used to generate the path automatically based on the controller and method names. It accepts the same options as the decorator itself.
+
+```ts
+import { get } from 'vovk';
+
+export default class HelloController {
+  @get.auto({ cors: true, headers: { 'x-hello': 'world' }, staticParams: [{ id: '123' }] })
+  static getHelloWorld(req, { id }: { id: string }) {
+    return { hello: 'world', id };
+  }
+}
+```
+
+### `@prefix`
+
+`@prefix(p: string)` decorator used to prepend a sub-path to the endpoint. It's usage is optional.
+
+```ts
+import { prefix, get } from 'vovk';
+
+@prefix('hello')
+export default class HelloController {
+  @get('world')
+  static getHelloWorld() {
+    return { hello: 'world' };
+  }
+}
+```
+
+### `@openapi`
+
+`@openapi(openAPIOperationObject)` decorator can be used to add OpenAPI documentation to the controller method. It accepts an object with `summary`,  `description` and other OpenAPI Operation Object properties.
+
+```ts
+import { openapi } from 'vovk';
+
+export default class HelloController {
+  @openapi({
+    summary: 'Get Hello World',
+    description: 'Returns a hello world message',
+  })
+  @get('world')
+  static getHelloWorld() {
+    return { hello: 'world' };
+  }
+}
+```
+
+## Utils
+
+### `createDecorator`
+
+`createDecorator` is a higher-order function that produces a decorator factory (a function that returns a decorator) for controller class methods. It accepts a middleware function with the following parameters:
+
+```ts
+import { createDecorator, get } from 'vovk';
+
+const myDecorator = createDecorator(
+  (req, next, a: string, b: number) => {
+    // do something with the request
+  },
+  (a: string, b: number) => {
+    // modify schema here
+  }
+);
+
+export default class MyController {
+  @get.auto()
+  @myDecorator('foo', 1) // Passes 'foo' as 'a', and 1 as 'b'
+  static doSomething() {
+    // ...
+  }
+}
+```
+
+See [decorators docs](/controller/decorators) for more info.
+
+### `createRPC`
+
+Function that creates RPC modules out of [schema](/schema) and types inferred from [controllers](/controller). It's imported by the generated TypeScript, ESM and CJS files and can be [customized at config](/customization).
+
+### `fetcher`
+
+Function that creates a data fetching layer for the RPC client. It handles HTTP requests, client-side validation, and response parsing. It's imported by the generated TypeScript, ESM and CJS files and can be [customized at config](/customization). A new fetcher can be created using [createFetcher](#createFetcher) function.
+
+### `createFetcher`
+
+Function that creates a custom fetcher for the RPC client. It accepts a generic type parameter that defines the options for the resulting RPC methods. The function returns a `fetcher` function that is going to be used in the `createRPC` function.
+
+
+```ts filename="./src/lib/fetcher.ts"
+import { createFetcher } from 'vovk';
+
+export const fetcher = createFetcher<{
+  successMessage?: string; // "Successfully created a new user"
+  useAuth?: boolean; // if true, Authorization header will be set
+  someOtherCustomFlag?: boolean; // any custom flag that you want to pass to the RPC method
+}>({
+  prepareRequestInit: async (init, { useAuth, someOtherCustomFlag }) => {
+    // ...
+    return {
+      ...init,
+      headers: {
+        ...init.headers,
+        ...(useAuth ? { Authorization: 'Bearer token' } : {}),
+      },
+    };
+  },
+  transformResponse: async (data, { someOtherCustomFlag }) => {
+    // ...
+    return {
+      ...data,
+    };
+  },
+  onSuccess: async (data, { successMessage }) => {
+    if (successMessage) {
+      alert(successMessage);
+    }
+  },
+  onError: async (error) => {
+    alert(error.message);
+  },
+});
+```
+
+
+### `generateStaticAPI`
+
+Function that generates API that is generated at build time instead of on-demand at request time. It accepts a record of controllers and an optional slug that is used to generate the static API path. The function returns an array of static parameters that can be used in the `generateStaticParams` function.
+
+
+```ts filename="src/app/api/[[...vovk]]/route.ts"
+// ...
+export type Controllers = typeof controllers;
+
+export function generateStaticParams() {
+  return generateStaticAPI(controllers);
+}
+
+export const { GET } = initSegment({ controllers });
+```
+
+See [static segment](/segment/static) documentation for more info.
+
+
+### `withValidationLibrary`
+
+A lower-order function that allows to create validation function for controller methods.
+
+### `createStandardValidation`
+
+Creates a custom validation library that uses Standard Schema. The only option of this function is `toJSONSchema` function that defines how to convert the models to JSON Schema format.
+
+```ts filename="src/lib/withArk.ts"
+import type { type } from 'arktype';
+import { createStandardValidation } from 'vovk';
+
+export const withArk = createStandardValidation({
+  toJSONSchema: (model: type) => model.toJsonSchema(),
+});
+```
+
+```ts filename="src/modules/user/UserController.ts"
+import { prefix, post, openapi } from 'vovk';
+import { type } from 'arktype';
+import { withArk } from '@/lib/withArk';
+
+@prefix('users')
+export default class UserController {
+  @openapi({
+    summary: 'Update user',
+    description: 'Update user by ID with',
+  })
+  @post('{id}')
+  static updateUser = withArk({
+    body: type({
+      name: type('string').describe('User full name'),
+      age: type('0 < number < 120').describe('User age'),
+      email: type('string.email').describe('User email'),
+    }),
+    // ...
+    async handle(req, { id }) {
+      // ...
+    },
+  });
+}
+```
+
+### `multitenant`
+
+### `createLLMTools`
+
+### `createCodeExamples`
+
+### `createValidateOnClient`
+
+### `progressive`
+
+### `openAPIToVovkSchema`
+
+### `vovkSchemaToOpenAPI`
+
+## Types and Enums
+
+### `KnownAny`
+
+### `VovkClient`
+
+### `VovkClientFetcher`
+
+### `VovkDefaultFetcherOptions`
+
+### `VovkStreamAsyncIterable`
+
+### `VovkValidateOnClient`
+
+### `VovkSegmentSchema`
+
+### `VovkErrorResponse`
+
+### `VovkRequest`
+
+### `VovkOutput`
+
+### `VovkIteration`
+
+### `VovkBody`
+
+### `VovkQuery`
+
+### `VovkParams`
+
+### `VovkYieldType`
+
+### `VovkReturnType`
+
+### `VovkMetaSchema`
+
+### `VovkControllerSchema`
+
+### `VovkHandlerSchema`
+
+### `VovkSchema`
+
+### `VovkConfig`
+
+### `VovkStrictConfig`
+
+### `VovkValidationType`
+
+### `VovkLLMTool`
+
+### `VovkTypedMethod`
+
+### `VovkSimpleJSONSchema`
+
+### `VovkSchemaIdEnum`
+
+
+
+-------
+
+
 # API
 
 TODO: setClientValidatorsForHandler, VovkControllerSchema, createRPC, VovkHandlerSchema, VovkClient, KnownAny, VovkStreamAsyncIterator

@@ -1,0 +1,104 @@
+import { FileTree } from 'nextra/components';
+
+# Composed RPC client
+
+By default Vovk.ts emits a single RPC client that contains all RPC modules from all segments. This approach is called **Composed RPC Client** and it's useful for single-page applications where you want to have a single import entry point for all RPC modules and all segments. The files are emitted into [reconfigurable](/config) **node_modules/.vovk-client** folder that, in its turn, re-exported from the **vovk-client** package.
+
+The structure of **node_modules/.vovk-client** folder that's by default is generated from [cjs](/templates#cjs), [mjs](/templates#mjs) and [schemaCjs](/templates#schemaCjs) templates looks like this:
+
+<FileTree>
+  <FileTree.Folder name="node_modules/.vovk-client" defaultOpen>
+    <FileTree.File name="index.cjs" />
+    <FileTree.File name="index.d.cts" />
+    <FileTree.File name="index.mjs" />
+    <FileTree.File name="index.d.mts" />
+    <FileTree.File name="schema.cjs" />
+    <FileTree.File name="schema.d.cts" />
+  </FileTree.Folder>
+</FileTree>
+
+`vovk-client` package re-exports the `index.cjs` and `index.mjs` etc. files at their own `index.cjs` and `index.mjs` etc. files, so you can import RPC modules from the client.
+
+```ts filename="node_modules/vovk-client/index.mjs"
+export * from '../.vovk-client/index.mjs';
+```
+
+```ts filename="node_modules/vovk-client/index.d.mts"
+export * from '../.vovk-client/index.d.mts';
+```
+
+etc.
+
+The default settings for the composed client look like this:
+
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  composedClient: {
+    fromTemplates: ['mjs', 'cjs'],
+    enabled: true,
+    outDir: './node_modules/.vovk-client',
+  },
+};
+
+export default config;
+```
+
+The settings can be replecated by [CLI](/cli) command:
+
+```sh npm2yarn
+npx vovk generate --from mjs --from cjs --out-dir node_modules/.vovk-client
+```
+
+## Composed Client Config
+
+The composed client can be configured with the following options:
+
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  composedClient: {
+    enabled: true, // default
+    fromTemplates: ['mjs', 'cjs'], // default
+    outDir: './node_modules/.vovk-client', // default
+    includeSegments: ['foo'], // exclusive with `excludeSegments`
+    excludeSegments: ['bar'], // exclusive with `includeSegments`,
+    package: {
+      version: '1.0.0',
+      description: 'My library',
+    },
+    readme: {
+      banner: 'My library banner',
+    },
+  },
+};
+export default config;
+```
+
+### `enabled`
+
+If set to `false`, the composed client won't be generated. This is useful if you want to generate only segmented clients.
+
+### `fromTemplates`
+
+An array of templates to use for the composed client generation. By default, it uses `["mjs", "cjs"]` templates that generate ESM and CJS modules with TypeScript definitions. The array can contain names of [built-in templates](/templates) as well as of [custom templates](/config/template-defs).
+
+### `outDir`
+
+The path where the composed client will be generated. By default, it uses `./node_modules/.vovk-client` folder. The path is relative to CWD.
+
+### `includeSegments`
+
+An array of segments to include in the composed client. By default, it includes all segments. You can use this option to include only specific segments in the composed client.
+
+### `excludeSegments`
+
+An array of segments to exclude from the composed client. By default, it excludes no segments. You can use this option to exclude specific segments from the composed client. This property is mutually exclusive with `includeSegments`.
+
+## `package`
+
+Extends package properties that are going to be used with [packageJson](/templates#packageJson) template, [readme](/templates#readme) template or other templates that use `t.package` property at the `.ejs` templates.
+
+## `readme`
+
+Extends `readme` properties that are going to be used with [readme](/templates#readme) template or other templates that use `t.readme` property at the `.ejs` templates. By the time being it consists only the `banner` property that renders the banner at the top of the README file. This API will be extended in the future to support more properties.

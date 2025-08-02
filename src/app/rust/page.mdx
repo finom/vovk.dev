@@ -1,1 +1,442 @@
-# TODO
+import { FileTree, Tabs } from 'nextra/components';
+
+# Rust RPC Client (beta)
+
+Rust client can be generated with `vovk generate` command using [rs](/templates#rs) template or [rsSrc](/templates#rsSrc) template.
+
+Generate Rust package with:
+
+```sh
+npx vovk generate --from rs --out ./rust_package
+```
+
+This will generate a Rust package with the following structure:
+
+<FileTree>
+  <FileTree.Folder name="rust_package" defaultOpen>
+    <FileTree.Folder name="src" defaultOpen>
+      <FileTree.File name="http_request.rs" />
+      <FileTree.File name="lib.rs" />
+      <FileTree.File name="read_full_schema.rs" />
+      <FileTree.File name="schema.json" />
+    </FileTree.Folder>
+    <FileTree.File name="Cargo.toml" />
+    <FileTree.File name="README.md" />
+  </FileTree.Folder>
+</FileTree>
+
+The package is ready to be published to [crates.io](https://crates.io/) with `cargo publish` command.
+
+```sh
+cargo publish --manifest-path rust_package/Cargo.toml
+```
+
+In case if you want to generate Rust source only, to be used inside another Rust project, you can use `rsSrc` template:
+
+```sh
+npx vovk generate --from rsSrc --out ./rust_src
+```
+
+This will generate a Rust source with the following structure:
+
+<FileTree>
+  <FileTree.Folder name="rust_src" defaultOpen>
+    <FileTree.File name="http_request.rs" />
+    <FileTree.File name="lib.rs" />
+    <FileTree.File name="read_full_schema.rs" />
+    <FileTree.File name="schema.json" />
+  </FileTree.Folder>
+</FileTree>
+
+## Configuring the Rust Client
+
+The generation can be configured with the `vovk.config.mjs` file, so the client will be generated automatically with `generate` command with no flags nut also when [vovk dev](/dev) is run, that performs "hot generation" whenever the schema is changed. In order to do that, you need to add `rs` template to the [composed client](/composed) config:
+
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  composedClient: {
+    fromTemplates: ['cjs', 'mjs', 'rs'], // keep the default "cjs" and "mjs" templates
+  },
+};
+export default config;
+```
+
+The [rs](/templates#rs) template as well as some other templates has default `outDir` (by default equals to `./dist_rust`) for the composed client configuration, that can be changed by defining a [template definition](/template-defs) in the config:
+
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  // ...
+  clientTemplateDefs: {
+    rs: {
+      extends: 'rs', // extends the built-in "rs" template
+      composedClient: {
+        outDir: './my_dist_rust', // updates the out directory for the composed client
+      },
+    },
+  },
+};
+export default config;
+```
+
+## Generated Rust Client Example
+
+### JSON endpoints
+
+All the code below was copied with slight modifications from the real example, explained at [Hello World](/hello-world) page.
+
+A [controller](/controller) like this:
+
+```ts filename="src/modules/user/UserController.ts"
+import { z } from 'zod';
+import { prefix, post, openapi } from 'vovk';
+import { withZod } from 'vovk-zod';
+
+@prefix('users')
+export default class UserController {
+  @openapi({
+    summary: 'Update user',
+    description: 'Update user by ID',
+  })
+  @post('{id}')
+  static updateUser = withZod({
+    body: z
+      .object({
+        email: z.email().meta({
+          description: 'User email',
+          examples: ['john@example.com', 'jane@example.com'],
+        }),
+        profile: z
+          .object({
+            name: z.string().meta({
+              description: 'User full name',
+              examples: ['John Doe', 'Jane Smith'],
+            }),
+            age: z
+              .int()
+              .min(16)
+              .max(120)
+              .meta({ description: 'User age', examples: [25, 30] }),
+          })
+          .meta({ description: 'User profile object' }),
+      })
+      .meta({ description: 'User data object' }),
+    params: z
+      .object({
+        id: z.uuid().meta({
+          description: 'User ID',
+          examples: ['123e4567-e89b-12d3-a456-426614174000'],
+        }),
+      })
+      .meta({
+        description: 'Path parameters',
+      }),
+    query: z
+      .object({
+        notify: z.enum(['email', 'push', 'none']).meta({ description: 'Notification type' }),
+      })
+      .meta({
+        description: 'Query parameters',
+      }),
+    output: z
+      .object({
+        success: z.boolean().meta({ description: 'Success status' }),
+      })
+      .meta({ description: 'Response object' }),
+    async handle(req, { id }) {
+      // ...
+    },
+  });
+}
+```
+
+... will emit [Vovk.ts Schema](/schema), that in its turn will be used to generate the Rust client, following the language conventions where possible, adding comments defined at schema `description`, and generating the most suitable types. For example, the `age` is generated as `u8` (unsigned 8-bit integer) because of presence of `min` and `max` constraints.
+
+```rs filename="./dist_rust/src/lib.rs"
+mod http_request;
+mod read_full_schema;
+
+pub use crate::http_request::HttpException;
+
+
+pub mod user_rpc {
+    #[allow(unused_imports)]
+    use crate::http_request::{HttpException, http_request, http_request_stream};
+    use std::collections::HashMap;
+
+    // UserRPC.update_user POST `http://localhost:3000/api/users/{id}`
+    pub mod update_user_ {
+      use serde::{Serialize, Deserialize};
+      /// User data object
+      #[derive(Debug, Serialize, Deserialize, Clone)]
+      #[allow(non_snake_case, non_camel_case_types)]
+      pub struct body {
+        /// User email
+        pub email: String,
+        /// User profile object
+        pub profile: body_::profile,
+      }
+
+      #[allow(non_snake_case)]
+      pub mod body_ {
+        use serde::{Serialize, Deserialize};
+
+        /// User profile object
+        #[derive(Debug, Serialize, Deserialize, Clone)]
+        #[allow(non_snake_case, non_camel_case_types)]
+        pub struct profile {
+          /// User full name
+          pub name: String,
+          /// User age
+          pub age: u8,
+        }
+
+      }
+      /// Query parameters
+      #[derive(Debug, Serialize, Deserialize, Clone)]
+      #[allow(non_snake_case, non_camel_case_types)]
+      pub struct query {
+        /// Notification type
+        pub notify: query_::notify,
+      }
+
+      #[allow(non_snake_case)]
+      pub mod query_ {
+        use serde::{Serialize, Deserialize};
+
+        /// Notification type
+        #[derive(Debug, Serialize, Deserialize, Clone)]
+        #[allow(non_camel_case_types)]
+        pub enum notify {
+          #[serde(rename = "email")]
+          email,
+          #[serde(rename = "push")]
+          push,
+          #[serde(rename = "none")]
+          none,
+        }
+
+      }
+      /// Path parameters
+      #[derive(Debug, Serialize, Deserialize, Clone)]
+      #[allow(non_snake_case, non_camel_case_types)]
+      pub struct params {
+        /// User ID
+        pub id: String,
+      }
+
+      /// Response object
+      #[derive(Debug, Serialize, Deserialize, Clone)]
+      #[allow(non_snake_case, non_camel_case_types)]
+      pub struct output {
+        /// Success status
+        pub success: bool,
+      }
+
+    }
+
+    /// Summary: Update user
+    /// Description: Update user by ID
+    /// Params: Path parameters
+    /// Body: User data object
+    /// Query: Query parameters
+    /// Returns: Response object
+    pub fn update_user(
+        body: update_user_::body,
+        query: update_user_::query,
+        params: update_user_::params,
+        headers: Option<&HashMap<String, String>>,
+        api_root: Option<&str>,
+        disable_client_validation: bool,
+    ) -> Result<update_user_::output, HttpException>{
+        let result = http_request::<
+            update_user_::output,
+            update_user_::body,
+            update_user_::query,
+            update_user_::params
+        >(
+            "http://localhost:3000/api",
+            "",
+            "UserRPC",
+            "updateUser",
+            Some(&body),
+            None,
+            Some(&query),
+            Some(&params),
+            headers,
+            api_root,
+            disable_client_validation,
+        );
+
+        result
+    }
+
+}
+```
+
+All RPC modules are generated in the `lib.rs` file, that contains all the RPC methods as functions but also types that are used in the RPC methods. The nested data structures are generated as nested modules, containing corresponding `struct` definitions or other types.
+
+The nested structures can be accessed with the `_::` syntax. For example, in order to get the `profile` type from the `update_user_` module, you can use `update_user_::body_::profile` syntax.
+
+The structs can be imported and renamed with `use` statement to follow PascalCase naming convention:
+
+```rs
+use std::io::Write;
+use vovk_hello_world::user_rpc;
+
+pub fn main() {
+  use user_rpc::update_user_::{
+    body as Body,
+    query as Query,
+    params as Params
+  };
+  use user_rpc::update_user_::body_::profile as Profile;
+  use user_rpc::update_user_::query_::notify as Notify;
+
+  let update_user_response = user_rpc::update_user(
+    Body {
+      email: String::from("john@example.com"),
+      profile: Profile {
+        name: String::from("John Doe"),
+        age: 25
+      }
+    },
+    Query {
+      notify: Notify::email
+    },
+    Params {
+      id: String::from("123e4567-e89b-12d3-a456-426614174000")
+    },
+    None, // Headers (hashmap)
+    None, // API root
+    false, // Disable client validation
+  );
+
+  match update_user_response {
+    Ok(response) => println!("user_rpc.update_user: {:?}", response),
+    Err(e) => println!("update_user error: {:?}", e),
+  }
+}
+```
+
+Behind the scenes it uses [reqwest](https://docs.rs/reqwest/latest/reqwest/) for HTTP requests, [jsonschema](https://docs.rs/jsonschema/latest/jsonschema/) for client-side validation, some other libraries.
+
+### JSONLines endpoints
+
+To implement continious streaming with [JSONLines](/controller/jsonlines) endpoints, the client uses `Iterator` trait to return an async iterator that can be used to iterate over the streamed data.
+
+A controller like this:
+
+```ts filename="src/modules/stream/StreamController.ts"
+import { prefix, get, openapi } from 'vovk';
+import { withZod } from 'vovk-zod';
+import { z } from 'zod/v4';
+import StreamService from './StreamService';
+
+@prefix('streams')
+export default class StreamController {
+  @openapi({
+    summary: 'Stream tokens',
+    description: 'Stream tokens to the client',
+  })
+  @get('tokens')
+  static streamTokens = withZod({
+    iteration: z
+      .object({
+        message: z.string().meta({ description: 'Message from the token' }),
+      })
+      .meta({
+        description: 'Streamed token object',
+      }),
+    async *handle() {
+      yield* StreamService.streamTokens();
+    },
+  });
+}
+```
+
+Will be compiled to the following Rust code:
+
+```ts filename="./dist_rust/src/lib.rs"
+pub mod stream_rpc {
+    #[allow(unused_imports)]
+    use crate::http_request::{HttpException, http_request, http_request_stream};
+    use std::collections::HashMap;
+
+    // StreamRPC.stream_tokens GET `http://localhost:3000/api/streams/tokens`
+    pub mod stream_tokens_ {
+      use serde::{Serialize, Deserialize};
+      /// Streamed token object
+      #[derive(Debug, Serialize, Deserialize, Clone)]
+      #[allow(non_snake_case, non_camel_case_types)]
+      pub struct iteration {
+        /// Message from the token
+        pub message: String,
+      }
+
+    }
+
+    /// Summary: Stream tokens
+    /// Description: Stream tokens to the client
+    pub fn stream_tokens(
+        body: (),
+        query: (),
+        params: (),
+        headers: Option<&HashMap<String, String>>,
+        api_root: Option<&str>,
+        disable_client_validation: bool,
+    ) -> Result<Box<dyn Iterator<Item = stream_tokens_::iteration>>, HttpException>{
+        let result = http_request_stream::<
+            stream_tokens_::iteration,
+            (),
+            (),
+            ()
+        >(
+            "http://localhost:3000/api",
+            "",
+            "StreamRPC",
+            "streamTokens",
+            Some(&body),
+            None,
+            Some(&query),
+            Some(&params),
+            headers,
+            api_root,
+            disable_client_validation,
+        );
+
+        result
+    }
+
+}
+```
+
+That can be used like this:
+
+```rs
+use std::io::Write;
+use vovk_hello_world_local::open_api_rpc::stream_rpc;
+pub fn main() {
+  let stream_response = stream_rpc::stream_tokens(
+      (), // () as no body nor query or params are expected
+      (),
+      (),
+      None,
+      None,
+      false,
+  );
+
+  match stream_response {
+    Ok(stream) => {
+      print!("streamTokens:\n");
+      for (_i, item) in stream.enumerate() {
+        print!("{}", item.message.as_str());
+        std::io::stdout().flush().unwrap();
+      }
+      println!();
+    },
+    Err(e) => println!("Error initiating stream: {:?}", e),
+  }
+}
+```

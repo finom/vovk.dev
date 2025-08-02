@@ -56,7 +56,6 @@ export default class UserController {
 
 As you can see, the `handler` method returns the result of the `UserService.updateUser` method. The method `UserService.updateUser` in its turn infers types from the controller method, making the validation models (at this case, Zod schemas) to be the only source of truth for the input and output types, without the need to define them as separate variables.
 
-
 ```ts filename="src/app/controller/service/page.mdx"
 import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from 'vovk';
 import type UserController from './UserController';
@@ -75,4 +74,3 @@ export default class UserService {
 ```
 
 In other words, service methods can infer types from the controller methods and controller methods can call service methods without causing self-referencing issues.
-

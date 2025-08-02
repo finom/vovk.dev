@@ -11,7 +11,7 @@ Vovk.ts introduces another hierarchical level to back-end called [segments](/seg
 
 A segment can be turned into a "static segment" that makes its endpoints to be compiled into static JSON files during the build time, allowing to use them for historical data, OpenAPI documentation, or any other data that is generated on build time.
 
-## RESTful API + RPC
+## RESTful API RPC
 
 Vovk.ts is a RESTful API back-end framework that implements well-known and widely used patterns. It can be used as a regular back-end framework similar to NestJS to build endpoints that follow common RESTful API conventions, such as:
 
@@ -52,21 +52,45 @@ result satisfies UserType;
 
 These two concepts are usually oppose each other, but in Vovk.ts they are combined, making RESTful API client thinner and moving away from the idea of hidden implementation of RPC calls.
 
-## "RPC module"
+### Why is it called "RPC"?
 
-Server-side controllers are implemented as classes with static methods only (called "static classes" in this documentation) that are initialized at the segment `route.ts` file with `initSegment` function. The `controllers` option of the `initSegment` defines names of resulting RPC modules, that have similar shape with different arguments signatures.
+Traditional RPC frameworks send a request directly to the server, explicitly invoking a method and waiting for its return value. **Vovk RPC** follows the same core principle—remote invocation of server-side logic—but layers in an extra transport step: it maps each RPC call onto a specially constructed URL.
+
+<Image
+  src="/draw/restful-rpc.svg"
+  alt="RESTful API RPC"
+  width={2154.921875}
+  height={631.6171874999999}
+  className="mt-4"
+/>
+
+### How it Works?
+
+1. **Request Encoding**. The client encodes the target method name and its arguments into a URL.  
+   `/api/users/12345?notify=push` translates to a call to the `updateUser` method of the `UserRPC` module with `id` parameter set to `12345` and `notify` query parameter set to `push`.
+2. **URL Dispatching**. When the server receives this URL, its routing logic parses the path to identify the correct controller and method handler.
+3. **Invocation**. The handler is invoked with the parsed parameters, executes the business logic, and returns the result.
+
+### Isn't it just CodeGen?
+
+Yes, definitely. RPC is a paradigm, while CodeGen is a process. At this case code generation is used as a tool to achieve RPC experience and matching between controllers and resulting RPC modules, infering types directly from the TypeScript files where controllers are defined.
+
+## "RPC Module"
+
+Server-side controllers are implemented as classes with static methods only (called "static classes" in this documentation) that are initialized at the segment `route.ts` file with `initSegment` function. The `controllers` option of the `initSegment` defines names of the resulting **RPC modules**, that have similar shape with different arguments signatures.
 
 <Tabs items={['Controller', 'Segment route']}>
 <Tabs.Tab>
 ```ts filename="src/modules/user/UserController.ts"
 import { put, prefix } from 'vovk';
+
 @prefix('users')
 export default class UserController {
-    @put('{id}')
-    static async updateUser(req: VovkRequest<{ name: string }, { notify: string }>, { id }: { id: string }) {
-        console.log('Body', await req.json()); // { name: 'John Doe' }
-        console.log('Query', req.nextUrl.searchParams.get('notify')); // 'push'
-        console.log('Param', id); // '12345'
+@put('{id}')
+static async updateUser(req: VovkRequest<{ name: string }, { notify: string }>, { id }: { id: string }) {
+console.log('Body', await req.json()); // { name: 'John Doe' }
+console.log('Query', req.nextUrl.searchParams.get('notify')); // 'push'
+console.log('Param', id); // '12345'
 
         return { success: true };
     }
@@ -339,7 +363,7 @@ export default class UserController {
 
 ## JSON Lines
 
-Vovk.ts includes first class support for [JSON Lines](https://jsonlines.org/) format, which is a convenient way to implement "one request - many responses". It's perfect for LLM completions, but also opens up a new field for experiments, such as [progressive responses](/controller/progressive) and [polling](/guides/polling). JSONLines is another kind of output that uses `iteration` validation field and produces `application/jsonl` content-type if client-side includes `Accept: application/jsonl` header. If the `Accepts` header doesn't include `application/jsonl`, the output is returned as `text/plain` to be available when the endpoint URL is opened directly in the browser.
+Vovk.ts includes first class support for [JSON Lines](https://jsonlines.org/) format, which is a convenient way to implement "one request - many responses". It's perfect for LLM completions, but also opens up a new field for experiments, such as [progressive responses](/controller/progressive) and [polling](/polling). JSONLines is another kind of output that uses `iteration` validation field and produces `application/jsonl` content-type if client-side includes `Accept: application/jsonl` header. If the `Accepts` header doesn't include `application/jsonl`, the output is returned as `text/plain` to be available when the endpoint URL is opened directly in the browser.
 
 ```ts
 import { z } from 'zod';
@@ -574,4 +598,4 @@ npx vovk generate --from py --out dist_py
 
 The command will generate a Python/mypy package in the `dist_py` directory with all RPC modules and OpenAPI schema files, ready to be published to PyPI.
 
-For more information, take a look at ["Hello World" example](/guides/hello-world).
+For more information, take a look at ["Hello World" example](/hello-world).

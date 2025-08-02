@@ -1,10 +1,7 @@
 'use client';
-
-import { Button, Tabs } from 'nextra/components';
-import type { FC, ReactNode } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { Tabs } from 'nextra/components';
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import Link from 'next/link';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 

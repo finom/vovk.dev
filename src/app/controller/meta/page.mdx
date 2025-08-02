@@ -7,13 +7,11 @@ This metadata is accessible through the `vovk.meta` method in the controller han
 ```ts {5,15}
 import { createDecorator, get, type VovkRequest } from 'vovk';
 
-const myDecorator = createDecorator(
-  async (req, next) => {
-    req.vovk.meta({ hello: 'world' }); // set request meta for the request
-    // ...
-    return next();
-  }
-);
+const myDecorator = createDecorator(async (req, next) => {
+  req.vovk.meta({ hello: 'world' }); // set request meta for the request
+  // ...
+  return next();
+});
 
 export default class MyController {
   @get('/my-endpoint')
@@ -47,7 +45,6 @@ req.vovk.meta(null);
 console.log(req.vovk.meta()); // {}
 ```
 
-
 To summarize:
 
 - In order to set metadata, use `req.vovk.meta({ key: value })`. It will return the metadata object typed as the passed object.
@@ -57,7 +54,6 @@ To summarize:
 ## Client-side meta with `xMetaHeader` key
 
 The compiled RPC module handlers can send a custom underlying request metadata to the server, that is transferred as JSON string at `x-meta` header. This is useful when you want to pass additional information from the client-side to the server-side, such as user preferences, session data, or any other custom data that is relevant to the request.
-
 
 ```ts {5}
 import { UserRPC } from 'vovk-client';

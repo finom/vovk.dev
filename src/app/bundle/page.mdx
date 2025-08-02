@@ -1,0 +1,107 @@
+import { FileTree } from 'nextra/components';
+
+# TypeScript Bundle
+
+The TypeScript RPC library can be bundled and published to NPM with pre-filled `package.json` and `README.md` files with `bundle` command:
+
+```sh npm2yarn
+npx vovk bundle
+```
+
+Internally the bundling is made executing the following steps:
+
+1. It generates a client into `tmp_prebundle` directory (configured with `config`) using [ts](/templates#ts) template.
+2. Uses [tsdown API](https://tsdown.dev/) to bundle the generated client into a few compiled files at `dist` directory.
+3. Generates `package.json` and `README.md` files from [packageJson](/templates#packageJson) and [readme](/templates#readme) templates.
+4. Deletes the `tmp_prebundle` directory.
+
+After running the command, you will find the following files in the `dist` directory:
+
+<FileTree>
+  <FileTree.Folder name="dist" defaultOpen>
+    <FileTree.File name="index.cjs" />
+    <FileTree.File name="index.d.cts" />
+    <FileTree.File name="index.mjs" />
+    <FileTree.File name="index.d.mts" />
+    <FileTree.File name="schema.cjs" />
+    <FileTree.File name="schema.d.cts" />
+    <FileTree.File name="package.json" />
+    <FileTree.File name="README.md" />
+  </FileTree.Folder>
+</FileTree>
+
+That can be published with:
+
+```sh
+npm publish dist
+```
+
+## Configuring the Bundle
+
+The bundling can be configured by adding the `bundle` object in the [config](/config) file:
+
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  bundle: {
+    tsClientOutDir: 'tmp_prebundle', // default
+    dontDeleteTsClientOutDirAfter: false, // default
+    requires: {
+      readme: '.', // default
+      packageJson: '.', // default
+      myTemplate: './foo', // custom template
+    },
+    package: {}, // package.json content
+    readme: {}, // README.md content
+    tsdownBuildOptions: {
+      outDir: 'dist', // default
+    },
+  },
+};
+export default config;
+```
+
+### `tsClientOutDir` or `--ts-client-out-dir` flag
+
+The `tsClientOutDir` is the directory where the TypeScript client will be generated before bundling. It defaults to `tmp_prebundle`.
+
+### `dontDeleteTsClientOutDirAfter` or `--dont-delete-ts-client-out-dir-after` flag
+
+If set to `true`, the `tsClientOutDir` will not be deleted after bundling. This can be useful for debugging or further modifications. Defaults to `false`.
+
+### `requires`
+
+The `requires` object allows you to specify extra templates that will be rendered and copied to the `dist` directory. The keys are the template names, and the values are the resulting paths, relative to the bundle output directory.
+
+### `package`
+
+The `package` object allows you to define the content of the generated `package.json` and `README.md` (for document title, description and version). You can specify fields like `name`, `version`, `description`, etc. By default it uses the root `package.json` file properties, extended with [package](/composed#package) option of [composed client](/composed).
+
+### `readme`
+
+The `readme` object allows you to define the content of the generated `README.md`. Currently only `banner` value is supported. By default uses [readme](/composed#readme) option of [composed client](/composed).
+
+### `tsdownBuildOptions`
+
+Any options that can be passed to [tsdown](https://tsdown.dev/) `build` function. The options are outlined in the [tsdown documentation](https://tsdown.ru/reference/config-options).
+
+## Troubleshooting
+
+At some cases you might get the following error:
+
+```
+[plugin rolldown-plugin-dts:generate]
+RollupError: tmp_prebundle/index.ts(17,14): error TS2742: The inferred type of 'XxxRPC' cannot be named without a reference to '../node_modules/vovk/mjs/client/types'. This is likely not portable. A type annotation is necessary.
+```
+
+In order to fix it, you can add the following line to `compilerOptions.paths` in your `tsconfig.json`:
+
+```json {4}
+{
+  "compilerOptions": {
+    "paths": {
+      "vovk/*": ["../node_modules/vovk/*"]
+    }
+  }
+}
+```

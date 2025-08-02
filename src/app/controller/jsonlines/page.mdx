@@ -7,8 +7,7 @@ import { Suspense } from 'react';
   <JSONLinesExample />
 </div>
 
-
-Vovk.ts includes first class support for [JSONLines](https://jsonlines.org/) format, which is a convenient way to implement "one request - many responses". It's perfect for LLM completions, but also opens up a new field for experiments, such as [progressive responses](/controller/progressive) and [polling](/guides/polling). JSONLines is another kind of output that uses `iteration` validation field and produces `application/jsonl` content-type if client-side sends `Accept: application/jsonl` header. If the `Accepts` header doesn't include `application/jsonl`, the output is returned as `text/plain` to be available when the endpoint URL is opened directly in the browser.
+Vovk.ts includes first class support for [JSONLines](https://jsonlines.org/) format, which is a convenient way to implement "one request - many responses". It's perfect for LLM completions, but also opens up a new field for experiments, such as [progressive responses](/controller/progressive) and [polling](/polling). JSONLines is another kind of output that uses `iteration` validation field and produces `application/jsonl` content-type if client-side sends `Accept: application/jsonl` header. If the `Accepts` header doesn't include `application/jsonl`, the output is returned as `text/plain` to be available when the endpoint URL is opened directly in the browser.
 
 ```ts
 import { z } from 'zod';
@@ -84,7 +83,6 @@ export default class StreamService {
 }
 ```
 
-
 On the client side, the JSONLines output can be consumed using disposable async iterators, allowing to process each line as it arrives:
 
 ```ts
@@ -153,6 +151,7 @@ export default class StreamController {
 ```ts
 await resp.throw(new Error('Stream error'));
 ```
+
 {
 /* import { Tabs, Callout } from 'nextra/components';
 import LiveStreamExample from '../../../live-examples/LiveStreamExample';
@@ -375,4 +374,5 @@ for await (const chunk of completion) {
   // ...
 }
 ```
-*/}
+
+\*/}

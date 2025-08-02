@@ -20,9 +20,11 @@ With the help of [JSONLinesResponse class](./jsonlines#jsonlinesresponse), we ca
 ```ts
 // ...
 void Promise.all([
-    this.getUsers().then((users) => resp.send({ users })),
-    this.getTasks().then((tasks) => resp.send({ tasks })),
-]).then(resp.close).catch(resp.throw);
+  this.getUsers().then((users) => resp.send({ users })),
+  this.getTasks().then((tasks) => resp.send({ tasks })),
+])
+  .then(resp.close)
+  .catch(resp.throw);
 // ...
 ```
 
@@ -72,7 +74,7 @@ export default class ProgressiveService {
 }
 ```
 
-On the controller side, we need to instantiate the `JSONLinesResponse` class, pass it to the service method and return it as a response. 
+On the controller side, we need to instantiate the `JSONLinesResponse` class, pass it to the service method and return it as a response.
 
 ```ts
 // ...
@@ -83,7 +85,6 @@ return response;
 ```
 
 The full controller implementation with typing and validation looks like this:
-
 
 ```ts
 import { get, JSONLinesResponse, prefix, type VovkIteration } from 'vovk';
@@ -116,7 +117,9 @@ export default class ProgressiveController {
       }),
     ]),
     async handle(req) {
-      const response = new JSONLinesResponse<VovkIteration<typeof ProgressiveController.streamProgressiveResponse>>(req);
+      const response = new JSONLinesResponse<VovkIteration<typeof ProgressiveController.streamProgressiveResponse>>(
+        req
+      );
 
       void ProgressiveService.streamProgressiveResponse(response);
 
@@ -127,7 +130,6 @@ export default class ProgressiveController {
 ```
 
 The server-side code is ready, now we can implement the client-side code to consume this progressive response. For this, we will use the `progressive` function from the `vovk` package, which creates a promise for each member of the resulting object. It accepts the RPC module method that we want to call, in this case, `ProgressiveRPC.streamProgressiveResponse` and input parameters, if any. The `progressive` function returns an object with promises for each member of the response, which can be awaited separately.
-
 
 ```ts
 const { users: usersPromise, tasks: tasksPromise } = progressive(ProgressiveRPC.streamProgressiveResponse);
@@ -149,10 +151,9 @@ usersPromise.then(console.log).catch(console.error);
 tasksPromise.then(console.log).catch(console.error);
 ```
 
-Behind the scenes `progressive` function returns a [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) object that implements `get` trap that returns a promise for each gotten property. 
+Behind the scenes `progressive` function returns a [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) object that implements `get` trap that returns a promise for each gotten property.
 
 - When JSON Lines response sends a new line, the corresponding promise is resolved with the data from the line.
 - When JSON Lines response sends a new line, but there is no corresponding promise, the promise is created and resolved with the data from the line (so you can retrieve it later from the `progressive` return value).
 - When JSON Lines response is closed, all non-settled promises are rejected with an error message indicating that the connection was closed without sending a value for the corresponding property.
 - When JSON Lines response is errored, all non-settled promises are rejected with the error from the response.
-

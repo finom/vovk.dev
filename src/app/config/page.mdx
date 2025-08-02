@@ -1,14 +1,178 @@
----
-asIndexPage: true
-description: Nextra's File Conventions guide details the structure and organization of
-  files and directories within a Nextra project, including the use of
-  `page.mdx`, `_meta.js`, and `mdx-components.js` files, as well as the
-  `content` and `src` directories.
----
+# `vovk.config.{js,cjs,mjs}`
 
-import DocIndexCards from '../../components/DocIndexCards';
-import meta, { icons } from './_meta';
+The config file is used to define options for the [CLI](/cli), update [template definitions](/templates), and customize some other settings. At some cases it's optional, since the CLI can use default options or flags, but for more advanced usage it's recommended to create a config file.
 
-# Validation
+## Valid config file names
 
-<DocIndexCards meta={meta} icons={icons} hrefPrefix="validation" />
+The config can be implemented either as a CJS module or as a ESM module. It supports the following extensions: **.js**, **.cjs**, **.mjs** and can be stored at the root of the project as well as at [.config](https://dot-config.github.io/) folder. In other words, the following paths are valid:
+
+- **vovk.config.js**
+- **vovk.config.cjs**
+- **vovk.config.mjs**
+- **.config/vovk.config.js**
+- **.config/vovk.config.cjs**
+- **.config/vovk.config.mjs**
+
+When [vovk init](/cli/init) is executed, in order to create proper file name, it checks if the project is a module and, and if the **.config** folder exists.
+
+## Config Options
+
+The config options extend `VovkConfig` type from `vovk` package and can be used to define the following options:
+
+<a name="emitConfig" />
+### `emitConfig: boolean | string[]`
+
+Indicates whether the config options should be emitted as [.vovk-schema/\_meta.json](/schema) file. If set to `true`, it will emit all options. If set to an array of strings, it will emit only the specified options. Default is `["libs"]`.
+
+<a name="clientTemplateDefs" />
+### `clientTemplateDefs: object`
+
+Extends the [template definitions](/template-defs) with the custom definitions that can be used as `fromTemplates` field in the [composed client](/composed) or [segmented client](/segmented).
+
+<a name="imports" />
+### `imports: object`
+
+Allows to redefine imports used by the generated client, such as [fetcher](/customization#fetcher), [validateOnClient](/customization#validateonclient), and [createRPC](/customization#createrpc). The values are paths to the files that export the corresponding functions. Relative paths are resolved from the root of the project, package paths, such as `my-lib/fetcher`, are rendered as is.
+
+<a name="composedClient" />
+### `composedClient: object`
+
+Redefines config options for the [composed client](/composed), such as [outDir](/composed#outdir), [fromTemplates](/composed#fromtemplates), [excludeSegments](/composed#excludesegments), etc.
+
+<a name="segmentedClient" />
+### `segmentedClient: object`
+
+Redefines config options for the [segmented client](/segmented), such as [outDir](/segmented#outdir), [fromTemplates](/segmented#fromtemplates), [excludeSegments](/segmented#excludesegments), etc.
+
+Redefines config options for the [segmented client](/segmented), such as [outDir](/segmented#outdir), [fromTemplates](/segmented#fromtemplates), [excludeSegments](/segmented#excludesegments), etc.
+
+<a name="bundle" />
+### `bundle: object`
+
+Redefines config options for the [bundle](/bundle), such as [excludeSegments](/bundle#excludesegments), [tsdown build options](https://tsdown.ru/reference/config-options), etc.
+
+<a name="modulesDir" />
+### `modulesDir = 'src/modules'`
+
+Indicates the directory where the module files are located. Used to generate modules with [vovk new](/cli/new) command and to watch for changes in the modules when [vovk dev](/cli/dev) is running.
+
+<a name="schemaOutDir" />
+### `schemaOutDir = '.vovk-schema'`
+
+The directory where the schema is going to be generated. Defaults to `.vovk-schema`.
+
+<a name="origin" />
+### `origin = ''`
+
+The origin for the client, used to generate the client with proper URLs. Defaults to `''`, meaning that the client will use relative URLs. If you want to use absolute URLs, set it to your domain, e.g. `https://example.com`.
+
+<a name="rootEntry" />
+### `rootEntry = 'api'`
+
+The root entry point for the API routes. By default it's `api`, meaning that the API routes will be served from `/api` path and the segments (`route.ts` files) are located in the `./src/app/api` folder (`src/` dir is optional). If you want to serve the API from the root of the domain, set it to an empty string `''`. In this case the segments will be located in the `./src/app` folder.
+
+<a name="rootSegmentModulesDirName" />
+### `rootSegmentModulesDirName = ''`
+
+Used exclusively by the [vovk new](/cli/new) command when multiple segments are used. If set to a non-empty string, the root segment modules will be created in the folder with this name. For example, if it's set to `"root"`, then when `vovk new controller user` is executed, the controller will be created at **src/modules/root/user/UserController.ts** instead of **src/modules/user/UserController.ts** (the root of the [modulesDir](#modulesdir))
+
+<a name="logLevel" />
+### `logLevel = 'info'`
+
+Defines the [log level](https://www.npmjs.com/package/loglevel) for the CLI. The values are `"debug"`, `"info"`, `"warn"`, `"error"`. By default it's `"info"`. Set it to `"debug"` to see underlying operations, such as file watching information.
+
+<a name="prettifyClient" />
+### `prettifyClient = false`
+
+Wether the generated client code needs to be prettified. Defaults to `false`. If set to `true`, the client code will be formatted with [Prettier](https://prettier.io/) using your local configuration. It slightly increases the compilation time.
+
+<a name="devHttps" />
+### `devHttps = false`
+
+[Progressive Web Apps](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/What_is_a_progressive_web_app) require HTTPS protocol to be used both in development and production. In order to enable HTTPS in development you can use `--experimental-https` flag with `next dev` command and enable HTTPS mode for [vovk dev](/cli/dev) by setting `devHttps`to `true` or providing `--https` flag to the command.
+
+```js filename="/vovk.config.mjs"
+const config = {
+  // ...
+  devHttps: true,
+};
+
+export default config;
+```
+
+If you don't want to set the HTTPS mode enabled by default, you can create another NPM script that includes the flags:
+
+```json filename="/package.json"
+"scripts": {
+    "dev-https": "vovk dev --https --next-dev -- --experimental-https",
+    "dev": "vovk dev --next-dev",
+}
+```
+
+<a name="moduleTemplates" />
+### `moduleTemplates: object`
+
+Record of module template names and their paths. Used by [vovk new](/cli/new) command to define the templates for the service, controller or any other kind of module. When you have configuration of `state` template like this:
+
+```js filename="/vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  // ...
+  moduleTemplates: {
+    state: './module-templates/State.js.ejs',
+    // you can add your own templates here
+  },
+};
+```
+
+You can create a new module at [modulesDir](#modulesdir) with `vovk new state thing` command.
+
+```sh npm2yarn
+npx vovk new state thing # creates src/modules/thing/ThingState.ts file
+```
+
+```sh npm2yarn
+npx vovk new state segment/thing # creates src/modules/segment/thing/ThingState.ts file
+```
+
+<a name="libs" />
+### `libs: object`
+
+The `libs` object is a conventional way to define configuration for libraries used by the client or any other configuration that you want to expose to the client. For example, it can be used to define localization for [vovk ajv](/validation#ajv).
+
+```js filename="/vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  // ...
+  libs: {
+    /** @type {import('vovk-ajv').VovkAjvConfig} */
+    ajv: {
+      options: {
+        strict: false,
+      },
+      localize: 'en',
+    },
+  },
+};
+
+export default config;
+```
+
+If `"libs"` is present at [emitConfig](#emitconfig), it will be emitted to the `.vovk-schema/_meta.json` file and can be accessed multiple ways.
+
+```ts
+import { schema, UserRPC } from 'vovk-client';
+
+console.log(schema.meta.config.libs.ajv.options.strict); // false
+console.log(UserRPC.updateUser.fullSchema.meta.config.libs.ajv.localize); // 'en'
+```
+
+<a name="segmentConfig" />
+### `segmentConfig: object`
+
+To be documented.
+
+<a name="openApiMixins" />
+### `openApiMixins: object`
+
+Configures [OpenAPI Mixins](/openapi-mixins) for the client. It allows to define additional OpenAPI operations that can be used in the client. See the [OpenAPI Mixins docs](/openapi-mixins) for more info.

@@ -4,7 +4,7 @@ const separator = (title: string) => ({ type: 'separator', title });
 
 const meta = {
   introduction: 'Getting started 🚧',
-  ajv: 'Client-side with Ajv',
+  client: 'Client-side Validation 🚧',
   standard: 'Standard Schema',
   zod: 'Zod 3 and 4',
   dto: 'class-validator 🚧',
@@ -13,7 +13,7 @@ const meta = {
 
 export const icons: Omit<Record<keyof typeof meta, string>, `#${string}`> = {
   introduction: 'i',
-  ajv: 'i',
+  client: 'i',
   standard: 'i',
   zod: 'i',
   dto: 'i',

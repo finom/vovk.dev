@@ -4,11 +4,35 @@ import { getPageMap } from 'nextra/page-map';
 import 'nextra-theme-docs/style.css';
 import '@/globals.css';
 import VovkLogo from '@/components/VovkLogo';
+import type { Meta } from 'nextra';
 
-export const metadata = {
-  // Define your metadata here
-  // For more information on metadata API, see: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
+export const metadata: Meta = {
+  title: {
+    default: 'Vovk.ts - RPC Framework',
+    template: '%s | Vovk.ts',
+  },
+  openGraph: {
+    url: 'https://vovk.dev',
+    siteName: 'Vovk.ts',
+    locale: 'en_US',
+    type: 'website',
+  },
+  icons: {
+    icon: [
+      {
+        media: '(prefers-color-scheme: light)',
+        url: '/icon.svg',
+        href: '/icon.svg',
+      },
+      {
+        media: '(prefers-color-scheme: dark)',
+        url: '/icon-white.svg',
+        href: '/icon-white.svg',
+      },
+    ],
+  },
 };
+
 
 const navbar = (
   <Navbar
