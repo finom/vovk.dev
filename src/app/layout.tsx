@@ -33,7 +33,6 @@ export const metadata: Meta = {
   },
 };
 
-
 const navbar = (
   <Navbar
     logo={<VovkLogo width={120} />}

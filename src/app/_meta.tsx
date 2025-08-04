@@ -25,7 +25,6 @@ const meta = {
   'manual-install': 'Manual Install 🚧',
   'hello-world': '"Hello World!" 🚧',
 
-
   '#common': separator('Common'),
   schema: 'Schema',
   validation: 'Validation',
@@ -78,7 +77,7 @@ const meta = {
   authorization: 'Authorization',
   cron: 'Vercel Cron jobs',
   proxy: 'Proxy endpoints',
-multitenant: 'Multitenancy',
+  multitenant: 'Multitenancy',
 } satisfies MetaRecord;
 
 export default meta;

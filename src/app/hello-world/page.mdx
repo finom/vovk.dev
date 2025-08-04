@@ -1,3 +1,12 @@
+import { GithubFiles } from '@/components/GithubFiles';
+
 # "Hello World" showcase
 
-Coming soon.
+The "Hello World" app is a simple example that showcases some of the core features of Vovk.ts. It's made of:
+
+- `UserController` and `UserService` that implement a dummy endpoint as `updateUser` JSON handler.
+- `StreamController` and `StreamService` that implement a dummy endpoint as `streamTokens` [JSONLines](/controller/jsonlines) handler.
+
+<iframe src="https://vovk-hello-world.vercel.app" width="100%" height="900px"></iframe>
+
+<GithubFiles paths={['src/modules/ai-sdk/AiSdkController.ts', 'src/app/ai-sdk/AiSdkExample.tsx']} />

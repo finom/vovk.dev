@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import { get, prefix } from 'vovk';
 
 @prefix('hello')

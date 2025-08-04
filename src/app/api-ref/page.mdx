@@ -1,5 +1,4 @@
-{/*
-
+{/\*
 
 export {
 // types
@@ -128,7 +127,7 @@ export default class HelloController {
 
 ### `@openapi`
 
-`@openapi(openAPIOperationObject)` decorator can be used to add OpenAPI documentation to the controller method. It accepts an object with `summary`,  `description` and other OpenAPI Operation Object properties.
+`@openapi(openAPIOperationObject)` decorator can be used to add OpenAPI documentation to the controller method. It accepts an object with `summary`, `description` and other OpenAPI Operation Object properties.
 
 ```ts
 import { openapi } from 'vovk';
@@ -186,7 +185,6 @@ Function that creates a data fetching layer for the RPC client. It handles HTTP 
 
 Function that creates a custom fetcher for the RPC client. It accepts a generic type parameter that defines the options for the resulting RPC methods. The function returns a `fetcher` function that is going to be used in the `createRPC` function.
 
-
 ```ts filename="./src/lib/fetcher.ts"
 import { createFetcher } from 'vovk';
 
@@ -222,11 +220,9 @@ export const fetcher = createFetcher<{
 });
 ```
 
-
 ### `generateStaticAPI`
 
 Function that generates API that is generated at build time instead of on-demand at request time. It accepts a record of controllers and an optional slug that is used to generate the static API path. The function returns an array of static parameters that can be used in the `generateStaticParams` function.
-
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
 // ...
@@ -240,7 +236,6 @@ export const { GET } = initSegment({ controllers });
 ```
 
 See [static segment](/segment/static) documentation for more info.
-
 
 ### `withValidationLibrary`
 
@@ -355,10 +350,7 @@ export default class UserController {
 
 ### `VovkSchemaIdEnum`
 
-
-
--------
-
+---
 
 # API
 
