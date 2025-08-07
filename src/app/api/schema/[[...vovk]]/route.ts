@@ -1,7 +1,7 @@
 import { generateStaticAPI, initSegment } from 'vovk';
-import HelloController from '../../../modules/hello/HelloController';
+import V3SSchemaController from '../../../../modules/schema/V3SSchemaController';
 
-const controllers = { HelloRPC: HelloController };
+const controllers = { V3SSchemaRPC: V3SSchemaController };
 
 export type Controllers = typeof controllers;
 

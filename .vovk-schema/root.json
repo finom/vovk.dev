@@ -4,36 +4,25 @@
   "segmentName": "",
   "segmentType": "segment",
   "controllers": {
-    "HelloRPC": {
-      "rpcModuleName": "HelloRPC",
-      "originalControllerName": "HelloController",
-      "prefix": "hello",
-      "handlers": {
-        "getHello": {
-          "path": "greeting.json",
-          "httpMethod": "GET"
-        }
-      }
-    },
-    "SpecRPC": {
-      "rpcModuleName": "SpecRPC",
-      "originalControllerName": "SpecController",
-      "prefix": "spec",
+    "V3SSchemaRPC": {
+      "rpcModuleName": "V3SSchemaRPC",
+      "originalControllerName": "V3SSchemaController",
+      "prefix": "v3",
       "handlers": {
         "getSegmentDefinition": {
-          "path": "v3/segment.json",
+          "path": "segment.json",
           "httpMethod": "GET"
         },
         "getConfigDefinition": {
-          "path": "v3/config.json",
+          "path": "config.json",
           "httpMethod": "GET"
         },
         "getMetaDefinition": {
-          "path": "v3/meta.json",
+          "path": "meta.json",
           "httpMethod": "GET"
         },
         "getFullDefinition": {
-          "path": "v3/schema.json",
+          "path": "schema.json",
           "httpMethod": "GET"
         }
       }

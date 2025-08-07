@@ -1,12 +1,35 @@
-import { GithubFiles } from '@/components/GithubFiles';
+import GithubFiles from '@/components/GithubFiles';
 
 # "Hello World" showcase
 
-The "Hello World" app is a simple example that showcases some of the core features of Vovk.ts. It's made of:
+The "Hello World" app is a simple example that showcases some of the core features of Vovk.ts. More specifically, it demonstrates:
+
+- An `updateUser` method served as `POST` to `/api/users/{id}` endpoint.
+- A [JSONLines](/controller/jsonlines) handler `streamTokens` served as `GET` to `/api/streams/tokens`.
+- An OpenAPI specification that describes the API endpoints powered by [Scalar](https://scalar.com/).
+- Building and packaging the app with Vovk CLI and external tools.
+
+The project can be explored at the [GitHub repository](https://github.com/finom/vovk-hello-world) and viewed live at [vovk-hello-world.vercel.app](https://vovk-hello-world.vercel.app/). Bundled and generated files are available in the Git index as [dist](https://github.com/finom/vovk-hello-world/tree/main/dist), [dist_rust](https://github.com/finom/vovk-hello-world/tree/main/dist_rust) and [dist_python](https://github.com/finom/vovk-hello-world/tree/main/dist_python), so you can explore (usually they should be `.gitignore`'d). All code snippets on this page directly built from the source code of the app and demos are served within an iframe.
+
+## Demo
+
+The demo below implements a simple form without validation attributes with "Disable client-side input validation" checkbox that represents [disableClientValidation](/typescript#disableclientvalidation).
+
+<iframe src="https://vovk-hello-world.vercel.app" width="100%" height="700px"></iframe>
+
+## `UserController` and `UserService`
+
+
+<GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts']} repo="vovk-hello-world" />
+
+## `StreamController` and `StreamService`
+
+<GithubFiles paths={['src/modules/streams/StreamController.ts', 'src/modules/streams/StreamService.ts']} repo="vovk-hello-world" />
+
+
 
 - `UserController` and `UserService` that implement a dummy endpoint as `updateUser` JSON handler.
 - `StreamController` and `StreamService` that implement a dummy endpoint as `streamTokens` [JSONLines](/controller/jsonlines) handler.
 
-<iframe src="https://vovk-hello-world.vercel.app" width="100%" height="900px"></iframe>
 
-<GithubFiles paths={['src/modules/ai-sdk/AiSdkController.ts', 'src/app/ai-sdk/AiSdkExample.tsx']} />
+<GithubFiles paths={['src/modules/ai-sdk/AiSdkController.ts', 'src/app/ai-sdk/AiSdkExample.tsx']} repo="vovk-hello-world" />

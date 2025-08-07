@@ -231,7 +231,7 @@ console.log(UserRPC.updateUser.fullSchema.config.libs.ajv); // get config option
 
 ## React Query
 
-Every RPC method has `queryKey` utility that returns key for the method that is guaranteed to be unique, that can be used with [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query). It returns a touple of strings that can be used as a key for the React Query cache. The touple contains the following values: `[segmentName, controllerPrefix, rpcModuleName, decoratorPath, httpMethod, ...key]{:ts}`, where `...key` is an optional array of additional keys that can be used to differentiate the queries that can be passed to the `queryKey` method.
+Every RPC method has `queryKey` utility that returns key for the method that is guaranteed to be unique, that can be used with [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query). It returns an array of values that can be used as a key for the React Query cache. The array contains the following values: `[segmentName, controllerPrefix, rpcModuleName, decoratorPath, httpMethod, ...key]{:ts}`, where `...key` is an optional array of additional keys that can be used to differentiate the queries that can be passed to the `queryKey` method.
 
 ```tsx
 import { useQuery } from '@tanstack/react-query';
@@ -248,6 +248,14 @@ const MyComponent = () => {
 
   return <div>{query.isLoading ? 'Loading...' : JSON.stringify(query.data)}</div>;
 };
+```
+
+The query key is guaranteed to be unique for each RPC method within the app and can be used for cache invaliation, refetching, and other React Query features.
+
+```ts
+queryClient.invalidateQueries({
+  queryKey: UserRPC.getUser.queryKey().slice(0, 3), // Invalidate all queries for the `UserRPC` module
+});
 ```
 
 Streamed responses can utilize [`streamedQuery`](https://tanstack.com/query/latest/docs/reference/streamedQuery) that allows to consume [JSONLines](/controller/jsonlines) response as an array.

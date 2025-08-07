@@ -2,7 +2,14 @@
 import { useState } from 'react';
 import { GithubFile } from '@/types';
 
-const GithubTabs = ({ githubFiles }: { githubFiles: GithubFile[] }) => {
+interface Props {
+  githubFiles: GithubFile[]
+  owner: string;
+  repo: string;
+  ghRef: string;
+}
+
+const GithubTabs = ({ githubFiles, owner, repo, ghRef }: Props) => {
   const [activeIndex, setActiveIndex] = useState(0);
   return (
     <div className="pb-2 px-4 text-sm mb-1">
@@ -25,7 +32,7 @@ const GithubTabs = ({ githubFiles }: { githubFiles: GithubFile[] }) => {
           </span>
           <a
             className="inline-block align-middle ml-1"
-            href={`https://github.com/finom/vovk-examples/tree/main/${path}`}
+            href={`https://github.com/${owner}/${repo}/tree/${ghRef}/${path}`}
             target="_blank"
           >
             <svg

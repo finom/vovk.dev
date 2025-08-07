@@ -1,9 +1,8 @@
 import { JSONSchema7 } from 'json-schema';
-import { config } from 'process';
 
 const VERSION = '3';
 
-export default class V3Service {
+export default class V3SchemaService {
   static getSegmentDefinition(): JSONSchema7 {
     const validationOneOf = [
       { $ref: 'https://json-schema.org/draft-07/schema' },
