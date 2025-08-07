@@ -4,7 +4,7 @@ const VERSION = '3';
 
 export default class V3SchemaService {
   static getSegmentDefinition(): JSONSchema7 {
-    const validationOneOf = [
+    const validationAnyOf = [
       { $ref: 'https://json-schema.org/draft-07/schema' },
       { $ref: 'https://json-schema.org/draft/2020-12/schema' },
     ];
@@ -82,23 +82,23 @@ export default class V3SchemaService {
                       description: 'Validation for body, query, params, output and iteration',
                       properties: {
                         body: {
-                          oneOf: validationOneOf,
+                          anyOf: validationAnyOf,
                           description: 'Validation for request body',
                         },
                         query: {
-                          oneOf: validationOneOf,
+                          anyOf: validationAnyOf,
                           description: 'Validation for query parameters',
                         },
                         params: {
-                          oneOf: validationOneOf,
+                          anyOf: validationAnyOf,
                           description: 'Validation for route parameters',
                         },
                         output: {
-                          oneOf: validationOneOf,
+                          anyOf: validationAnyOf,
                           description: 'Validation for response',
                         },
                         iteration: {
-                          oneOf: validationOneOf,
+                          anyOf: validationAnyOf,
                           description: 'Validation for JSONLines iteration',
                         },
                       },
