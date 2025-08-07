@@ -1,7 +1,7 @@
 import { generateStaticAPI, initSegment } from 'vovk';
-import V3SSchemaController from '../../../../modules/schema/V3SSchemaController';
+import V3SchemaController from '../../../../modules/schema/V3SchemaController';
 
-const controllers = { V3SSchemaRPC: V3SSchemaController };
+const controllers = { V3SchemaRPC: V3SchemaController };
 
 export type Controllers = typeof controllers;
 

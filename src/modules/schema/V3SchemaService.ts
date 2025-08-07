@@ -103,9 +103,10 @@ export default class V3SchemaService {
                         },
                       },
                       additionalProperties: false,
+                      required: [],
                     },
                     openapi: {
-                      $ref: 'https://spec.openapis.org/oas/3.1/schema/2021-05-20',
+                      $ref: 'https://spec.openapis.org/oas/3.1/schema/2021-05-20#/$defs/operation',
                     },
                     custom: {
                       type: 'object',

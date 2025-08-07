@@ -2,7 +2,7 @@ import { get, prefix } from 'vovk';
 import V3SchemaService from './V3SchemaService';
 
 @prefix('v3')
-export default class V3SSchemaController {
+export default class V3SchemaController {
   @get('segment.json')
   static getSegmentDefinition() {
     return V3SchemaService.getSegmentDefinition();
