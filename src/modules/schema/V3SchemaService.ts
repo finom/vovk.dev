@@ -43,7 +43,7 @@ export default class V3SchemaService {
           description: 'List of controllers as key-value pairs for fast access',
           additionalProperties: {
             type: 'object',
-            required: ['rpcModuleName', 'originalControllerName', 'prefix', 'handlers'],
+            required: ['rpcModuleName', 'originalControllerName', 'prefix'], // handlers is not required here so the RPC module can be empty
             properties: {
               rpcModuleName: {
                 type: 'string',
