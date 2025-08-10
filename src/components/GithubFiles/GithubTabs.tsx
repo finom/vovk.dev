@@ -7,9 +7,10 @@ interface Props {
   owner: string;
   repo: string;
   ghRef: string;
+  id: string;
 }
 
-const GithubTabs = ({ githubFiles, owner, repo, ghRef }: Props) => {
+const GithubTabs = ({ githubFiles, owner, repo, ghRef, id }: Props) => {
   const [activeIndex, setActiveIndex] = useState(0);
   return (
     <div className="pb-2 px-4 text-sm mb-1">
@@ -23,8 +24,7 @@ const GithubTabs = ({ githubFiles, owner, repo, ghRef }: Props) => {
                 : 'text-slate-400 dark:text-[#525975] border-transparent'
             }`}
             onClick={() => {
-              document.querySelectorAll('.github-tab-content').forEach((el) => el.classList.add('hidden'));
-              document.getElementById(`tab${i}`)?.classList.remove('hidden');
+              document.querySelectorAll(`#${id} .github-tab-content`).forEach((el) => el.classList[el.id === `tab-${id}-${i}` ? 'remove' : 'add']('hidden'));
               setActiveIndex(i);
             }}
           >

@@ -22,8 +22,8 @@ const meta = {
   about: 'About',
   concepts: 'Core Concepts',
   'quick-install': 'Quick Install',
-  'manual-install': 'Manual Install 🚧',
-  'hello-world': '"Hello World!" 🚧',
+  'manual-install': 'Manual Install',
+  'hello-world': '"Hello World!" Example',
 
   '#common': separator('Common'),
   schema: 'Schema',
@@ -61,8 +61,8 @@ const meta = {
   '###': { type: 'separator' },
 
   '#scenarios': separator('Usage Scenarios'),
-  'public-api': 'Public RESTful API 🚧',
-  saas: 'SaaS framework 🚧',
+  openapi: 'RESTful API with OpenAPI 🚧',
+  saas: 'SaaS framework',
   codegen: 'Code generation 🚧',
   nestjs: 'RPC for NestJS 🚧',
 
@@ -77,7 +77,7 @@ const meta = {
   authorization: 'Authorization',
   cron: 'Vercel Cron jobs',
   proxy: 'Proxy endpoints',
-  multitenant: 'Multitenancy',
+  multitenant: 'Multitenancy 🧪',
 } satisfies MetaRecord;
 
 export default meta;

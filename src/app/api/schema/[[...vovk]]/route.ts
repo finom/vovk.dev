@@ -10,6 +10,7 @@ export function generateStaticParams() {
 }
 
 export const { GET } = initSegment({
+  segmentName: 'schema',
   controllers,
   onError: (error) => {
     console.error(error);

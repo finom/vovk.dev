@@ -60,7 +60,7 @@ const result = await UserRPC.getUsers({ query: { search: 'John' } });
 
 ### Deploy
 
-In order to build the client (not the schema) at **node_modules** you need to run the following command after dependency installation and before building the app.
+The `vovk init` command automatically modifies the `package.json` file to run `vovk generate` before `next build`. This ensures that the client library is generated before building the Next.js app. In case if you chosen to modify the scripts manually, you can use the following command to generate the client library:
 
 ```bash npm2yarn
 npx vovk generate
