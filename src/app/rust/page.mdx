@@ -1,12 +1,13 @@
 import { FileTree, Tabs } from 'nextra/components';
+import GithubFiles from '@/components/GithubFiles';
 
-# Rust RPC Client (beta)
+# Rust RPC Client (experimental)
 
-Rust client can be generated with `vovk generate` command using [rs](/templates#rs) template or [rsSrc](/templates#rsSrc) template.
+Rust client can be generated with `vovk generate` command using [rs](/templates#rs) template or [rsSrc](/templates#rssrc) template.
 
-Generate Rust package with:
+Generate Rust package with the [CLI](/cli):
 
-```sh
+```sh npm2yarn
 npx vovk generate --from rs --out ./rust_package
 ```
 
@@ -31,9 +32,9 @@ The package is ready to be published to [crates.io](https://crates.io/) with `ca
 cargo publish --manifest-path rust_package/Cargo.toml
 ```
 
-In case if you want to generate Rust source only, to be used inside another Rust project, you can use `rsSrc` template:
+In case if you want to generate Rust source only, to be used as part of another Rust project, you can use `rsSrc` template:
 
-```sh
+```sh npm2yarn
 npx vovk generate --from rsSrc --out ./rust_src
 ```
 
@@ -50,7 +51,7 @@ This will generate a Rust source with the following structure:
 
 ## Configuring the Rust Client
 
-The generation can be configured with the `vovk.config.mjs` file, so the client will be generated automatically with `generate` command with no flags nut also when [vovk dev](/dev) is run, that performs "hot generation" whenever the schema is changed. In order to do that, you need to add `rs` template to the [composed client](/composed) config:
+The generation can be [configured](/config), so the client will be generated automatically with `generate` command with no flags but also when [vovk dev](/dev) is run, that performs "hot generation" whenever the schema is changed. In order to do that, you need to add `rs` template to the [composed client](/composed) config:
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -62,7 +63,7 @@ const config = {
 export default config;
 ```
 
-The [rs](/templates#rs) template as well as some other templates has default `outDir` (by default equals to `./dist_rust`) for the composed client configuration, that can be changed by defining a [template definition](/template-defs) in the config:
+The [rs](/templates#rs) template as well as some other templates has default `outDir` (by default equals to `./dist_rust`) for the composed client configuration, that can be changed by defining a [template definition](/templates#defs) in the config:
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -88,68 +89,8 @@ All the code below was copied with slight modifications from the real example, e
 
 A [controller](/controller) like this:
 
-```ts filename="src/modules/user/UserController.ts"
-import { z } from 'zod';
-import { prefix, post, openapi } from 'vovk';
-import { withZod } from 'vovk-zod';
+<GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts']} repo="vovk-hello-world" />
 
-@prefix('users')
-export default class UserController {
-  @openapi({
-    summary: 'Update user',
-    description: 'Update user by ID',
-  })
-  @post('{id}')
-  static updateUser = withZod({
-    body: z
-      .object({
-        email: z.email().meta({
-          description: 'User email',
-          examples: ['john@example.com', 'jane@example.com'],
-        }),
-        profile: z
-          .object({
-            name: z.string().meta({
-              description: 'User full name',
-              examples: ['John Doe', 'Jane Smith'],
-            }),
-            age: z
-              .int()
-              .min(16)
-              .max(120)
-              .meta({ description: 'User age', examples: [25, 30] }),
-          })
-          .meta({ description: 'User profile object' }),
-      })
-      .meta({ description: 'User data object' }),
-    params: z
-      .object({
-        id: z.uuid().meta({
-          description: 'User ID',
-          examples: ['123e4567-e89b-12d3-a456-426614174000'],
-        }),
-      })
-      .meta({
-        description: 'Path parameters',
-      }),
-    query: z
-      .object({
-        notify: z.enum(['email', 'push', 'none']).meta({ description: 'Notification type' }),
-      })
-      .meta({
-        description: 'Query parameters',
-      }),
-    output: z
-      .object({
-        success: z.boolean().meta({ description: 'Success status' }),
-      })
-      .meta({ description: 'Response object' }),
-    async handle(req, { id }) {
-      // ...
-    },
-  });
-}
-```
 
 ... will emit [Vovk.ts Schema](/schema), that in its turn will be used to generate the Rust client, following the language conventions where possible, adding comments defined at schema `description`, and generating the most suitable types. For example, the `age` is generated as `u8` (unsigned 8-bit integer) because of presence of `min` and `max` constraints.
 
@@ -320,7 +261,7 @@ pub fn main() {
 }
 ```
 
-Behind the scenes it uses [reqwest](https://docs.rs/reqwest/latest/reqwest/) for HTTP requests, [jsonschema](https://docs.rs/jsonschema/latest/jsonschema/) for client-side validation, some other libraries.
+Behind the scenes it uses [reqwest](https://docs.rs/reqwest/latest/reqwest/) for HTTP requests, [jsonschema](https://docs.rs/jsonschema/latest/jsonschema/) for client-side validation and some other libraries.
 
 ### JSONLines endpoints
 
@@ -328,33 +269,7 @@ To implement continious streaming with [JSONLines](/controller/jsonlines) endpoi
 
 A controller like this:
 
-```ts filename="src/modules/stream/StreamController.ts"
-import { prefix, get, openapi } from 'vovk';
-import { withZod } from 'vovk-zod';
-import { z } from 'zod/v4';
-import StreamService from './StreamService';
-
-@prefix('streams')
-export default class StreamController {
-  @openapi({
-    summary: 'Stream tokens',
-    description: 'Stream tokens to the client',
-  })
-  @get('tokens')
-  static streamTokens = withZod({
-    iteration: z
-      .object({
-        message: z.string().meta({ description: 'Message from the token' }),
-      })
-      .meta({
-        description: 'Streamed token object',
-      }),
-    async *handle() {
-      yield* StreamService.streamTokens();
-    },
-  });
-}
-```
+<GithubFiles paths={['src/modules/stream/StreamController.ts', 'src/modules/stream/StreamService.ts']} repo="vovk-hello-world" />
 
 Will be compiled to the following Rust code:
 

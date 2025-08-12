@@ -3,11 +3,11 @@ import type { MetaRecord } from 'nextra';
 const separator = (title: string) => ({ type: 'separator', title });
 
 const meta = {
-  introduction: 'Getting started 🚧',
-  client: 'Client-side Validation 🚧',
+  introduction: 'Getting started',
+  client: 'Client-side Validation',
   standard: 'Standard Schema',
   zod: 'Zod 3 and 4',
-  dto: 'class-validator 🚧',
+  dto: 'class-validator',
   yup: 'Yup (obsolete)',
 } satisfies MetaRecord;
 

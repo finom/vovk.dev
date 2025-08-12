@@ -12,7 +12,7 @@ Internally the bundling is made executing the following steps:
 
 1. It generates a client into `tmp_prebundle` directory (configured with `config`) using [ts](/templates#ts) template.
 2. Uses [tsdown API](https://tsdown.dev/) to bundle the generated client into a few compiled files at `dist` directory.
-3. Generates `package.json` and `README.md` files from [packageJson](/templates#packageJson) and [readme](/templates#readme) templates.
+3. Generates `package.json` and `README.md` files from [packageJson](/templates#packagejson) and [readme](/templates#readme) templates.
 4. Deletes the `tmp_prebundle` directory.
 
 After running the command, you will find the following files in the `dist` directory:
@@ -61,17 +61,17 @@ const config = {
 export default config;
 ```
 
-### `tsClientOutDir` or `--ts-client-out-dir` flag
+### `prebundleOutDir` or `--prebundle-out` flag
 
-The `tsClientOutDir` is the directory where the TypeScript client will be generated before bundling. It defaults to `tmp_prebundle`.
+The `prebundleOutDir` is the directory where the TypeScript client will be generated before bundling. It defaults to `tmp_prebundle`.
 
-### `dontDeleteTsClientOutDirAfter` or `--dont-delete-ts-client-out-dir-after` flag
+### `keepPrebundleDir` or `--keep-prebundle-dir` flag
 
-If set to `true`, the `tsClientOutDir` will not be deleted after bundling. This can be useful for debugging or further modifications. Defaults to `false`.
+If set to `true`, the `prebundleOutDir` will not be deleted after bundling. This can be useful for debugging or other purposes. Defaults to `false`.
 
 ### `requires`
 
-The `requires` object allows you to specify extra templates that will be rendered and copied to the `dist` directory. The keys are the template names, and the values are the resulting paths, relative to the bundle output directory.
+The `requires` object allows you to specify extra templates that will be rendered and copied to the `dist` directory after bundling. The keys are the template names, and the values are the resulting paths, relative to the bundle output directory. It works the same way as the [requires](/templates#requires) option in template definition.
 
 ### `package`
 

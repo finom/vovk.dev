@@ -175,11 +175,11 @@ See [decorators docs](/controller/decorators) for more info.
 
 ### `createRPC`
 
-Function that creates RPC modules out of [schema](/schema) and types inferred from [controllers](/controller). It's imported by the generated TypeScript, ESM and CJS files and can be [customized at config](/customization).
+Function that creates RPC modules out of [schema](/schema) and types inferred from [controllers](/controller). It's imported by the generated TypeScript, ESM and CJS files and can be [customized at config](/imports).
 
 ### `fetcher`
 
-Function that creates a data fetching layer for the RPC client. It handles HTTP requests, client-side validation, and response parsing. It's imported by the generated TypeScript, ESM and CJS files and can be [customized at config](/customization). A new fetcher can be created using [createFetcher](#createFetcher) function.
+Function that creates a data fetching layer for the RPC client. It handles HTTP requests, client-side validation, and response parsing. It's imported by the generated TypeScript, ESM and CJS files and can be [customized at config](/imports). A new fetcher can be created using [createFetcher](#createFetcher) function.
 
 ### `createFetcher`
 
@@ -515,7 +515,7 @@ import { HttpMethod, HttpStatus, HttpException } from 'vovk';
 
 #### `HttpMethod` enum
 
-Can be used with your code to create a [custom fetcher](./customization).
+Can be used with your code to create a [custom fetcher](/imports).
 
 ```ts
 export enum HttpMethod {
@@ -676,13 +676,13 @@ const resp = new JSONLinesResponse<Token>({
 
 ### `VovkClientFetcher` and `VovkDefaultFetcherOptions` types
 
-Used to redefine the default fetcher. See [customization docs](./customization).
+Used to redefine the default fetcher. See [`imports` docs](/imports).
 
 ### `VovkEnv` type
 
 Defines Vovk.ts env variable types.
 
-For more info check [customization docs](./customization).
+For more info check [`imports` docs](/imports).
 
 ### `VovkSchema` type
 

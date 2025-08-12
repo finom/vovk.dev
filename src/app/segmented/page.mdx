@@ -2,12 +2,12 @@ import { FileTree } from 'nextra/components';
 
 # Segmented RPC Client
 
-[Composed RPC Client](/composed) is suitable for single-page applications but in larger applications, exposing schema for all segments in a single RPC client isn't always desirable. In this case, with a simple configuration change, you can instruct Vovk.ts to generate separate RPC clients for each segment. This approach is called **Segmented RPC Client** and it allows to split the client into smaller TypeScript files that can be imported separately, hiding RPC modules and corresponding schema on specific pages. For example, pages responsible for "customer" functionality aren't going to import "admin" RPC modules, therefore "admin" implementation details are hidden from the customer pages.
+[Composed RPC Client](/composed) is suitable for single-page applications but in larger applications, exposing schema for all segments in a single RPC client isn't always desirable. In this case, with a simple configuration change, you can instruct Vovk.ts to generate separate RPC clients for each segment. This approach is called **"Segmented RPC Client"** and it allows to split the client into smaller TypeScript files that can be imported separately, hiding RPC modules and corresponding schema on specific pages. For example, pages responsible for "customer" functionality aren't going to import "admin" RPC modules, therefore "admin" implementation details are hidden from the customer pages.
 
-By default, the segmented client is generated into the **./src/client** folder (or **./client** folder if you don't use src folder) from [ts](/templates#ts) and [schemaTs](/templates#schemaTs) template and for an app with multiple segments, the structure of the generated client looks like this:
+By default, the segmented client is generated into the **./src/client** folder (or **./client** folder if you don't use src folder) from [ts](/templates#ts) and [schemaTs](/templates#schemats) templates and for an app with multiple segments, the structure of the generated client may look like this:
 
 <FileTree>
-  <FileTree.Folder name="app/client" defaultOpen>
+  <FileTree.Folder name="src/client" defaultOpen>
     <FileTree.Folder name="root" defaultOpen>
       <FileTree.File
         name={
@@ -107,7 +107,7 @@ import { UserRPC } from '@/client/customer'; // import three is going to contain
 await UserRPC.getUser({ id: '123' });
 ```
 
-The segmented client is also aplicable for [Rust](/rust) and [Python](/python) templates, but at this case it has unknown use.
+The segmented client is also aplicable for [Rust](/rust) and [Python](/python) templates, but it has an unknown use.
 
 The settings are similar to the settings for the [composed client](/composed), the only difference is `readme` and `package` options are turned into records `readmes` and `packages` that allow to specify different options for each segment.
 
@@ -137,26 +137,6 @@ const config = {
 };
 ```
 
-### `enabled`
-
-If set to `true`, the segmented client will be generated.
-
-### `fromTemplates`
-
-An array of templates to use for the segmented client generation. By default, it uses `["ts"]` templates that generate TS modules. The array can contain names of [built-in templates](/templates) as well as of [custom templates](/config/template-defs).
-
-### `outDir`
-
-The path where the segmented client will be generated. By default, it uses `./src/client` folder. The path is relative to CWD.
-
-### `includeSegments`
-
-An array of segments to include in the segmented client. By default, it includes all segments. You can use this option to include only specific segments in the segmented client.
-
-### `excludeSegments`
-
-An array of segments to exclude from the segmented client. By default, it excludes no segments. You can use this option to exclude specific segments from the segmented client. This property is mutually exclusive with `includeSegments`.
-
 ## `packages`
 
 Extends package properties for each segment separately. This allows you to specify different package properties for each segment.
@@ -164,3 +144,5 @@ Extends package properties for each segment separately. This allows you to speci
 ## `readmes`
 
 Extends `readme` properties for each segment separately. This allows you to specify different readme properties for each segment.
+
+See other options in the [Composed Client](/composed) section.

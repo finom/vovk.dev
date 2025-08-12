@@ -32,21 +32,20 @@ const meta = {
   '#server-side': separator('Server-Side'),
   segment: 'Segment',
   controller: 'Controller',
-  // 'composed-and-segmented': 'Composed vs Segmented RPC 🚧',
   '#typescript': separator('TypeScript Client'),
-  typescript: 'TypeScript RPC 🚧',
-  composed: 'Composed Client 🚧',
-  segmented: 'Segmented Client 🚧',
+  typescript: 'TypeScript RPC',
+  composed: 'Composed Client',
+  segmented: 'Segmented Client',
   imports: 'Library Customization',
   '#client-side': separator('Other Clients'),
-  python: 'Python RPC 🧪 🚧',
-  rust: 'Rust RPC 🧪 🚧',
+  python: 'Python RPC 🧪',
+  rust: 'Rust RPC 🧪',
   '#cli': separator('Config & CLI'),
-  config: 'Config 🚧',
-  cli: 'CLI 🚧',
+  config: 'Config',
+  cli: 'CLI',
   bundle: (
     <>
-      <code className="nextra-code">vovk bundle 🚧</code> (TypeScript)
+      <code className="nextra-code">vovk bundle</code>
     </>
   ),
   dev: <code className="nextra-code">vovk dev 🚧</code>,

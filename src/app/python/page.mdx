@@ -1,108 +1,267 @@
-import { Tabs } from 'nextra/components';
+import { FileTree, Tabs } from 'nextra/components';
+import GithubFiles from '@/components/GithubFiles';
 
-# Python/mypy client
+-----
 
-```sh filename="Generate Python client with CLI"
-npx vovk generate --template "vovk-python-client/template/*" --out ./python_client
+
+# Python RPC Client (experimental)
+
+Python client can be generated with `vovk generate` command using [py](/templates#py) template or [pySrc](/templates#pysrc) template.
+
+Generate Python package with the [CLI](/cli):
+
+```sh npm2yarn
+npx vovk generate --from py --out ./python_package
 ```
 
-The Python template is published as [vovk-python-client](https://npmjs.com/package/vovk-python-client) NPM package.
+This will generate a Python package with the following structure:
 
-<Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tabs.Tab>``` npm i vovk-python-client ```</Tabs.Tab>
-  <Tabs.Tab>``` pnpm i vovk-python-client ```</Tabs.Tab>
-  <Tabs.Tab>``` yarn add vovk-python-client ```</Tabs.Tab>
-</Tabs>
+<FileTree>
+  <FileTree.Folder name="python_package" defaultOpen>
+    <FileTree.Folder name="src/package_name" defaultOpen>
+      <FileTree.File name="__init__.py" />
+      <FileTree.File name="api_client.py" />
+      <FileTree.File name="py.typed" />
+      <FileTree.File name="schema.json" />
+    </FileTree.Folder>
+    <FileTree.File name="pyproject.toml" />
+    <FileTree.File name="setup.cfg" />
+    <FileTree.File name="README.md" />
+  </FileTree.Folder>
+</FileTree>
 
-It's used to generate a Python/mypy client from the [schema](/schema) with [validation data](/validation) providing syntax similar to [TypeScript client](/typescript).
+The package is ready to be published to [PyPI](https://pypi.org/) with the following command.
 
-TODO Gif or video
+```sh
+python3 -m build ./python_package --wheel --sdist && python3 -m twine upload ./python_package/dist/*
+```
 
-The validation data is used for client-side validation for params, body and query and to build [mypy types](https://mypy-lang.org/) for input type checking for params, body and query and for output inference for output and iteration.
+In case if you want to generate Python source only, to be used as part of another Python project, you can use `pySrc` template:
 
-TODO:
+```sh npm2yarn
+npx vovk generate --from pySrc --out ./python_src
+```
 
-```ts
-export default class UserRPC {
-  static createUser(
-    body: {
-      name: string;
-      email: string;
-      age: number;
+This will generate a Python source with the following structure:
+
+<FileTree>
+  <FileTree.Folder name="python_src" defaultOpen>
+    <FileTree.File name="__init__.py" />
+    <FileTree.File name="api_client.py" />
+    <FileTree.File name="py.typed" />
+    <FileTree.File name="schema.json" />
+  </FileTree.Folder>
+</FileTree>
+
+## Configuring the Python Client
+
+The generation can be [configured](/config), so the client will be generated automatically with `generate` command with no flags but also when [vovk dev](/dev) is run, that performs "hot generation" whenever the schema is changed. In order to do that, you need to add `py` template to the [composed client](/composed) config:
+
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  composedClient: {
+    fromTemplates: ['cjs', 'mjs', 'py'], // keep the default "cjs" and "mjs" templates
+  },
+};
+export default config;
+```
+
+The [py](/templates#py) template as well as some other templates has default `outDir` (by default equals to `./dist_python`) for the composed client configuration, that can be changed by defining a [template definition](/templates#defs) in the config:
+
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  // ...
+  clientTemplateDefs: {
+    py: {
+      extends: 'py', // extends the built-in "py" template
+      composedClient: {
+        outDir: './my_dist_python', // updates the out directory for the composed client
+      },
     },
-    params: {
-      id: number;
-    },
-    query: {
-      notify?: 'push' | 'email';
+  },
+};
+export default config;
+```
+
+## Generated Python Client Example
+
+### JSON endpoints
+
+All the code below was copied with slight modifications from the real example, explained at [Hello World](/hello-world) page.
+
+A [controller](/controller) like this:
+
+<GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts']} repo="vovk-hello-world" />
+
+
+... will emit [Vovk.ts Schema](/schema), that in its turn will be used to generate the Python client, following the language conventions where possible, adding comments defined at schema `description`, and generating the most suitable types. For example, the `age` is generated as `int`.
+
+```py filename="./dist_python/src/package_name/__init__.py"
+from __future__ import annotations
+from typing import Any, Dict, List, Literal, Optional, Set, TypedDict, Union, Tuple, Generator # type: ignore
+from .api_client import ApiClient, HttpException
+
+HttpException = HttpException
+
+client = ApiClient('https://vovk-hello-world.vercel.app/api')
+ 
+class UserRPC: 
+    # UserRPC.update_user POST `https://vovk-hello-world.vercel.app/api/users/{id}`
+    class __UpdateUserBody_profile(TypedDict):
+        """
+        User profile object
+        """
+        name: str
+        age: int
+    class UpdateUserBody(TypedDict):
+        """
+        User data object
+        """
+        email: str
+        profile: UserRPC.__UpdateUserBody_profile
+    class UpdateUserQuery(TypedDict):
+        """
+        Query parameters
+        """
+        notify: Literal["email", "push", "none"]
+    class UpdateUserParams(TypedDict):
+        """
+        Path parameters
+        """
+        id: str
+    class UpdateUserOutput(TypedDict):
+        """
+        Response object
+        """
+        success: bool
+    @staticmethod
+    def update_user(
+        body: UpdateUserBody,
+        query: UpdateUserQuery,
+        params: UpdateUserParams,
+        headers: Optional[Dict[str, str]] = None,
+        files: Optional[Dict[str, Any]] = None,
+        api_root: Optional[str] = None,
+        disable_client_validation: bool = False
+    ) -> UpdateUserOutput:
+        """ 
+        Update user
+        Description: Update user by ID
+        Body: User data object
+        Query: Query parameters
+        Returns: Response object
+        """
+        return client.request( # type: ignore
+            segment_name='',
+            rpc_name='UserRPC',
+            handler_name='updateUser',
+            body=body,
+            query=query,
+            params=params,
+            headers=headers,
+            files=files,
+            api_root=api_root,
+            disable_client_validation=disable_client_validation
+        )
+```
+
+All RPC modules are generated in the `__init__.py` file, that contains all the RPC methods as functions but also types that are used in the RPC methods. The nested data structures are generated as `TypedDict`s.
+
+The types of `body`, `query` and `params` can be obtained from the RPC module using pattern `[PascalCaseMethodName][InputType]`. For example, a controller method originaly named `updateUser` will have types `UpdateUserBody`, `UpdateUserQuery` and `UpdateUserParams` generated.
+
+
+```py
+from dist_python.src.vovk_hello_world import UserRPC
+import vovk_hello_world
+
+def main() -> None:
+    body: UserRPC.UpdateUserBody = {
+        "email": "john@example.com",
+        "profile": {
+            "name": "John Doe",
+            "age": 25
+        }
     }
-  ): Promise<{
-    id: number;
-    name: string;
-    email: string;
-    age: number;
-  }>;
-}
+    query: UserRPC.UpdateUserQuery = {"notify": "email"}
+    params: UserRPC.UpdateUserParams = {"id": "123e4567-e89b-12d3-a456-426614174000"}
+    # Update user using local module
+    update_user_response = UserRPC.update_user(
+        params=params,
+        body=body,
+        query=query
+    )
+    print('UserRPC.update_user:', update_user_response)
+  
+if __name__ == "__main__":
+  try:
+      main()
+  except Exception as e:
+      print(f"Error: {e}")
+
 ```
 
-```python
-from python_client import UserRPC
+Behind the scenes it uses [requests](https://pypi.org/project/requests/) for HTTP requests, [jsonschema](https://pypi.org/project/jsonschema/) for client-side validation and some other libraries.
 
-user = UserRPC.create_user(
-    body={
-        "name": "John Doe",
-        "email": "email@example.com",
-        "age": 30,
-    },
-    params={
-        "id": 69,
-    },
-    query={
-        "notify": 'push',
-    },
-)
+### JSONLines endpoints
+
+To implement continious streaming with [JSONLines](/controller/jsonlines) endpoints, the client uses `Generator` to that can be used to iterate over the streamed data.
+
+A controller like this:
+
+<GithubFiles paths={['src/modules/stream/StreamController.ts', 'src/modules/stream/StreamService.ts']} repo="vovk-hello-world" />
+
+Will be compiled to the following Python code:
+
+```py filename="./dist_python/src/package_name/__init__.py"
+class StreamRPC: 
+    # StreamRPC.stream_tokens GET `https://vovk-hello-world.vercel.app/api/streams/tokens`
+    class StreamTokensIteration(TypedDict):
+        """
+        Streamed token object
+        """
+        message: str
+    @staticmethod
+    def stream_tokens(
+
+        headers: Optional[Dict[str, str]] = None,
+        files: Optional[Dict[str, Any]] = None,
+        api_root: Optional[str] = None,
+        disable_client_validation: bool = False
+    ) -> Generator[StreamTokensIteration, None, None]:
+        """ 
+        Stream tokens
+        Description: Stream tokens to the client
+        """
+        return client.request( # type: ignore
+            segment_name='',
+            rpc_name='StreamRPC',
+            handler_name='streamTokens',
+
+            headers=headers,
+            files=files,
+            api_root=api_root,
+            disable_client_validation=disable_client_validation
+        )
 ```
 
-## Naming convention
+That can be used like this:
 
-The RPCs use Python class naming convention (PascalCase) and the methods use Python method naming convention (snake_case) transforming method names defined in camelCase.
+```py
+from dist_python.src.vovk_hello_world import StreamRPC  # local module
+import vovk_hello_world
 
-## Options
+def main() -> None:
+    stream_response = StreamRPC.stream_tokens()
+    print("streamTokens:")
+    for item in stream_response:
+        print(item['message'], end='', flush=True)
 
-- `api_root` - an optional API root URL. By default, it uses `origin` defined at the [config](/config).
-- `disable_client_validation` - disables client-side validation for params, body and query. By default, it's `false`.
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        print(f"Error: {e}")
 
-## Type inference
-
-You can infer types of `query`, `params`, `body`, `output` and `iteration` using types available in the RPC. The syntax is `infer_<handler_name>_<type>`.
-
-```python
-from python_client import UserRPC, OpenAIRPC
-
-params: UserRPC.infer_create_user_params = {
-    "id": 69,
-}
-
-body: UserRPC.infer_create_user_body = {
-    "name": "John Doe",
-    "email": "john@example.com",
-    "age": 30,
-}
-
-query: UserRPC.infer_create_user_query = {
-    "notify": 'push',
-}
-
-result: UserRPC.infer_create_user_output = UserRPC.create_user(
-    body=body,
-    params=params,
-    query=query,
-)
-
-iterator: Generator[UserRPC.infer_handle_stream_iteration, None, None] = OpenAIRPC.create_completion(
-  body=[{ 'role': 'user', 'content': 'Hello!' }],
-)
-
-for data in iterator:
-    print(data)
 ```

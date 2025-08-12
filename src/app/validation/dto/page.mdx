@@ -1,7 +1,181 @@
+import { Tabs } from 'nextra/components';
+
 # Validation with class-validator
+
+Since Vovk.ts was heavily inspired by [NestJS](https://nestjs.com/) it also supports [class-validator](https://www.npmjs.com/package/class-validator) library for server-side and client-side validation.
 
 ```sh npm2yarn
 npm install vovk-dto
 ```
 
-Coming soon.
+<Tabs items={['UserController.ts', 'UserDto.ts']}>
+  <Tabs.Tab>
+  
+```ts filename="src/modules/user/UserController.ts"
+import { prefix, post, openapi } from 'vovk';
+import { withDto } from 'vovk-dto';
+import { UpdateUserBodyDto, UpdateUserParamsDto, UpdateUserQueryDto, UpdateUserResponseDto } from './UserDto';
+
+@prefix('users')
+export default class UserController {
+    @openapi({
+        summary: 'Update user',
+        description: 'Update user by ID with Dto validation',
+    })
+    @post('{id}')
+    static updateUser = withDto({
+        body: UpdateUserBodyDto,
+        params: UpdateUserParamsDto,
+        query: UpdateUserQueryDto,
+        output: UpdateUserResponseDto,
+        async handle(req) {
+            const body = await req.vovk.body();
+            const query = req.vovk.query();
+            const params = req.vovk.params();
+
+            console.log(body instanceof UpdateUserBodyDto); // true
+            console.log(query instanceof UpdateUserQueryDto); // true
+            console.log(params instanceof UpdateUserParamsDto); // true
+        },
+    });
+}
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+  
+```ts filename="src/modules/user/UserDto.ts"
+import { IsString, IsNumber, Min, IsEmail, IsUUID, IsIn, IsBoolean } from 'class-validator';
+import { JSONSchema } from 'class-validator-jsonschema';
+
+@JSONSchema({ description: 'User object' })
+export class UpdateUserBodyDto {
+    @IsString()
+    @JSONSchema({ description: 'User full name' })
+    name!: string;
+
+    @IsNumber()
+    @Min(0)
+    @JSONSchema({ description: 'User age' })
+    age!: number;
+
+    @IsEmail()
+    @JSONSchema({ description: 'User email' })
+    email!: string;
+}
+
+@JSONSchema({ description: 'Path parameters' })
+export class UpdateUserParamsDto {
+    @IsUUID()
+    @JSONSchema({ description: 'User ID' })
+    id!: string;
+}
+
+@JSONSchema({ description: 'Query parameters' })
+export class UpdateUserQueryDto {
+    @IsIn(['email', 'push', 'none'])
+    @JSONSchema({ description: 'Notification type' })
+    notify!: string;
+}
+
+@JSONSchema({ description: 'Response object' })
+export class UpdateUserResponseDto {
+    @IsBoolean()
+    @JSONSchema({ description: 'Success status' })
+    success!: boolean;
+}
+```
+  
+  </Tabs.Tab>
+</Tabs>
+
+As you can see, the DTOs are decorated with [`JSONSchema`](https://www.npmjs.com/package/class-validator-jsonschema) decorator to describe the properties of the DTOs when they're converted to JSON schemas. **vovk-dto** uses `targetConstructorToSchema` function from **class-validator-jsonschema** to convert the DTOs to JSON schemas in order to be used for [OpenAPI](/openapi) specification, [Codegen](/codegen) and [Function Calling](/ai-tools).
+
+Also notice that in the example above the `req.vovk` object is used to access the validated input data. The `req.vovk.body()`, `req.vovk.query()` and `req.vovk.params()` methods return the validated data as instances of the corresponding DTO classes. The `req.json()`, `req.nextUrl.searchParams` and the 2nd argument of the `handle` function are still relevant ways to access the raw data.
+
+<a name="validateonclient" />
+
+## Client-side validation with DTOs
+
+As [class-validator-jsonschema](https://www.npmjs.com/package/class-validator-jsonschema) package allows to convert DTOs to JSON schemas, the common way of client-side validation with [vovk-ajv](/validation/client) may have various restrictions as the conversion to JSON schema is [limited](https://www.npmjs.com/package/class-validator-jsonschema#limitations).
+
+For the most robust solution it's recommended to use **vovk-dto/validateOnClient** module that exports `validateOnClient` function that can be used as an [import](/imports/validateonclient) in the [vovk.config](/config) file:
+
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  imports: {
+    validateOnClient: 'vovk-dto/validateOnClient',
+  },
+};
+export default config;
+```
+
+This will change the `validateOnClient` import at the generated code:
+
+```ts filename="./node_modules/.vovk-client/index.mjs"
+import { validateOnClient } from 'vovk-dto/validateOnClient';
+// ...
+```
+
+In order to perform the client-side validation, the input data should be transformed to the corresponding DTO class with [class-transformer](https://www.npmjs.com/package/class-transformer). If input data is a plain object, or `FormData` it **will not be validated**. 
+
+```ts
+import { UserRPC } from 'vovk-client';
+import { plainToInstance } from 'class-transformer';
+import { UpdateUserBodyDto, UpdateUserResponseDto } from '@/modules/user/UserDto';
+
+const respData = await UserRPC.updateUser({
+  body: plainToInstance(UpdateUserBodyDto, {
+    name: 'John Doe',
+    age: 42,
+  } satisfies UpdateUserBodyDto),
+  // ... same for query and params
+});
+
+// optionally transform response data to DTO
+const dtoInstance = plainToInstance(UpdateUserResponseDto, respData);
+```
+
+In case if the data is neither a DTO class nor a plain object, nor `FormData`, the validation can be skipped with `disableClientValidation`.
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+await UserRPC.updateUser({
+  body: nonDtoInstance, // not a DTO class, not plain object nor FormData
+  disableClientValidation: true,
+});
+```
+
+## dto-mapped-types
+
+In order to be able to apply pick, omit, partial and intersection patterns to DTOs, you can use [dto-mapped-types](https://www.npmjs.com/package/dto-mapped-types) package that is forked from [@nestjs/mapped-types](https://www.npmjs.com/package/@nestjs/mapped-types) but doesn't have unnecessary dependencies. It provides the same functionality as the original package but without the need to install **@nestjs/common** package.
+
+```ts filename="src/modules/user/UserDto.ts"
+import { IsString, IsEmail, MinLength, MaxLength, IsUUID } from 'class-validator';
+import { OmitType } from 'dto-mapped-types';
+
+@JSONSchema({
+  description: 'User DTO',
+})
+export class UserDto {
+  @IsUUID(4, { message: 'Invalid uuid format' })
+  id: string;
+
+  @IsString({ message: 'Name must be a string' })
+  @MinLength(2, { message: 'Name must be at least 2 characters' })
+  @MaxLength(20, { message: 'Name must be at most 20 characters' })
+  name: string;
+
+  @IsEmail({}, { message: 'Invalid email format' })
+  email: string;
+}
+
+@JSONSchema({
+  description: 'Create User DTO',
+})
+export class CreateUserDto extends OmitType(UserDto, ['id']) {
+  @IsString({ message: 'Password must be a string' })
+  password: string;
+}
+```

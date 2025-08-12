@@ -27,12 +27,12 @@ Indicates whether the config options should be emitted as [.vovk-schema/\_meta.j
 <a name="clientTemplateDefs" />
 ### `clientTemplateDefs: object`
 
-Extends the [template definitions](/template-defs) with the custom definitions that can be used as `fromTemplates` field in the [composed client](/composed) or [segmented client](/segmented).
+Extends the [template definitions](/template#defs) with the custom definitions that can be used as `fromTemplates` field in the [composed client](/composed) or [segmented client](/segmented).
 
 <a name="imports" />
 ### `imports: object`
 
-Allows to redefine imports used by the generated client, such as [fetcher](/customization#fetcher), [validateOnClient](/customization#validateonclient), and [createRPC](/customization#createrpc). The values are paths to the files that export the corresponding functions. Relative paths are resolved from the root of the project, package paths, such as `my-lib/fetcher`, are rendered as is.
+Allows to redefine imports used by the generated client, such as [fetcher](/imports#fetcher), [validateOnClient](/imports#validateonclient), and [createRPC](/imports#createrpc). The values are paths to the files that export the corresponding functions. Relative paths are resolved from the root of the project, package paths, such as `my-lib/fetcher`, are rendered as is.
 
 <a name="composedClient" />
 ### `composedClient: object`
@@ -44,14 +44,12 @@ Redefines config options for the [composed client](/composed), such as [outDir](
 
 Redefines config options for the [segmented client](/segmented), such as [outDir](/segmented#outdir), [fromTemplates](/segmented#fromtemplates), [excludeSegments](/segmented#excludesegments), etc.
 
-Redefines config options for the [segmented client](/segmented), such as [outDir](/segmented#outdir), [fromTemplates](/segmented#fromtemplates), [excludeSegments](/segmented#excludesegments), etc.
-
 <a name="bundle" />
 ### `bundle: object`
 
 Redefines config options for the [bundle](/bundle), such as [excludeSegments](/bundle#excludesegments), [tsdown build options](https://tsdown.ru/reference/config-options), etc.
 
-<a name="modulesDir" />
+<a name="modulesdir" />
 ### `modulesDir = 'src/modules'`
 
 Indicates the directory where the module files are located. Used to generate modules with [vovk new](/cli/new) command and to watch for changes in the modules when [vovk dev](/cli/dev) is running.
@@ -76,20 +74,15 @@ The root entry point for the API routes. By default it's `api`, meaning that the
 
 Used exclusively by the [vovk new](/cli/new) command when multiple segments are used. If set to a non-empty string, the root segment modules will be created in the folder with this name. For example, if it's set to `"root"`, then when `vovk new controller user` is executed, the controller will be created at **src/modules/root/user/UserController.ts** instead of **src/modules/user/UserController.ts** (the root of the [modulesDir](#modulesdir))
 
-<a name="logLevel" />
+<a name="loglevel" />
 ### `logLevel = 'info'`
 
 Defines the [log level](https://www.npmjs.com/package/loglevel) for the CLI. The values are `"debug"`, `"info"`, `"warn"`, `"error"`. By default it's `"info"`. Set it to `"debug"` to see underlying operations, such as file watching information.
 
-<a name="prettifyClient" />
-### `prettifyClient = false`
-
-Wether the generated client code needs to be prettified. Defaults to `false`. If set to `true`, the client code will be formatted with [Prettier](https://prettier.io/) using your local configuration. It slightly increases the compilation time.
-
-<a name="devHttps" />
+<a name="devhttps" />
 ### `devHttps = false`
 
-[Progressive Web Apps](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/What_is_a_progressive_web_app) require HTTPS protocol to be used both in development and production. In order to enable HTTPS in development you can use `--experimental-https` flag with `next dev` command and enable HTTPS mode for [vovk dev](/cli/dev) by setting `devHttps`to `true` or providing `--https` flag to the command.
+[Progressive Web Apps](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/What_is_a_progressive_web_app) require HTTPS protocol to be used both in development and production. In order to enable HTTPS in development you can use `--experimental-https` flag with `next dev` command and enable HTTPS mode for [vovk dev](/cli/dev) by setting `devHttps` to `true` or providing `--https` flag to the command.
 
 ```js filename="/vovk.config.mjs"
 const config = {
@@ -109,7 +102,7 @@ If you don't want to set the HTTPS mode enabled by default, you can create anoth
 }
 ```
 
-<a name="moduleTemplates" />
+<a name="moduletemplates" />
 ### `moduleTemplates: object`
 
 Record of module template names and their paths. Used by [vovk new](/cli/new) command to define the templates for the service, controller or any other kind of module. When you have configuration of `state` template like this:
@@ -119,7 +112,7 @@ Record of module template names and their paths. Used by [vovk new](/cli/new) co
 const config = {
   // ...
   moduleTemplates: {
-    state: './module-templates/State.js.ejs',
+    state: './module-templates/State.ts.ejs',
     // you can add your own templates here
   },
 };
@@ -138,7 +131,7 @@ npx vovk new state segment/thing # creates src/modules/segment/thing/ThingState.
 <a name="libs" />
 ### `libs: object`
 
-The `libs` object is a conventional way to define configuration for libraries used by the client or any other configuration that you want to expose to the client. For example, it can be used to define localization for [vovk ajv](/validation#ajv).
+The `libs` object is a conventional way to define configuration for libraries used by the client or any other configuration that you want to expose to the client. For example, it can be used to define localization for [vovk-ajv](/validation/client).
 
 ```js filename="/vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -167,12 +160,12 @@ console.log(schema.meta.config.libs.ajv.options.strict); // false
 console.log(UserRPC.updateUser.fullSchema.meta.config.libs.ajv.localize); // 'en'
 ```
 
-<a name="segmentConfig" />
-### `segmentConfig: object`
+<a name="segmentconfig" />
+### `segmentConfig: object` 🚧
 
 To be documented.
 
-<a name="openApiMixins" />
+<a name="openapimixins" />
 ### `openApiMixins: object`
 
 Configures [OpenAPI Mixins](/openapi-mixins) for the client. It allows to define additional OpenAPI operations that can be used in the client. See the [OpenAPI Mixins docs](/openapi-mixins) for more info.
