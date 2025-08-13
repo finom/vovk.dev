@@ -19,12 +19,12 @@ When [vovk init](/cli/init) is executed, in order to create proper file name, it
 
 The config options extend `VovkConfig` type from `vovk` package and can be used to define the following options:
 
-<a name="emitConfig" />
+<a name="emitconfig" />
 ### `emitConfig: boolean | string[]`
 
 Indicates whether the config options should be emitted as [.vovk-schema/\_meta.json](/schema) file. If set to `true`, it will emit all options. If set to an array of strings, it will emit only the specified options. Default is `["libs"]`.
 
-<a name="clientTemplateDefs" />
+<a name="clienttemplatedefs" />
 ### `clientTemplateDefs: object`
 
 Extends the [template definitions](/template#defs) with the custom definitions that can be used as `fromTemplates` field in the [composed client](/composed) or [segmented client](/segmented).
@@ -34,12 +34,12 @@ Extends the [template definitions](/template#defs) with the custom definitions t
 
 Allows to redefine imports used by the generated client, such as [fetcher](/imports#fetcher), [validateOnClient](/imports#validateonclient), and [createRPC](/imports#createrpc). The values are paths to the files that export the corresponding functions. Relative paths are resolved from the root of the project, package paths, such as `my-lib/fetcher`, are rendered as is.
 
-<a name="composedClient" />
+<a name="composedclient" />
 ### `composedClient: object`
 
 Redefines config options for the [composed client](/composed), such as [outDir](/composed#outdir), [fromTemplates](/composed#fromtemplates), [excludeSegments](/composed#excludesegments), etc.
 
-<a name="segmentedClient" />
+<a name="segmentedclient" />
 ### `segmentedClient: object`
 
 Redefines config options for the [segmented client](/segmented), such as [outDir](/segmented#outdir), [fromTemplates](/segmented#fromtemplates), [excludeSegments](/segmented#excludesegments), etc.
@@ -54,7 +54,7 @@ Redefines config options for the [bundle](/bundle), such as [excludeSegments](/b
 
 Indicates the directory where the module files are located. Used to generate modules with [vovk new](/cli/new) command and to watch for changes in the modules when [vovk dev](/cli/dev) is running.
 
-<a name="schemaOutDir" />
+<a name="schemaoutdir" />
 ### `schemaOutDir = '.vovk-schema'`
 
 The directory where the schema is going to be generated. Defaults to `.vovk-schema`.
@@ -64,12 +64,12 @@ The directory where the schema is going to be generated. Defaults to `.vovk-sche
 
 The origin for the client, used to generate the client with proper URLs. Defaults to `''`, meaning that the client will use relative URLs. If you want to use absolute URLs, set it to your domain, e.g. `https://example.com`.
 
-<a name="rootEntry" />
+<a name="rootentry" />
 ### `rootEntry = 'api'`
 
 The root entry point for the API routes. By default it's `api`, meaning that the API routes will be served from `/api` path and the segments (`route.ts` files) are located in the `./src/app/api` folder (`src/` dir is optional). If you want to serve the API from the root of the domain, set it to an empty string `''`. In this case the segments will be located in the `./src/app` folder.
 
-<a name="rootSegmentModulesDirName" />
+<a name="rootsegmentmodulesdirname" />
 ### `rootSegmentModulesDirName = ''`
 
 Used exclusively by the [vovk new](/cli/new) command when multiple segments are used. If set to a non-empty string, the root segment modules will be created in the folder with this name. For example, if it's set to `"root"`, then when `vovk new controller user` is executed, the controller will be created at **src/modules/root/user/UserController.ts** instead of **src/modules/user/UserController.ts** (the root of the [modulesDir](#modulesdir))

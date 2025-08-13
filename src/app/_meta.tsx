@@ -48,9 +48,9 @@ const meta = {
       <code className="nextra-code">vovk bundle</code>
     </>
   ),
-  dev: <code className="nextra-code">vovk dev 🚧</code>,
+  dev: <code className="nextra-code">vovk dev</code>,
   generate: <code className="nextra-code">vovk generate 🚧</code>,
-  init: <code className="nextra-code">vovk init 🚧</code>,
+  init: <code className="nextra-code">vovk init</code>,
   new: <code className="nextra-code">vovk new 🚧</code>,
   '#etc': separator('etc.'),
   'openapi-mixins': 'OpenAPI Mixins 🚧',

@@ -1,38 +1,36 @@
 # vovk init
 
-TODO: Flags here
+```sh filename="Quick CLI Ref"
+$ npx vovk init --help
 
-If **vovk-cli** is installed globally it can be run with `vovk init` command. If it's not, it can be run with `npx vovk-cli init` or with a shortcut `npx vovk-init`.
+Usage: vovk init [options]
 
-It performs some changes at your Next.js project that you would need to do [manually](/manual-install). The command asks the following questions:
+Initialize Vovk.ts at existing Next.js project
 
-- What [validation](/validation) library you want to use?
-- Do you want to enable client validation?
-- Do you want to update `"dev"` script and add `"generate"` script to **package.json**?
-- Do you want to update **tsconfig.json** with `experimentalDecorators`?
+Options:
+  --prefix <prefix>               directory to initialize project in
+  -y, --yes                       skip all prompts and use default values
+  --log-level <level>             set log level (default: "info")
+  --use-npm                       use npm as package manager
+  --use-yarn                      use yarn as package manager
+  --use-pnpm                      use pnpm as package manager
+  --use-bun                       use bun as package manager
+  --skip-install                  skip installing dependencies
+  --update-ts-config              update tsconfig.json
+  --update-scripts <mode>         update package.json scripts ("implicit" or "explicit")
+  --lang <languages...>           generate client for other programming languages by default ("py" for Python and "rs" for Rust are
+                                  supported)
+  --validation-library <library>  validation library to use ("vovk-zod", "vovk-dto" or another); set to "none" to skip
+  --channel <channel>             channel to use for fetching packages (default: "latest")
+  --dry-run                       do not write files to disk
+  -h, --help                      display help for command
+```
+-----
 
-After the questions are answered, the command updates the files accordingly, installs the necessary packages, and creates [config](/config) file.
+The `init` command initializes Vovk.ts in an existing Next.js project. It sets up the necessary configurations and installs required dependencies to get started with Vovk.ts.
 
-## Available flags
+You can also use an alias for the `init` command made as a [separate package](/packages#vovk-init).
 
-If you want to skip the questions, or you want to use a specific package manager, you can use the following flags:
-
-- `-y, --yes` - Skip all prompts and use default values.
-- `--log-level <level>` - Set log level. Default is `info`.
-- `--use-npm` - Use npm as package manager.
-- `--use-yarn` - Use yarn as package manager.
-- `--use-pnpm` - Use pnpm as package manager.
-- `--use-bun` - Use bun as package manager.
-- `--skip-install` - Skip installing dependencies.
-- `--update-ts-config` - Update tsconfig.json.
-- `--update-scripts <mode>` - Update package.json scripts ("implicit" or "explicit").
-- `--validation-library <library>` - Validation library to use ("vovk-zod", "vovk-yup", "vovk-dto" or another). Set to "none" to skip validation.
-- `--validate-on-client` - Path to validateOnClient file.
-- `--channel <channel>` - Channel to use for fetching packages. Default is `latest`.
-- `--dry-run` - Do not write files to disk.
-
-Example:
-
-```sh
-npx vovk-init --yes --use-yarn
+```sh npm2yarn
+npx vovk-init
 ```

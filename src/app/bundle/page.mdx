@@ -2,6 +2,33 @@ import { FileTree } from 'nextra/components';
 
 # TypeScript Bundle
 
+
+```sh filename="Quick CLI Ref"
+$ npx vovk bundle --help
+
+Usage: vovk bundle|b [options]
+
+Generate TypeScript RPC and bundle it
+
+Options:
+  --out, --out-dir <path>                              path to output directory for bundle
+  --include, --include-segments <segments...>          include segments
+  --exclude, --exclude-segments <segments...>          exclude segments
+  --prebundle-out-dir, --prebundle-out <path>          path to output directory for prebundle
+  --keep-prebundle-dir                                 do not delete prebundle directory after bundling
+  --config <config>                                    path to config file
+  --schema <path>                                      path to schema folder (default: .vovk-schema)
+  --origin <url>                                       set the origin URL for the generated client
+  --openapi, --openapi-spec <openapi_path_or_urls...>  use OpenAPI schema instead of Vovk schema
+  --openapi-get-module-name <names...>                 module names corresponding to the index of --openapi option
+  --openapi-get-method-name <names...>                 method names corresponding to the index of --openapi option
+  --openapi-root-url <urls...>                         root URLs corresponding to the index of --openapi option
+  -h, --help                                           display help for command
+```
+
+-----
+
+
 The TypeScript RPC library can be bundled and published to NPM with pre-filled `package.json` and `README.md` files with `bundle` command:
 
 ```sh npm2yarn
