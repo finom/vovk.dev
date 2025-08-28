@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "npm run lint && tsc --noEmit",
-    "dev": "vovk dev --next-dev",
+    "dev": "rm -rf .next && vovk dev --next-dev",
     "dev-exit": "vovk dev --next-dev --exit",
     "build": "vovk generate && next build",
     "start": "next start",

@@ -114,21 +114,44 @@ Any options that can be passed to [tsdown](https://tsdown.dev/) `build` function
 
 ## Troubleshooting
 
-At some cases you might get the following error:
+At some TypeScript module configuration cases you might get the following errors:
+
+
+```
+[UNLOADABLE_DEPENDENCY] Error: Could not load lib/internal/methods/object.ts - No such file or directory (os error 2).
+```
+
+or 
 
 ```
 [plugin rolldown-plugin-dts:generate]
 RollupError: tmp_prebundle/index.ts(17,14): error TS2742: The inferred type of 'XxxRPC' cannot be named without a reference to '../node_modules/vovk/mjs/client/types'. This is likely not portable. A type annotation is necessary.
 ```
 
-In order to fix it, you can add the following line to `compilerOptions.paths` in your `tsconfig.json`:
+It is recommended to create a separate `tsconfig.bundle.json` file for tsdown, optionally extending the root `tsconfig.json`:
 
-```json {4}
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  bundle: {
+    tsdownBuildOptions: {
+      tsconfig: './tsconfig.bundle.json',
+    },
+  },
+};
+export default config;
+```
+
+`moduleResolution` set to `bundler` fixes the first error, and `paths` set to the `vovk/*` module fixes the second error:
+
+```ts filename="tsconfig.bundle.json" {3,6}
 {
   "compilerOptions": {
+    "moduleResolution": "bundler",
     "paths": {
-      "vovk/*": ["../node_modules/vovk/*"]
-    }
+      "@/*": ["./src/*"],
+      "vovk/*": ["./node_modules/vovk/*"],
+    },
   }
 }
 ```

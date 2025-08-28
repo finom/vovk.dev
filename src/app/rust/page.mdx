@@ -228,12 +228,12 @@ use vovk_hello_world::user_rpc;
 
 pub fn main() {
   use user_rpc::update_user_::{
-    body as Body,
+    body as Body, 
+    body_::profile as Profile,
     query as Query,
-    params as Params
+    query_::notify as Notify,
+    params as Params,
   };
-  use user_rpc::update_user_::body_::profile as Profile;
-  use user_rpc::update_user_::query_::notify as Notify;
 
   let update_user_response = user_rpc::update_user(
     Body {

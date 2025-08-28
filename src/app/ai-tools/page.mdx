@@ -18,6 +18,8 @@ The function `createLLMTools` accepts an object with the following properties:
 - `caller`: an optional function that declares how an RPC method or controller's callable method should be executed to create `execute` function, introduced for advanced use cases.
 - `onExecute`: an optional callback that is called when a `execute` is successfully executed.
 - `onError`: an optional callback that is called when a `execute` function execution fails.
+- `meta`: ...
+- `resultFormatter`: ...
 
 Each module represents either an RPC module or a controller. Each function should include `schema` property that extends `VovkHandlerSchema` interface that has `openapi` property populated by `@openapi` decorator or other approach that extends handler's schema. Each function can include `isRPC` property (set automatically for an RPC module) or `fn` property (set automatically for a controller method when `withValidationLibrary` is used). The `fn` function mimic the signature of the resulting RPC module function, read more about it in the [callable controller methods](/controller/callable).
 
@@ -228,4 +230,3 @@ An [LLM guide](/llm) provides more details on how to use `useChat` hook. Also ch
 
 </Steps>
 
-That's it. You now have a fully functional LLM Function Calling integration with Vovk.ts, allowing you to create interactive AI-driven applications that can call your back-end functions seamlessly as well as 3rd-party APIs.

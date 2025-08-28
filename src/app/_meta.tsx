@@ -55,7 +55,7 @@ const meta = {
   '#etc': separator('etc.'),
   'openapi-mixins': 'OpenAPI Mixins 🚧',
   templates: 'Client Templates 🚧',
-  packages: 'Packages 🚧',
+  packages: 'Packages',
   'api-ref': 'API Reference 🚧',
   '###': { type: 'separator' },
 

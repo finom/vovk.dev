@@ -13,6 +13,7 @@ A segment can be turned into a "static segment" that makes its endpoints to be c
 
 ## RESTful API RPC
 
+
 Vovk.ts is a RESTful API back-end framework that implements well-known and widely used patterns. It can be used as a regular back-end framework similar to NestJS to build endpoints that follow common RESTful API conventions, such as:
 
 - Naming conventions for URLs and endpoints: `/users`, `/products/{id}`
@@ -54,7 +55,7 @@ These two concepts are usually oppose each other, but in Vovk.ts they are combin
 
 ### Why is it called "RPC"?
 
-Traditional RPC frameworks send a request directly to the server, explicitly invoking a method and waiting for its return value. **Vovk RPC** follows the same core principle—remote invocation of server-side logic—but layers in an extra transport step: it maps each RPC call onto a specially constructed URL.
+Vovk.ts uses code generation, closely related to RESTful API, and uses type inference, closely related to RPC. The framework maps each RPC call onto a specially constructed URL.
 
 <Image
   src="/draw/restful-rpc.svg"
@@ -71,10 +72,6 @@ Traditional RPC frameworks send a request directly to the server, explicitly inv
 2. **URL Dispatching**. When the server receives this URL, its routing logic parses the path to identify the correct controller and method handler.
 3. **Invocation**. The handler is invoked with the parsed parameters, executes the business logic, and returns the result.
 
-### Isn't it just CodeGen?
-
-Yes, definitely. RPC is a paradigm, while CodeGen is a process. At this case code generation is used as a tool to achieve RPC experience and matching between controllers and resulting RPC modules, infering types directly from the TypeScript files where controllers are defined.
-
 ## "RPC Module"
 
 Server-side controllers are implemented as classes with static methods only (called "static classes" in this documentation) that are initialized at the segment `route.ts` file with `initSegment` function. The `controllers` option of the `initSegment` defines names of the resulting **RPC modules**, that have similar shape with different arguments signatures.
@@ -86,18 +83,17 @@ import { put, prefix } from 'vovk';
 
 @prefix('users')
 export default class UserController {
-@put('{id}')
-static async updateUser(req: VovkRequest<{ name: string }, { notify: string }>, { id }: { id: string }) {
-console.log('Body', await req.json()); // { name: 'John Doe' }
-console.log('Query', req.nextUrl.searchParams.get('notify')); // 'push'
-console.log('Param', id); // '12345'
+  @put('{id}')
+  static async updateUser(req: VovkRequest<{ name: string }, { notify: string }>, { id }: { id: string }) {
+    console.log('Body', await req.json()); // { name: 'John Doe' }
+    console.log('Query', req.nextUrl.searchParams.get('notify')); // 'push'
+    console.log('Param', id); // '12345'
 
-        return { success: true };
-    }
+    return { success: true };
+  }
 
 }
-
-````
+```
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts filename="src/app/api/[[...vovk]]/route.ts"

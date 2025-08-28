@@ -12,15 +12,19 @@ npm install vovk
 
 ### [vovk-cli](https://www.npmjs.com/package/vovk-cli)
 
-The [CLI](/cli) package. Can be installed globally or as a dev dependency.
+The [CLI](/cli) package. Can be installed globally or as a dev dependency. Provides `vovk` binary.
 
 ```sh npm2yarn
 npm install vovk-cli --save-dev
 ```
 
+```sh npm2yarn
+npx vovk <command>
+```
+
 ### [vovk-client](https://www.npmjs.com/package/vovk-client)
 
-The client package that re-exports the generated RPC client, by default located at **node_modules/.vovk-client**. It can be imported in the client-side code in NodeJS or in another JavaScript environment to access the RPC methods and schemas.
+The client package that re-exports the [composed](/composed) [TypeScript](/typescript) client, by default located at **node_modules/.vovk-client**. It can be imported in the client-side code in NodeJS or in another JavaScript environment to access the RPC methods and schemas.
 
 ```sh npm2yarn
 npm install vovk-client
@@ -28,7 +32,7 @@ npm install vovk-client
 
 ### [vovk-init](https://www.npmjs.com/package/vovk-init)
 
-The shortcut for `vovk-cli init` command that initializes the Vovk.ts project with the default configuration and templates.
+The shortcut for `vovk-cli init` command that initializes the Vovk.ts project with [config](/config).
 
 ```sh npm2yarn
 npx vovk-init
@@ -86,11 +90,11 @@ npm install vovk-rust --save-dev
 
 ### [vovk-hello-world](https://github.com/finom/vovk-hello-world)
 
-A minimal example of using Vovk.ts.
+A "minimal" example of using Vovk.ts. See ["Hello World"](/hello-world) page for more details.
 
 ### [vovk-multitenant-example](https://github.com/finom/vovk-multitenant-example)
 
-Demonstrates [multi-tenancy](/multitenant) with Vovk.ts.
+Demonstrates [multitenancy](/multitenant) with Vovk.ts.
 
 ### [vovk-examples](https://vovk-examples.vercel.app/)
 

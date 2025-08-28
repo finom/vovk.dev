@@ -282,7 +282,58 @@ export default class UserController {
 
 ### `multitenant`
 
+A [Next.js middleware](https://nextjs.org/docs/app/api-reference/file-conventions/middleware) utility that routes subdomains to specific [segments](/segment). For more info check [multitenant](/multitenant) guide.
+
+```ts
+// ... middleware ...
+const { action, destination, message, subdomains } = multitenant({
+  requestUrl: request.url,
+  requestHost: request.headers.get('host') ?? '',
+  targetHost: process.env.VERCEL ? 'multitenant.vovk.dev' : 'localhost:3000',
+  overrides: {
+    // ...
+  },
+});
+// ...
+```
+
 ### `createLLMTools`
+
+An utility function that turns RPC modules or controllers into LLM tools, based on input schemas of their methods. 
+
+```ts
+import { createLLMTools } from 'vovk';
+import { UserRPC } from 'vovk-client';
+import TaskController from '@/modules/task/TaskController';
+
+const { tools } = createLLMTools({
+  meta: { hello: 'world' },
+  modules: {
+    UserRPC,
+    TaskController,
+  },
+  onExecute: (result, { moduleName, handlerName, body, query, params }) =>
+    console.log(`${moduleName}.${handlerName} executed with`, {
+      body,
+      query,
+      params,
+      result,
+    }),
+  onError: (e) => console.error("Error", e),
+});
+```
+
+#### `modules`
+
+#### `onExecute`
+
+#### `onError`
+
+#### `resultFormatter`
+
+#### `caller`
+
+#### `meta`
 
 ### `createCodeExamples`
 
@@ -346,9 +397,11 @@ export default class UserController {
 
 ### `VovkTypedMethod`
 
-### `VovkSimpleJSONSchema`
+### `VovkBasicJSONSchema`
 
 ### `VovkSchemaIdEnum`
+
+### `VovkOperationObject`
 
 ---
 
