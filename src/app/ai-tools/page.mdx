@@ -8,7 +8,7 @@ The feature is implemented with a zero-dependency function `createLLMTools` impo
 
 - `type`: always equal to the literal `"function"`.
 - `name`: a string that represents the function name defined as `${moduleName}__handlerName`.
-- `description`: a string that describes the function. It's built from OpenAPI metadata, concatenating `summary` and `description` fields. If OpenAPI metadata is not available, `createLLMTools` will ignore the function. In other words, using `@openapi` decorator over controller methods is required to use this feature.
+- `description`: a string that describes the function. It's built from OpenAPI metadata, concatenating `summary` and `description` fields. If OpenAPI metadata is not available, `createLLMTools` will ignore the function. In other words, using `@operation` decorator over controller methods is required to use this feature.
 - `parameters`: a JSON schema object that describes the function's parameters, describing `body`, `query`, and `params` fields, set by `withValidationLibrary` function, that works behind the scenes of all validation libraries.
 - `execute`: a JavaScript function should be invoked when LLM calls this tool.
 
@@ -21,7 +21,7 @@ The function `createLLMTools` accepts an object with the following properties:
 - `meta`: ...
 - `resultFormatter`: ...
 
-Each module represents either an RPC module or a controller. Each function should include `schema` property that extends `VovkHandlerSchema` interface that has `openapi` property populated by `@openapi` decorator or other approach that extends handler's schema. Each function can include `isRPC` property (set automatically for an RPC module) or `fn` property (set automatically for a controller method when `withValidationLibrary` is used). The `fn` function mimic the signature of the resulting RPC module function, read more about it in the [callable controller methods](/controller/callable).
+Each module represents either an RPC module or a controller. Each function should include `schema` property that extends `VovkHandlerSchema` interface that has `operationObject` property populated by `@operation` decorator or other approach that extends handler's schema. Each function can include `isRPC` property (set automatically for an RPC module) or `fn` property (set automatically for a controller method when `withValidationLibrary` is used). The `fn` function mimic the signature of the resulting RPC module function, read more about it in the [callable controller methods](/controller/callable).
 
 ```ts
 import { createLLMTools } from 'vovk';
@@ -151,7 +151,7 @@ npx vovk new controller aiSdk --empty
 Paste the following code into the `src/modules/ai-sdk/AiSdkController.ts` file:
 
 ```ts filename="src/modules/ai-sdk/AiSdkController.ts"
-import { createLLMTools, KnownAny, post, prefix, openapi, type VovkRequest } from 'vovk';
+import { createLLMTools, KnownAny, post, prefix, operation, type VovkRequest } from 'vovk';
 import { jsonSchema, streamText, tool, type CoreMessage } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import UserController from '../user/UserController';
@@ -159,7 +159,7 @@ import TaskController from '../task/TaskController';
 
 @prefix('ai-sdk')
 export default class AiSdkController {
-  @openapi({
+  @operation({
     summary: 'Function Calling example',
   })
   @post('function-calling')

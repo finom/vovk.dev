@@ -76,11 +76,11 @@ To validate the request body, query parameters, and headers you can use [validat
 ```ts filename="src/modules/user/UserController.ts"
 import { z } from 'zod';
 import { withZod } from 'vovk-zod';
-import { prefix, post, openapi } from 'vovk';
+import { prefix, post, operation, type VovkOutput } from 'vovk';
 
 @prefix('users')
 export default class UserController {
-  @openapi({
+  @operation({
     summary: 'Update user (Zod)',
     description: 'Update user by ID with Zod validation',
   })
@@ -112,11 +112,13 @@ export default class UserController {
       console.log(`Updating user ${id}:`, { name, age, notify });
       return {
         success: true,
-      };
+      } satisfies VovkOutput<typeof UserController.updateUser>;
     },
   });
 }
 ```
+
+Note that in order to be able to use safe self-inferences at [service classes](/controller/service), the `handle` method doesn't force the return type, being able to return any value. However, you can use `satisfies` operator to make sure that the returned value matches the expected output type.
 
 ## Initialization
 
@@ -227,3 +229,4 @@ export default class HelloController {
   }
 }
 ```
+

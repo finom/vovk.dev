@@ -56,7 +56,7 @@ const meta = {
   'openapi-mixins': 'OpenAPI Mixins 🚧',
   templates: 'Client Templates 🚧',
   packages: 'Packages',
-  'api-ref': 'API Reference 🚧',
+  'api-ref': 'API Reference',
   '###': { type: 'separator' },
 
   '#scenarios': separator('Usage Scenarios'),
@@ -68,7 +68,7 @@ const meta = {
   '#ai': separator('AI Applications'),
   llm: 'LLM integration 🚧',
   'ai-tools': 'AI tools 🚧',
-  'ai-ui': 'AI-powered UI 🧪 🚧',
+  'realtime-ui': 'AI-powered UI 🧪 🚧',
   polling: 'Real-time Polling 🧪 🚧',
   mcp: 'MCP Server 🚧',
 

@@ -20,13 +20,13 @@ export const withArk = createStandardValidation({
 Then use it in your controller:
 
 ```ts filename="src/modules/user/UserController.ts"
-import { prefix, post, openapi } from 'vovk';
+import { prefix, post, operation } from 'vovk';
 import { type } from 'arktype';
 import { withArk } from '@/lib/withArk';
 
 @prefix('users')
 export default class UserController {
-  @openapi({
+  @operation({
     summary: 'Update user (Arktype)',
     description: 'Update user by ID with Arktype validation',
   })
@@ -77,13 +77,13 @@ export const withValibot = createStandardValidation({
 Then use it in your controller:
 
 ```ts filename="src/modules/user/UserController.ts"
-import { prefix, post, openapi } from 'vovk';
+import { prefix, post, operation } from 'vovk';
 import * as v from 'valibot';
 import { withValibot } from '@/lib/withValibot';
 
 @prefix('users')
 export default class UserController {
-  @openapi({
+  @operation({
     summary: 'Update user (Valibot)',
     description: 'Update user by ID with Valibot validation',
   })

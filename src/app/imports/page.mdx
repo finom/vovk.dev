@@ -122,13 +122,12 @@ This function is called when the request is successful. It can be used to show s
 The `validateOnClient` function is used to define how client-side validation should be performed for the RPC method. It can be created with `createValidateOnClient` function that is exported from the `vovk` package. It accepts `validate` property that accepts input data, validation schema, and some additional options, and returns the validated data or throws an error if validation fails. The validation is performed only when both input and schema are provided.
 
 ```ts filename="./src/lib/validateOnClient.ts"
-import { validate } from 'validation-library';
-import type { ClassConstructor } from 'class-transformer';
+import { validateData } from 'validation-library';
 import { createValidateOnClient, HttpException, HttpStatus } from 'vovk';
 
 export const validateOnClient = createValidateOnClient({
   validate: async (input, schema, meta) => {
-    const isValid = true;
+    const isValid = validateData(input, schema);
     if (!isValid) {
       throw new HttpException(HttpStatus.NULL, 'Validation failed', {
         // ... optional cause

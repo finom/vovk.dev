@@ -53,14 +53,13 @@ export default authGuard;
 Then import the `authGuard` decorator and related members and apply it to the controller methods, passing it after the `@get`, `@post`, etc. decorators.
 
 ```ts filename="src/modules/user/UserController.ts"
-import { get, prefix } from 'vovk';
-import { openapi } from 'vovk-openapi';
+import { get, prefix, operation } from 'vovk';
 import authGuard, { Permission, type AuthMeta } from '../decorators/authGuard';
 
 @prefix('users')
 export default class UserController {
   // ...
-  @openapi({
+  @operation({
     summary: 'Get something',
     description: 'Returns something',
   })

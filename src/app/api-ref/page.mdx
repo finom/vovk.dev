@@ -1,70 +1,6 @@
-{/*
-
-export {
-// types
-  type KnownAny,
-  type VovkClient,
-  type VovkClientFetcher,
-  type VovkDefaultFetcherOptions,
-  type VovkStreamAsyncIterable,
-  type VovkValidateOnClient,
-  type VovkSegmentSchema,
-  type VovkErrorResponse,
-  type VovkRequest,
-  type VovkOutput,
-  type VovkIteration,
-  type VovkBody,
-  type VovkQuery,
-  type VovkParams,
-  type VovkYieldType,
-  type VovkReturnType,
-  type VovkMetaSchema,
-  type VovkControllerSchema,
-  type VovkHandlerSchema,
-  type VovkSchema,
-  type VovkConfig,
-  type VovkStrictConfig,
-  type VovkValidationType,
-  type VovkLLMTool,
-  type VovkTypedMethod,
-  type VovkSimpleJSONSchema,
-  VovkSchemaIdEnum,
-  JSONLinesResponse,
-  HttpException,
-  HttpStatus,
-  HttpMethod,
-  createVovkApp,
-  createDecorator,
-  createRPC,
-  fetcher,
-  createFetcher,
-  generateStaticAPI,
-  withValidationLibrary,
-  createStandardValidation,
-  multitenant,
-  createLLMTools,
-  createCodeExamples,
-  createValidateOnClient,
-  progressive,
-  openapi,
-  openAPIToVovkSchema,
-  vovkSchemaToOpenAPI,
-};
-
-export const { get, post, put, patch, del, head, options, prefix, initSegment } = createVovkApp();
-*/}
-
 # API Reference
 
 ## Core
-
-### `createVovkApp`
-
-An internal function that creates the Vovk.ts app with the decorators and init function.
-
-```ts
-export const { get, post, put, patch, del, head, options, prefix, initSegment } = createVovkApp();
-```
 
 ### `initSegment`
 
@@ -75,6 +11,11 @@ Createsd Next.js App Route handlers used by the main [Optional Catch-all Segment
 - `exposeValidation?: boolean` - set to `false` if you want to hide validation logic from the client-side code.
 - `emitSchema?: boolean` - set to `true` if you want to emit the schema for the segment. The schema is going to be emitted to the **.vovk-schema** folder.
 - `onError?: (err: Error, req: VovkRequest) => void | Promise<void>` - called on Controller exceptions, can be used to log errors by a third-party service. The second argument can be utilised to retrieve request URL, authorisation info, and other useful information about the failed request.
+
+
+### `JSONLinesResponse`
+
+`JSONLinesResponse` is a utility class for creating responses in the JSON Lines format. It extends the standard `Response` class and adds support for streaming JSON objects as individual lines. See [JSON Lines](/controller/jsonlines) documentation for more info.
 
 ## Decorators
 
@@ -125,15 +66,15 @@ export default class HelloController {
 }
 ```
 
-### `@openapi`
+### `@operation`
 
-`@openapi(openAPIOperationObject)` decorator can be used to add OpenAPI documentation to the controller method. It accepts an object with `summary`, `description` and other OpenAPI Operation Object properties.
+`@operation(openAPIOperationObject)` decorator can be used to add OpenAPI documentation to the controller method. It accepts an object with `summary`, `description` and other OpenAPI Operation Object properties.
 
 ```ts
-import { openapi } from 'vovk';
+import { operation } from 'vovk';
 
 export default class HelloController {
-  @openapi({
+  @operation({
     summary: 'Get Hello World',
     description: 'Returns a hello world message',
   })
@@ -172,10 +113,6 @@ export default class MyController {
 ```
 
 See [decorators docs](/controller/decorators) for more info.
-
-### `createRPC`
-
-Function that creates RPC modules out of [schema](/schema) and types inferred from [controllers](/controller). It's imported by the generated TypeScript, ESM and CJS files and can be [customized at config](/imports).
 
 ### `fetcher`
 
@@ -237,9 +174,9 @@ export const { GET } = initSegment({ controllers });
 
 See [static segment](/segment/static) documentation for more info.
 
-### `withValidationLibrary`
+### `withValidationLibrary` (advanced)
 
-A lower-order function that allows to create validation function for controller methods.
+A lower-order function that allows to create custom validation function for controller methods. See [source code of Zod 3 validation library](https://github.com/finom/vovk/blob/main/packages/vovk-zod/src/v3/index.ts) for an example.
 
 ### `createStandardValidation`
 
@@ -255,13 +192,13 @@ export const withArk = createStandardValidation({
 ```
 
 ```ts filename="src/modules/user/UserController.ts"
-import { prefix, post, openapi } from 'vovk';
+import { prefix, post, operation } from 'vovk';
 import { type } from 'arktype';
 import { withArk } from '@/lib/withArk';
 
 @prefix('users')
 export default class UserController {
-  @openapi({
+  @operation({
     summary: 'Update user',
     description: 'Update user by ID with',
   })
@@ -299,19 +236,20 @@ const { action, destination, message, subdomains } = multitenant({
 
 ### `createLLMTools`
 
-An utility function that turns RPC modules or controllers into LLM tools, based on input schemas of their methods. 
+An utility function that turns RPC modules or controllers into LLM tools, based on input schemas of their methods.  For more info check [AI tools](/ai-tools) guide.
 
 ```ts
 import { createLLMTools } from 'vovk';
 import { UserRPC } from 'vovk-client';
 import TaskController from '@/modules/task/TaskController';
 
-const { tools } = createLLMTools({
+const { tools, toolsByName } = createLLMTools({
   meta: { hello: 'world' },
   modules: {
     UserRPC,
     TaskController,
   },
+  resultFormatter: (result) => `Result: ${JSON.stringify(result, null, 2)}`,
   onExecute: (result, { moduleName, handlerName, body, query, params }) =>
     console.log(`${moduleName}.${handlerName} executed with`, {
       body,
@@ -325,262 +263,69 @@ const { tools } = createLLMTools({
 
 #### `modules`
 
+Key-value object where keys are module names and values are objects with methods. Each method should have `schema: VovkHandlerSchema` property, and either of `isRPC: true` (for RPC modules) or [fn](/controller/callable) function (for Controllers).
+
 #### `onExecute`
+
+Called after each tool execution. Accepts 2 arguments: `result` - the result of the tool execution, and an object with extra info.
 
 #### `onError`
 
-#### `resultFormatter`
+Called when an error is thrown during tool execution. Accepts 1 argument: the error object.
 
-#### `caller`
+#### `resultFormatter: 'mcp' | Function`
+
+A function that formats the result of the tool execution. It accepts 2 argument: the result of the tool execution and the handler `schema: VovkHandlerSchema`. The function should return data in format that's sent back to the LLM when function is executed. If set to `'mcp'`, it will format the result in a way that is compatible with [MCP](https://modelcontextprotocol.io/) format (`{ content: [{ type: 'text', text: 'Serialized result text' }] }`).
 
 #### `meta`
 
-### `createCodeExamples`
+Data that's going to be passed as `meta` property of each function (controller handler or RPC method). See [meta](/controller/meta) for more info.
+
+#### `caller` (advanced)
+
+The low level function that calls the handler function or RPC method. Check [source code](https://github.com/finom/vovk/blob/main/packages/vovk/src/utils/createLLMTools.ts) of `defaultCaller` function for more info.
 
 ### `createValidateOnClient`
 
-### `progressive`
+Creates `validateOnClient` function is used to define how client-side validation should be performed for RPC methods for all segments or for some segments. `createValidateOnClient` accepts `validate` property that accepts input data, validation schema, and some additional options, and returns the validated data or throws an error if validation fails.
 
-### `openAPIToVovkSchema`
+```ts filename="./src/lib/validateOnClient.ts"
+import { validateData } from 'validation-library';
+import { createValidateOnClient, HttpException, HttpStatus } from 'vovk';
 
-### `vovkSchemaToOpenAPI`
+export const validateOnClient = createValidateOnClient({
+  validate: async (input, schema, meta) => {
+    const isValid = validateData(input, schema);
+    if (!isValid) {
+      throw new HttpException(HttpStatus.NULL, 'Validation failed');
+    }
 
-## Types and Enums
-
-### `KnownAny`
-
-### `VovkClient`
-
-### `VovkClientFetcher`
-
-### `VovkDefaultFetcherOptions`
-
-### `VovkStreamAsyncIterable`
-
-### `VovkValidateOnClient`
-
-### `VovkSegmentSchema`
-
-### `VovkErrorResponse`
-
-### `VovkRequest`
-
-### `VovkOutput`
-
-### `VovkIteration`
-
-### `VovkBody`
-
-### `VovkQuery`
-
-### `VovkParams`
-
-### `VovkYieldType`
-
-### `VovkReturnType`
-
-### `VovkMetaSchema`
-
-### `VovkControllerSchema`
-
-### `VovkHandlerSchema`
-
-### `VovkSchema`
-
-### `VovkConfig`
-
-### `VovkStrictConfig`
-
-### `VovkValidationType`
-
-### `VovkLLMTool`
-
-### `VovkTypedMethod`
-
-### `VovkBasicJSONSchema`
-
-### `VovkSchemaIdEnum`
-
-### `VovkOperationObject`
-
----
-
-# API
-
-TODO: setClientValidatorsForHandler, VovkControllerSchema, createRPC, VovkHandlerSchema, VovkClient, KnownAny, VovkStreamAsyncIterator
-
-Full list of available imports for quick reference:
-
-```ts
-import {
-  // core
-  initSegment,
-  createDecorator,
-  // controller method decorators
-  get,
-  post,
-  put,
-  patch,
-  del,
-  head,
-  options,
-  // controller class decorator
-  prefix,
-  // core types
-  type VovkClientFetcher,
-  type VovkDefaultFetcherOptions,
-  type VovkSchema,
-  type VovkErrorResponse,
-  // types used by controllers
-  type VovkRequest,
-  type VovkControllerBody,
-  type VovkControllerQuery,
-  type VovkControllerParams,
-  type VovkControllerReturnType,
-  type VovkControllerYieldType,
-  // types used by client-side code
-  type VovkBody,
-  type VovkQuery,
-  type VovkParams,
-  type VovkReturnType,
-  type VovkYieldType,
-  type VovkClientOptions,
-  // classes
-  JSONLinesResponse,
-  HttpException,
-  // enums
-  HttpStatus,
-  HttpMethod,
-  // misc
-  generateStaticAPI,
-} from 'vovk';
-
-// CLI types
-import type { VovkConfig, VovkEnv } from 'vovk-cli';
-```
-
-## Core
-
-### `initSegment`
-
-Creates the standard Next.js App Route handlers used by the main [Optional Catch-all Segment](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments). The function accepts the following options:
-
-- `segmentName?: string` - the name of the segment that's going to be used in the route. Default is empty string (root segment).
-- `controllers: Record<string, Function>` - the list of Controllers
-- `exposeValidation?: boolean` - set to `false` if you want to hide validation logic from the client-side code.
-- `onError?: (err: Error, req: VovkRequest) => void | Promise<void>` - called on Controller exceptions, can be used to log errors by a third-party service. The second argument can be utilised to retrieve reques URL, authorisation info, and other useful information about the failed request.
-
-```ts filename="src/app/api/[[...vovk]]/route.ts"
-import { initSegment } from 'vovk';
-import HelloController from '../../modules/hello/HelloController';
-import UserController from '../../modules/user/UserController';
-
-const controllers = { HelloRPC: HelloController, UserRPC: UserController };
-
-export type Controllers = typeof controllers;
-
-export const { GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS } = initSegment({
-  controllers,
-  exposeValidation: false,
-  onError(e, req) {
-    console.log('Error', e);
+    return input;
   },
 });
 ```
 
-### `createDecorator`
+For more details on client-side validation, see the [Client Validation](/validation/client) section.
 
-Defines a custom decorator to extend default behavoir of API endpoints. Accepts 2 arguments: middleware function and init function. The first one defines what the decorator is going to do, the second one is called once per initialisation and intended to pass extra data to the [schema](/schema) (for now it's client validation, if exposed).
+### `progressive`
 
-The middleware accepts at least 2 arguments: `VovkRequest`, `next` function that needs to be called and its awaited result needs to be returned after you perform required actions and `...rest` - the arguments that are going to be used by the created decorator fabric.
-
-```ts
-import { createDecorator, get, HttpException, HttpStatus } from 'vovk';
-
-const myDecorator = createDecorator(
-  (req, next, a: string, b: number) => {
-    console.log(a, b); // Outputs: "foo", 1
-
-    if (isSomething) {
-      // override route method behavior and return { hello: 'world' } from the endpoint
-      return { hello: 'world' };
-    }
-
-    if (isSomethingElse) {
-      // throw HTTP error if needed
-      throw new HttpException(HttpStatus.BAD_REQUEST, 'Something went wrong');
-    }
-
-    return next();
-  },
-  (a: string, b: number) => {
-    console.info('Decorator is initialised with', a, b);
-  }
-);
-
-class MyController {
-  static rpcModuleName = 'MyController';
-
-  @get.auto()
-  @myDecorator('foo', 1) // Passes 'foo' as 'a', and 1 as 'b'
-  static getSomething() {
-    // ...
-  }
-}
-```
-
-## Controller Decorators
-
-### `@prefix` decorator
-
-`@prefix(p: string)` decorator used to prepend a sub-path to the endpoint. It's usage is optional.
-
-### `@get`, `@post`, `@put`, `@patch`, `@del`, `@head`, `@options`
-
-`@HTTP_METHOD(p: string, opts?: { cors?: boolean, headers?: Record<string, string> })` decorator define an HTTP method and an endpoint that's handled by the Controller method.
-
-### `@get.auto`, `@post.auto`, `@put.auto`...
-
-`@HTTP_METHOD.auto(opts?: { cors?: boolean, headers?: Record<string, string> })` define HTTP method and generate endpoint string automatically from controller and method name.
+An experimental utility function that allows to make one request and get multiple resppnses, each resolved as a promise separately.
 
 ```ts
-import { prefix, get, post, put, patch, del, head, options } from 'vovk';
-
-@prefix('hello')
-export default class HelloController {
-  @get('world', { cors: true })
-  static getHelloWorld() {
-    return { hello: 'world' };
-  }
-
-  @post.auto({ headers: { 'x-hello': 'world' } })
-  static postData(/* req: VovkRequest */) {
-    return { success: true };
-  }
-}
+const { users: usersPromise, tasks: tasksPromise } = progressive(ProgressiveRPC.streamProgressiveResponse);
 ```
 
-### Enums
+### `HttpException`
 
-```ts
-import { HttpMethod, HttpStatus, HttpException } from 'vovk';
-```
+TODO
 
-#### `HttpMethod` enum
+## Types and enums
 
-Can be used with your code to create a [custom fetcher](/imports).
 
-```ts
-export enum HttpMethod {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  PATCH = 'PATCH',
-  DELETE = 'DELETE',
-  HEAD = 'HEAD',
-  OPTIONS = 'OPTIONS',
-}
-```
+### `VovkRequest`
+
+Extends the Next.js built-in `NextRequest` object in order to make it return proper types for `.json()`, `.nextUrl.searchParams` but also adds `vovk` property that provides more advanced input retrieval methods. See [vovk request](/controller/request) documentation for more info.
+
 
 #### `HttpStatus` enum
 
@@ -640,278 +385,181 @@ export enum HttpStatus {
 }
 ```
 
-## Classes
+### `VovkSchema`
 
-### `HttpException` class
+The full schema of composed client or for a segment in segmented client. Can be represented as `{ segments: { [key: string]: VovkSegmentSchema }; meta?: VovkMetaSchema }{:ts}`.
 
-Used to throw HTTP errors on server-side and re-throw, simulate and handle HTTP errors on client-side. The instance provides 2 properties: `statusCode` and `message`.
+### `VovkSegmentSchema`
 
-Server-side:
+The schema of a segment. Contains segment information and a record of controllers. Can be represented as `{ controllers: { [key: string]: VovkControllerSchema }; segmentName: string; segmentType: 'segment' | 'mixin' }{:ts}`.
 
-```ts filename="src/modules/hello/HelloController.ts"
-// ...
-export default class HelloController {
-    @get()
-    static getHello() {
-        if(/* ... */) {
-            throw new HttpException(HttpStatus.BAD_REQUEST, 'Something went wrong');
-        }
-    }
-}
-```
+### `VovkControllerSchema`
 
-Client-side:
+The schema of a controller. Can be represented as `{ rpcModuleName: string; originalControllerName?: string; prefix?: string; forceApiRoot?: string; handlers: { [key: string]: VovkHandlerSchema } }{:ts}`.
 
-```ts filename="src/modules/hello/HelloState.ts"
-import { HelloRPC } from 'vovk-client';
+### `VovkHandlerSchema`
 
-export async function getHello() {
-  try {
-    return await HelloRPC.getHello();
-  } catch (e) {
-    console.log(e instanceof HttpException);
-    const err = e as HttpException;
-    console.log(err.statusCode, err.message);
-  }
-}
-```
+The schema of a handler. Contains paths, HTTP methods, validation schemas, etc.
 
-### JSONLinesResponse
+### `VovkMetaSchema`
 
-`JSONLinesResponse<T>(init?: ResponseInit)` class can be used as an alternative to generators to implement JSON response streaming. Instances of this class provide the following methods:
+The schema of the meta information.
 
-- `send(data: T)` - sends portion of data
-- `close()` - close the connection
-- `throw(error: any)` - throws an error on client-side and closes the connection
+### `VovkOutput`
 
-```ts
-import { prefix, get, JSONLinesResponse, type VovkRequest } from 'vovk';
+Allows to infer the output type of the controller method or RPC method when `output` [validation](/validation) is used: `VovkOutput<typeof MyController.method>{:ts}` or `VovkOutput<typeof MyRPC.method>{:ts}`.
 
-type Token = { message: string };
+### `VovkIteration`
 
-@prefix('stream')
-export default class StreamController {
-  @get('tokens')
-  static async streamTokens() {
-    const resp = new JSONLinesResponse<Token>();
+Allows to infer the iteration type of the controller method or RPC method when `iteration` [validation](/validation) is used: `VovkIteration<typeof MyController.method>{:ts}` or `VovkIteration<typeof MyRPC.method>{:ts}`.
 
-    void (async () => {
-      const tokens: Token[] = [{ message: 'Hello,' }, { message: ' World' }, { message: '!' }];
+### `VovkBody`
 
-      for (const token of tokens) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        if (somethingWentWrong) {
-          resp.throw(new Error('Somethiing went wrong'));
-        }
-        resp.send(token);
-      }
+Allows to infer the type of the request input body of the controller method or RPC method when `body` [validation](/validation) is used: `VovkBody<typeof MyController.method>{:ts}` or `VovkBody<typeof MyRPC.method>{:ts}`.
 
-      resp.close();
-    });
+### `VovkQuery`
 
-    return resp;
-  }
-}
-```
+Allows to infer the type of the request query of the controller method or RPC method when `query` [validation](/validation) is used: `VovkQuery<typeof MyController.method>{:ts}` or `VovkQuery<typeof MyRPC.method>{:ts}`.
 
-The class also provides static property `defaultHeaders` that contains the standard headers for the keep-alive connections. Since `JSONLinesResponse` accepts standard `ResponseInit` as options argument you can override default headers and optionally spread `JSONLinesResponse.defaultHeaders`.
+### `VovkParams`
+
+Allows to infer the type of the request params of the controller method or RPC method when `params` [validation](/validation) is used: `VovkParams<typeof MyController.method>{:ts}` or `VovkParams<typeof MyRPC.method>{:ts}`.
+
+### `VovkReturnType`
+
+As `output` validation isn't required, the `VovkReturnType` type allows to infer the `return{:ts}`ed type of the controller method or RPC method: `VovkReturnType<typeof MyController.method>{:ts}` or `VovkReturnType<typeof MyRPC.method>{:ts}`.
+
+### `VovkYieldType`
+
+As `iteration` validation isn't required, the `VovkYieldType` type allows to infer the `yield{:ts}`ed type of the controller method or RPC method: `VovkYieldType<typeof MyController.method>{:ts}` or `VovkYieldType<typeof MyRPC.method>{:ts}`.
+
+### `VovkConfig`
+
+The shape of the [config](/config) file.
+
+### `VovkLLMTool`
+
+The shape of the LLM tool created by [createLLMTools](#createllmtools) function.
+
+## System functions for additional hacking (advanced)
+
+### `createVovkApp`
+
+An internal function that creates the Vovk.ts app with the decorators and init function.
 
 ```ts
-const resp = new JSONLinesResponse<Token>({
-  headers: {
-    ...JSONLinesResponse.defaultHeaders,
-    'x-hello': 'world',
-  },
-});
+export const { get, post, put, patch, del, head, options, prefix, initSegment } = createVovkApp();
 ```
 
-## Core types
+### `createRPC`
 
-### `VovkClientFetcher` and `VovkDefaultFetcherOptions` types
+Function that creates RPC modules out of [schema](/schema) and types inferred from [controllers](/controller). It's imported by the generated TypeScript, ESM and CJS files and can be [customized at config](/imports).
 
-Used to redefine the default fetcher. See [`imports` docs](/imports).
+### `createCodeSamples`
 
-### `VovkEnv` type
+Creates code samples that are used by [Scalar](/openapi) and README.md generators.
 
-Defines Vovk.ts env variable types.
+### `openAPIToVovkSchema`
 
-For more info check [`imports` docs](/imports).
+Converts OpenAPI schema to Vovk.ts schema.
 
-### `VovkSchema` type
+### `vovkSchemaToOpenAPI`
 
-Defines format for one schema file at **.vovk-schema/** folder.
+Converts Vovk.ts schema to OpenAPI schema.
 
-### `VovkErrorResponse` type
+### `resolveGeneratorConfigValues`
 
-Original shape of an object returned from the server when an error is thrown.
+Resolves the generator config values for specific case (if it's a bundle, segmented or composed client, etc) based on the provided schema and options.
 
-## Controller Types
+## System types
 
-### `VovkRequest` type
+### `KnownAny`
 
-Originally, the type is used to define types for `req.json` and `req.nextUrl.searchParams.get` and allow to infer types in other environments.
+The only type that isn't named with `Vovk` prefix, represents `any`.
 
-```ts filename="src/modules/hello/HelloController.ts"
-import { get, type VovkRequest } from 'vovk';
+### `VovkRPCModule`
 
-export class HelloController {
-  @get('{someParam}')
-  static doSomething(req: VovkRequest<{ body: true }, { q: string }>, { someParam }: { someParam: string }) {
-    const body = await req.body(); // { body: true }
-    const q = req.nextUrl.searchParams.get('q'); // string
-    const nope = req.nextUrl.searchParams.get('nope'); // never
-    // ...
-    return { success: true };
-  }
-}
-```
+An object that represents an RPC module created by `createRPC` function.
 
-Starting V3 the type is alsoused to define `req.vovk` object with `body()`, `query()`, `meta()` and `form()` methods.
+### `VovkFetcher`
 
-- `await req.vovk.body()` - returns request body. In most of cases works the same way as `req.json()` but if used with [vovk-dto](/validation/dto) it's going to return an instance of the DTO class.
-- `req.vovk.query()` - returns serialized object with query string parameters. If used with [vovk-dto](/validation/dto) it's going to return an instance of the DTO class.
-- `req.vovk.meta<T>([metadata])` - allows to get and set meta information for the request (for example, to store current user authorization info, etc).
-  - If called without arguments it returns the current meta object.
-  - If called with an object it sets the meta object by extending the current one and returns the new meta object.
-  - If called with `null` it resets the meta object.
-- `await req.vovk.form<T>()` - returns a serialized object with form data.
+An object that represents a fetcher function used to make API requests.
 
-Check [request documentation](./controller/request) for more info.
+### `VovkFetcherOptions`
 
-```ts filename="src/modules/hello/HelloController.ts"
-import { get, type VovkRequest } from 'vovk';
+An object that represents the options for the fetcher function.
 
-export class HelloController {
-  @get('{someParam}')
-  static doSomething(req: VovkRequest, { someParam }: { someParam: string }) {
-    const body = await req.vovk.body(); // { body: true }
-    const q = req.vovk.query(); // { q: string }
-    const meta = req.vovk.meta(); // { user: 'admin' }
-    const form = req.vovk.form(); // { foo: 'bar' }
-    // ...
-    return { success: true };
-  }
-}
-```
+### `VovkStreamAsyncIterable`
 
-### `VovkControllerBody` type
-
-Extracts request body type from a controller method.
-
-### `VovkControllerQuery` type
-
-Extracts query (search params) type from a controller method.
-
-### `VovkControllerParams` type
-
-Extracts params type from a controller method.
-
-### `VovkControllerReturnType` type
-
-Extracts return type from a controller method and unwraps the promise.
-
-### `VovkControllerYieldType` type
-
-Extracts yield type from a controller method implemented as a generator.
-
-```ts filename="src/modules/hello/HelloController.ts"
-import {
-  get,
-  type VovkControllerBody,
-  type VovkControllerQuery,
-  type VovkControllerParams,
-  type VovkControllerReturnType,
-  type VovkControllerYieldType,
-} from 'vovk';
-
-export class HelloController {
-  @get('{someParam}')
-  static doSomething(/* ... */) {
-    // ...
-  }
-
-  static *generator(/* ... */);
-}
-
-type DoSomethingBody = VovkControllerBody<typeof HelloController.doSomething>;
-type DoSomethingQuery = VovkControllerQuery<typeof HelloController.doSomething>;
-type DoSomethingParams = VovkControllerParams<typeof HelloController.doSomething>;
-type DoSomethingReturnType = VovkControllerReturnType<typeof HelloController.doSomething>;
-type GeneratorYieldtype = VovkControllerYieldType<typeof HelloController.generator>;
-```
-
-## Types for the client
-
-### `VovkBody` type
-
-Extracts request body type from a clientized controller method.
-
-### `VovkQuery` type
-
-Extracts query (search params) type from a clientized controller method.
-
-### `VovkParams` type
-
-Extracts params type from a clientized controller method.
-
-### `VovkReturnType` type
-
-Extracts return type from a clientized controller method and unwraps the promise.
-
-### `VovkYieldType` type
-
-Extracts yield type from a clientized generator controller method.
+The iterable object returned by an RPC method for [JSONLines](/controller/jsonlines) responses. Besides `Symbol.asyncIterator`, `Symbol.dispose`, `Symbol.asyncDispose` methods, it also contains `status` property with HTTP status code, `asPromise` method that resolves all data as a single promise, `onIterate` method that accepts a callback function and calls it on each iteration, and `cancel` method that cancels the request.
 
 ```ts
-import { HelloRPC } from 'vovk-client';
+const response = await StreamRPC.streamLines();
 
-type DoSomethingBody = VovkBody<typeof HelloRPC.doSomething>;
-type DoSomethingQuery = VovkQuery<typeof HelloRPC.doSomething>;
-type DoSomethingParams = VovkParams<typeof HelloRPC.doSomething>;
-type DoSomethingReturnType = VovkReturnType<typeof HelloRPC.doSomething>;
-type GeneratorYieldType = VovkYieldType<typeof HelloRPC.generator>;
-```
-
-### `VovkClientOptions` type
-
-Type that used internally and exposed to customize the client. See [customization](/client/customization) for more info.
-
-## Misc
-
-### `generateStaticAPI`
-
-`generateStaticAPI(controllers: Record<string, Function>, slug?: string)` is used to generate static endpoints with [generateStaticParams](https://nextjs.org/docs/app/api-reference/functions/generate-static-params) at build time instead of on-demand at request time. It can be used in a [Static Export mode](https://nextjs.org/docs/pages/building-your-application/deploying/static-exports) with the `output: 'export'` Next.js config setting:
-
-See [segment](/segment) documenation for more info.
-
-```ts filename="src/app/api/[[...vovk]]/route.ts"
-// ...
-export type Controllers = typeof controllers;
-
-export function generateStaticParams() {
-  return generateStaticAPI(controllers);
+for await (const item of response) {
+  console.log(item);
 }
 
-export const { GET } = initSegment({ controllers });
+const allItems = await response.asPromise();
 ```
 
-## CLI types
+### `VovkValidateOnClient`
 
-The types below are imported from **vovk-cli** package.
+A function that represents the client-side validation function created by [createValidateOnClient](#createvalidateonclient) function.
 
-### `VovkConfig` type
+### `VovkErrorResponse`
 
-Defines [config](/config) types.
+The shape of error responses.
 
-```ts filename="/vovk.config.mjs"
-/** @type {import('vovk-cli').VovkConfig} */
-const vovkConfig = {
-  // ...
-};
+### `VovkTypedMethod`
 
-export default vovkConfig;
+An internal type used by [withValidationLibrary](#withvalidationlibrary) function that adds required types to the controller method for further inference.
+
+### `VovkBasicJSONSchema`
+
+A basic JSON Schema object used internally with `type`, `properties`, and all other JSON Schema keywords.
+
+### `VovkSchemaIdEnum`
+
+An enum that contains IDs of the JSON Schema files that are generated by Vovk.ts.
+
+```ts
+export enum VovkSchemaIdEnum {
+  META = 'https://vovk.dev/api/schema/v3/meta.json',
+  CONFIG = 'https://vovk.dev/api/schema/v3/config.json',
+  SEGMENT = 'https://vovk.dev/api/schema/v3/segment.json',
+  SCHEMA = 'https://vovk.dev/api/schema/v3/schema.json',
+}
 ```
 
-### `VovkEnv` type
+### `VovkOperationObject`
 
-Defines env variable types that override [config](/config) options.
+Extends `OperationObject` imported from [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts) package by adding LLM-tool-specific properties that start with `x-tool-`.
+
+### `VovkValidationType`
+
+A union type of possible validation types.
+
+```ts
+export type VovkValidationType = 'body' | 'query' | 'params' | 'output' | 'iteration';
+```
+
+### `VovkStrictConfig`
+
+An internal type that represents the config file with all default values applied.
+
+### `VovkGeneratorConfig`
+
+The configuration options for the generator that can be defined as root-level `generatorConfig`, `generatorConfig.segments[segmentName]`,  `bundle.generatorConfig`, `templateDef.generatorConfig` in the [config](/config) file. The actual values are resolved by [resolveGeneratorConfigValues](#resolvegeneratorconfigvalues) function.
+
+### `VovkReadmeConfig`
+
+The configuration options for the README generation at `VovkGeneratorConfig.readme`, such as `banner`, `installCommand` or `description`.
+
+### `VovkSamplesConfig`
+
+The configuration options for the code samples generation at `VovkGeneratorConfig.samples`, such as `apiRoot` or `headers`.
+
+### `VovkOpenAPIMixin`
+
+The configuration options for the OpenAPI generation at `VovkGeneratorConfig.openAPIMixin`. See [OpenAPI Mixins](/openapi-mixins) for more info.

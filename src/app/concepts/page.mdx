@@ -314,12 +314,12 @@ Methods that need to be validated are implemented with `with[LIBRARY]` function 
 
 ```ts
 import { z } from 'zod';
-import { prefix, post, openapi, type VovkOutput } from 'vovk';
+import { prefix, post, operation, type VovkOutput } from 'vovk';
 import { withZod } from 'vovk-zod';
 
 @prefix('users')
 export default class UserController {
-  @openapi({
+  @operation({
     summary: 'Update user (Zod)',
     description: 'Update user by ID with Zod validation',
   })

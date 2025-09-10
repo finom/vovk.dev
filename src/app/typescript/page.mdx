@@ -5,11 +5,11 @@
 ```ts filename="src/modules/user/UserController.ts"
 import { z } from 'zod';
 import { withZod } from 'vovk-zod';
-import { prefix, post, openapi } from 'vovk';
+import { prefix, post, operation } from 'vovk';
 
 @prefix('users')
 export default class UserController {
-  @openapi({
+  @operation({
     summary: 'Update user (Zod)',
     description: 'Update user by ID with Zod validation',
   })
@@ -237,7 +237,7 @@ Every RPC method has access to the emitted JSON schema. They are available in th
 
 ```ts
 console.log(UserRPC.updateUser.schema.validation.body); // get body validation JSON schema
-console.log(UserRPC.updateUser.schema.openapi); // get openapi spec for this method
+console.log(UserRPC.updateUser.schema.operationObject); // get openapi operationObject spec for this method
 console.log(UserRPC.updateUser.fullSchema.config.libs.ajv); // get config option
 ```
 

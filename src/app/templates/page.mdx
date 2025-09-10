@@ -101,21 +101,21 @@ Configuration options for the segmented client that extends the root `segmentedC
 Used as default template for [segmented client](/segmented). Renders TypeScript code.
 
 - `templatePath` is `vovk-cli/client-templates/ts/`.
-- `requires` [schemaTs](#schemats) and [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
+- `requires` [schemaTs](#schemats), [openapiTs](#openapits) and [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
 
 ### `cjs`
 
 Used as one of the default templates (other one is [mjs](#mjs)) for [composed client](/composed). Renders CommonJS code.
 
 - `templatePath` is `vovk-cli/client-templates/cjs/`.
-- `requires` [schemaCjs](#schemacjs) and [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
+- `requires` [schemaCjs](#schemacjs), [openapiCjs](#openapicjs) and [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
 
 ### `mjs`
 
 Used as one of the default templates (other one is [cjs](#cjs)) for [composed client](/composed). Renders ES Module code.
 
 - `templatePath` is `vovk-cli/client-templates/mjs/`.
-- `requires` [schemaCjs](#schemacjs) and [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
+- `requires` [schemaCjs](#schemacjs), [openapiCjs](#openapicjs) and [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
 
 ### `schemaTs`
 
@@ -134,6 +134,26 @@ Renders `schema.cjs` and `schema.d.cts` files that import the schema of availabl
 Renders `schema.json` file that contains the full schema of all segment schemas combined from `.vovk-schema/` folder for composed client, or of a single segment schema for segmented client.
 
 - `templatePath` is `vovk-cli/client-templates/schemaJson/`.
+
+### `openapiTs`
+
+Renders `openapi.ts` file that re-exports the OpenAPI schema located at `openapi.json` file (provided by [openapiJson](#openapijson) template) at the same folder.
+
+- `templatePath` is `vovk-cli/client-templates/openapiTs/`.
+- `requires` [openapiJson](#openapijson) template to import the OpenAPI schema in the generated code.
+
+### `openapiCjs`
+
+Renders `openapi.cjs` and `openapi.d.cts` files that re-export the OpenAPI schema located at `openapi.json` file (provided by [openapiJson](#openapijson) template) at the same folder.
+
+- `templatePath` is `vovk-cli/client-templates/openapiCjs/`.
+- `requires` [openapiJson](#openapijson) template to import the OpenAPI schema in the generated code.
+
+### `openapiJson`
+
+Renders `openapi.json` file that contains the OpenAPI schema. Can be used separately if you need to provide the OpenAPI schema in your project.
+
+- `templatePath` is `vovk-cli/client-templates/openapiJson/`.
 
 ### `readme`
 
@@ -209,6 +229,6 @@ Renders the Python client package that includes both source code and setup files
 - defines `composedClient` option to set the output directory to `dist_python`.
 - `extends` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
 
-## Create a New Template with EJS 🚧
+## Create a new Template with EJS 🚧
 
 Coming soon.

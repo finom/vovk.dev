@@ -12,13 +12,13 @@ npm install vovk-dto
   <Tabs.Tab>
   
 ```ts filename="src/modules/user/UserController.ts"
-import { prefix, post, openapi } from 'vovk';
+import { prefix, post, operation } from 'vovk';
 import { withDto } from 'vovk-dto';
 import { UpdateUserBodyDto, UpdateUserParamsDto, UpdateUserQueryDto, UpdateUserResponseDto } from './UserDto';
 
 @prefix('users')
 export default class UserController {
-    @openapi({
+    @operation({
         summary: 'Update user',
         description: 'Update user by ID with Dto validation',
     })

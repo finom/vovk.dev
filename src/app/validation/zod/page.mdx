@@ -11,11 +11,11 @@ Validation with [Zod 4](https://www.npmjs.com/package/zod) is performed using [v
 ```ts
 import { z } from 'zod';
 import { withZod } from 'vovk-zod';
-import { prefix, post, openapi } from 'vovk';
+import { prefix, post, operation } from 'vovk';
 
 @prefix('users')
 export default class UserController {
-  @openapi({
+  @operation({
     summary: 'Update user (Zod)',
     description: 'Update user by ID with Zod validation',
   })
@@ -75,7 +75,7 @@ The syntax is the same as for Zod 4, but you need to import `withZod` from `vovk
 ```ts
 import { z } from 'zod/v3';
 import { withZod } from 'vovk-zod/v3';
-import { prefix, post, openapi } from 'vovk';
+import { prefix, post, operation } from 'vovk';
 
 // ... the rest of the code is the same as for Zod 4
 ```

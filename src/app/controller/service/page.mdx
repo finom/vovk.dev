@@ -2,23 +2,23 @@ import { Tabs } from 'nextra/components';
 
 # Service class
 
-Service is a part of the Controller-Service-Repository pattern that is used to separate business logic from the controller. It allows you to keep your controllers clean and focused on handling HTTP requests, while the service class contains the actual business logic and data manipulation.
+Service is a part of the Controller-Service-Repository pattern that is used to separate business logic from the request handler. It allows to keep your controllers clean and focused on handling HTTP requests, while the service class contains the actual business logic and data manipulation.
 
 Similarly to controllers, services are implemented as static classes with static methods that don't require decorators or any special design. This means that the static class syntax for services is being just a convention and you can use any applicable way to define business logic: normal classes that need to be instantiated, separate functions, or plain objects.
 
-The best thing about service methods is that their typing can be inferred from controller methods that call them, without causing "implicit any" TS errors. Thanks to [Anders Hejlsberg](https://github.com/ahejlsberg) for a solution for [#58616](https://github.com/microsoft/TypeScript/issues/58616), without this fix to TypeScript language I wouldn't continue working on Vovk.ts.
+The best thing about service methods is that their typing can be inferred from controller methods that call them, without causing "implicit any" TS errors. Thanks to [Anders Hejlsberg](https://github.com/ahejlsberg) for a solution for [#58616](https://github.com/microsoft/TypeScript/issues/58616), without this fix to TypeScript language Vovk.ts wouldn't be implementable.
 
 Let's say you have the following controller class:
 
 ```ts filename="src/modules/user/UserController.ts" {38}
 import { z } from 'zod';
-import { prefix, post, openapi } from 'vovk';
+import { prefix, post, operation } from 'vovk';
 import { withZod } from 'vovk-zod';
 import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
-  @openapi({
+  @operation({
     summary: 'Update user',
     description: 'Update user by ID with Zod validation',
   })
@@ -73,4 +73,4 @@ export default class UserService {
 }
 ```
 
-In other words, service methods can infer types from the controller methods and controller methods can call service methods without causing self-referencing issues.
+In other words, service methods can infer types from the controller methods and the controller methods can call service methods without causing self-referencing issues.
