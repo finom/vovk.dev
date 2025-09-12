@@ -1,3 +1,173 @@
-# Tools for NestJS
 
-Coming soon.
+import { Steps } from 'nextra/components';
+
+TODO: 
+- Use config instead of CLI
+- Explain nextjs-operation-id strategy
+- Configure validateOnClient
+- Configure fetcher
+
+# "RPC" for NestJS
+
+<Steps>
+
+## Install dependencies
+
+```sh npm2yarn
+npm i vovk-client
+```
+
+```npm2yarn
+npm i vovk-cli@draft -D
+```
+
+
+## Expose OpenAPI spec in your NestJS app
+
+At this case we expose it at `/api-ref` endpoint and Swagger UI at `/docs`.
+
+```ts filename="src/main.ts" {18-20}
+import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const appOptions = { cors: true };
+  const app = await NestFactory.create(AppModule, appOptions);
+  app.setGlobalPrefix('api');
+
+  const options = new DocumentBuilder()
+    .setTitle('NestJS Example App')
+    .setDescription('The API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+
+  app.getHttpAdapter().get('/api-ref', (req, res) => {
+    res.json(document);
+  });
+
+  SwaggerModule.setup('/docs', app, document);
+
+  await app.listen(3000);
+}
+bootstrap()
+  .catch((err) => {
+    console.log(err);
+  });
+```
+
+## Use OpenAPI decorators from [@nestjs/swagger](https://www.npmjs.com/package/@nestjs/swagger)
+
+```ts
+import { 
+  Controller, 
+  Post, 
+  Body, 
+  Query, 
+  Param, 
+  HttpStatus 
+} from '@nestjs/common';
+import { 
+  ApiOperation, 
+  ApiResponse, 
+  ApiParam,
+  ApiBody,
+  ApiQuery,
+  ApiExtraModels
+} from '@nestjs/swagger';
+import { CreateUserDto, QueryParamsDto, UserResponseDto } from './dto/user.dto';
+
+@Controller('users')
+@ApiExtraModels(UserResponseDto) // Ensures the DTO appears in schemas
+export class UserController {
+  @Post(':organizationId')
+  @ApiOperation({ summary: 'Create a new user' })
+  @ApiParam({
+    name: 'organizationId',
+    type: 'string',
+    description: 'Organization ID',
+  })
+  @ApiBody({ 
+    type: CreateUserDto,
+    description: 'User creation data'
+  })
+  @ApiQuery({ 
+    type: QueryParamsDto,
+    required: false 
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'User successfully created',
+    type: UserResponseDto, // This ensures it appears in components/schemas
+  })
+  async createUser(
+    @Param('organizationId') organizationId: string,
+    @Body() createUserDto: CreateUserDto,
+    @Query() queryParams: QueryParamsDto
+  ): Promise<UserResponseDto> {
+    // ...
+  }
+}
+```
+
+## Add `generate` script to `package.json` and run it
+
+The NestJS server should be running at this moment on http://localhost:3000. Set `--openapi-root-url` to your server URL if it's different.
+
+```json filename="package.json" {5}
+{
+    "scripts": {
+        // ...
+        "start:dev": "nest start --watch",
+        "generate": "vovk g --openapi=http://localhost:3000/api-ref --openapi-get-module-name=nestjs-operation-id --openapi-get-method-name=nestjs-operation-id --openapi-root-url=http://localhost:3000 --openapi-fallback .openapi-cache/openapi.json"
+    }
+}
+```
+
+```sh npm2yarn
+npm run generate
+```
+
+You can optionally run `start:dev` and `generate` scripts (with `--watch` flag) in parallel using `concurrently` package.
+
+```json filename="package.json" {4}
+{
+    "scripts": {
+        // ...
+        "dev": "concurrently \"npm run start:dev\" \"sleep 5 && npm run generate -- --watch\" --kill-others"
+    }
+}
+```
+
+```sh npm2yarn
+npm run dev
+```
+
+For more flexibility it's recommended to create a [config](/config) file (🚧 to be documented).
+
+## Import and use
+
+Import the resulting client from any `fetch`-enabled environment:
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+const user = await UserRPC.createUser({
+    body: {
+        name: 'John Doe',
+        email: 'john.doe@example.com'
+    },
+    query: {
+        page: 1,
+        limit: 10
+    },
+    params: {
+        organizationId: 'org123'
+    }
+});
+```
+
+## Function Calling
+</Steps>

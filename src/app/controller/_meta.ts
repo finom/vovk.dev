@@ -12,22 +12,22 @@ const meta = {
   fn: 'Callable handlers',
   meta: 'Request meta',
   progressive: 'Progressive response 🧪',
-  'form-data': 'FormData 🚧',
+  'form-data': 'FormData',
 } satisfies MetaRecord;
 
 export const icons: Record<keyof typeof meta, string> = {
-  introduction: 'i',
-  request: 'i',
-  service: 'i',
-  errors: 'i',
-  headers: 'i',
-  redirect: 'i',
-  decorator: 'i',
-  jsonlines: 'i',
-  fn: 'i',
-  meta: 'i',
-  progressive: 'i',
-  'form-data': 'i',
+  introduction: '🚀',
+  request: '📨',
+  service: '⚙️',
+  errors: '⚠️',
+  headers: '📋',
+  redirect: '↪️',
+  decorator: '✨',
+  jsonlines: '📊',
+  fn: '🔧',
+  meta: '📌',
+  progressive: '📈',
+  'form-data': '📝',
 };
 
 export default meta;

@@ -1,3 +1,154 @@
 # FormData
 
-Coming soon.
+In order to make a controller method accept form data requests, you need to set `isForm` option to `true` in the [validation library](/validation) wrapper.
+
+```ts {8}
+import { withZod } from 'vovk-zod';
+import { z } from 'zod';
+import { post, prefix } from 'vovk';
+
+export default class UserController {
+  @post()
+  static createUser = withZod({
+    isForm: true,
+    body: z.object({
+      email: z.string().email(),
+      name: z.string().min(2).max(100),
+    }),
+    async handle(req) {
+      // ...
+    },
+  });
+}
+```
+
+The RPC method `body` type will be inferred as `FormData`.
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+const formData = new FormData();
+formData.append('email', 'user@example.com');
+formData.append('name', 'John Doe');
+
+await UserRPC.createUser({
+  body: formData,
+});
+```
+
+## Accessing form data
+
+The form data can be accessed using built-in `req.formData()` method.
+
+```ts {8}
+//...
+export default class UserController {
+  @post()
+  static createUser = withZod({
+    isForm: true,
+    body: z.object({ /* ... */}),
+    async handle(req) {
+      const formData = await req.formData(); // FormData instance
+      // ...
+    },
+  });
+}
+```
+
+But also with `req.vovk.form()` that serializes the form data into an object.
+
+```ts {11}
+// ...
+export default class UserController {
+  @post()
+  static createUser = withZod({
+    isForm: true,
+    body: z.object({
+        email: z.string().email(),
+        name: z.string().min(2).max(100),
+    }),
+    async handle(req) {
+      const form = await req.vovk.form(); // { email: 'user@example.com', name: 'John Doe' }
+      // ...
+    },
+  });
+}
+```
+
+## Using lists
+
+In case if the form data expects to contain one or more values for the same key, it's recommended to use a union schema of value type and an array of value type, because `FormData` doesn't distinguish between one and multiple values.
+
+```ts {10}
+import { withZod } from 'vovk-zod';
+import { z } from 'zod';
+import { post, prefix } from 'vovk';
+
+export default class UserController {
+  @post()
+  static createUser = withZod({
+    isForm: true,
+    body: z.object({
+      tags: z.union([z.array(z.string(), z.string())]),
+    }),
+    async handle(req) {
+      const form = await req.vovk.form(); // { tags: ['tag1', 'tag2'] } or { tags: 'tag1' }
+    },
+  });
+}
+```
+
+One value:
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+const formData = new FormData();
+formData.append('tags', 'tag1');
+
+await UserRPC.createUser({
+  body: formData,
+});
+```
+
+Multiple values:
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+const formData = new FormData();
+formData.append('tags', 'tag1');
+formData.append('tags', 'tag2');
+
+await UserRPC.createUser({
+  body: formData,
+});
+```
+
+The same rule applies to files:
+
+```ts {10}
+import { withZod } from 'vovk-zod';
+import { z } from 'zod';
+import { post, prefix } from 'vovk';
+
+export default class UserController {
+  @post()
+  static createUser = withZod({
+    isForm: true,
+    body: z.object({
+      files: z.union([z.array(z.file()), z.file()]),
+    }),
+    async handle(req) {
+      const form = await req.vovk.form(); // { files: [File, File] } or { files: File }
+      // ...
+    },
+  });
+}
+```
+
+## Client-side validation limitations
+
+Note that [vovk-ajv](/validation/client) does not have built-in support for OpenAPI-compatible `format: "binary"`, and the file size/type etc. aren't validated on the client side.
+
+Also note that [vovk-dto/validateOnClient](/validation/dto) doesn't validate `body` if it's an instance of `FormData` at all.

@@ -6,8 +6,8 @@ const meta: MetaRecord = {
 };
 
 export const icons: Record<keyof typeof meta, string> = {
-  introduction: 'i',
-  static: 'i',
+  introduction: '🚀',
+  static: '📦',
 };
 
 export default meta;

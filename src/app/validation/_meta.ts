@@ -12,12 +12,12 @@ const meta = {
 } satisfies MetaRecord;
 
 export const icons: Omit<Record<keyof typeof meta, string>, `#${string}`> = {
-  introduction: 'i',
-  client: 'i',
-  standard: 'i',
-  zod: 'i',
-  dto: 'i',
-  yup: 'i',
+  introduction: '🚀',
+  client: '💻',
+  standard: '📏',
+  zod: '⚡',
+  dto: '📐',
+  yup: '🚫',
 };
 
 export default meta;

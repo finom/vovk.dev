@@ -28,7 +28,7 @@ const meta = {
   '#common': separator('Common'),
   schema: 'Schema',
   validation: 'Validation',
-  inference: 'Type Inference 🚧',
+  inference: 'Type Inference',
   '#server-side': separator('Server-Side'),
   segment: 'Segment',
   controller: 'Controller',
@@ -53,30 +53,29 @@ const meta = {
   init: <code className="nextra-code">vovk init</code>,
   new: <code className="nextra-code">vovk new 🚧</code>,
   '#etc': separator('etc.'),
-  'openapi-mixins': 'OpenAPI Mixins 🚧',
   templates: 'Client Templates 🚧',
   packages: 'Packages',
   'api-ref': 'API Reference',
   '###': { type: 'separator' },
-
   '#scenarios': separator('Usage Scenarios'),
   openapi: 'RESTful API with OpenAPI 🚧',
   saas: 'SaaS framework',
   codegen: 'Code generation 🚧',
   nestjs: 'RPC for NestJS 🚧',
+  'other-scenarios': 'Other scenarios 🚧',
 
   '#ai': separator('AI Applications'),
-  llm: 'LLM integration 🚧',
+  llm: 'LLM completion streaming 🚧',
   'ai-tools': 'AI tools 🚧',
-  'realtime-ui': 'AI-powered UI 🧪 🚧',
+  'realtime-ui': 'Real-time UI 🧪 🚧',
   polling: 'Real-time Polling 🧪 🚧',
   mcp: 'MCP Server 🚧',
 
   '#guides': separator('Other Guides'),
+  multitenant: 'Multitenancy 🧪',
   authorization: 'Authorization',
   cron: 'Vercel Cron jobs',
   proxy: 'Proxy endpoints',
-  multitenant: 'Multitenancy 🧪',
 } satisfies MetaRecord;
 
 export default meta;
