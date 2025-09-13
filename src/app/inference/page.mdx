@@ -182,7 +182,7 @@ type Iteration = VovkIteration<typeof StreamController.streamItems>; // { item: 
 
 ## Return/yield inference
 
-The `VovkReturnType<T>` and `VovkYieldType<T>` types allow to infer the actual return type of the controller method or the yield type of the streaming method when methods are not validated. The types cannot be used for self-references at [services](/controller/service) as they cause "implicit any" TS errors.
+The `VovkReturnType<T>` and `VovkYieldType<T>` types allow to infer the actual return type or the yield type of a method when it's input isn't validated. The types cannot be used for self-references at [services](/controller/service) as they cause "implicit any" TS errors.
 
 
 ```ts

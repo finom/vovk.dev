@@ -1,5 +1,7 @@
 # TypeScript RPC Client
 
+TODO: mention `schema` and `openapi` imports.
+
 [Controllers](/controller) implemented with Vovk.ts are compiled to RPC modules with similar structure but different argument signatures. Having the following controller defined:
 
 ```ts filename="src/modules/user/UserController.ts"
@@ -327,8 +329,8 @@ const MyComponent = () => {
 
 The TypeScript RPC client is generated from the following templates:
 
-- [cjs](/templates#cjs), [mjs](/templates#mjs) (requires [schemaCjs](/templates#schemacjs)) - compiled CJS and ESM modules with typescript definitions; used by default at [Composed Client](/composed);
-- [ts](/templates#ts) (requires [schemaTs](/templates#schemats)) - uncompiled TypeScript module with typescript definitions; used by default at [Segmented Client](/segmented);
+- [cjs](/templates#cjs), [mjs](/templates#mjs) (`requires` [schemaCjs](/templates#schemacjs) and [openapiCjs](/templates#openapicjs)) - compiled CJS and ESM modules with typescript definitions; used by default at [Composed Client](/composed);
+- [ts](/templates#ts) (`requires` [schemaTs](/templates#schemats) and [openapiTs](/templates#openapits)) - uncompiled TypeScript module with typescript definitions; used by default at [Segmented Client](/segmented);
 - [mixins](/templates#mixins) - `.d.ts` types and `.json` file that are generated when [OpenAPI Mixins](/openapi-mixins) are used;
 - [readme](/templates#readme), [packageJson](/templates#packagejson) - `README.md` that contains RPC documentation and `package.json` that can be used to publish the client library as a package.
 

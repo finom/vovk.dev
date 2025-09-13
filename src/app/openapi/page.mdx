@@ -1,3 +1,13 @@
 # Framework for public REST API
 
-Coming soon.
+Vovk.ts automatically generates OpenAPI specification from the defined controllers and methods. The generated client exports `openapi` object for [composed client](/composed) and for each chunk of [segmented client](/segmented) separately.
+
+```ts
+import { UserRPC, openapi } from 'vovk-client'; // composed client
+```
+
+```ts
+import { UserRPC, openapi } from '@/client/user/index.ts'; // segmented client
+```
+
+It's a ready-to-use OpenAPI specification that can be used with any tool that supports OpenAPI 3+.

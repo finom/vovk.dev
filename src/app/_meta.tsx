@@ -60,9 +60,9 @@ const meta = {
   '#scenarios': separator('Usage Scenarios'),
   openapi: 'RESTful API with OpenAPI 🚧',
   saas: 'SaaS framework',
-  codegen: 'Code generation 🚧',
+  codegen: 'OpenAPI Codegen',
   nestjs: 'RPC for NestJS 🚧',
-  'other-scenarios': 'Other scenarios 🚧',
+  'other-scenarios': 'Other scenarios',
 
   '#ai': separator('AI Applications'),
   llm: 'LLM completion streaming 🚧',
