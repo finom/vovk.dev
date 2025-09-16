@@ -1,9 +1,9 @@
 import { FileTree, Tabs } from 'nextra/components';
 import Image from 'next/image';
 
-# About (WIP)
+# About
 
-This conceptual back-end framework is designed, developed, documented and tested by [Andrey Gubanov](https://github.com/finom). Bult for effeciency and unprecedented DX.
+This conceptual back-end meta-framework is designed, developed, documented and tested by [Andrey Gubanov](https://github.com/finom). Built for efficiency and unprecedented DX.
 
 **Features:**
 
@@ -18,6 +18,9 @@ This conceptual back-end framework is designed, developed, documented and tested
 
 The project was heavily inspired by [NestJS](https://nestjs.com/) that's built on top of [Express](https://expressjs.com/) a lower-level Node.js framework, extending it with modular architecture for large back-end apps. Vovk.ts achieves similar goal using [Next.js Route Handlers](https://nextjs.org/docs/app/getting-started/route-handlers-and-middleware) as a lower-level HTTP framework, but installed on top of a new or existing Next.js project as a set of secondary dependencies.
 
+**More info**
+- [Next.js Route Handlers](https://nextjs.org/docs/app/getting-started/route-handlers-and-middleware)
+
 ## "Segment"
 
 Vovk.ts introduces another hierarchical level to back-end called [segments](/segment/introduction) that allows to split the back-end into smaller parts configured differently, that emit RPC schema separately for each segment. Traditional hierarchy that looks like `back-end -> controller -> handler` gets extended to `back-end -> segment -> controller -> handler`. Each segment is a separate Next.js route that can be configured independently and compiled into a separate serverless function on build, creating multiple smaller "back-ends".
@@ -26,6 +29,9 @@ Vovk.ts introduces another hierarchical level to back-end called [segments](/seg
 <Image src="/draw/segment-concept.svg" alt="Segment" width={1874.4446105957031} height={745.1328125} className="mt-4 dark:invert" />
 
 A segment can be turned into a [static segment](/segment/static) that makes its endpoints to be compiled into static JSON files during the build time, allowing to use them for historical data, OpenAPI documentation, or any other data that is generated on build time.
+
+**More info**
+- [Segment docs](/segment/introduction)
 
 ## RESTful JSON API + RPC
 
@@ -70,22 +76,16 @@ These two concepts are usually oppose each other, but in Vovk.ts they are combin
 
 This idea is achieved by combining code generation with TypeScript inference, mapping each RPC call onto a specially constructed URL.
 
-TODO image!
-
-<Image
-  src="/draw/restful-rpc.svg"
-  alt="RESTful API RPC"
-  width={2154.921875}
-  height={631.6171874999999}
-  className="mt-4 dark:invert"
-/>
-
 **How it Works?**
 
 1. **Request Encoding**. The client encodes the target method name and its arguments into a URL.  
    `/api/users/12345?notify=push` translates to a call to the `updateUser` method of the `UserRPC` module with `id` parameter set to `12345` and `notify` query parameter set to `push`.
 2. **URL Dispatching**. When the server receives this URL, its routing logic parses the path to identify the correct controller and method handler.
 3. **Invocation**. The handler is invoked with the parsed parameters, executes the business logic, and returns the result.
+
+**More info**
+
+- [TypeScript RPC](/typescript)
 
 ## Controller and Service
 
@@ -110,7 +110,7 @@ export default class UserController {
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts filename="src/modules/user/UserService.ts"
-import type { VovkBody, VovkQuery, VovkParams } from 'vovk';
+import type { VovkBody, VovkQuery, VovkParams, VovkOutput } from 'vovk';
 import type UserController from './UserController';
 
 export default class UserService {
@@ -121,7 +121,7 @@ export default class UserService {
   ) {
     // handle the request
     console.log({ body, notify, id }); // { body: { name: 'John Doe' }, notify: 'push', id: '12345' }
-    return { body, notify, id, success: true };
+    return { body, notify, id, success: true } satisfies VovkOutput<typeof UserController.updateUser>;
   }
 }
 ```
@@ -143,6 +143,16 @@ export const { GET, POST, PUT, DELETE } = initSegment({
 ```
 </Tabs.Tab>
 </Tabs>
+
+> [!WARNING]
+>
+> This feature requires an additional check of return type, or manual type annotation, as `handle` function isn't related to its output type, allowing to return `any`. Use `x satisfies VovkOutput<typeof f>{:ts}` or annotate the return type manually.
+
+**More info**
+
+- [Controller docs](/controller/introduction)
+- [Service docs](/controller/service)
+- [Type inference](/inference)
 
 ## "RPC Module"
 
@@ -167,6 +177,10 @@ result satisfies { success: boolean };
 Unlike traditional RPC frameworks, **Vovk.ts RPC modules have 3 inputs instead of 1**, allowing to pass URL parameters, query parameters, and request body separately.
 
 When a controller method is implemented with a [validation library](/validation), the incoming HTTP request input is validated automatically on the server side, and if it's invoked from an RPC module, the **data is validated on the client side** as well using the JSON schema generated from the validation library. This allows to catch errors early on the client side, before the request is sent to the server.
+
+**More info**
+
+- [TypeScript RPC](/typescript)
 
 ## Schema
 
@@ -240,6 +254,9 @@ the resulting schema files will be located in `.vovk-schema/` directory like thi
 </FileTree>
 
 Each individual schema file represents a segment and contains and contains all RPC modules defined in that segment. It follows the same recursive structure as the segments, where `root.json` is a special name for the root segment with name `""`. `_meta.json` file contains additional metadata, such as explicitly emitted fields of the [vovk.config](/config) file.
+
+**More info**
+- [Schema docs](/schema)
 
 ## "Composed" vs "segmented" RPC clients
 
@@ -342,6 +359,10 @@ However, in larger applications, exposing schema for all segments in a single RP
 
 This approach is called **"segmented RPC client"** and it allows to split the client into smaller TypeScript files that can be imported separately, hiding RPC modules and corresponding schema on specific pages. For example, pages responsible for "customer" functionality isn't going to import "admin" RPC modules, therefore "admin" implementation details are hidden from the customer pages.
 
+**More info**
+- [Composed client](/composed)
+- [Segmented client](/segmented)
+
 ## Validation
 
 Vovk.ts supports any validation library that implements [Standard Schema](https://github.com/standard-schema/standard-schema/), including [Zod 4](https://github.com/colinhacks/zod), [Valibot](https://github.com/fabian-hiller/valibot), [Arktype](https://github.com/arktypeio/arktype), but also [Zod 3](https://github.com/colinhacks/zod), [class-validator](https://github.com/typestack/class-validator) and can be extended with any other TypeScript validation library. The only requirement is that the library should be able to generate JSON schema from the validation rules in order to validate the data on the client side, build typed client, generate OpenAPI documentation, etc. The primary validation library that is used in the documentation is Zod 4 but it's up to you to choose the one that fits your needs.
@@ -393,7 +414,7 @@ export default class UserController {
 }
 ```
 
-(TODO) As you will see during your exploration of this documentation, a controller method that uses validation is being a source of truth for many things:
+Thanks to the JSON schema emission and access to the back-end data that was never available to a developer before, a controller method that uses validation is being a source of truth for many things:
 
 - Type inference:
   - Server-side, to enhance built-in functionality fo `NextRequest` object and provide types for `req.json()` etc.
@@ -401,13 +422,16 @@ export default class UserController {
 - Validation:
   - Server-side, to validate incoming requests with Zod, Arktype and other libraries and return an error if the data is invalid.
   - Client-side, to validate data with Ajv before sending the request and throw an error if the data is invalid in the client.
-- Code generation for TypeScript, Rust, Python
+- Code generation for TypeScript, Rust, Python, from the back-end schema and from 3rd party OpenAPI schema.
 - OpenAPI object, exported as `openapi` variable.
-- Copy-pastable code snippets for READMEs and OpenAPI documentation...
+- Copy-pastable code snippets for READMEs and OpenAPI documentation.
 - Function Calling
   - Server-side to execute the function at the current evaluation context.
   - Client-side to call the function using HTTP protocol.
-- And more, as developer now has access to the back-end schema.
+- And more, as developer now has access to the back-end schema to generate more ideas.\
+
+**More info**
+TODO
 
 ## JSON Lines
 
@@ -456,9 +480,13 @@ for await (const { message } of stream) {
 }
 ```
 
+**More info**
+- [JSON Lines docs](/controller/jsonlines)
+- [LLM completions](/llm)
+
 ## Custom responses
 
-Vovk.ts is a wrapper around Next.js API routes, so the handlers can return any instance of `Response` class, including `NextResponse` or `NextResponse.json()`, allowing to use all Next.js features, such as cookies, headers, and so on. Vovk.ts is designed to use existing Next.js features, and never reinvent the wheel.
+Vovk.ts is a wrapper around Next.js API routes, so the handlers can return any instance of `Response` class, including `NextResponse` or `NextResponse.json()`, allowing to use all available Next.js features and create [proxies](/proxy).
 
 ```ts
 import { NextResponse, headers } from 'next/server';
@@ -474,11 +502,15 @@ export default class UsersController {
 }
 ```
 
+**More info**
+- [Controller docs](/controller)
+- [Proxy endpoints](/proxy)
+
 ## `FormData`
 
-Vovk.ts distinguishes JSON and `FormData` bodies with `isForm` flag passed as validation option. This option does two things: it changes the resulting type signature of the input `body` to `FormData` instance, and also adds `x-formData` custom option to the resulting handler schema, to be able to distinguish it from regular JSON requests and validate it on the client side.
+Vovk.ts distinguishes JSON and `FormData` bodies with `isForm` flag passed as validation option. This option does two things: it changes the resulting type signature of the input `body` to `FormData` instance, and also adds `x-isForm` custom property to the body schema, to be able to distinguish it from regular JSON requests and validate it on the client side.
 
-```ts
+```ts {8}
 export default class UserController {
   @post('create')
   static createUser = withZod({
@@ -497,7 +529,7 @@ export default class UserController {
 
 On the client-side the `createUser` RPC method will accept `FormData` instance as a body:
 
-```ts
+```ts {8}
 import { UserRPC } from 'vovk-client';
 
 const formData = new FormData();
@@ -509,97 +541,17 @@ const response = await UserRPC.createUser({
 });
 ```
 
+**More info**
+- [FormData docs](/controller/formdata)
 
-## - AI utilities
-
-## - OpenAPI OAS doc emission
-
-## OpenAPI mixins & Codegen with component-agnostic type inference (TODO)
-
-The client-side RPC modules can be mixed with OpenAPI schema files, creating a pseudo-segment called in this documentation **"OpenAPI Mixin"**. The provided OpenAPI schema is converted into Vovk.ts Schema under the hood and the generated client gets mixed with the existing RPC modules, allowing to call OpenAPI endpoints as if they were RPC modules. This is useful for integrating with existing services that provide OpenAPI schema.
-
-```ts
-// UserRPC is a local RPC module defined in the segment
-// GithubIssuesRPC is generated from OpenAPI schema file
-import { UserRPC, GithubIssuesRPC } from 'vovk-client';
-
-const issues = await GithubIssuesRPC.list({
-  query: { filter: 'created' },
-  init: {
-    headers: {
-      Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
-      'X-GitHub-Api-Version': '2022-11-28',
-    },
-  },
-});
-```
-
-Unlike traditional codegen tools, Vovk.ts splits the resulting library into smaller RPC modules, allowing to import only the necessary parts of the library and split the code into smaller logical chunks, but also provides a unified interface with fixed list of input parameters, such as `params`, `query`, and `body`, making it easier to use and understand.
-
-Vovk.ts also includes code generator templates for Python and Rust, allowing to easily generate client libraries for these languages, preserving similar interface and structure as in TypeScript.
-
-**Python example:**
-
-```sh npm2yarm
-npx vovk generate --from py --out dist_py
-```
-
-```py
-from my_module import UserRPC
-
-body: UserRPC.UpdateUserBody = {
-    'name': 'John Doe',
-    'age': 30,
-}
-
-query: UserRPC.UpdateUserQuery = {
-    'notify': 'push',
-}
-
-params: UserRPC.UpdateUserParams = {
-    'id': '12345',
-}
-
-result = UserRPC.update_user(
-  body,
-  query,
-  params,
-)
-```
-
-**Rust example:**
-
-```sh npm2yarm
-npx vovk generate --from rs --out dist_rs
-```
-
-```rs
-use my_module::user_rpc;
-
-use user_rpc::update_user_::{ // _:: syntax accesses the types of a nested structure
-  body as Body,
-  query as Query,
-  params as Params
-};
-
-let result = user_rpc::update_user(
-    Body { name: String::from("John Doe"), age: 30 },
-    Query { notify: String::from("push") },
-    Params { id: String::from("12345") },
-    None, // headers
-    None, // custom API root
-    false, // disable_client_validation
-);
-
-match result {
-  Ok(response) => println!("user_rpc.update_user: {:?}", response),
-  Err(e) => println!("update_user error: {:?}", e),
-}
-```
 
 ## AI utilities
 
-Schema availability and code splitting into controllers and RPC modules makes it easy to implement LLM Function Calling and MCP server using existing AI ecosystem. `vovk` package exports `createLLMTools` that returns an array of tools with `name`, `description`, `parameters` and `execute` function that can be mapped to any LLM Function Calling format. It accepts a list of modules that are used to generate the tools, including RPC modules but also controllers, allowing to execute controller methods directly in the current context, without performing an HTTP request.
+> Function calling is a powerful capability that enables Large Language Models (LLMs) to interact with your code and external systems in a structured way. Instead of just generating text responses, LLMs can understand when to call specific functions and provide the necessary parameters to execute real-world actions ([Hugging Face](https://huggingface.co/docs/hugs/en/guides/function-calling)).
+
+Function calling is a simple but powerful capability that's well known for multiple years already. But it still considered a feature usually utilized by large tech companies or startups with strong AI focus. Libraries like AI SDK simplify the process of integrating LLMs and function calling into applications, solving the problem on **how to call** a function. Vovk.ts solves the problem of **what to call** by providing a framework to build back-end functions that are easily converted into LLM tools with `name`, `description`, `parameters` and `execute` function that can be mapped to any LLM Function Calling format.
+
+The functions can be called either on the server side (by using a [controller](/controller)) or on the client side (by using an RPC module that calls the functions over HTTP), including calling remote APIs with [OpenAPI mixins](/codegen).
 
 ```ts
 import { createLLMTools } from 'vovk';
@@ -610,11 +562,10 @@ import { pick } from 'lodash';
 const { tools } = createLLMTools({
   modules: {
     ProductController, // call ProductController methods at the current context
-    UserRPC: pick(UserRPC, ['getUser', 'updateUser']), // only include specific methods
-    GithubIssuesRPC: [
+    UserRPC: pick(UserRPC, ['getUser', 'updateUser']), // only include specific methods of UserRPC
+    GithubIssuesRPC: [ // add OpenAPI mixin
       GithubIssuesRPC,
       {
-        // add OpenAPI mixin
         init: {
           headers: {
             Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
@@ -629,26 +580,122 @@ const { tools } = createLLMTools({
 console.log(tools); // [{ name, description, parameters, execute }, ...]
 ```
 
-## Build & shipment equipment
+**More info**
+- [AI tools](/function-calling)
+- [Real-time UI](/realtime-ui)
+- [Polling](/polling)
+- [MCP server](/mcp)
+
+## First class OpenAPI support
+
+Vovk.ts generates OpenAPI 3.1 documentation from the back-end schema, without invoking any additional tools or libraries. Once you have defined your controllers with validation, and invoked `@operation` decorator to add `summary` and `description`, the OpenAPI doc is generated automatically on build, and can be accessed as `openapi` variable.
+
+```ts
+import { UserRPC, openapi } from 'vovk-client';
+
+console.log(openapi);
+```
+
+The OpenAPI doc feature includes first class support for [Scalar](https://github.com/scalar/scalar), generating copy-pastable code snippets that include documentation to the input and output data represented in comments. Here is an example of a snippet generated automatically for the ["Hello World" example](/hello-world) that you can also view [here](https://vovk-hello-world.vercel.app/scalar):
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+const response = await UserRPC.updateUser({
+    body: {
+        // User email
+        email: "john@example.com",
+        // User profile object
+        profile: {
+            // User full name
+            name: "John Doe",
+            // User age
+            age: 25
+        }
+    },
+    query: {
+        // Notification type
+        notify: "email"
+    },
+    params: {
+        // User ID
+        id: "123e4567-e89b-12d3-a456-426614174000"
+    },
+});
+
+console.log(response); 
+/* 
+{
+    // -----
+    // Response object
+    // -----
+    // Success status
+    success: true
+}
+*/
+```
+
+**More info**
+- [OpenAPI documentation](/openapi)
+- ["Hello World" example](/hello-world)
+
+## OpenAPI mixins
+
+Vovk.ts schema and OpenAPI 3+ schema are different but convertible to each other. This allows to mix Vovk.ts RPC modules ones that are generated from OpenAPI schema files, overriding the same signature with triple input: `params`, `query`, `body`, and other options available for all RPC modules, such as `init` to pass custom headers, `apiRoot` to override the API root, etc.
+
+```ts
+import { GithubIssuesRPC } from 'vovk-client';
+
+const issues = await GithubIssuesRPC.list({
+  query: { filter: 'created' },
+  init: {
+    headers: {
+      Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+  },
+});
+```
+
+The inputs are validated on the client side using the JSON schema extracted from the OpenAPI schema.
+
+**More info**
+- [Code generation via OpenAPI mixins](/codegen)
+
+## Standalone codegen tool
+
+As Vovk.ts is powered by code generation, and supports OpenAPI documents, it can be used as a standalone codegen tool to generate client libraries for TypeScript but also for Python, Rust (experimental) preserving the same interface and structure as in TypeScript but also performing client-side validation.
+
+**More info**
+- [Code generation via OpenAPI mixins](/codegen)
+- [`generate` command](/generate)
+- [Python client](/python)
+- [Rust client](/rust)
+
+## Build & shipment
 
 Vovk.ts CLI provides commands to build distributable packages. For example, to build a package for NPM, you can use `bundle` command that will bundle the client into a single package with [tsdown](https://tsdown.dev) behind the scenes.
 
-```sh npm2yarm
+```sh npm2yarn
 npx vovk bundle --out dist
 ```
 
 The command will bundle the RPC modules of all or specified segments into a single package in the `dist` directory, with `package.json` file and `README.md` that contains auto-generated documentation for the shipped RPC modules. Package name, description and version are taken either from the root `package.json` or can be configured at [vovk.config](/config). The only thing left is to publish the package to NPM or any other package registry.
 
-```sh npm2yarm
+```sh npm2yarn
 npm publish dist
 ```
 
 Similar approach can be used to build a package for Python or Rust, allowing to ship the back-end functionality to other languages and platforms.
 
-```sh npm2yarm
+```sh npm2yarn
 npx vovk generate --from py --out dist_py
 ```
 
 The command will generate a Python/mypy package in the `dist_py` directory with all RPC modules and OpenAPI schema files, ready to be published to PyPI.
 
 For more information, take a look at ["Hello World" example](/hello-world).
+
+**More info**
+- [`bundle` command](/bundle)
+- ["Hello World" example](/hello-world)

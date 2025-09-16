@@ -13,48 +13,74 @@ Read more about the [Vercel AI SDK](https://sdk.vercel.ai/docs/introduction).
 Vovk.ts supports every built-in feature of Next.js and, as a result, it can be used with the Vercel AI SDK returning `Response` object from `toDataStreamResponse` function with no additional changes.
 
 ```ts filename="src/modules/ai-sdk/AiSdkController.ts"
-import { post, prefix, type VovkRequest } from 'vovk';
-import { streamText, type CoreMessage } from 'ai';
+import { post, prefix, operation, type VovkRequest } from 'vovk';
+import { streamText, convertToModelMessages, type UIMessage } from 'ai';
 import { openai } from '@ai-sdk/openai';
 
 @prefix('ai-sdk')
 export default class AiSdkController {
+  @operation({
+    summary: 'Vercel AI SDK',
+    description:
+      'Uses [@ai-sdk/openai](https://www.npmjs.com/package/@ai-sdk/openai) and ai packages to chat with an AI model',
+  })
   @post('chat')
-  static async chat(req: VovkRequest<{ messages: CoreMessage[] }>) {
+  static async chat(req: VovkRequest<{ messages: UIMessage[] }>) {
     const { messages } = await req.json();
+    const LIMIT = 5;
+
+    if (messages.filter(({ role }) => role === 'user').length > LIMIT) {
+      throw new HttpException(HttpStatus.BAD_REQUEST, `You can only send ${LIMIT} messages at a time`);
+    }
 
     return streamText({
-      model: openai('gpt-4o-mini'),
+      model: openai('gpt-5-nano'),
       system: 'You are a helpful assistant.',
-      messages,
-    }).toDataStreamResponse();
+      messages: convertToModelMessages(messages),
+    }).toUIMessageStreamResponse();
   }
 }
 ```
 
-On the client-side, you can **ai/react** package to interact with the endpoint and build a chat interface.
+On the client-side, you can **@ai-sdk/react** package to interact with the endpoint and build a chat interface.
 
 ```tsx
 'use client';
-import { useChat } from 'ai/react';
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
+import { useState } from 'react';
 
 export default function Page() {
-  const { messages, input, handleSubmit, handleInputChange, isLoading, error } = useChat({
-    // assuming that the "entryPoint" config option is "api" and the controller is used at the root segment
-    api: '/api/ai-sdk/chat',
+  const [input, setInput] = useState('');
+
+  const { messages, sendMessage, error, status } = useChat({
+    transport: new DefaultChatTransport({
+      api: '/api/ai-sdk/chat',
+    }),
   });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim()) {
+      sendMessage({ text: input });
+      setInput('');
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
-      {messages.map((message, index) => (
-        <div key={index}>
-          {message.role === 'assistant' ? '🤖' : '👤'} {(message.content as string) || '...'}
+      {messages.map((message) => (
+        <div key={message.id}>
+          {message.role === 'assistant' ? '🤖' : '👤'}{' '}
+          {message.parts.map((part, partIndex) => (
+            <span key={partIndex}>{part.type === 'text' ? part.text : ''}</span>
+          ))}
         </div>
       ))}
       {error && <div>❌ {error.message}</div>}
       <div className="input-group">
-        <input type="text" placeholder="Send a message..." value={input} onChange={handleInputChange} />
-        <button disabled={isLoading}>Send</button>
+        <input type="text" placeholder="Send a message..." value={input} onChange={(e) => setInput(e.target.value)} />
+        <button>Send</button>
       </div>
     </form>
   );

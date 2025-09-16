@@ -10,4 +10,63 @@ import { UserRPC, openapi } from 'vovk-client'; // composed client
 import { UserRPC, openapi } from '@/client/user/index.ts'; // segmented client
 ```
 
-It's a ready-to-use OpenAPI specification that can be used with any tool that supports OpenAPI 3+.
+The `openapi` object can also be imported from `vovk-client/openapi` or `@client/user/openapi` that import the object only, without the RPC client.
+
+The object is a ready-to-use OpenAPI specification that can be used with any tool that supports OpenAPI 3+.
+
+You can create a [static segment](/segment/static) with a simple controller that exposes the spec as a JSON file.
+
+```sh npm2yarn
+npx vovk new segment --static static
+```
+
+```sh npm2yarn
+npx vovk new controller static/openApi --empty
+```
+
+The object can be used directly or exposed as an endpoint:
+
+```ts filename="src/modules/static/openapi/OpenApiController.ts"
+import { get, operation } from "vovk";
+import { openapi } from "vovk-client/openapi";
+
+export default class OpenApiController {
+  @operation({ // the operation object definition is optional
+    summary: "OpenAPI spec",
+    description: 'Get the OpenAPI spec for the API',
+  })
+  @get("openapi.json")
+  static getSpec = () => openapi;
+}
+```
+
+On the client-side you can use any OpenAPI tooling, but it's recommended to [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react) as Vovk.ts generates code snippets:
+
+```tsx
+import { ApiReferenceReact } from "@scalar/api-reference-react";
+import "@scalar/api-reference-react/style.css";
+
+async function App() {
+  return (
+    <ApiReferenceReact
+      configuration={{
+        url: "/api/static/openapi.json",
+        servers: [
+          {
+            url: "http://localhost:3000",
+            description: "Localhost",
+          },
+          {
+            url: "https://example.com",
+            description: "Production",
+          },
+        ],
+      }}
+    />
+  );
+}
+
+export default App;
+```
+
+See what it looks like in the ["Hello World" app](https://vovk-hello-world.vercel.app/openapi).

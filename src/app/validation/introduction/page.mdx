@@ -1,6 +1,6 @@
 # Getting started
 
-Vovk.ts as a back-end framework supports a wide range of validation libraries, including [Standard Schema](/validation/standard). The validation models are emitted as JSON Schemas in order to be used for validation on the client side (but also for code generation, [OpenAPI spec](/openapi) and [LLM Tools](/ai-tools), etc). The server-side and the client-side validation are two different features, the second one is outlined in [the client validation page](/validation/client). This page will explain how to use the validation in the server-side code.
+Vovk.ts as a back-end framework supports a wide range of validation libraries, including [Standard Schema](/validation/standard). The validation models are emitted as JSON Schemas in order to be used for validation on the client side (but also for code generation, [OpenAPI spec](/openapi) and [LLM Tools](/function-calling), etc). The server-side and the client-side validation are two different features, the second one is outlined in [the client validation page](/validation/client). This page will explain how to use the validation in the server-side code.
 
 Every validation library uses an internal `withValidationLibrary` function that is used to wrap the controller handler, providing unified list of options and extending the handler with extra features. Each library is named as `with[name]` where the `name` is the name of the library, e.g. [`withZod`](/validation/zod).
 
@@ -37,7 +37,7 @@ The `body`, `query` and `params` options are used to specify input validation sc
 
 ### `output` and `iteration`
 
-The `output` and `iteration` options are used to specify the output validation schemas, where `output` is used for regular JSON responses and `iteration` is used for [JSONLines](/controller/jsonlines) responses. Both are optional and they don't affect the generated RPC modules typing, but recommended for enabling crutial features such as [OpenAPI spec](/openapi) generation, [Function Calling](/ai-tools) and [Codegen](/codegen) for [Python](/python), [Rust](/rust) and other further clients. The `output` and `iteration` aren't used for the client-side validation.
+The `output` and `iteration` options are used to specify the output validation schemas, where `output` is used for regular JSON responses and `iteration` is used for [JSONLines](/controller/jsonlines) responses. Both are optional and they don't affect the generated RPC modules typing, but recommended for enabling crutial features such as [OpenAPI spec](/openapi) generation, [Function Calling](/function-calling) and [Codegen](/codegen) for [Python](/python), [Rust](/rust) and other further clients. The `output` and `iteration` aren't used for the client-side validation.
 
 ### `isForm`
 
@@ -96,7 +96,7 @@ const schema = UserController.updateUser.schema;
 // same as UserRPC.updateUser.schema
 ```
 
-The `schema` property provides the method schema for the handler, similar to the RPC method schema. It's used in tendem with the `fn` property to build [Function Calling tools](/ai-tools) to call the handler directly from the AI tools, without making an HTTP request.
+The `schema` property provides the method schema for the handler, similar to the RPC method schema. It's used in tendem with the `fn` property to build [Function Calling tools](/function-calling) to call the handler directly from the AI tools, without making an HTTP request.
 
 ### `models`
 

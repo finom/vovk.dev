@@ -2,12 +2,14 @@ import { Steps } from 'nextra/components';
 
 # Grant access of your back-end to Function Calling
 
-Vovk.ts offers LLM Function Calling capabilities, turning endpoints into functions that can be called by AI. This enables you to create a more interactive experience for your users, offering either a text chat interface or a real-time voice interface. This feature contributes to a more accessible experience, helping users with disabilities interact with the system more effectively, but it also enhances the overall user experience by allowing the LLM to call functions in your back-end.
+Vovk.ts offers LLM Function Calling capabilities, turning endpoints into functions that can be called by AI. This enables you to create a more interactive experience for your users, offering either a text chat interface or a real-time voice interface. 
+
+Existing tooling answers the question of "how to use function calling", Vovk.ts answers the question of "what should be 
 
 The feature is implemented with a zero-dependency function `createLLMTools` imported from `"vovk"` that creates `tools` array that can be mapped to a Function Calling input for any LLM library or interface. A single tool implements interface `VovkLLMTool` that has the following properties:
 
-- `type`: always equal to the literal `"function"`.
-- `name`: a string that represents the function name defined as `${moduleName}__handlerName`.
+- `type`: literal string `"function"`.
+- `name`: a string that represents the function name defined as `${moduleName}_${handlerName}` (module name + underscore + method name).
 - `description`: a string that describes the function. It's built from OpenAPI metadata, concatenating `summary` and `description` fields. If OpenAPI metadata is not available, `createLLMTools` will ignore the function. In other words, using `@operation` decorator over controller methods is required to use this feature.
 - `parameters`: a JSON schema object that describes the function's parameters, describing `body`, `query`, and `params` fields, set by `withValidationLibrary` function, that works behind the scenes of all validation libraries.
 - `execute`: a JavaScript function should be invoked when LLM calls this tool.
@@ -207,7 +209,7 @@ As you can see, the `tools` are mapped into Vercel AI SDK `tool` instances with 
 
 On the front-end side, create a component that utilizes [useChat](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat) hook
 
-```ts filename="src/app/ai-tools/page.tsx"
+```ts filename="src/app/function-calling/page.tsx"
 
 import { useChat } from "@ai-sdk/react";
 
@@ -230,3 +232,7 @@ An [LLM guide](/llm) provides more details on how to use `useChat` hook. Also ch
 
 </Steps>
 
+
+## Roadmap
+
+- ✨ Implement `route` option for `createLLMTools` to allow using hundreds of functions without hitting the LLM function calling limits. The routing itself can be done with vector search or other approaches.

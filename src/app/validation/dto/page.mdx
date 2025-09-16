@@ -88,7 +88,7 @@ export class UpdateUserResponseDto {
   </Tabs.Tab>
 </Tabs>
 
-As you can see, the DTOs are decorated with [`JSONSchema`](https://www.npmjs.com/package/class-validator-jsonschema) decorator to describe the properties of the DTOs when they're converted to JSON schemas. **vovk-dto** uses `targetConstructorToSchema` function from **class-validator-jsonschema** to convert the DTOs to JSON schemas in order to be used for [OpenAPI](/openapi) specification, [Codegen](/codegen) and [Function Calling](/ai-tools).
+As you can see, the DTOs are decorated with [`JSONSchema`](https://www.npmjs.com/package/class-validator-jsonschema) decorator to describe the properties of the DTOs when they're converted to JSON schemas. **vovk-dto** uses `targetConstructorToSchema` function from **class-validator-jsonschema** to convert the DTOs to JSON schemas in order to be used for [OpenAPI](/openapi) specification, [Codegen](/codegen) and [Function Calling](/function-calling).
 
 Also notice that in the example above the `req.vovk` object is used to access the validated input data. The `req.vovk.body()`, `req.vovk.query()` and `req.vovk.params()` methods return the validated data as instances of the corresponding DTO classes. The `req.json()`, `req.nextUrl.searchParams` and the 2nd argument of the `handle` function are still relevant ways to access the raw data.
 
