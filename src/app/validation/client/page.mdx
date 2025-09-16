@@ -24,7 +24,7 @@ import { validateOnClient } from 'my-client-validation-library';
 [vovk-ajv](https://www.npmjs.com/package/vovk-ajv) is the primary library that implements the client-side validation using [Ajv](https://www.npmjs.com/package/ajv). It is installed and set up automatically when `npx vovk-init` is used. It validates the JSON schemas emitted by the server-side code. **vovk-ajv** supports additional configuration listed as `config.libs.ajv` in the [vovk.config](/config) file, such as Ajv options, localization and target version of the JSON schema.
 
 ```bash npm2yarn
-npm install vovk-ajv
+npm install vovk-ajv@draft
 ```
 
 ```ts filename="vovk.config.mjs"

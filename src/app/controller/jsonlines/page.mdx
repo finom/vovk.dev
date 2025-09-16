@@ -136,8 +136,8 @@ import StreamService, { type Token } from './StreamService';
 @prefix('stream')
 export default class StreamController {
   @get('tokens')
-  static async streamTokens() {
-    const resp = new JSONLinesResponse<Token>();
+  static async streamTokens(req: Request) {
+    const resp = new JSONLinesResponse<Token>(req);
 
     void StreamService.streamTokens(resp);
 
