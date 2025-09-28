@@ -1,3 +1,53 @@
-# Real-time polling
+import GithubFiles from '@/components/GithubFiles';
 
-Coming soon.
+# Real-time polling (experimental)
+
+In the [previous article](/realtime-ui) we've covered how to use LLM Real-time API to get instant updates in the UI while user talks to the app. On this page we'll cover how to use an experimental polling feature to get updates from the server made by other users or third party services, such as [MCP](/mcp), getting UI to be in sync with the server. In order to make the app deployable to any hosting provider, we want to avoid any non-HTTP protocols, such as WebSockets, so we use simple HTTP polling powered by [JSONLines](/controller/jsonlines) to achieve this.
+
+## Redis DB as event bus
+
+Theoretically, we could just poll the main database for changes, but that would be inefficient in terms of DB load and network traffic. Instead, we use a separate Redis database as an event bus. Whenever something changes in the main database, we write a small event to Redis, and our polling service reads these events and sends them to the clients.
+
+Since we use [Prisma](https://www.prisma.io/) as our main database ORM, we can use [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. That's where the `DatabaseService` mentioned at [previous article](/realtime-ui) comes into play.
+
+<GithubFiles paths={['src/modules/database/DatabaseService.ts', 'src/modules/database/DatabaseEventsService.ts']} repo="vovk-ai-demo" />
+
+As you can see, we create a Prisma client extension that hooks into `create`, `update`, and `delete` operations for all models. Whenever one of these operations is performed, we write an event to Redis with the help of `DatabaseEventsService` class with the model id, entity type, date and operation type. This is enough information for our polling service to know what has changed.
+
+## Polling endpoint
+
+Now that we have a way to write events to Redis, we need a way to read them and send them to the clients. This is where the `DatabasePollService` and `DatabasePollController` come into play. The controller implements one [JSONLines](/controller/jsonlines) endpoint that is going to stream data to the clients as it becomes available. The service uses `JSONLinesResponse` instance passed from the controller to send data to the clients and safely closes the connection in 30 seconds, so the clients will need to reconnect.
+
+<GithubFiles paths={['src/modules/database/DatabasePollService.ts', 'src/modules/database/DatabasePollController.ts']} repo="vovk-ai-demo" />
+
+## Client-side logic
+
+On the client-side, anywhere in the app (e.g. a React component), we can use the `DatabasePollRPC.poll()` method to get a stream of database events. As any [JSONLines](/controller/jsonlines) RPC method, it returns an async iterable that we can use in a `for await` loop to get new events as they arrive. Since the connection can be closed by the server or fail due to network issues, we wrap the polling logic in a retry loop with exponential backoff. As the [fetcher](/imports#fetcher) is already [set](/realtime-ui), the body of the loop can be empty, as we don't need to handle the data manually.
+
+```ts
+  useEffect(() => {
+    async function poll(retries = 0) {
+      try {
+        while (true) {
+          using iterable = await DatabasePollRPC.poll();
+
+          for await (const iteration of iterable) {
+            console.log("New DB update:", iteration);
+          }
+        }
+      } catch (error) {
+        if (retries < 5) {
+          console.error("Polling failed, retrying...", error);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          return poll(retries + 1);
+        }
+      }
+    }
+
+    void poll();
+  }, []);
+```
+
+## Practical usage: Telegram bot
+
+As an example of a third-party source of database changes, you can explore the [TelegramService](https://github.com/vovk-ai-demo/src/modules/telegram/TelegramService.ts) implementation and a small [TelegramController](https://github.com/vovk-ai-demo/src/modules/telegram/TelegramController.ts). Coming soon...

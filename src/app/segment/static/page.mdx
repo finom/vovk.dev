@@ -114,3 +114,16 @@ const resp = await StaticParamsRPC.getStaticParams({
 
 console.log(resp); // { section: 'a', page: '1' }
 ```
+
+## Troubleshooting
+
+Sometimes when `output: 'export'` is set at the `next.config.js` you may see the schema parsing error, when `dev` command is run:
+
+```
+ ⨯ SyntaxError: Unexpected non-whitespace character after JSON at position 396 (line 1 column 397)
+    at JSON.parse (<anonymous>) {
+  page: '/api/_schema_'
+}
+```
+
+In order to avoid this error, when `npm run dev` is going to be run, close the browser tabs where the app is opened until the initial request to `/_schema_` is finished. After that you can open the app in the browser again and it should work fine. If you still see the error, feel free open an issue at [Vovk.ts GitHub repository](https://github.com/finom/vovk) with the details.

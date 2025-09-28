@@ -1,5 +1,460 @@
-# AI UI
+import AppAlike from './AppAlike';
+import GithubFiles from '@/components/GithubFiles';
 
-Coming soon.
+https://github.com/finom/finom/blob/08427199daa0e56fdfa333837dc61ac08a4e9215/docs/APPLICATION_STATE_MANAGEMENT.md - Older draft
 
-This feature contributes to a more accessible experience, helping users with disabilities interact with the system more effectively, but it also enhances the overall user experience by allowing the LLM to call functions in your back-end.
+
+# Real-time UI
+
+Function calling described at the [previous section](/function-calling) gives an unlimited possibilities to create interactive applications that can be controlled by LLMs, executing back-end functions either at the current context (via [controller modules](/controller)) or thru HTTP protocol via RPC modules. This article describes one of use-cases of this feature - building a real-time UI that can be updated by LLMs with a text chat or voice interface.
+
+In order to demonstrate this feature, I've created a demo project of a kanban board that you can find at [GitHub repository](https://github.com/finom/vovk-ai-demo). The database is going to have only two tables: users and tasks. Note that the described project is just a demo and might need additional optimizations and improvements to be used in production.
+
+
+Here's how you can install and run it locally:
+
+Clone the repository:
+```bash
+git clone https://github.com/finom/vovk-ai-demo.git
+```
+
+Install the dependencies:
+```bash
+yarn
+```
+
+Create a `.env` file in the root directory and add your OpenAI API key and database connection strings:
+
+```env filename=".env"
+OPENAI_API_KEY=change_me
+DATABASE_URL="postgresql://postgres:password@localhost:5432/vovk-ai-demo-db?schema=public"
+DATABASE_URL_UNPOOLED="postgresql://postgres:password@localhost:5432/vovk-ai-demo-db?schema=public"
+REDIS_URL=redis://localhost:6379
+```
+
+Run docker containers and development server
+
+```bash
+docker-compose up -d && yarn dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Overview
+
+At this article I'm going to describe an efficient way to synchronise application state with the back-end data, that can be applied to  any application even if it isn't using Vovk.ts at all. This idea is state library-agnostic and database-agnostic, so you can implement it with any tools you prefer. I'm going to use [Postgres](https://www.postgresql.org/) as a database, [Prisma](https://www.prisma.io/) as an ORM, [Zustand](https://zustand-demo.pmnd.rs/) as a state management library and, of course Vovk.ts as a back-end framework.
+
+Let's say we have an more or less complex application with multiple components that use the same data that's incoming from the server. As the most simple example imaginable, we have a user profile component that displays displays user's full name at multiple components. Once the data is updated we want to update all the components that use this data.
+
+<AppAlike />
+
+The most straightforward way to do this is to have a global state that stores the user profile as an object and update it once the data is changed.
+
+```tsx
+export const UserProfile = () => {
+    const  { userProfile } = useStore();
+    return <div>{userProfile.fullName}</div>
+}
+```
+
+This works perfectly fine for up to a certain complexity of the application, but as the application grows and more database entries are added, it becomes harder to manage the state and keep it in sync with the server.
+
+A more efficient way to handle this is to have a normalized state that stores the data as a dictionary of objects, where the key is the ID of the object. This way, we can easily update a single object and all the components that use this object will be updated automatically. Let's call it **entity registry**.
+
+```tsx
+export const UserProfile = ({ userId }: { userId: string }) => {
+    const userProfile = useStore(state => state.userProfiles[userId]);
+    return <div>{userProfile.fullName}</div>
+}
+```
+
+If all components that use database data are using this approach, we can request the data from the server in any desired way and update the entity registry once the data is received by a some kind of a middleware. All components that use this data will be updated automatically.
+
+Let's get back to the kanban board example.
+
+## WebRTC-based Voice AI
+
+As setting up real-time API from OpenAI is quite tricky, I've borrowed most of the code from [repository](https://github.com/cameronking4/openai-realtime-api-nextjs) created by [Cameron King](https://github.com/cameronking4). In short, the code authorizes the WebRTC connection in a [separate controller](https://github.com/finom/vovk-ai-demo/blob/main/src/modules/realtime/RealtimeController.ts), and then establishes a peer-to-peer connection with OpenAI Realtime API, sending audio data from the microphone and receiving text and audio responses. The original hooks, such as `useToolsFunctions` and `useWebRTCAudioSession`, are left as is, with only a few minor changes.
+
+## Designing the database
+
+The only requirement that we've got to perform is to make server return entities that include **entity type** (besides the ID) so that the middleware can understand where this entity should be stored in the registry. In our case we have two entities: users and tasks. For this we're going to create an enum with lower-cased entity names in singular form and add it to each table as a column with a default value.
+
+We're also going to use [prisma-zod-generator](https://www.npmjs.com/package/prisma-zod-generator?activeTab=readme) to generate Zod schemas from our Prisma models. This will help us to define Zod models automatically and make our code much shorter.
+
+```prisma filename="prisma/schema.prisma"
+// ...
+
+generator zod {
+  provider      = "prisma-zod-generator"
+  config   = "./zod-generator.config.json"
+}
+
+model User {
+  /// @zod.custom.use(z.uuid().brand<Extract<z.infer<typeof EntityTypeSchema>, 'user'>>())
+  id         String     @id @default(uuid())
+  /// @zod.custom.use(z.literal('user'))
+  entityType EntityType @default(user)
+  // ... other fields ...
+  tasks      Task[]
+}
+
+model Task {
+  /// @zod.custom.use(z.uuid().brand<Extract<z.infer<typeof EntityTypeSchema>, 'task'>>())
+  id         String     @id @default(uuid())
+  /// @zod.custom.use(z.literal('task'))
+  entityType EntityType @default(task)
+  // ... other fields ...
+  /// @zod.custom.use(z.string().uuid().brand<Extract<z.infer<typeof EntityTypeSchema>, 'user'>>())
+  userId     String
+
+  user       User       @relation(fields: [userId], references: [id])
+}
+
+enum EntityType {
+  user
+  task
+}
+```
+
+
+
+Check the full schema at the [GitHub repository](https://github.com/finom/vovk-ai-demo/blob/main/prisma/schema.prisma).
+
+Notice the triple slashes comments. As the app is going to work with entity IDs, we need to distinguish between IDs of different entity types implemented as branded types. We're also using branded types for entityType column, turning them into literals.
+
+That's it. Each time when you invoke `npx prisma generate`, the Zod schemas are going to be generated automatically at `src/prisma/generated` folder with all the necessary type specifics.
+
+## Setting up the back-end
+
+As we're going to use [function calling](/function-calling) we're going to apply a workaround decribed at [Zod / Trobleshooting](/validation/zod#troubleshooting) that allows to generate JSON schemas from Zod using draft-07 version by creating `withZod` helper function with `createStandardValidation` that creates a validation library with [Standard Schema](/validation/standard).
+
+```ts filename="src/lib/withZod.ts"
+import { z } from 'zod';
+import { createStandardValidation } from 'vovk';
+
+export const withZod = createStandardValidation({
+  toJSONSchema: (model: z.core.$ZodType) => z.toJSONSchema(model, { target: 'draft-7' }),
+});
+```
+
+
+For additional type safety, let's create a `BaseEntity` interface that describes the base fields of all entities in the database for additional type checking.
+
+
+```ts filename="src/types.ts"
+import { EntityType } from "@prisma/client";
+
+export interface BaseEntity {
+  id: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  entityType: EntityType;
+}
+```
+
+For the sake of simplicity, we also need to create a reusable constant `BASE_FIELDS` that is going to be used to omit `id`, `entityType`, `createdAt` and `updatedAt` fields from the input models.
+
+```ts filename="src/constants.ts"
+export const BASE_FIELDS = {
+  id: true,
+  entityType: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+```
+
+
+At this case we can easily get the update models by omitting these fields from the generated Zod schemas.
+
+```ts
+import { UserSchema } from "../../../prisma/generated/schemas";
+import { BASE_FIELDS } from "../../../constants";
+const UpdateUserSchema = UserSchema.omit(BASE_FIELDS);
+```
+
+The controllers and services are quite self-explanatory: we decorate each method with `@operation` decorator, and create handlers with `withZod` function. They have some additional features that will be described later:
+
+- [@operation](/openapi) decorator accepts `x-tool-successMessage` and  `x-tool-errorMessage` used for MCP responses, described at the [MCP](/mcp) article.
+- Database requests are invoked using `DatabaseService.prisma` where the `prisma` property is a normal Prisma client instance with [extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions). One of the features relevant to this article is that it adds `__isDeleted` property to the deleted entities when `prisma.xxx.delete` method is invoked. Rest of the features will be described at [polling](/polling) article.
+
+<GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts']} repo="vovk-ai-demo" />
+
+Task controller and service implemented in the same way.
+
+## Setting up the application state
+
+As we've discussed above, the application state is going to be normalized and store entities in a dictionary by their IDs. The registry is going to have a `parse` method that accepts any data and extracts entities from it, storing them in the registry. The method is going to be used to process all incoming data from the server, so that all components that use this data are going to be updated automatically.
+
+```ts filename="src/registry.ts"
+import { EntityType } from "@prisma/client";
+import { create } from "zustand";
+import fastDeepEqual from "fast-deep-equal";
+import type { BaseEntity } from "./types";
+import type { UserType } from "../prisma/generated/schemas/models/User.schema";
+import type { TaskType } from "../prisma/generated/schemas/models/Task.schema";
+
+interface Registry {
+  parse: (data: unknown) => Partial<{
+    [key in EntityType]: BaseEntity[];
+  }>;
+}
+function getEntitiesFromResponse(
+  data: unknown,
+  entities: Partial<{ [key in EntityType]: BaseEntity[] }> = {},
+) {
+  if (Array.isArray(data)) {
+    data.forEach((item) => getEntitiesFromResponse(item, entities));
+  } else if (typeof data === "object" && data !== null) {
+    Object.values(data).forEach((value) =>
+      getEntitiesFromResponse(value, entities),
+    );
+    if ("entityType" in data && "id" in data) {
+      const entityType = data.entityType as EntityType;
+      entities[entityType] ??= [];
+      entities[entityType].push(data as BaseEntity);
+    }
+  }
+  return entities;
+}
+
+const synced: Partial<Record<EntityType, boolean>> = {};
+
+export const useRegistry = create<Registry>((set, get) => ({
+  [EntityType.user]: {},
+  [EntityType.task]: {},
+  parse: (data) => {
+    const entities = getEntitiesFromResponse(data);
+    set((state) => {
+      const newState: Record<string, unknown> = {};
+      Object.entries(entities).forEach(([entityType, entityList]) => {
+        const type = entityType as EntityType;
+        const descriptors = Object.getOwnPropertyDescriptors(state[type] ?? {});
+        entityList.forEach((entity) => {
+          descriptors[entity.id] =
+            descriptors[entity.id]?.value &&
+            fastDeepEqual(descriptors[entity.id]?.value, entity)
+              ? descriptors[entity.id]
+              : ({
+                  value: { ...descriptors[entity.id]?.value, ...entity },
+                  configurable: true,
+                  writable: false,
+                } satisfies PropertyDescriptor);
+          descriptors[entity.id].enumerable = !("__isDeleted" in entity);
+        });
+        newState[type] = Object.defineProperties({}, descriptors);
+      });
+      const resultState = { ...state, ...newState };
+      return resultState;
+    });
+    return entities;
+  },
+}));
+```
+
+The code is small but quite complex, so let's break it down:
+
+`getEntitiesFromResponse` is a recursive function that extracts entities from any data structure, based on the presence of `entityType` and `id` properties. Let's say the server returns the following response:
+
+```json
+{
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Task 1",
+      "entityType": "task",
+      "user": {
+        "id": "user-1",
+        "fullName": "John Doe",
+        "entityType": "user"
+      }
+    },
+    {
+      "id": "task-2",
+      "title": "Task 2",
+      "entityType": "task",
+      "user": {
+        "id": "user-2",
+        "fullName": "Jane Doe",
+        "entityType": "user"
+      }
+    }
+  ]
+}
+```
+
+The function is going to walk thru the entire object and extract all entities, turning the object into a preliminary format and **not** modifying the original database objects:
+
+```ts
+{
+  "task": [
+    { "id": "task-1", "title": "Task 1", "entityType": "task", "user": { /* stays the same */ } },
+    { "id": "task-2", "title": "Task 2", "entityType": "task", "user": { /* stays the same */ } }
+  ],
+  "user": [
+    { "id": "user-1", "fullName": "John Doe", "entityType": "user" },
+    { "id": "user-2", "fullName": "Jane Doe", "entityType": "user" }
+  ]
+}
+```
+
+Now let's take our thinking hat on and break down the `useRegistry` store created by `create` function from Zustand. 
+
+First two bits such as `[EntityType.user]: {}` and `[EntityType.task]: {}` are the objects where the entities are going to be stored, with entity IDs as keys. 
+
+The third bit is the `parse` method that accepts any data, extracts entities from it and stores them in the registry. That's where the magic happens. Instead of simply extending the state with new entities, we're using `Object.getOwnPropertyDescriptors` to get the property descriptors of the existing entities. This way we can check if the entity already exists in the state and if it does, we can compare it with the new entity using `fast-deep-equal` library. If the entities are equal, we don't update the state, otherwise we create a new property descriptor with the updated entity. This way we can avoid unnecessary re-renders of the components that use this entity. The `__isDeleted` property is used to mark entities as deleted without actually removing them from the state, avoiding errors in components that might still reference them. Once `__isDeleted` is received (see service code above), the property descriptor is marked as non-enumerable, so it won't be included in `Object.values` or `Object.keys` calls, making the entity effectively invisible.
+
+That's it. Each time when the data is received from the server, it needs to go thru the `parse` method of the registry, and all components that use the data are going to be updated automatically.
+
+## Setting up the `fetcher`
+
+The last piece of the puzzle is to create a `fetcher` function (mentioned above as a "middleware") that is going to be used by the application to request data from the server. You can find more details about it at [imports](/imports#fetcher) article.
+
+The fetcher is going to implement `transformResponse` function that is going to process all incoming data, passing it to the `parse` method of the registry. The function is also going to handle both regular JSON data and async iterables (if you use [JSONLines](/controller/jsonlines) responses).
+
+```ts filename="src/lib/fetcher.ts"
+import { useRegistry } from "@/registry";
+import { createFetcher } from "vovk";
+
+export const fetcher = createFetcher({
+  transformResponse: async (data) => {
+    const state = useRegistry.getState();
+    if (
+      data && typeof data === "object" &&
+      Symbol.asyncIterator in data &&
+      "onIterate" in data &&
+      typeof data.onIterate === "function"
+    ) {
+      data.onIterate(state.parse); // handle each item in the async iterable
+      return data;
+    }
+
+    state.parse(data); // parse regular JSON data
+    return data;
+  },
+});
+```
+
+Declare the fetcher in the [config](/config). It will replace the default `fetcher` imported by the generated [client](/typescript).
+
+```ts filename="src/config.ts"
+// @ts-check
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  generatorConfig: {
+    imports: {
+      // ...
+      fetcher: "./src/lib/fetcher.ts",
+    },
+  }
+};
+
+export default config;
+```
+
+That's it. From now on, each request is going to be processed by the registry `parse` method, and manual response handling is not required anymore.
+
+
+```tsx
+import { useShallow } from "zustand/shallow";
+import { useQuery } from "@tanstack/react-query";
+import { UserRPC } from "vovk-client";
+import { useRegistry } from "@/registry";
+import { UserType } from "../../prisma/generated/schemas/models/User.schema";
+
+interface Props {
+  userIds: UserType["id"][]; // an array of branded user IDs
+}
+
+const UsersExample = ({ userIds }: Props) => {
+  useQuery({
+    queryKey: UserRPC.getUsers.queryKey(),
+    queryFn: () => UserRPC.getUsers(),
+  });
+
+  const users = useRegistry(
+    useShallow((state) => userIds.map((id) => state.user[id])),
+  );
+
+  return <div>
+    <ul>
+      {users.map((user) => (
+        <li key={user.id}>{user.fullName}</li>
+      ))}
+    </ul>
+  </div>;
+};
+
+export default UsersExample;
+```
+
+As you can see `useQuery` invocation doesn't require to use `data` property anymore, as the response is processed by the registry automatically. The invocation of `UserRPC.getUsers()` or any other server-side method (with `useQuery` or without) can be placed anywhere in the app, and all components that use user data are going to be updated automatically.
+
+## Final bit: enabling function calling
+
+As Cameron King provided a solid framework for Next.js + OpenAI Realtime API + Function Calling, the only thing left is to extend or replace existing tools with `createLLMTools` function from Vovk.ts, that turns RPC modules into tools that can be used by any LLM setup.
+
+```ts filename="src/components/RealTimeDemo.tsx" {10-12, 26}
+"use client";
+import { useToolsFunctions } from "@/hooks/use-tools";
+import useWebRTCAudioSession from "@/hooks/use-webrtc";
+import { tools } from "@/lib/tools"; // default tools by Cameron King
+import { useEffect, useState } from "react";
+import { createLLMTools } from "vovk";
+import { TaskRPC, UserRPC } from "vovk-client";
+import Floaty from "./Floaty";
+
+const { tools: llmTools } = createLLMTools({
+  modules: { TaskRPC, UserRPC },
+});
+
+const RealTimeDemo = () => {
+  // State for voice selection
+  const [voice] = useState<"ash" | "ballad" | "coral" | "sage" | "verse">(
+    "ash",
+  );
+
+  // WebRTC Audio Session Hook
+  const {
+    isSessionActive,
+    registerFunction,
+    handleStartStopClick,
+    currentVolume,
+  } = useWebRTCAudioSession(voice, [...tools, ...llmTools]);
+
+  // Get all tools functions
+  const toolsFunctions = useToolsFunctions();
+
+  useEffect(() => {
+    // Register all functions by iterating over the object
+    Object.entries(toolsFunctions).forEach(([name, func]) => {
+      const functionNames: Record<string, string> = {
+        timeFunction: "getCurrentTime",
+        partyFunction: "partyMode",
+        scrapeWebsite: "scrapeWebsite",
+      };
+
+      registerFunction(functionNames[name], func);
+    });
+
+    // Register all LLM tools functions
+    llmTools.forEach(({ name, execute }) => {
+      registerFunction(name, execute);
+    });
+  }, [registerFunction, toolsFunctions]);
+
+  return (
+    <div>
+      <Floaty
+        isActive={isSessionActive}
+        volumeLevel={currentVolume}
+        handleClick={handleStartStopClick}
+      />
+    </div>
+  );
+};
+
+export default RealTimeDemo;
+```
+
+For more details, check the full code of the component at the [GitHub repository](https://github.com/finom/vovk-ai-demo/blob/main/src/components/RealTimeDemo.tsx) that imports the [Floaty component](https://github.com/finom/vovk-ai-demo/blob/main/src/components/Floaty.tsx).

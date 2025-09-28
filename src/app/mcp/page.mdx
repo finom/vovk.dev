@@ -1,5 +1,133 @@
 # MCP Server
 
-Coming soon.
+Once we've covered [Function Calling](/function-calling), [Real-time UI](/realtime-ui) but also how to do [real-time polling](/polling), it's time to add the last bit of the puzzle and proof that [your API is an MCP](https://www.youtube.com/watch?v=eeOANluSqAE) if it's built with Vovk.ts. For that we're going to use [@vercel/mcp-adapter](https://www.npmjs.com/package/@vercel/mcp-adapter) package that allows us to easily create an MCP server on Nest.js.
 
-https://www.youtube.com/watch?v=eeOANluSqAE
+The `createLLMTools` function accepts a `resultFormatter` option that accepts a function to format the result of the tool execution that's coming back to the LLM, but also a string with a special value `mcp` that formats the result in a way that MCP server expects. This is all we need to do to make our tools output MCP-compatible and return the results in the following format:
+
+```ts
+{
+    content: [
+      {
+        type: 'text',
+        text: 'Result text',
+      },
+    ],
+}
+```
+
+```ts {7}
+import { createLLMTools } from "vovk";
+import UserController from "@/modules/user/UserController";
+import TaskController from "@/modules/task/TaskController";
+
+const { tools } = createLLMTools({
+  modules: {
+    UserController,
+    TaskController,
+  },
+  resultFormatter: "mcp",
+});
+```
+
+There is where custom operation properties such as `x-tool-successMessage` and  `x-tool-errorMessage` will be useful to make the output more LLM-friendly.
+
+```ts {12-13}
+import { prefix, get, put, post, del, operation } from "vovk";
+import UserService from "./UserService";
+import { z } from "zod";
+import { BASE_FIELDS } from "@/constants";
+import { UserSchema } from "../../../prisma/generated/schemas";
+import { withZod } from "@/lib/withZod";
+
+@prefix("users")
+export default class UserController {
+  @operation({
+    summary: "Update user",
+    description:
+      "Updates an existing user with the provided details, such as their email or name.",
+    "x-tool-successMessage": "User updated successfully",
+    "x-tool-errorMessage": "Failed to update user",
+  })
+  @put("{id}")
+  static updateUser = withZod({
+    body: UserSchema.omit(BASE_FIELDS).partial(),
+    params: UserSchema.pick({ id: true }),
+    handle: async ({ vovk }) =>
+      UserService.updateUser(vovk.params().id, await vovk.body()),
+  });
+}
+```
+
+This will turn the `text` property of the output to "User updated successfully" or "Failed to update user" depending on the result of the operation, concatenated with the actual serialized result or error message.
+
+```ts
+{
+    content: [
+      {
+        type: 'text',
+        text: 'User updated successfully\nResult: { id: 1, email: "user@example.com" }',
+      },
+    ],
+}
+```
+
+Now create the route file as per the [adapter documentation](https://github.com/vercel/mcp-handler).
+
+
+```ts filename="src/app/api/mcp/route.mdx" {1-36}
+import { createMcpHandler } from "@vercel/mcp-adapter";
+import { createLLMTools } from "vovk";
+import UserController from "@/modules/user/UserController";
+import TaskController from "@/modules/task/TaskController";
+import { convertJsonSchemaToZod } from "zod-from-json-schema";
+import { mapValues } from "lodash";
+
+const { tools } = createLLMTools({
+  modules: {
+    UserController,
+    TaskController,
+  },
+  resultFormatter: "mcp",
+  onError: (e) => console.error("Error", e),
+});
+
+const handler = createMcpHandler(
+  (server) => {
+    tools.forEach(({ name, execute, description, parameters }) => {
+      server.tool(
+        name,
+        description,
+        mapValues(parameters?.properties ?? {}, convertJsonSchemaToZod),
+        execute,
+      );
+    });
+  },
+  {},
+  { basePath: "/api" },
+);
+
+export { handler as GET, handler as POST, handler as DELETE };
+```
+
+As you can see, we convert the JSON Schema parameters of each tool to Zod schemas using [zod-from-json-schema](https://www.npmjs.com/package/zod-from-json-schema) package, as MCP adapter expects Zod schemas. This will work for all available validation libraries. But if you use Zod, you can also use `models` property of a tool to get the Zod schema directly, as shown below:
+
+```ts
+// ...
+const handler = createMcpHandler(
+  (server) => {
+    tools.forEach(({ name, execute, description, models }) => {
+      server.tool(
+        name,
+        description,
+        models,
+        execute,
+      );
+    });
+  },
+  {},
+  { basePath: "/api" },
+);
+// ...
+```
+
+Note that the `models` property is only available for [callable handlers](/controller/fn) but not for RPC modules.

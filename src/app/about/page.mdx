@@ -144,9 +144,9 @@ export const { GET, POST, PUT, DELETE } = initSegment({
 </Tabs.Tab>
 </Tabs>
 
-> [!WARNING]
+> [!IMPORTANT]
 >
-> This feature requires an additional check of return type, or manual type annotation, as `handle` function isn't related to its output type, allowing to return `any`. Use `x satisfies VovkOutput<typeof f>{:ts}` or annotate the return type manually.
+> This feature should use an additional check of return type, or manual type annotation, as `handle` function isn't related to its output type, allowing to return `any`. Use `x satisfies VovkOutput<typeof f>{:ts}` or annotate the return type manually. This is not required for proper type inference, but might be useful when handler requires strict type checking.
 
 **More info**
 
@@ -422,7 +422,7 @@ Thanks to the JSON schema emission and access to the back-end data that was neve
 - Validation:
   - Server-side, to validate incoming requests with Zod, Arktype and other libraries and return an error if the data is invalid.
   - Client-side, to validate data with Ajv before sending the request and throw an error if the data is invalid in the client.
-- Code generation for TypeScript, Rust, Python, from the back-end schema and from 3rd party OpenAPI schema.
+- Code generation for TypeScript, Rust, Python, from the back-end schema.
 - OpenAPI object, exported as `openapi` variable.
 - Copy-pastable code snippets for READMEs and OpenAPI documentation.
 - Function Calling
@@ -431,7 +431,7 @@ Thanks to the JSON schema emission and access to the back-end data that was neve
 - And more, as developer now has access to the back-end schema to generate more ideas.\
 
 **More info**
-TODO
+- TODO
 
 ## JSON Lines
 
@@ -596,7 +596,7 @@ import { UserRPC, openapi } from 'vovk-client';
 console.log(openapi);
 ```
 
-The OpenAPI doc feature includes first class support for [Scalar](https://github.com/scalar/scalar), generating copy-pastable code snippets that include documentation to the input and output data represented in comments. Here is an example of a snippet generated automatically for the ["Hello World" example](/hello-world) that you can also view [here](https://vovk-hello-world.vercel.app/scalar):
+The OpenAPI doc feature includes first class support for [Scalar](https://github.com/scalar/scalar), generating copy-pastable code snippets that include documentation to the input and output data represented in comments. Here is an example of a snippet generated automatically for the ["Hello World" example](/hello-world) that you can also view [here](https://vovk-hello-world.vercel.app/openapi):
 
 ```ts
 import { UserRPC } from 'vovk-client';

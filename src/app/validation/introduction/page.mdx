@@ -77,7 +77,7 @@ const result = await UserController.updateUser.fn({
 });
 
 // same as
-UserRPC.updateUser({
+const result = await UserRPC.updateUser({
     body: { /* ... */ },
     query: { /* ... */ },
     params: { /* ... */ },

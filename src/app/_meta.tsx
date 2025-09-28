@@ -64,7 +64,7 @@ const meta = {
   'other-scenarios': 'Other scenarios',
 
   '#ai': separator('AI Applications'),
-  llm: 'LLM completions',
+  llm: 'LLM completions 🚧',
   'function-calling': 'AI tools 🚧',
   'realtime-ui': 'Real-time UI 🧪 🚧',
   polling: 'Real-time Polling 🧪 🚧',
