@@ -10,7 +10,7 @@
 :HL["/_next/static/css/d78647fffc29caa1.css","style"]
 :HL["/_next/static/css/1b5d19eeadf69a6f.css","style"]
 :HL["/_next/static/css/dd578b615c49e924.css","style"]
-0:{"P":null,"b":"7nvjqHlj__0sL45waGflC","p":"","c":["","polling"],"i":false,"f":[[["",{"children":["polling",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/d78647fffc29caa1.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/_next/static/css/1b5d19eeadf69a6f.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","2",{"rel":"stylesheet","href":"/_next/static/css/dd578b615c49e924.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],"$L2"]}],{"children":["polling",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","div",null,{"className":"x:mx-auto x:flex x:max-w-(--nextra-content-width)","children":["$","$L5",null,{"value":[{"value":"Redis DB as event bus","id":"redis-db-as-event-bus","depth":2},{"value":"Polling endpoint","id":"polling-endpoint","depth":2},{"value":"Client-side logic","id":"client-side-logic","depth":2},{"value":"Practical usage: Telegram bot","id":"practical-usage-telegram-bot","depth":2}],"children":[["$","$L6",null,{}],["$","$L7",null,{"metadata":{"title":"Real-time polling (experimental)","filePath":"src/app/polling/page.mdx","timestamp":1758033879000},"bottomContent":"$undefined","children":[["$","div",null,{"id":"nextra-skip-nav"}],["$","main",null,{"data-pagefind-body":true,"children":[["$","h1",null,{"id":"$undefined","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-bold x:mt-2 x:text-4xl","children":["Real-time polling (experimental)","$undefined"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["In the ",["$","$L8",null,{"href":"/realtime-ui","prefetch":"$undefined","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"previous article"}]," we’ve covered how to use LLM Real-time API to get instant updates in the UI while user talks to the app. On this page we’ll cover how to use an experimental polling feature to get updates from the server made by other users or third party services, such as ",["$","$L8",null,{"href":"/mcp","prefetch":"$undefined","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"MCP"}],", getting UI to be in sync with the server. In order to make the app deployable to any hosting provider, we want to avoid any non-HTTP protocols, such as WebSockets, so we use simple HTTP polling powered by ",["$","$L8",null,{"href":"/controller/jsonlines","prefetch":"$undefined","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"JSONLines"}]," to achieve this."]}],"\n",["$","h2",null,{"id":"redis-db-as-event-bus","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["Redis DB as event bus",["$","$L9",null,{"id":"redis-db-as-event-bus"}]]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"Theoretically, we could just poll the main database for changes, but that would be inefficient in terms of DB load and network traffic. Instead, we use a separate Redis database as an event bus. Whenever something changes in the main database, we write a small event to Redis, and our polling service reads these events and sends them to the clients."}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["Since we use ",["$","a",null,{"href":"https://www.prisma.io/","target":"_blank","rel":"noreferrer","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":["Prisma","$La"]}]," as our main database ORM, we can use ","$Lb"," to hook into database operations and write events to Redis. That’s where the ","$Lc"," mentioned at ","$Ld"," comes into play."]}],"\n","$Le","\n","$Lf","\n","$L10","\n","$L11","\n","$L12","\n","$L13","\n","$L14","\n","$L15","\n","$L16","\n","$L17"]}]]}]]}]}],null,"$L18"]}],{},null,false]},null,false]},null,false],"$L19",false]],"m":"$undefined","G":["$1a",[]],"s":false,"S":true}
+0:{"P":null,"b":"9ZYgnVwH9Ux_DDo1HFPPd","p":"","c":["","polling"],"i":false,"f":[[["",{"children":["polling",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/d78647fffc29caa1.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/_next/static/css/1b5d19eeadf69a6f.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","2",{"rel":"stylesheet","href":"/_next/static/css/dd578b615c49e924.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],"$L2"]}],{"children":["polling",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","div",null,{"className":"x:mx-auto x:flex x:max-w-(--nextra-content-width)","children":["$","$L5",null,{"value":[{"value":"Redis DB as event bus","id":"redis-db-as-event-bus","depth":2},{"value":"Polling endpoint","id":"polling-endpoint","depth":2},{"value":"Client-side logic","id":"client-side-logic","depth":2},{"value":"Practical usage: Telegram bot","id":"practical-usage-telegram-bot","depth":2}],"children":[["$","$L6",null,{}],["$","$L7",null,{"metadata":{"title":"Real-time polling (experimental)","filePath":"src/app/polling/page.mdx","timestamp":1758033879000},"bottomContent":"$undefined","children":[["$","div",null,{"id":"nextra-skip-nav"}],["$","main",null,{"data-pagefind-body":true,"children":[["$","h1",null,{"id":"$undefined","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-bold x:mt-2 x:text-4xl","children":["Real-time polling (experimental)","$undefined"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["In the ",["$","$L8",null,{"href":"/realtime-ui","prefetch":"$undefined","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"previous article"}]," we’ve covered how to use LLM Real-time API to get instant updates in the UI while user talks to the app. On this page we’ll cover how to use an experimental polling feature to get updates from the server made by other users or third party services, such as ",["$","$L8",null,{"href":"/mcp","prefetch":"$undefined","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"MCP"}],", getting UI to be in sync with the server. In order to make the app deployable to any hosting provider, we want to avoid any non-HTTP protocols, such as WebSockets, so we use simple HTTP polling powered by ",["$","$L8",null,{"href":"/controller/jsonlines","prefetch":"$undefined","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"JSONLines"}]," to achieve this."]}],"\n",["$","h2",null,{"id":"redis-db-as-event-bus","className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-semibold x:target:animate-[fade-in_1.5s] x:mt-10 x:border-b x:pb-1 x:text-3xl nextra-border","children":["Redis DB as event bus",["$","$L9",null,{"id":"redis-db-as-event-bus"}]]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":"Theoretically, we could just poll the main database for changes, but that would be inefficient in terms of DB load and network traffic. Instead, we use a separate Redis database as an event bus. Whenever something changes in the main database, we write a small event to Redis, and our polling service reads these events and sends them to the clients."}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["Since we use ",["$","a",null,{"href":"https://www.prisma.io/","target":"_blank","rel":"noreferrer","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":["Prisma","$La"]}]," as our main database ORM, we can use ","$Lb"," to hook into database operations and write events to Redis. That’s where the ","$Lc"," mentioned at ","$Ld"," comes into play."]}],"\n","$Le","\n","$Lf","\n","$L10","\n","$L11","\n","$L12","\n","$L13","\n","$L14","\n","$L15","\n","$L16","\n","$L17"]}]]}]]}]}],null,"$L18"]}],{},null,false]},null,false]},null,false],"$L19",false]],"m":"$undefined","G":["$1a",[]],"s":false,"S":true}
 1b:I[8033,["2545","static/chunks/c16f53c3-d20dab724af58680.js","3975","static/chunks/3975-c183e52fb95b5d73.js","7576","static/chunks/7576-50cfa79157b85a13.js","326","static/chunks/app/polling/page-d47804cd84d302ae.js"],"ToggleWordWrapButton"]
 2d:I[59665,[],"OutletBoundary"]
 2f:I[74911,[],"AsyncMetadataOutlet"]
@@ -147,171 +147,6 @@ export default class PollService {
 5c:["$","div",null,{"data-bright-theme":"github-light","data-bright-mode":"light","className":"$undefined","style":{"color":"#24292f","borderRadius":"4px","overflow":"hidden","margin":"1em 0","--selection-background":"#ADD6FF","--line-number-color":"#8c959f","--tab-border":"#d0d7de","--tab-background":"#ffffff","--tab-color":"#24292f","--inactive-tab-background":"#f6f8fa","--inactive-tab-color":"#57606a","--tab-top-border":"#fd8c73","--tab-bottom-border":"#ffffff","colorScheme":"light"},"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"[data-bright-mode=\"light\"] { display: none }\n[data-theme=\"light\"] [data-bright-mode=\"light\"] { display: block }\n  [data-bright-theme] ::selection { background-color: var(--selection-background) }\n  [data-bright-theme] [data-bright-ln] { \n    color: var(--line-number-color); \n    margin-right: 1.5ch; \n    display: inline-block;\n    text-align: right;\n    user-select: none;\n  }\n  "}}],"$undefined",["$","pre",null,{"style":{"margin":0,"color":"#24292f","background":"#ffffff","padding":"1em 0","overflow":"auto"},"children":["$","code",null,{"className":"$undefined","style":{"display":"block","minWidth":"fit-content"},"children":[["$","div","0",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":1,"style":{"width":"2ch"},"children":1}],[["$","span","0",{"style":{"color":"#CF222E"},"children":"import"}],["$","span","1",{"style":{"color":"#24292F"},"children":" { EntityType } "}],["$","span","2",{"style":{"color":"#CF222E"},"children":"from "}],["$","span","3",{"style":{"color":"#0A3069"},"children":"\"@prisma/client\""}],["$","span","4",{"style":{"color":"#24292F"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","1",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":2,"style":{"width":"2ch"},"children":2}],[["$","span","0",{"style":{"color":"#CF222E"},"children":"import"}],["$","span","1",{"style":{"color":"#24292F"},"children":" { get, JSONLinesResponse, prefix, VovkIteration } "}],["$","span","2",{"style":{"color":"#CF222E"},"children":"from "}],["$","span","3",{"style":{"color":"#0A3069"},"children":"\"vovk\""}],["$","span","4",{"style":{"color":"#24292F"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","2",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":3,"style":{"width":"2ch"},"children":3}],[["$","span","0",{"style":{"color":"#CF222E"},"children":"import"}],["$","span","1",{"style":{"color":"#24292F"},"children":" { z } "}],["$","span","2",{"style":{"color":"#CF222E"},"children":"from "}],["$","span","3",{"style":{"color":"#0A3069"},"children":"\"zod\""}],["$","span","4",{"style":{"color":"#24292F"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","3",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":4,"style":{"width":"2ch"},"children":4}],[["$","span","0",{"style":{"color":"#CF222E"},"children":"import"}],["$","span","1",{"style":{"color":"#24292F"},"children":" DatabasePollService "}],["$","span","2",{"style":{"color":"#CF222E"},"children":"from "}],["$","span","3",{"style":{"color":"#0A3069"},"children":"\"./DatabasePollService\""}],["$","span","4",{"style":{"color":"#24292F"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","4",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":5,"style":{"width":"2ch"},"children":5}],[["$","span","0",{"style":{"color":"#CF222E"},"children":"import"}],["$","span","1",{"style":{"color":"#24292F"},"children":" { TaskSchema, UserSchema } "}],["$","span","2",{"style":{"color":"#CF222E"},"children":"from "}],["$","span","3",{"style":{"color":"#0A3069"},"children":"\"../../../prisma/generated/schemas\""}],["$","span","4",{"style":{"color":"#24292F"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","5",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":6,"style":{"width":"2ch"},"children":6}],[["$","span","0",{"style":{"color":"#CF222E"},"children":"import"}],["$","span","1",{"style":{"color":"#24292F"},"children":" { withZod } "}],["$","span","2",{"style":{"color":"#CF222E"},"children":"from "}],["$","span","3",{"style":{"color":"#0A3069"},"children":"\"@/lib/withZod\""}],["$","span","4",{"style":{"color":"#24292F"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","6",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":7,"style":{"width":"2ch"},"children":7}],[["$","span","0",{"style":{"color":"#24292F"},"children":""}]],["$","br",null,{}]]}]}],["$","div","7",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":8,"style":{"width":"2ch"},"children":8}],[["$","span","0",{"style":{"color":"#24292F"},"children":"@"}],["$","span","1",{"style":{"color":"#8250DF"},"children":"prefix"}],"$L146","$L147","$L148"],"$L149"]}]}],"$L14a","$L14b","$L14c","$L14d","$L14e","$L14f","$L150","$L151","$L152","$L153","$L154","$L155","$L156","$L157","$L158","$L159","$L15a","$L15b","$L15c","$L15d","$L15e","$L15f","$L160"]}]}]]}]
 5d:["$","div",null,{"data-bright-theme":"github-dark","data-bright-mode":"dark","className":"$undefined","style":{"color":"#c9d1d9","borderRadius":"4px","overflow":"hidden","margin":"1em 0","--selection-background":"#264F78","--line-number-color":"#6e7681","--tab-border":"#30363d","--tab-background":"#0d1117","--tab-color":"#c9d1d9","--inactive-tab-background":"#010409","--inactive-tab-color":"#8b949e","--tab-top-border":"#f78166","--tab-bottom-border":"#0d1117","colorScheme":"dark"},"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"[data-bright-mode=\"dark\"] { display: block }\n[data-theme=\"light\"] [data-bright-mode=\"dark\"] { display: none }\n  [data-bright-theme] ::selection { background-color: var(--selection-background) }\n  [data-bright-theme] [data-bright-ln] { \n    color: var(--line-number-color); \n    margin-right: 1.5ch; \n    display: inline-block;\n    text-align: right;\n    user-select: none;\n  }\n  "}}],"$undefined",["$","pre",null,{"style":{"margin":0,"color":"#c9d1d9","background":"#0d1117","padding":"1em 0","overflow":"auto"},"children":["$","code",null,{"className":"$undefined","style":{"display":"block","minWidth":"fit-content"},"children":[["$","div","0",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":1,"style":{"width":"2ch"},"children":1}],[["$","span","0",{"style":{"color":"#FF7B72"},"children":"import"}],["$","span","1",{"style":{"color":"#C9D1D9"},"children":" { EntityType } "}],["$","span","2",{"style":{"color":"#FF7B72"},"children":"from "}],["$","span","3",{"style":{"color":"#A5D6FF"},"children":"\"@prisma/client\""}],["$","span","4",{"style":{"color":"#C9D1D9"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","1",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":2,"style":{"width":"2ch"},"children":2}],[["$","span","0",{"style":{"color":"#FF7B72"},"children":"import"}],["$","span","1",{"style":{"color":"#C9D1D9"},"children":" { get, JSONLinesResponse, prefix, VovkIteration } "}],["$","span","2",{"style":{"color":"#FF7B72"},"children":"from "}],["$","span","3",{"style":{"color":"#A5D6FF"},"children":"\"vovk\""}],["$","span","4",{"style":{"color":"#C9D1D9"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","2",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":3,"style":{"width":"2ch"},"children":3}],[["$","span","0",{"style":{"color":"#FF7B72"},"children":"import"}],["$","span","1",{"style":{"color":"#C9D1D9"},"children":" { z } "}],["$","span","2",{"style":{"color":"#FF7B72"},"children":"from "}],["$","span","3",{"style":{"color":"#A5D6FF"},"children":"\"zod\""}],["$","span","4",{"style":{"color":"#C9D1D9"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","3",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":4,"style":{"width":"2ch"},"children":4}],[["$","span","0",{"style":{"color":"#FF7B72"},"children":"import"}],["$","span","1",{"style":{"color":"#C9D1D9"},"children":" DatabasePollService "}],["$","span","2",{"style":{"color":"#FF7B72"},"children":"from "}],["$","span","3",{"style":{"color":"#A5D6FF"},"children":"\"./DatabasePollService\""}],["$","span","4",{"style":{"color":"#C9D1D9"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","4",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":5,"style":{"width":"2ch"},"children":5}],[["$","span","0",{"style":{"color":"#FF7B72"},"children":"import"}],["$","span","1",{"style":{"color":"#C9D1D9"},"children":" { TaskSchema, UserSchema } "}],["$","span","2",{"style":{"color":"#FF7B72"},"children":"from "}],["$","span","3",{"style":{"color":"#A5D6FF"},"children":"\"../../../prisma/generated/schemas\""}],["$","span","4",{"style":{"color":"#C9D1D9"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","5",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":6,"style":{"width":"2ch"},"children":6}],[["$","span","0",{"style":{"color":"#FF7B72"},"children":"import"}],["$","span","1",{"style":{"color":"#C9D1D9"},"children":" { withZod } "}],["$","span","2",{"style":{"color":"#FF7B72"},"children":"from "}],["$","span","3",{"style":{"color":"#A5D6FF"},"children":"\"@/lib/withZod\""}],["$","span","4",{"style":{"color":"#C9D1D9"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","6",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":7,"style":{"width":"2ch"},"children":7}],[["$","span","0",{"style":{"color":"#C9D1D9"},"children":""}]],["$","br",null,{}]]}]}],["$","div","7",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":8,"style":{"width":"2ch"},"children":8}],[["$","span","0",{"style":{"color":"#C9D1D9"},"children":"@"}],["$","span","1",{"style":{"color":"#D2A8FF"},"children":"prefix"}],"$L161","$L162","$L163"],"$L164"]}]}],"$L165","$L166","$L167","$L168","$L169","$L16a","$L16b","$L16c","$L16d","$L16e","$L16f","$L170","$L171","$L172","$L173","$L174","$L175","$L176","$L177","$L178","$L179","$L17a","$L17b"]}]}]]}]
 5e:["$","div",null,{"data-bright-theme":"github-light","data-bright-mode":"light","className":"$undefined","style":{"color":"#24292f","borderRadius":"4px","overflow":"hidden","margin":"1em 0","--selection-background":"#ADD6FF","--line-number-color":"#8c959f","--tab-border":"#d0d7de","--tab-background":"#ffffff","--tab-color":"#24292f","--inactive-tab-background":"#f6f8fa","--inactive-tab-color":"#57606a","--tab-top-border":"#fd8c73","--tab-bottom-border":"#ffffff","colorScheme":"light"},"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"[data-bright-mode=\"light\"] { display: none }\n[data-theme=\"light\"] [data-bright-mode=\"light\"] { display: block }\n  [data-bright-theme] ::selection { background-color: var(--selection-background) }\n  [data-bright-theme] [data-bright-ln] { \n    color: var(--line-number-color); \n    margin-right: 1.5ch; \n    display: inline-block;\n    text-align: right;\n    user-select: none;\n  }\n  "}}],"$undefined",["$","pre",null,{"style":{"margin":0,"color":"#24292f","background":"#ffffff","padding":"1em 0","overflow":"auto"},"children":["$","code",null,{"className":"$undefined","style":{"display":"block","minWidth":"fit-content"},"children":[["$","div","0",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":1,"style":{"width":"2ch"},"children":1}],[["$","span","0",{"style":{"color":"#CF222E"},"children":"import"}],["$","span","1",{"style":{"color":"#24292F"},"children":" { EntityType } "}],["$","span","2",{"style":{"color":"#CF222E"},"children":"from "}],["$","span","3",{"style":{"color":"#0A3069"},"children":"\"@prisma/client\""}],["$","span","4",{"style":{"color":"#24292F"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","1",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":2,"style":{"width":"2ch"},"children":2}],[["$","span","0",{"style":{"color":"#CF222E"},"children":"import"}],["$","span","1",{"style":{"color":"#24292F"},"children":" { get, JSONLinesResponse, prefix, VovkIteration } "}],["$","span","2",{"style":{"color":"#CF222E"},"children":"from "}],["$","span","3",{"style":{"color":"#0A3069"},"children":"\"vovk\""}],["$","span","4",{"style":{"color":"#24292F"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","2",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":3,"style":{"width":"2ch"},"children":3}],[["$","span","0",{"style":{"color":"#CF222E"},"children":"import"}],["$","span","1",{"style":{"color":"#24292F"},"children":" { z } "}],["$","span","2",{"style":{"color":"#CF222E"},"children":"from "}],["$","span","3",{"style":{"color":"#0A3069"},"children":"\"zod\""}],["$","span","4",{"style":{"color":"#24292F"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","3",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":4,"style":{"width":"2ch"},"children":4}],[["$","span","0",{"style":{"color":"#CF222E"},"children":"import"}],["$","span","1",{"style":{"color":"#24292F"},"children":" DatabasePollService "}],["$","span","2",{"style":{"color":"#CF222E"},"children":"from "}],["$","span","3",{"style":{"color":"#0A3069"},"children":"\"./DatabasePollService\""}],["$","span","4",{"style":{"color":"#24292F"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","4",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":5,"style":{"width":"2ch"},"children":5}],[["$","span","0",{"style":{"color":"#CF222E"},"children":"import"}],["$","span","1",{"style":{"color":"#24292F"},"children":" { TaskSchema, UserSchema } "}],["$","span","2",{"style":{"color":"#CF222E"},"children":"from "}],["$","span","3",{"style":{"color":"#0A3069"},"children":"\"../../../prisma/generated/schemas\""}],["$","span","4",{"style":{"color":"#24292F"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","5",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":6,"style":{"width":"2ch"},"children":6}],[["$","span","0",{"style":{"color":"#CF222E"},"children":"import"}],["$","span","1",{"style":{"color":"#24292F"},"children":" { withZod } "}],["$","span","2",{"style":{"color":"#CF222E"},"children":"from "}],["$","span","3",{"style":{"color":"#0A3069"},"children":"\"@/lib/withZod\""}],["$","span","4",{"style":{"color":"#24292F"},"children":";"}]],["$","br",null,{}]]}]}],["$","div","6",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":7,"style":{"width":"2ch"},"children":7}],[["$","span","0",{"style":{"color":"#24292F"},"children":""}]],["$","br",null,{}]]}]}],["$","div","7",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":8,"style":{"width":"2ch"},"children":8}],[["$","span","0",{"style":{"color":"#24292F"},"children":"@"}],["$","span","1",{"style":{"color":"#8250DF"},"children":"prefix"}],"$L17c","$L17d","$L17e"],"$L17f"]}]}],"$L180","$L181","$L182","$L183","$L184","$L185","$L186","$L187","$L188","$L189","$L18a","$L18b","$L18c","$L18d","$L18e","$L18f","$L190","$L191","$L192","$L193","$L194","$L195","$L196"]}]}]]}]
-197:T9a0,// prismaService.ts
-import { PrismaClient } from "@prisma/client";
-import { PrismaNeon } from "@prisma/adapter-neon";
-import { neonConfig } from "@neondatabase/serverless";
-import DBEventsService, { DBChange } from "./DatabaseEventsService";
-import { BaseEntity } from "@/types";
-
-if (!process.env.VERCEL_ENV) {
-  neonConfig.wsProxy = (host) => `${host}:5433/v1`;
-  neonConfig.useSecureWebSocket = false;
-  neonConfig.pipelineTLS = false;
-  neonConfig.pipelineConnect = false;
-}
-
-export default class DatabaseService {
-  static get prisma() {
-    return (this.#client ??= this.getClient());
-  }
-  static #client: ReturnType<typeof DatabaseService.getClient> | null = null;
-
-  private static getClient() {
-    const adapter = new PrismaNeon({
-      connectionString: `${process.env.DATABASE_URL}`,
-    });
-    const prisma = new PrismaClient({ adapter });
-
-    DBEventsService.startPolling();
-
-    return prisma.$extends({
-      name: "events",
-      query: {
-        $allModels: {
-          async $allOperations({ model, operation, args, query }) {
-            const result = (await query(args)) as BaseEntity;
-            if (!result?.entityType) return result;
-
-            const now = new Date().toISOString();
-            const changes: DBChange[] = [];
-
-            const makeChange = (
-              entity: BaseEntity,
-              type: DBChange["type"],
-            ) => ({
-              id: entity.id,
-              entityType: entity.entityType,
-              date:
-                type === "delete" ? now : (entity.updatedAt?.toString() ?? now),
-              type,
-            });
-
-            switch (operation) {
-              case "create":
-                if (result.id) changes.push(makeChange(result, "create"));
-                break;
-
-              case "update":
-                if (result.id) changes.push(makeChange(result, "update"));
-                break;
-
-              case "delete":
-                if (result.id) changes.push(makeChange(result, "delete"));
-                break;
-
-              // other operations like deleteMany should be implemented separately
-
-              default:
-                console.warn(
-                  `Unhandled Prisma operation: ${operation} for model: ${model}`,
-                );
-                break;
-            }
-
-            if (changes.length) {
-              await DBEventsService.write(changes);
-            }
-
-            return result;
-          },
-        },
-      },
-    });
-  }
-}
-198:T817,import { EntityType } from "@prisma/client";
-import mitt from "mitt";
-import { createClient } from "redis";
-
-export type DBChange = {
-  id: string;
-  entityType: EntityType;
-  date: string;
-  type: "create" | "update" | "delete";
-};
-
-export default class DatabaseEventsService {
-  private static readonly DB_KEY = "db_updates";
-  private static readonly INTERVAL = 1_000;
-  private static lastTimestamp = Date.now();
-
-  private static redisClient = createClient({
-    url: process.env.REDIS_URL,
-  });
-
-  // our in‑process event emitter
-  public static emitter = mitt<{
-    db_updates: DBChange[];
-  }>();
-
-  // ensure Redis is connected
-  private static async connect() {
-    if (!this.redisClient.isOpen) {
-      await this.redisClient.connect();
-      this.redisClient.on("error", (err) => {
-        console.error("Redis Client Error", err);
-      });
-    }
-  }
-
-  // push one update into our ZSET, with score = timestamp
-  public static async write(changes: DBChange[]) {
-    if (changes.length === 0) return;
-
-    await this.connect();
-
-    // build array of { score, value } objects
-    const entries = changes.map(({ id, entityType, type, date }) => ({
-      score: Date.now(),
-      value: JSON.stringify({ id, entityType, date, type }),
-    }));
-
-    // one multi(): batch ZADD + EXPIRE
-    await this.redisClient
-      .multi()
-      .zAdd(this.DB_KEY, entries)
-      .expire(this.DB_KEY, (this.INTERVAL * 60) / 1000)
-      .exec();
-  }
-
-  // start polling loop
-  public static startPolling() {
-    setInterval(async () => {
-      await this.connect();
-
-      const now = Date.now();
-
-      // 1 single command: get everything with score ∈ (lastTimestamp, now]
-      const raw = await this.redisClient.zRangeByScore(
-        this.DB_KEY,
-        this.lastTimestamp + 1,
-        now,
-      );
-
-      if (raw.length > 0) {
-        const updates = raw.map((s) => JSON.parse(s) as DBChange);
-
-        // advance our cursor
-        this.lastTimestamp = now;
-
-        // emit
-        this.emitter.emit("db_updates", updates);
-      }
-    }, this.INTERVAL);
-  }
-}
-e:["$","div",null,{"className":"bg-code rounded-lg mt-4","id":"_S_2_","children":[["$","$L4e",null,{"githubFiles":[{"path":"src/modules/database/DatabaseService.ts","content":"$197"},{"path":"src/modules/database/DatabaseEventsService.ts","content":"$198"}],"owner":"finom","repo":"vovk-ai-demo","ghRef":"main","id":"_S_2_"}],["$L199","$L19a"]]}]
 5f:["$","span",null,{"data-bright-ln":9,"style":{"width":"2ch"},"children":9}]
 60:[["$","span","0",{"style":{"color":"#FFA657"},"children":"    resp"}],["$","span","1",{"style":{"color":"#FF7B72"},"children":":"}],["$","span","2",{"style":{"color":"#FFA657"},"children":" JSONLinesResponse<VovkIteration<"}],["$","span","3",{"style":{"color":"#FF7B72"},"children":"typeof "}],["$","span","4",{"style":{"color":"#C9D1D9"},"children":"DatabasePollController"}],["$","span","5",{"style":{"color":"#FFA657"},"children":"."}],["$","span","6",{"style":{"color":"#C9D1D9"},"children":"poll"}],["$","span","7",{"style":{"color":"#FFA657"},"children":">>,"}]]
 61:["$","br",null,{}]
@@ -624,6 +459,171 @@ ff:["$","div","14",{"style":{"padding":"0 1em"},"children":["$","span",null,{"ch
 194:["$","div","28",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":29,"style":{"width":"2ch"},"children":29}],[["$","span","0",{"style":{"color":"#24292F"},"children":"    }"}],["$","span","1",{"style":{"color":"#953800"},"children":","}]],["$","br",null,{}]]}]}]
 195:["$","div","29",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":30,"style":{"width":"2ch"},"children":30}],[["$","span","0",{"style":{"color":"#953800"},"children":"  });"}]],["$","br",null,{}]]}]}]
 196:["$","div","30",{"style":{"padding":"0 1em"},"children":["$","span",null,{"children":[["$","span",null,{"data-bright-ln":31,"style":{"width":"2ch"},"children":31}],[["$","span","0",{"style":{"color":"#953800"},"children":"}"}]],["$","br",null,{}]]}]}]
+197:T9a0,// prismaService.ts
+import { PrismaClient } from "@prisma/client";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { neonConfig } from "@neondatabase/serverless";
+import DBEventsService, { DBChange } from "./DatabaseEventsService";
+import { BaseEntity } from "@/types";
+
+if (!process.env.VERCEL_ENV) {
+  neonConfig.wsProxy = (host) => `${host}:5433/v1`;
+  neonConfig.useSecureWebSocket = false;
+  neonConfig.pipelineTLS = false;
+  neonConfig.pipelineConnect = false;
+}
+
+export default class DatabaseService {
+  static get prisma() {
+    return (this.#client ??= this.getClient());
+  }
+  static #client: ReturnType<typeof DatabaseService.getClient> | null = null;
+
+  private static getClient() {
+    const adapter = new PrismaNeon({
+      connectionString: `${process.env.DATABASE_URL}`,
+    });
+    const prisma = new PrismaClient({ adapter });
+
+    DBEventsService.startPolling();
+
+    return prisma.$extends({
+      name: "events",
+      query: {
+        $allModels: {
+          async $allOperations({ model, operation, args, query }) {
+            const result = (await query(args)) as BaseEntity;
+            if (!result?.entityType) return result;
+
+            const now = new Date().toISOString();
+            const changes: DBChange[] = [];
+
+            const makeChange = (
+              entity: BaseEntity,
+              type: DBChange["type"],
+            ) => ({
+              id: entity.id,
+              entityType: entity.entityType,
+              date:
+                type === "delete" ? now : (entity.updatedAt?.toString() ?? now),
+              type,
+            });
+
+            switch (operation) {
+              case "create":
+                if (result.id) changes.push(makeChange(result, "create"));
+                break;
+
+              case "update":
+                if (result.id) changes.push(makeChange(result, "update"));
+                break;
+
+              case "delete":
+                if (result.id) changes.push(makeChange(result, "delete"));
+                break;
+
+              // other operations like deleteMany should be implemented separately
+
+              default:
+                console.warn(
+                  `Unhandled Prisma operation: ${operation} for model: ${model}`,
+                );
+                break;
+            }
+
+            if (changes.length) {
+              await DBEventsService.write(changes);
+            }
+
+            return result;
+          },
+        },
+      },
+    });
+  }
+}
+198:T817,import { EntityType } from "@prisma/client";
+import mitt from "mitt";
+import { createClient } from "redis";
+
+export type DBChange = {
+  id: string;
+  entityType: EntityType;
+  date: string;
+  type: "create" | "update" | "delete";
+};
+
+export default class DatabaseEventsService {
+  private static readonly DB_KEY = "db_updates";
+  private static readonly INTERVAL = 1_000;
+  private static lastTimestamp = Date.now();
+
+  private static redisClient = createClient({
+    url: process.env.REDIS_URL,
+  });
+
+  // our in‑process event emitter
+  public static emitter = mitt<{
+    db_updates: DBChange[];
+  }>();
+
+  // ensure Redis is connected
+  private static async connect() {
+    if (!this.redisClient.isOpen) {
+      await this.redisClient.connect();
+      this.redisClient.on("error", (err) => {
+        console.error("Redis Client Error", err);
+      });
+    }
+  }
+
+  // push one update into our ZSET, with score = timestamp
+  public static async write(changes: DBChange[]) {
+    if (changes.length === 0) return;
+
+    await this.connect();
+
+    // build array of { score, value } objects
+    const entries = changes.map(({ id, entityType, type, date }) => ({
+      score: Date.now(),
+      value: JSON.stringify({ id, entityType, date, type }),
+    }));
+
+    // one multi(): batch ZADD + EXPIRE
+    await this.redisClient
+      .multi()
+      .zAdd(this.DB_KEY, entries)
+      .expire(this.DB_KEY, (this.INTERVAL * 60) / 1000)
+      .exec();
+  }
+
+  // start polling loop
+  public static startPolling() {
+    setInterval(async () => {
+      await this.connect();
+
+      const now = Date.now();
+
+      // 1 single command: get everything with score ∈ (lastTimestamp, now]
+      const raw = await this.redisClient.zRangeByScore(
+        this.DB_KEY,
+        this.lastTimestamp + 1,
+        now,
+      );
+
+      if (raw.length > 0) {
+        const updates = raw.map((s) => JSON.parse(s) as DBChange);
+
+        // advance our cursor
+        this.lastTimestamp = now;
+
+        // emit
+        this.emitter.emit("db_updates", updates);
+      }
+    }, this.INTERVAL);
+  }
+}
+e:["$","div",null,{"className":"bg-code rounded-lg mt-4","id":"_S_2_","children":[["$","$L4e",null,{"githubFiles":[{"path":"src/modules/database/DatabaseService.ts","content":"$197"},{"path":"src/modules/database/DatabaseEventsService.ts","content":"$198"}],"owner":"finom","repo":"vovk-ai-demo","ghRef":"main","id":"_S_2_"}],["$L199","$L19a"]]}]
 199:["$","div","0",{"className":"h-full github-tab-content ","id":"tab-_S_2_-0","children":["$","div",null,{"className":"border dark:!border-gray-800 text-sm","children":[["$","div",null,{"data-theme":"dark","className":"hidden dark:block","children":"$L19b"}]," ",["$","div",null,{"data-theme":"light","className":"dark:hidden","children":"$L19c"}]]}]}]
 19a:["$","div","1",{"className":"h-full github-tab-content hidden","id":"tab-_S_2_-1","children":["$","div",null,{"className":"border dark:!border-gray-800 text-sm","children":[["$","div",null,{"data-theme":"dark","className":"hidden dark:block","children":"$L19d"}]," ",["$","div",null,{"data-theme":"light","className":"dark:hidden","children":"$L19e"}]]}]}]
 19b:["$L19f","$L1a0"]

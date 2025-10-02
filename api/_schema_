@@ -1,1 +1,1 @@
-{"statusCode":404,"message":"v3/segment.json,v3/config.json,v3/meta.json,v3/schema.json,hello/greeting.json - Route _schema_ is not found","isError":true}
+{"statusCode":404,"message":"hello/greeting.json - Route _schema_ is not found","isError":true}
