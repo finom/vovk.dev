@@ -6,39 +6,39 @@ import { Route } from 'next';
 const options = [
   {
     title: 'SaaS',
-    description: 'Build Software as a Service applications with modern architecture and scalable design patterns.',
+    description: 'Build SaaS apps with modern architecture and scalable design patterns.',
     icon: '🚀',
     href: '/saas',
   },
   {
     title: 'Public API',
-    description: 'Create Public APIs with powerful Controller-Service-Repository patterns.',
+    description: 'Generate APIs with OpenAPI docs and code scaffolding.',
     icon: '⚡',
-    href: '/public-api',
+    href: '/openapi',
   },
   {
     title: 'RPC for NestJS',
-    description: 'Implement Remote Procedure Call patterns with type-safe APIs and efficient communication.',
+    description: 'Generate RPC libraries for NestJS applications.',
     icon: '🔗',
     href: '/nestjs',
   },
   {
-    title: 'UI Jarvis',
-    description: 'Build intelligent user interfaces with AI-powered components and smart automation.',
+    title: 'Real-time UI',
+    description: 'Build real-time, intelligent UIs — like Tony Stark’s JARVIS.',
     icon: '🤖',
-    href: '/ai-ui',
+    href: '/realtime-ui',
   },
   {
     title: 'MCP Server',
-    description: 'Build a powerful MCP server from your API.',
+    description: 'Turn your API into a powerful MCP server.',
     icon: '🖥️',
     href: '/mcp',
   },
   {
-    title: 'Core Concepts',
-    description: 'Learn the core concepts of Vovk.ts, including Segments, Controllers, and RPC Modules.',
-    icon: '📚',
-    href: '/concepts',
+    title: 'Bundle',
+    description: 'Bundle your API and deploy it anywhere fetch is supported.',
+    icon: '📦',
+    href: '/bundle',
   },
 ];
 

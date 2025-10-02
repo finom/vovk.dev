@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 # About
 
-This conceptual back-end meta-framework is designed, developed, documented and tested by [Andrey Gubanov](https://github.com/finom). Built for efficiency and unprecedented DX.
+This conceptual back-end meta-framework is designed and developed by [Andrey Gubanov](https://github.com/finom). Built for efficiency and unprecedented DX.
 
 **Features:**
 
@@ -419,19 +419,16 @@ Thanks to the JSON schema emission and access to the back-end data that was neve
 - Type inference:
   - Server-side, to enhance built-in functionality fo `NextRequest` object and provide types for `req.json()` etc.
   - Client-side, to build typed RPC modules with expected inputs.
-- Validation:
+- [Validation](/validation):
   - Server-side, to validate incoming requests with Zod, Arktype and other libraries and return an error if the data is invalid.
   - Client-side, to validate data with Ajv before sending the request and throw an error if the data is invalid in the client.
-- Code generation for TypeScript, Rust, Python, from the back-end schema.
-- OpenAPI object, exported as `openapi` variable.
+- Code generation for [TypeScript](/typescript), [Rust](/rust), [Python](/python), from the back-end schema.
+- [OpenAPI](/openapi) object, exported as `openapi` variable.
 - Copy-pastable code snippets for READMEs and OpenAPI documentation.
-- Function Calling
+- [Function Calling](/function-calling):
   - Server-side to execute the function at the current evaluation context.
   - Client-side to call the function using HTTP protocol.
-- And more, as developer now has access to the back-end schema to generate more ideas.\
-
-**More info**
-- TODO
+- And more, as developer now has access to the back-end schema to generate more ideas.
 
 ## JSON Lines
 

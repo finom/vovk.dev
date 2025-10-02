@@ -131,3 +131,26 @@ const handler = createMcpHandler(
 ```
 
 Note that the `models` property is only available for [callable handlers](/controller/fn) but not for RPC modules.
+
+As a small reminder, you can also use 3rd party [OpenAPI mixins](/codegen) to add more tools to your MCP server.
+
+```ts
+import { GithubIssuesRPC } from "vovk-client";
+// ...
+const githubOptions = {
+    init: {
+        headers: {
+            Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+    },
+};
+const { tools } = createLLMTools({
+    modules: {
+        UserController,
+        TaskController,
+        GithubIssuesRPC: [GithubIssuesRPC, githubOptions],
+    },
+});
+// ...
+```

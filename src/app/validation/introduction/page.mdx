@@ -59,6 +59,10 @@ The `skipSchemaEmission` option is used to skip the emission of the JSON Schemas
 
 The `validateEachIteration` option is used exclusively for the `iteration` validation schema. It indicates whether to validate each item in the iteration response, where by default it validates only the first iteration item.
 
+### `operation`
+
+An optional `operation` object can be provided to specify OAS operation details for the method when `@operation` decorator is not aplicable. Might be useful when using [`fn`](/controller/fn) on a normal function, not a class method.
+
 ## Features
 
 A handler created with `withValidationLibrary` function gets some extra features that enhance its capabilities.
@@ -105,4 +109,3 @@ const bodyModel = UserController.updateUser.models.body;
 ```
 
 The `models` property is exclusive to the server-side methods. It allows to access the original validation models used in the handler.
-

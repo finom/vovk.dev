@@ -1,8 +1,5 @@
 import { Steps } from 'nextra/components';
 
-TODO:
-- Cover x-tool tags
-
 # Grant access of your back-end to Function Calling
 
 Vovk.ts offers LLM Function Calling capabilities, turning endpoints into functions that can be called by AI. This enables you to create a more interactive experience for your users, offering either a text chat interface or a real-time voice interface. 
@@ -115,6 +112,53 @@ const { tools } = createLLMTools({
   },
 });
 ```
+
+## Custom operation attributes
+
+You can add custom attributes to the OpenAPI operation object using `@operation` decorator or `operation` property in the handler schema. This allows you to add additional metadata to the function that can be used by LLMs to better understand the function's purpose and usage.
+
+```ts filename="src/modules/user/UserController.ts"
+import { prefix, get, operation } from 'vovk';
+
+@prefix('user')
+export default class UserController {
+  @operation({
+    summary: 'Get user by ID',
+    description: 'Retrieves a user by their unique ID.',
+    'x-tool-disable': false,
+    'x-tool-description': 'Retrieves a user by their unique ID, including name and email. Also includes user roles and permissions that define what actions the user can perform within the system.',
+    'x-tool-successMessage': 'User retrieved successfully.',
+    'x-tool-errorMessage': 'Failed to retrieve user.',
+    'x-tool-includeResponse': true,
+  })
+  @get(':id')
+  static getUser() {
+    // ...
+  }
+}
+```
+
+### `x-tool-disable`
+
+Forcefully disables the function for LLM Function Calling.
+
+### `x-tool-description`
+
+Overrides the function description for LLM Function Calling that's originally built from `summary` and `description` fields.
+
+### `x-tool-successMessage`
+
+[MCP](/mcp)-specific attribute that's sent to the LLM when the function is executed successfully.
+
+### `x-tool-errorMessage`
+
+[MCP](/mcp)-specific attribute that's sent to the LLM when the function execution fails.
+
+### `x-tool-includeResponse`
+
+[MCP](/mcp)-specific attribute that indicates whether the function response should be included in the message sent to the LLM after successful execution. By default, it's `true`.
+
+     
 
 ## 3rd-party APIs
 

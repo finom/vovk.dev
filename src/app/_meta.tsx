@@ -23,6 +23,7 @@ const meta = {
   'quick-install': 'Quick Install',
   'manual-install': 'Manual Install',
   'hello-world': '"Hello World!" Example',
+  performance: 'Overhead Performance 🚧',
 
   '#common': separator('Common'),
   schema: 'Schema',

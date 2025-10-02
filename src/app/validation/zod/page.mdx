@@ -53,18 +53,7 @@ export default class UserController {
 }
 ```
 
-It's implemented using the `createStandardValidation` function from Vovk.ts and it's source code basically looks like this:
-
-```ts
-import { z } from 'zod';
-import { createStandardValidation } from 'vovk';
-
-export const withZod = createStandardValidation({
-  toJSONSchema: (model: z.core.$ZodType) => z.toJSONSchema(model),
-});
-```
-
-In other words, if you need to pass additional options to `toJSONSchema`, you can easily implement your own version of `withZod`. See [Standard Schema Validation](./standard) for more details.
+It's implemented using the [`createStandardValidation`](./standard) function from Vovk.ts.
 
 ## Zod 3
 
@@ -79,3 +68,28 @@ import { prefix, post, operation } from 'vovk';
 
 // ... the rest of the code is the same as for Zod 4
 ```
+
+## Troubleshooting
+
+The source code of `withZod` uses default options for `toJSONSchema` function.
+
+```ts filename="vovk-zod/src/index.ts"
+import { z } from 'zod';
+import { createStandardValidation } from 'vovk';
+
+export const withZod = createStandardValidation({
+  toJSONSchema: (model: z.core.$ZodType) => z.toJSONSchema(model),
+});
+```
+
+By default, Zod will target Draft 2020-12 that's not compatible with the most of today's [function calling](/function-calling) APIs, making them generate errors. If you need to pass additional options to `toJSONSchema`, you can create your own version of `withZod` function:
+
+```ts filename="src/lib/withZod.ts" {5}
+import { z } from 'zod';
+import { createStandardValidation } from 'vovk';
+
+export const withZod = createStandardValidation({
+  toJSONSchema: (model: z.core.$ZodType) => z.toJSONSchema(model, { target: 'draft-7' }),
+});
+```
+

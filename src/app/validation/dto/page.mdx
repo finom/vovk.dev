@@ -179,3 +179,20 @@ export class CreateUserDto extends OmitType(UserDto, ['id']) {
   password: string;
 }
 ```
+
+## FormData
+
+In order to make the DTO emit proper JSON schema for files when using `isForm: true` option in the validation handler, you need to provide OAS-compatible schema for the file fields using `@JSONSchema` decorator:
+
+```ts {6}
+import { JSONSchema } from 'class-validator-jsonschema';
+
+export class UploadFileDto {
+    @JSONSchema({
+        type: 'string',
+        format: 'binary',
+        description: 'File to upload',
+    })
+    file!: string;
+}
+```

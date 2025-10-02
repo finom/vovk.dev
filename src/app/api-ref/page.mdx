@@ -317,10 +317,17 @@ const { users: usersPromise, tasks: tasksPromise } = progressive(ProgressiveRPC.
 
 ### `HttpException`
 
-TODO
+A custom error class that extends the built-in `Error` class. It represents an HTTP error with a status code and a message. It can be used to throw errors in controller methods and is caught by the framework to return proper HTTP responses.
+
+```ts
+import { HttpException, HttpStatus } from 'vovk';
+
+throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid request', { some: 'cause' });
+```
+
+The third argument is optional and can be used to pass additional data that can be useful for logging or debugging and can be accessed at `error.cause` property on the client-side.
 
 ## Types and enums
-
 
 ### `VovkRequest`
 

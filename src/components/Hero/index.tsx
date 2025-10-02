@@ -16,10 +16,13 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
         <div className="space-y-6">
-          <div className="inline-flex items-center rounded-full border border-border bg-background/50 px-3 py-1 text-sm">
+          <div className="inline-flex items-center rounded-full border border-border bg-background/50 px-3 py-1 font-semibold">
+            Back-end for Next.js
+          </div>
+          <div className="inline-flex items-center rounded-full border border-border bg-background/50 px-3 py-1 text-sm" hidden>
             <span className="text-muted-foreground">Introducing</span>
             <span className="mx-1 h-4"></span>
-            <span className="font-medium">Vovk.ts v3.0-draft (WIP)</span>
+            <span className="font-medium">Vovk.ts</span>
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
@@ -29,8 +32,8 @@ const Hero = () => {
               <FlipWords words={words} />
             </span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Back-end meta-framework with RPC for Next.js
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed" hidden>
+            Back-end for Next.js
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-4">

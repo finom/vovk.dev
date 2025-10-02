@@ -1,7 +1,5 @@
 # TypeScript RPC Client
 
-TODO: mention `schema` and `openapi` imports.
-
 [Controllers](/controller) implemented with Vovk.ts are compiled to RPC modules with similar structure but different argument signatures. Having the following controller defined:
 
 ```ts filename="src/modules/user/UserController.ts"
@@ -323,6 +321,28 @@ const MyComponent = () => {
     </div>
   );
 };
+```
+
+## `openapi` and `schema`
+
+The generated client library also includes `openapi` and `schema` exports that can be used to access the OpenAPI spec and the JSON Schema respectively.
+
+```ts
+import { openapi, schema } from 'vovk-client';
+```
+
+They can also be accessed from corresponding exports that don't include RPC modules:
+
+```ts
+import { openapi } from 'vovk-client/openapi';
+import { schema } from 'vovk-client/schema';
+```
+
+This also works at [segmented client](/segmented):
+
+```ts
+import { openapi } from '@/client/admin/openapi';
+import { schema } from '@/client/admin/schema';
 ```
 
 ## Used Templates

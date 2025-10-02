@@ -69,3 +69,35 @@ export const validateOnClient = createValidateOnClient({
   },
 });
 ```
+
+## FormData
+
+As there is no standard way to describe `FormData` in JSON Schema, every validation library got to provide its own way to generate OAS-compatible schema for `FormData` requests.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "fileField": {
+      "type": "string",
+      "format": "binary"
+    }
+  },
+}
+```
+
+Zod 4 includes `.file()` schema that is converted to the OAS schema above but for others it needs to be solved individually. It's outlined very library mentioned at this documentation (for arktype it's solved by using a `fallback`, for Valibot you need to use `overrideSchema` etc).
+
+In case if you use a library that isn't mentioned here and you don't know how to properly generate the schema for the library, the easiest way to ignore that is to use `disableClientValidation` option in the generated RPC modules:
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+const respData = await UserRPC.updateUser({
+  body: formData, // FormData instance
+  params: { id: '...' },
+  disableClientSideValidation: true, // disable client-side validation
+});
+```
+
+This way the client-side validation will be skipped, but the server-side validation will still be performed. The file will not appear in the generated OpenAPI specification, but the endpoint will still accept `multipart/form-data` requests.
