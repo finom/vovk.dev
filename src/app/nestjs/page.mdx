@@ -1,5 +1,7 @@
 # RPC for NestJS
 
+As NestJS provides built-in OpenAPI support with [@nestjs/swagger](https://docs.nestjs.com/openapi/introduction) and Vovk.ts can generate a client from [OpenAPI 3+ specification](/codegen), it's possible to generate a type-safe "RPC" client for a NestJS app with all the benefits of Vovk.ts, including client-side validation, [function calling](/function-calling) support, and more.
+
 ## Install dependencies
 
 ```sh npm2yarn
@@ -13,7 +15,7 @@ npm i vovk-cli@draft -D
 
 ## Expose OpenAPI spec in your NestJS app
 
-At this case we expose it at `/api-ref` endpoint and Swagger UI at `/docs`.
+At this case we expose it at `/api-ref` endpoint that contain OAS and Swagger UI at `/docs`.
 
 ```ts filename="src/main.ts" {18-20}
 import { NestFactory } from '@nestjs/core';
@@ -48,6 +50,8 @@ bootstrap()
 ```
 
 ## Use OpenAPI decorators from [@nestjs/swagger](https://www.npmjs.com/package/@nestjs/swagger)
+
+Follow the [official documentation](https://docs.nestjs.com/openapi/decorators) to decorate your controllers and DTOs with OpenAPI decorators.
 
 ```ts
 import { 
@@ -101,9 +105,9 @@ export class UserController {
 }
 ```
 
-## Add `generate` script to `package.json` and run it
+## Add `generate` script to `package.json`
 
-The NestJS server should be running at this moment on http://localhost:3000. Set `--openapi-root-url` to your server URL if it's different.
+Run the development server so NestJS should be available at http://localhost:3000. Set `--openapi-root-url` to your server URL if it's different.
 
 ```json filename="package.json" {5}
 {
@@ -115,28 +119,42 @@ The NestJS server should be running at this moment on http://localhost:3000. Set
 }
 ```
 
+The generate command is quite long, let's break it down:
+
+- `--openapi=http://localhost:3000/api-ref` - the URL to the OpenAPI spec endpoint.
+- `--openapi-get-module-name=nestjs-operation-id` - use `nestjs-operation-id` strategy to get module names from `operationId` field of the OpenAPI spec.
+- `--openapi-get-method-name=nestjs-operation-id` - use `nestjs-operation-id` strategy to get method names from `operationId` field of the OpenAPI spec.
+- `--openapi-root-url=http://localhost:3000` - the root URL of your API.
+- `--openapi-fallback .openapi-cache/openapi.json` - save the OpenAPI spec to a local file and use it as a fallback if the URL is not available. Good for CI/CD.
+
+The `nestjs-operation-id` strategy assumes that `operationId` in your OpenAPI spec is defined as `XxxController_methodName`, e.g. `UserController_createUser`. By this strategy `XxxController` is turned into an RPC module name `XxxRPC` and `methodName` is turned into a method name as is. If you want to change this behavior, you can create a [config](/config) file and define `getModuleName` and `getMethodName` functions manually.
+
+Run the generate script in a separate terminal:
+
 ```sh npm2yarn
 npm run generate
 ```
 
-You can optionally run `start:dev` and `generate` scripts (with `--watch` flag) in parallel using `concurrently` package.
+You can optionally run `start:dev` and `generate` scripts in parallel using [concurrently](https://www.npmjs.com/package/concurrently) package. The `--watch` option makes `generate` command to watch for changes in the OpenAPI spec and regenerate the client automatically.
 
-```json filename="package.json" {4}
+```json filename="package.json" {6}
 {
     "scripts": {
         // ...
+        "generate": "...",
+        "start:dev": "nest start --watch",
         "dev": "concurrently \"npm run start:dev\" \"sleep 5 && npm run generate -- --watch\" --kill-others"
     }
 }
 ```
 
+The `dev` script is going to run both `start:dev` and `generate` scripts in parallel, waiting 5 seconds before starting `generate` to give NestJS some time to start.
+
 ```sh npm2yarn
 npm run dev
 ```
 
-For more flexibility it's recommended to create a [config](/config) file (see below).
-
-As you may notice, `--openapi-get-module-name` and `--openapi-get-method-name` are set to `nestjs-operation-id`. This strategy assumes that `operationId` in your OpenAPI spec is defined as `XxxController_methodName`, e.g. `UserController_createUser`. This is the default behavior of `@nestjs/swagger` package. `XxxController` is turned into an RPC module name `XxxRPC` and `methodName` is turned into a method name as is. If you want to change this behavior, you can use config file to define `getModuleName` and `getMethodName` functions manually.
+For more flexibility it's recommended to create a [config](/config) file.
 
 ## Import and use
 
@@ -168,25 +186,27 @@ If the flags are too long, or if you want to use additioannal Vovk.ts features, 
 /** @type {import('vovk-cli').VovkConfig} */
 const config = {
   generatorConfig: {
-    nest: {
-      openAPIMixin: {
-        source: {
-          url: 'http://localhost:3000/api-ref',
-          fallback: '.openapi-cache/openapi.json',
+    segments: {
+      nest: {
+        openAPIMixin: {
+          source: {
+            url: 'http://localhost:3000/api-ref',
+            fallback: '.openapi-cache/openapi.json',
+          },
+          apiRoot: 'http://localhost:3000',
+          getModuleName: 'nestjs-operation-id',
+          getMethodName: 'nestjs-operation-id',
         },
-        apiRoot: 'http://localhost:3000',
-        getModuleName: 'nestjs-operation-id',
-        getMethodName: 'nestjs-operation-id',
       },
-    }
-  }
+    },
+  },
 };
 export default config;
 ```
 
 At this case the generate script can be simplified:
 
-```json filename="package.json" {5}
+```json filename="package.json" {4}
 {
     "scripts": {
         // ...
@@ -253,6 +273,25 @@ const config = {
   },
 };
 export default config;
+```
+
+In this case, the generated client methods will validate input data with DTOs using [class-validator](https://www.npmjs.com/package/class-validator) library before sending the request to the server.
+
+```ts
+import { UserRPC } from 'vovk-client';
+import { plainToInstance } from 'class-transformer';
+import { UpdateUserBodyDto, UpdateUserResponseDto } from '@/modules/user/UserDto';
+ 
+const respData = await UserRPC.updateUser({
+  body: plainToInstance(UpdateUserBodyDto, {
+    name: 'John Doe',
+    age: 42,
+  } satisfies UpdateUserBodyDto),
+  // ... same for query and params
+});
+ 
+// optionally transform response data to DTO
+const dtoInstance = plainToInstance(UpdateUserResponseDto, respData);
 ```
 
 For more information see the [vovk-dto/validateOnClient](/validation/dto#validateonclient) section.

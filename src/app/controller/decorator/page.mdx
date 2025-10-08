@@ -51,10 +51,10 @@ const myDecorator = createDecorator(
 
 export default class MyController {
   @get.auto()
-  @myDecorator('foo', 1) // Passes 'foo' as 'a', and 1 as 'b'
+  @myDecorator('baz', 1) // Passes 'baz' as 'a', and 1 as 'b'
   static doSomething() {
     const meta = req.vovk.meta<ReqMeta>();
-    console.log(meta); // Outputs: { foo: 'bar', a: 'foo', b: 1 }
+    console.log(meta); // Outputs: { foo: 'bar', a: 'baz', b: 1 }
     // ...
   }
 }

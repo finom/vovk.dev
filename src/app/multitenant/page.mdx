@@ -129,9 +129,7 @@ npx vovk new segment customer/pro # create "customer/pro" segment at src/app/api
 
 Read more about Vovk.ts [segments](/segments).
 
-Next, create the controllers for each segment. The controllers will handle the requests to the API endpoints for each tenant.
-
-Create the `ProductService` and `ProductController` for the root segment at `src/modules/product/` folder:
+Next, create the controllers for each segment. For example, to create `ProductService` and `ProductController` for the root segment at `src/modules/product/` folder use:
 
 ```sh npm2yarn
 npx vovk new controller service product
@@ -149,9 +147,9 @@ Read more about Vovk.ts [controllers](/controllers).
 
 By default, Vovk.ts uses so-called "composed client" emitted to `node_modules/.vovk-client` folder, that in its turn re-exported from `"vovk-client"` package. The modules import all [schemas](/schema) from `.vovk-schema` folder, making the entire app schema be visible for an inspection in every front-end module that imports the client.
 
-This problem is solved by introducing "segmented client" that generates a separate client for each segment, allowing you to import only the schemas that are relevant to the segment you're working on. Each segment will have its own directory in the project folder and the client will import only a schema that is relevant to that segment.
+This problem is solved by introducing [segmented client](/segmented) that generates a separate client for each segment, allowing you to import only the schemas that are relevant to the used segment. Each segment will have its own directory in the project folder and the client will import only a schema that is relevant to that segment.
 
-This approach also allows higher order segments (such as "admin") to import lower order segments (such as "customer"), making it possible to share the RPC libraries between segments but keep the back-end implementation secure.
+This approach also allows higher order segments (such as "admin") to import lower order segments (such as "customer"), making it possible to share the RPC libraries between segments but keep the back-end implementation invisible to the pages where its RPC modules are not used.
 
 <Image
   src="/draw/segmented-client.svg"
@@ -161,7 +159,7 @@ This approach also allows higher order segments (such as "admin") to import lowe
   className="mx-auto my-2 dark:invert"
 />
 
-In order to do that, you need to optionally disable the composed client (at this case you don't need the `"vovk-client"` package) and enable the segmented client in your [config file](/config).
+In order to do that, you need to disable the composed client (at this case you don't need the `"vovk-client"` package) and enable the segmented client in your [config file](/config).
 
 ```ts filename="vovk.config.mjs"
 // @ts-check
@@ -177,7 +175,7 @@ const config = {
 export default config;
 ```
 
-By default, the segmented client will be generated in the `/src/client` folder, but you can change the output directory by specifying the `outDir` option in the `segmentedClient` configuration.
+By default, the segmented client will be generated in the `./src/client` folder, but you can change the output directory by specifying the `outDir` option in the `segmentedClient` configuration.
 
 Once the segmented client is enabled, you can import the client in your front-end code like this:
 
@@ -187,7 +185,7 @@ import { ProductRPC } from '@/client/product';
 await ProductRPC.getProducts();
 ```
 
-And the file structure of the generated client will look like this:
+And the file structure of the generated client will look like this (we skip some files for brevity, see [segmented client docs](/segmented) for more information):
 
 <FileTree>
   <FileTree.Folder name="src/client" defaultOpen>
@@ -195,7 +193,7 @@ And the file structure of the generated client will look like this:
       <FileTree.File
         name={
           <span>
-            index.tsx <span className="text-gray-500">segment: root</span>
+            index.ts <span className="text-gray-500">segment: root</span>
           </span>
         }
       />
@@ -204,7 +202,7 @@ And the file structure of the generated client will look like this:
       <FileTree.File
         name={
           <span>
-            index.tsx <span className="text-gray-500">segment: admin</span>
+            index.ts <span className="text-gray-500">segment: admin</span>
           </span>
         }
       />
@@ -213,7 +211,7 @@ And the file structure of the generated client will look like this:
       <FileTree.File
         name={
           <span>
-            index.tsx <span className="text-gray-500">segment: customer</span>
+            index.ts <span className="text-gray-500">segment: customer</span>
           </span>
         }
       />
@@ -221,7 +219,7 @@ And the file structure of the generated client will look like this:
         <FileTree.File
           name={
             <span>
-              index.tsx <span className="text-gray-500">segment: customer/pro</span>
+              index.ts <span className="text-gray-500">segment: customer/pro</span>
             </span>
           }
         />
@@ -232,7 +230,7 @@ And the file structure of the generated client will look like this:
 
 ## Update segment configuration
 
-For each segment, you can specify the `segmentNameOverride` option in the `segmentConfig` object in your [config file](/config). This option allows you to override the default segment name used in the URL path (was `"customer/pro"`, now an empty string `""`).
+Now we need to specify the `segmentNameOverride` options for every segment (except the root segment) in the [config file](/config). This option overrides the default segment name used in the URL path (was `"customer/pro"`, now an empty string `""`).
 
 ```ts filename="vovk.config.mjs"
 // @ts-check
@@ -244,16 +242,17 @@ const config = {
   segmentedClient: {
     enabled: true, // Enable segmented client
   },
-  segmentConfig: {
-    // Segment configuration
-    admin: {
-      segmentNameOverride: '',
-    },
-    customer: {
-      segmentNameOverride: '',
-    },
-    'customer/pro': {
-      segmentNameOverride: '',
+  generatorConfig: {
+    segments: {
+      admin: {
+        segmentNameOverride: '',
+      },
+      customer: {
+        segmentNameOverride: '',
+      },
+      'customer/pro': {
+        segmentNameOverride: '',
+      },
     },
   },
 };
@@ -347,3 +346,7 @@ Update your `/etc/hosts` file to support subdomains on localhost.
 ```
 
 </Steps>
+
+## Roadmap
+
+- 📝 Cover multi-domain topic.

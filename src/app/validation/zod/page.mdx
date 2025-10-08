@@ -53,11 +53,11 @@ export default class UserController {
 }
 ```
 
-It's implemented using the [`createStandardValidation`](./standard) function from Vovk.ts.
+It's implemented using the [`createStandardValidation`](./standard) function from Vovk.ts, being a shortcut for easier usage.
 
 ## Zod 3
 
-Zod 3 uses [zod-to-json-schema](https://www.npmjs.com/package/zod-to-json-schema) package to convert Zod models to JSON Schema, that's shown pretty good conversion results, but as it's 3rd-party it may have some minor limitations. It's going to be imported as `withZod` function from `vovk-zod/v3` module. The main purpose of this module is to provide a way to use legacy libraries such as Prisma generators that still use Zod 3.
+Zod 3 uses [zod-to-json-schema](https://www.npmjs.com/package/zod-to-json-schema) package to convert Zod models to JSON Schema. It can be imported as `withZod` function from `vovk-zod/v3` module. The main purpose of this module is to provide a way to use legacy libraries such as Prisma generators that still use Zod 3.
 
 The syntax is the same as for Zod 4, but you need to import `withZod` from `vovk-zod/v3` and the `z` from `zod/v3`:
 
@@ -82,7 +82,7 @@ export const withZod = createStandardValidation({
 });
 ```
 
-By default, Zod will target Draft 2020-12 that's not compatible with the most of today's [function calling](/function-calling) APIs, making them generate errors. If you need to pass additional options to `toJSONSchema`, you can create your own version of `withZod` function:
+By default, Zod will target Draft 2020-12 that's not compatible with the most of today's [function calling](/function-calling) APIs, making them return errors. If you need to pass additional options to `toJSONSchema`, you can create your own version of `withZod` function as explained in the [Standard Schema](/validation/standard) section:
 
 ```ts filename="src/lib/withZod.ts" {5}
 import { z } from 'zod';

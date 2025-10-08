@@ -2,9 +2,11 @@ import { FileTree } from 'nextra/components';
 
 # Schema
 
-The `npm run dev` command runs [vovk dev](/cli/dev) together with `next dev` via [concurrently](https://www.npmjs.com/package/concurrently). The first one watches for changes in `modules` folder, looking for updates of controllers. On the initial run, or when the change is detected, it makes an HTTP request to the Next.js dev server endpoint `_schema_` of a corresponding segment, that is exposed when `process.env.NODE_ENV` is set to `development`. The endpoint returns schema for the corresponding segment, allowing to isolate emitted .json files from each other. This approach works even in Edge Runtime, since `route.ts` files don't have to import Node.js modules such as `fs`.
+The `npm run dev` command runs [vovk dev](/dev) together with `next dev` via [concurrently](https://www.npmjs.com/package/concurrently). The first one watches for changes in `modules` folder, looking for updates of controller methods and their [validation](/validation). On the initial run, or when a change has been detected, it makes an HTTP request to the Next.js dev server's endpoint `_schema_` of a corresponding segment, that is exposed only when `process.env.NODE_ENV` is set to `development`. The endpoint returns schema for the corresponding segment only, allowing to isolate emitted .json files from each other. This approach works even in [Edge Runtime](https://edge-runtime.vercel.app/), since `route.ts` files don't have to import Node.js modules such as `fs`.
 
-Each segment emits back-end schema into an individual JSON file that in its turn is used to generate client-side RPC modules. If you have different areas of your application (e.g. root, admin, customer), each area will have its own JSON schema file. For a segment structure like this:
+Each segment emits back-end schema into an individual JSON file that in its turn is used to generate client-side RPC modules. If you have different areas of your application (e.g. root, admin, customer), each area will have its own JSON schema file. 
+
+For a segment structure like this:
 
 <FileTree>
   <FileTree.Folder name="src/app/api" defaultOpen>
@@ -59,7 +61,7 @@ Each segment emits back-end schema into an individual JSON file that in its turn
   </FileTree.Folder>
 </FileTree>
 
-The resulting schema files will be located in `.vovk-schema/` directory like this:
+The resulting schema files will be located in `.vovk-schema/` directory like the following:
 
 <FileTree>
   <FileTree.Folder name=".vovk-schema" defaultOpen>
@@ -73,11 +75,23 @@ The resulting schema files will be located in `.vovk-schema/` directory like thi
   </FileTree.Folder>
 </FileTree>
 
-As you can see, the emited files follow recursive structure of the segments, and a segment `foo/bar/baz` will have a file `.vovk-schema/foo/bar/baz.json`. The root segment as the only exception from the rule is represented by `root.json` file.
+As you can see, the emited files follow recursive structure of the segments, so a segment `foo/bar/baz` will emit a schema file located at `.vovk-schema/foo/bar/baz.json`. The root segment as the only exception from this rule is represented by `root.json` file for nicer organization.
 
-The `_meta.json` file contains additional metadata, such as explicitly emitted fields of the [vovk.config](/config) file using `config` key and some other information, having loose format, free to be extended.
+The `_meta.json` file contains additional metadata, such as explicitly emitted fields of the [vovk.config](/config) file behind `config` key but also some other information.
 
-When Vovk CLI reads these files, it builds a single object (called "full schema") of keys `segments` and `meta`, where `segments` have flat structure of segment names as keys and their schema as values, and `meta` contains the `_meta.json` file content. This object is then used to generate client-side RPC modules, OpenAPI documentation, but also available on both client-side and server-side as `schema` export.
+When Vovk CLI reads these files, it builds a single object of keys `segments` and `meta`, where `segments` have flat structure of segment names as keys and their schema as values, and `meta` contains the `_meta.json` file content. This object is then used to generate client-side RPC modules, OpenAPI documentation, but also available on both client-side and server-side as `schema` export.
+
+```ts
+{
+  "segments": {
+    "": { ... }, // root segment schema from root.json
+    "admin": { ... }, // admin segment schema from admin.json
+    "customer": { ... }, // customer segment schema from customer.json
+    "customer/static": { ... } // static segment schema from customer/static.json
+  },
+  "meta": { ... } // content of _meta.json file
+}
+```
 
 ```ts
 import { schema } from 'vovk-client';
@@ -90,7 +104,16 @@ console.log(schema satisfies VovkSchema); // schema for the admin segment
 console.log(schema.segments.admin satisfies VovkSegmentSchema); // schema for the admin segment
 ```
 
-The `schema` is also available in the [segmented client](/composed-and-segmented), containing schema for the current segment.
+The `schema` is also available in the [segmented client](/composed-and-segmented), containing schema with a single segment.
+
+```ts
+{
+  "segments": {
+    "": { ... } // root segment schema from root.json
+  },
+  "meta": { ... } // content of _meta.json file
+}
+```
 
 ```ts
 import { schema } from '@client/root';
@@ -142,6 +165,7 @@ Example of a segment schema file:
               },
               "required": ["foo"],
               "additionalProperties": false,
+              "x-isForm": true, // A vovk-specific field that indicates that the body is a FormData
               "$schema": "https://json-schema.org/draft/2020-12/schema"
             },
             "query": {
@@ -180,7 +204,7 @@ Example of a segment schema file:
             }
           },
           // OpenAPI object that can be used to generate OpenAPI documentation, LLM tools, MCP etc.
-          "openapi": {
+          "operationObject": {
             "summary": "Hello world",
             "description": "Hello world",
             "x-tool-description": "Hello world" // custom description for an LLM tool

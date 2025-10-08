@@ -6,15 +6,14 @@ import { Steps, Tabs, Callout } from 'nextra/components';
 
 ## Create Next.js project with App Router and TypeScript
 
-Follow [the official Next.js guide](https://nextjs.org/docs/getting-started/installation) to install Next.js. Use TypeScript, App Router and `src/` directory.
-
-```sh npm2yarn
-npx create-next-app my-app --ts --app
+```bash npm2yarn
+npx create-next-app my-app --ts --app --src-dir
 ```
-
-```sh
+```bash
 cd my-app
 ```
+
+`src` dir is optional but recommended, as it keeps the root directory clean.
 
 ## Install "vovk" and "vovk-client"
 
@@ -24,7 +23,7 @@ npm i vovk vovk-client
 
 ## Create an empty config file (optional)
 
-Create **vovk.config.ts** at the root of the project with the following content:
+Create **vovk.config.mjs** at the root of the project with the following content:
 
 ```ts filename="vovk.config.mjs"
 // @ts-check
@@ -42,14 +41,16 @@ For Zod validation on server-side and Ajv on client-side you can install the fol
 npm i vovk-zod vovk-ajv
 ```
 
-Modify `validateOnClient` import at your config file:
+Modify `validateOnClient` import at your config file to enable client-side validation:
 
 ```ts filename="vovk.config.mjs"
 // @ts-check
 /** @type {import('vovk').VovkConfig} */
 const vovkConfig = {
-  imports: {
-    validateOnClient: 'vovk-ajv',
+  generatorConfig: {
+    imports: {
+      validateOnClient: 'vovk-ajv',
+    },
   },
 };
 
@@ -58,11 +59,11 @@ export default vovkConfig;
 
 [Read more about validation](/validation).
 
-## Update "dev" and "build" NPM scripts
+## Update "dev" and create "prebuild" NPM scripts
 
-There are two ways to run Vovk.ts and Next.js server concurrently: explicitly and implicitly. The explicit way is to install `concurrently` package and run both scripts with it, this requires `PORT` variable to be set. The implicit way is to make Vovk.ts to run Next.js server by itself. At this case **vovk-cli** will assign the port automatically.
+There are two ways to run Vovk.ts and Next.js server concurrently: explicitly and implicitly. The explicit way is to install `concurrently` package and run both scripts with it, this requires `PORT` variable to be set. The implicit way is to make Vovk.ts CLI to run Next.js server by itself. At this case **vovk-cli** will assign the port automatically.
 
-The build script will run `vovk generate` before `next build` in order to generate the client library before building the Next.js app.
+The `prebuild` script will run `vovk generate` before `next build` in order to generate the client library before building the Next.js app.
 
 <Tabs items={['Explicit', 'Implicit']} >
   <Tabs.Tab>
@@ -75,8 +76,9 @@ npm i -D concurrently
 
     ```json
     "scripts": {
+        "build": "next build",    
         "dev": "PORT=3000 concurrently 'vovk dev' 'next dev' --kill-others",
-        "build": "vovk generate && next build"
+        "prebuild": "vovk generate"
     }
     ```
 
@@ -125,9 +127,9 @@ export default class HelloController {
 
 ## Create root segment
 
-Create the root [segment](/segment) **/src/app/api/[[...vovk]]/route.ts** where **[[...vovk]]** is a folder name indicating what Next.js documentation calls ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) (the slug can be any valid slug).
+Create the root [segment](/segment) **/src/app/api/[[...vovk]]/route.ts** where **[[...vovk]]** is a folder name indicating what Next.js documentation calls ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) (the slug can be any valid slug, such as <nobr>**[[...mySlug]]**</nobr>).
 
-At the code below `HelloRPC` indicates the name of the exported client library and `HelloController` is the controller class created above.
+At the code below `HelloRPC` indicates the name of the generated RPC module and `HelloController` is the controller module created above.
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
@@ -186,8 +188,8 @@ Open [http://localhost:3000](http://localhost:3000) and see the result.
 <Callout type="info" emoji="ℹ️">
   Note that if you're using VSCode you're probably going to need to [restart TS
   server](https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server) each time when you add a new
-  controller class to your app. Changing the controller list is the only case when you need to restart the TS server
-  manually.
+  controller class to your app. Changing the `controller` list is the only case when you may need to restart the TS server
+  manually, other changes such as adding new methods or changing [validation](/validation) will be picked up automatically.
 </Callout>
 
 </Steps>

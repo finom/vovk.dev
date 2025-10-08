@@ -11,7 +11,9 @@ The "Hello World" app is a simple example that showcases some of the core featur
 - An OpenAPI specification that describes the API endpoints powered by [Scalar](https://scalar.com/).
 - Building and packaging the app with Vovk CLI and external tools.
 
-The project can be explored at the [GitHub repository](https://github.com/finom/vovk-hello-world) and viewed live at [vovk-hello-world.vercel.app](https://vovk-hello-world.vercel.app/). Bundled and generated files are available in the Git index as [dist](https://github.com/finom/vovk-hello-world/tree/main/dist), [dist_rust](https://github.com/finom/vovk-hello-world/tree/main/dist_rust) and [dist_python](https://github.com/finom/vovk-hello-world/tree/main/dist_python), so you can explore (usually they should be `.gitignore`'d). All code snippets on this page directly built from the source code of the app and demos are served within an iframe.
+The project can be explored at the [GitHub repository](https://github.com/finom/vovk-hello-world) and viewed live at [vovk-hello-world.vercel.app](https://vovk-hello-world.vercel.app/). Bundled and generated files are available in the Git index as [dist](https://github.com/finom/vovk-hello-world/tree/main/dist), [dist_rust](https://github.com/finom/vovk-hello-world/tree/main/dist_rust) and [dist_python](https://github.com/finom/vovk-hello-world/tree/main/dist_python), so you can explore (usually they should be `.gitignore`'d). 
+
+All code snippets on this page directly built from the source code of the app and demos are served within an iframe.
 
 ## Live Demo
 
@@ -23,9 +25,11 @@ The demo below implements a simple form without validation attributes with "Disa
 
 The `/api/users/{id}` endpoint is implemented by the `UserController` and `UserService` classes that provide `updateUser` method. 
 
-The controller `updateUser` method is implemented with `@post` decorator that maps the method to the `POST` HTTP verb and `withZod` function that applies [Zod validation](/validation/zod) to the request input (`body`, `params`, and `query`). The input Zod models use `meta` method to provide additional metadata for the OpenAPI specification. For deminstrational purposes, the `body` input model implements nested validation of `email` and `profile` fields, where `profile` is an object with `name` and `age` properties.
+The controller's `updateUser` method is implemented with `@post` decorator that maps the method to the `POST` HTTP verb, and `withZod` function that applies [Zod validation](/validation/zod) to the request input (`body`, `params`, and `query`). The input Zod models use `meta` method to provide additional metadata for the OpenAPI specification. 
 
-The service `updateUser` method infers the input type from the controller method that in its turn returns the result of the service's `updateUser` method call, demonstrating lack of self-reference errors (implicit "any"). In other words, the controller's input type is being a single source of truth for the service's input type, and the service's output type is inferred from the controller's output type.
+For deminstrational purposes, the `body` input model implements nested validation of `email` and `profile` fields, where `profile` is an object with `name` and `age` properties.
+
+The service `updateUser` method infers the input type from the controller method that in its turn returns the result of the service's `updateUser` method call, demonstrating lack of self-reference errors (implicit "any"). In other words, the controller's input type is being a source of truth for the service's input arguments, and the service's return type is inferred from the controller's output type.
 
 <GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts']} repo="vovk-hello-world" />
 
@@ -33,9 +37,7 @@ The service `updateUser` method infers the input type from the controller method
 
 The `/api/streams/tokens` endpoint is implemented by the `StreamController` and `StreamService` classes that provide `streamTokens` method.
 
-The controller `streamTokens` method is implemented with `@get` decorator that maps the method to the `GET` HTTP verb and `withZod` function that validates iterations of [JSONLines](/controller/jsonlines) responses. It delegates iterable execution with `yield*` syntax to the service's `streamTokens` method, which is a generator function that yields tokens one by one.
-
-The service `streamTokens` method is a generator function that yields tokens one by one, simulating a stream of data. It uses `setTimeout` to simulate a delay between token emissions, demonstrating how to handle streaming responses in Vovk.ts.
+The controller `streamTokens` method is implemented with `@get` decorator that maps the method to the `GET` HTTP verb, and `withZod` function that validates iterations of [JSONLines](/controller/jsonlines) responses. It delegates iterable execution with `yield*` syntax to the service's `streamTokens` method, which is a generator function that yields tokens one by one. It uses `setTimeout` to simulate a delay between token emissions, demonstrating how to handle streaming responses in Vovk.ts.
 
 <GithubFiles paths={['src/modules/stream/StreamController.ts', 'src/modules/stream/StreamService.ts']} repo="vovk-hello-world" />
 
@@ -50,9 +52,9 @@ The components in the demo use [@tanstack/react-query](https://www.npmjs.com/pac
 The app is [configured](/config) to:
 
 - Handle client-side validation with [Ajv](/validation/client).
-- Generate [Rust](/rust) and [Python](/python) code automatically when [vovk dev](/cli/dev) command is run.
+- Generate [Rust](/rust) and [Python](/python) code automatically when [vovk dev](/dev) command is run.
 - Demonstrate [segmented client](/segmented), so the RPC modules are generated in separate files for each [segment](/segment).
-- Bundle with proper origin.
+- Bundle with a proper `origin`.
 
 If you use default config settings, you can generate the client for other languages with:
 
@@ -130,7 +132,7 @@ The `demo` scripts are self-explanatory and can be found in the `package.json` f
 
 The generated specification also includes the [Scalar](https://scalar.com/) compatible examples that can be copied and pasted to your project stright away.
 
-<IFrame src="https://vovk-hello-world.vercel.app/scalar" width="100%" height="1000px"></IFrame>
+<IFrame src="https://vovk-hello-world.vercel.app/openapi" width="100%" height="1000px"></IFrame>
 
 ## Conclusion
 

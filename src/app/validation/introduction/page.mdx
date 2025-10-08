@@ -1,6 +1,6 @@
 # Getting started
 
-Vovk.ts as a back-end framework supports a wide range of validation libraries, including [Standard Schema](/validation/standard). The validation models are emitted as JSON Schemas in order to be used for validation on the client side (but also for code generation, [OpenAPI spec](/openapi) and [LLM Tools](/function-calling), etc). The server-side and the client-side validation are two different features, the second one is outlined in [the client validation page](/validation/client). This page will explain how to use the validation in the server-side code.
+Vovk.ts as a back-end framework supports a wide range of validation libraries. The validation models are emitted as JSON Schemas in order to be used for validation on the client side (but also for code generation, [OpenAPI spec](/openapi) and [LLM Tools](/function-calling), etc). 
 
 Every validation library uses an internal `withValidationLibrary` function that is used to wrap the controller handler, providing unified list of options and extending the handler with extra features. Each library is named as `with[name]` where the `name` is the name of the library, e.g. [`withZod`](/validation/zod).
 
@@ -41,23 +41,23 @@ The `output` and `iteration` options are used to specify the output validation s
 
 ### `isForm`
 
-The `isForm` option is used to specify whether the request body is a form data. This is useful for handling file uploads and other form-related data. Setting it to `true` also changes the RPC module typing to accept `FormData` on the client side as `body` option.
+The `isForm` option is used to specify whether the request body is a form data. This is useful for handling file uploads and other form-related data. Setting it to `true` changes the RPC method typing to accept `FormData{:ts}` on the client side as `body` option and adds `x-isForm` field to the emitted JSON Schema for the body validation schema.
 
 ### `handle`
 
-The `handle` is the controller handler function that will be executed after the validation is successful. It is the main function that processes the request and returns a response. It provides a type-flavoured `NextRequest`, represented as [`VovkRequest<TBody, TQuery, TParams>`](/controller/request) type as the first argument, and `params` value as the second argument.
+The `handle` is the controller handler function that will be executed after the validation is successful and return a response. It provides a type-flavoured `NextRequest{:ts}`, represented as [`VovkRequest<TBody, TQuery, TParams>{:ts}`](/controller/request) type as the first argument, and `params: TParams{:ts}` value as the second argument.
 
 ### `disableServerSideValidation`
 
-The `disableServerSideValidation` option is used to disable the server-side validation for the specified validation library. It can be a boolean value that indicates whether to disable validation on the server-side completely, or an array of validation types (`body`, `query`, `params`, `output`, `iteration`). This is useful when you want to skip the server-side validation for certain requests. This option does not affect type inference in the generated RPC modules.
+The `disableServerSideValidation` option is used to disable the server-side validation for the specified validation library. It can be a boolean value that indicates whether to disable validation on the server-side completely, or an array of validation types (`body`, `query`, `params`, `output`, `iteration`). This option does not affect type inference in the generated RPC modules, nor the client-side validation.
 
 ### `skipSchemaEmission`
 
-The `skipSchemaEmission` option is used to skip the emission of the JSON Schemas for the handler, allowing to hide implementation details from the client-side code. It can be a boolean value that disables schema emission completely, or an array of validation types to skip schema emission for specific validation types (`body`, `query`, `params`, `output`, `iteration`). This option does not affect type inference in the generated RPC modules.
+The `skipSchemaEmission` option is used to skip the emission of the JSON Schemas for the handler, allowing to hide implementation details from the client-side code. It can be a boolean value that disables schema emission completely, or an array of validation types to skip schema emission for specific validation types (`body`, `query`, `params`, `output`, `iteration`). This option does not affect type inference in the generated RPC modules but disables features that depend on the emitted schemas, including client-side validation.
 
 ### `validateEachIteration`
 
-The `validateEachIteration` option is used exclusively for the `iteration` validation schema. It indicates whether to validate each item in the iteration response, where by default it validates only the first iteration item.
+The `validateEachIteration` option is used exclusively for the `iteration` validation schema. It indicates whether to validate each item in the iteration response, where by default it validates only the first `iteration` item.
 
 ### `operation`
 
@@ -90,7 +90,7 @@ const result = await UserRPC.updateUser({
 });
 ```
 
-For more information about the `fn` property, see [the callable handlers page](/controller/fn). Also see the [meta documentation](/controller/meta), since it's handled differently in the `fn` property and the RPC module.
+For more information about the `fn` property, see [the callable handlers page](/controller/fn). Also check the [meta documentation](/controller/meta), since it's handled differently in the `fn` property and the RPC module.
 
 ### `schema`
 
@@ -100,7 +100,7 @@ const schema = UserController.updateUser.schema;
 // same as UserRPC.updateUser.schema
 ```
 
-The `schema` property provides the method schema for the handler, similar to the RPC method schema. It's used in tendem with the `fn` property to build [Function Calling tools](/function-calling) to call the handler directly from the AI tools, without making an HTTP request.
+The `schema` property provides the method schema for the handler, similar to the RPC method schema. It's used in tendem with the `fn` property to build [function calling tools](/function-calling) to call the handler by AI without making an HTTP request.
 
 ### `models`
 

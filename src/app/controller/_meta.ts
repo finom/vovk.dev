@@ -11,7 +11,7 @@ const meta = {
   jsonlines: 'JSON Lines',
   fn: 'Callable handlers',
   meta: 'Request meta',
-  progressive: 'Progressive response 🧪',
+  progressive: 'Progressive Response 🧪',
   'form-data': 'FormData',
 } satisfies MetaRecord;
 

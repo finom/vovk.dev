@@ -2,7 +2,7 @@
 
 > [!WARNING]
 >
-> The library uses [@sodaru/yup-to-json-schema](https://github.com/sodaru/yup-to-json-schema) to convert Yup models to JSON Schema, and testing has shown dissatisfactory results (for example it was unable to handle `anyOf` properly). Therefore, I can't recommend using this library until the issues are resolved. Yet, because I noticed that too late, I decided to keep it as part of the project, since its tests helps to detect type problems early.
+> The library uses [@sodaru/yup-to-json-schema](https://github.com/sodaru/yup-to-json-schema) to convert Yup models to JSON Schema, and testing has shown dissatisfactory results (for example it was unable to handle `anyOf` properly). Therefore, I can't recommend using this library until the issues are resolved. Yet, because I noticed that too late, I decided to keep it as part of the project, since existing tests help to detect issues with types early.
 
 Validation with Yup is performed with `vovk-yup` package, which provides a `withYup` function to create validated handlers.
 

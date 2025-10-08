@@ -22,7 +22,7 @@ export default class UserController {
 }
 ```
 
-The RPC method `body` type will be inferred as `FormData`.
+This will make the `req` variable to be typed as `VovkRequest<FormData, ...>` and the RPC method's `body` type will be inferred as `FormData`.
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -89,7 +89,7 @@ export default class UserController {
   static createUser = withZod({
     isForm: true,
     body: z.object({
-      tags: z.union([z.array(z.string(), z.string())]),
+      tags: z.union([z.array(z.string()), z.string()]),
     }),
     async handle(req) {
       const form = await req.vovk.form(); // { tags: ['tag1', 'tag2'] } or { tags: 'tag1' }
@@ -151,4 +151,4 @@ export default class UserController {
 
 Note that [vovk-ajv](/validation/client) does not have built-in support for OpenAPI-compatible `format: "binary"`, and the file size/type etc. aren't validated on the client side.
 
-Also note that [vovk-dto/validateOnClient](/validation/dto) doesn't validate `body` if it's an instance of `FormData` at all.
+Also note that [vovk-dto/validateOnClient](/validation/dto#validateonclient) doesn't validate `body` if it's an instance of `FormData` at all.

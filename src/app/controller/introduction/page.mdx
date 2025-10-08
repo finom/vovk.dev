@@ -7,15 +7,15 @@ import { VovkNewDynamic } from './VovkNewDynamic';
 
 <VovkNewDynamic />
 
-[`vovk new` documentation](/cli/new)
+[`vovk new` documentation](/new)
 
 ## Definition
 
-Controller is a static class (a class that has static methods only and it's never instantiated) that handles incoming HTTP requests.
+Controller module is a static class (a class that has static methods only and it's never instantiated) that handles incoming HTTP requests.
 
-Methods of this class, that are decorated with an HTTP decorator (like `@get()` or `@post()`), become request handlers and accept 2 arguments: [VovkRequest](/controllers/request) (that is inherited from `NextRequest`) and parameters that are defined by the decorator path.
+Methods of this class, that are decorated with an HTTP decorator (like `@get()` or `@post()`), become request handlers and accept 2 arguments: [VovkRequest](/controllers/request) (that is inherited from `NextRequest`) and parameters that are set by the decorator path.
 
-The `NextRequest` type doesn't provide any information about the request body or query parameters, so the body is casted as `any` and query parameters are casted as `string | null`.
+By default, `NextRequest` type doesn't provide any information about the request body or query parameters, so the body is casted as `any` and query parameters are casted as `string | null`.
 
 ```ts
 import type { NextRequest } from 'next';
@@ -118,11 +118,11 @@ export default class UserController {
 }
 ```
 
-Note that in order to be able to use safe self-inferences at [service classes](/controller/service), the `handle` method doesn't force the return type, being able to return any value. However, you can use `satisfies` operator to make sure that the returned value matches the expected output type.
+Note that in order to be able to use safe self-inferences at [service modules](/controller/service), the `handle` method doesn't force the return type, being able to return any value. However, you can use `satisfies` operator to make sure that the returned value matches the expected output type.
 
 ## Initialization
 
-Once the controller is defined it needs to be initialized at the wildcard route (also called [segment](/segment)) by adding it to the `controllers` object. The key of this object defines the name of the resulting library variable exported from `"vovk-client"` or [segmented client module](/composed-and-segmented).
+Once the controller is defined it needs to be initialized in a [segment route](/segment) by adding it to the `controllers` object. The key of this object defines the name of the resulting RPC module variable exported from `"vovk-client"` or [segmented client](/segmented).
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
@@ -217,7 +217,7 @@ export default class HelloController {
 }
 ```
 
-When `NextResponse` is returned from the controller method, the client library is going to recognise the return type as expected.
+When `NextResponse.json(...)` is returned from the controller method, the client library is going to recognise the return type as expected.
 
 ```ts
 import { NextResponse } from 'next/server';

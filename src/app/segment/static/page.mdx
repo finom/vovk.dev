@@ -15,7 +15,7 @@ const nextConfig = {
 module.exports = nextConfig;
 ```
 
-The only thing you need to the segment is to return `generateStaticAPI` results from `generateStaticParams` function.
+The only thing you need to do is to implement `generateStaticParams` that returns `generateStaticAPI` with controller list.
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
 // ...
@@ -83,7 +83,7 @@ export default class StaticParamsController {
       page: z.enum(['1', '2', '3']),
     }),
     handle: async (_req, { section, page }) => {
-      return { section, page }; // return the params as is
+      return { section, page };
     },
   });
 }

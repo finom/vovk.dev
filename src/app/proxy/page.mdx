@@ -2,7 +2,7 @@
 
 ## JSON
 
-You can easily create a proxy endpoint by fetching data from another server with `fetch` function that, in its turn, returns `Response` instance that's automatically handled by Next.js. The only thing you need to do is to define a different return type.
+You can easily create a proxy endpoint by fetching data from another server with `fetch` function that, in its turn, returns `Response` instance that's automatically handled by Next.js. The only thing you need to do is to force a different return type in order to make the client infer it correctly.
 
 ```ts
 import { get } from 'vovk';
@@ -37,7 +37,7 @@ const { greeting } = await ProxyRPC.getHello<{ greeting: string }>();
 
 ## Blob
 
-When return type isn't changed, the client will automatically resolve the response as `Response` object. This is useful when you need to fetch a file or a binary data.
+When return type isn't changed, the client will automatically resolve the response as `Response` object. This is useful when you need to fetch a file or binary data.
 
 ```ts
 import { get } from 'vovk';

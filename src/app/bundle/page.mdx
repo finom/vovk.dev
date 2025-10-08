@@ -35,35 +35,20 @@ The TypeScript RPC library can be bundled and published to NPM with pre-filled `
 npx vovk bundle
 ```
 
-Internally the bundling is made executing the following steps:
+Internally, the bundling is made executing the following steps:
 
-1. It generates a client into `tmp_prebundle` directory (configured with `config`) using [ts](/templates#ts) template.
+1. It generates a client into `tmp_prebundle` directory (configured with `bundle.prebundleOutDir: string{:ts}`) using [ts](/templates#ts) template.
 2. Uses [tsdown API](https://tsdown.dev/) to bundle the generated client into a few compiled files at `dist` directory.
 3. Generates `package.json` and `README.md` files from [packageJson](/templates#packagejson) and [readme](/templates#readme) templates.
-4. Deletes the `tmp_prebundle` directory.
+4. Deletes the `tmp_prebundle` directory (configured with `bundle.keepPrebundleDir: boolean{:ts}`).
 
-After running the command, you will find the following files in the `dist` directory:
+After the bundling, the package can be published to NPM:
 
-<FileTree>
-  <FileTree.Folder name="dist" defaultOpen>
-    <FileTree.File name="index.cjs" />
-    <FileTree.File name="index.d.cts" />
-    <FileTree.File name="index.mjs" />
-    <FileTree.File name="index.d.mts" />
-    <FileTree.File name="schema.cjs" />
-    <FileTree.File name="schema.d.cts" />
-    <FileTree.File name="package.json" />
-    <FileTree.File name="README.md" />
-  </FileTree.Folder>
-</FileTree>
-
-That can be published with:
-
-```sh
+```sh npm2yarn
 npm publish dist
 ```
 
-## Configuring the Bundle
+## Configuring the `bundle`
 
 The bundling can be configured by adding the `bundle` object in the [config](/config) file:
 
@@ -71,17 +56,28 @@ The bundling can be configured by adding the `bundle` object in the [config](/co
 /** @type {import('vovk').VovkConfig} */
 const config = {
   bundle: {
-    tsClientOutDir: 'tmp_prebundle', // default
-    dontDeleteTsClientOutDirAfter: false, // default
-    requires: {
-      readme: '.', // default
-      packageJson: '.', // default
-      myTemplate: './foo', // custom template
-    },
-    package: {}, // package.json content
-    readme: {}, // README.md content
+    prebundleOutDir: 'tmp_prebundle', // default
+    keepPrebundleDir: false, // default
     tsdownBuildOptions: {
       outDir: 'dist', // default
+    },
+    generatorConfig: {
+      origin: 'https://example.com',
+      requires: {
+        readme: '.', // default
+        packageJson: '.', // default
+        myTemplate: './foo', // custom template
+      },
+      excludeSegments: [],
+      includeSegments: [],
+      package: {}, // modifies package.json content
+      readme: {}, // modifies README.md content
+      samples: {}, // modifies README.md samples content
+      openAPIObject: {}, // modifies resulting OpenAPIObject
+      imports: {
+        fetcher: './src/my-fetcher',
+      },
+      reExports: {}, // modifies re-exports in the generated index.ts
     },
   },
 };
@@ -96,21 +92,17 @@ The `prebundleOutDir` is the directory where the TypeScript client will be gener
 
 If set to `true`, the `prebundleOutDir` will not be deleted after bundling. This can be useful for debugging or other purposes. Defaults to `false`.
 
-### `requires`
-
-The `requires` object allows you to specify extra templates that will be rendered and copied to the `dist` directory after bundling. The keys are the template names, and the values are the resulting paths, relative to the bundle output directory. It works the same way as the [requires](/templates#requires) option in template definition.
-
 ### `package`
 
 The `package` object allows you to define the content of the generated `package.json` and `README.md` (for document title, description and version). You can specify fields like `name`, `version`, `description`, etc. By default it uses the root `package.json` file properties, extended with [package](/composed#package) option of [composed client](/composed).
 
-### `readme`
-
-The `readme` object allows you to define the content of the generated `README.md`. Currently only `banner` value is supported. By default uses [readme](/composed#readme) option of [composed client](/composed).
-
 ### `tsdownBuildOptions`
 
 Any options that can be passed to [tsdown](https://tsdown.dev/) `build` function. The options are outlined in the [tsdown documentation](https://tsdown.ru/reference/config-options).
+
+### `generatorConfig`
+
+The `generatorConfig` object accepts and overrides the same options as the [generatorConfig](/config#generatorconfig) of the root of the [config](/config) file.
 
 ## Troubleshooting
 
@@ -160,4 +152,4 @@ export default config;
 
 - ✨ Segmented bundle - create separate bundles for each segment.
 - ✨ Watch mode - [watch](https://tsdown.dev/reference/api/Interface.Options#watch) for changes and re-bundle automatically.
-- ✨ Standalone CLI command for OpenAPI to bundle third-party APIs into TypeScript clients (use `--openapi*` flags made for the [generate](/generate) command).
+- ✨ Standalone CLI command for [OpenAPI mixins](/codegen) to generate and bundle third-party APIs into TypeScript clients using `--openapi*` flags.

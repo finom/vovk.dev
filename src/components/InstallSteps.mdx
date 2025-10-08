@@ -10,9 +10,11 @@ npx create-next-app my-app --ts --app --src-dir
 cd my-app
 ```
 
+`src` dir is optional but recommended, as it keeps the root directory clean.
+
 ### Init Vovk and follow the prompts
 
-You will be asked preferred validation library, and a couple of other questions. The command also creates **vovk.config.mjs** or **vovk.config.cjs**.
+You will be asked preferred validation library, and a couple of other questions. The command also creates **vovk.config.mjs** or **vovk.config.cjs**, depending on `type` field in your `package.json`.
 
 ```bash npm2yarn
 npx vovk-init@draft --channel draft
@@ -20,7 +22,7 @@ npx vovk-init@draft --channel draft
 
 ### Create a new segment
 
-The following will create a root segment at **./src/app/api/[[...vovk]]/route.ts**.
+The following will create a root [segment](/segment) at **./src/app/api/[[...vovk]]/route.ts**.
 
 ```bash npm2yarn
 npx vovk new segment
@@ -28,7 +30,7 @@ npx vovk new segment
 
 ### Create a new controller and a service
 
-The following command will create an example controller and a service for users at **./src/modules/user/** and update the **route.ts** file.
+The following command will create an example controller and a service from built-in templates that can be [customized](/new) for users at **./src/modules/user/** and update the **route.ts** file.
 
 ```bash npm2yarn
 npx vovk new controller service user
@@ -36,7 +38,7 @@ npx vovk new controller service user
 
 ### Start the server and navigate to an example endpoint
 
-The dev script runs Next.js server and Vovk.ts watcher in parallel. Once the command is running, Vovk.ts will generate schema files at **.vovk-schema/** (needs to be committed) and client library at **node_modules/.vovk-client**.
+The `dev` script runs Next.js dev server and Vovk.ts watcher in parallel. Once the command is running, Vovk.ts will generate schema files at **.vovk-schema/** (needs to be committed) and client library at **node_modules/.vovk-client**.
 
 ```bash npm2yarn
 npm run dev
@@ -48,7 +50,6 @@ Then open http://localhost:3000/api/users?search=John
 
 Import the generated client library and use it to fetch data.
 
-<div className="nextra-code [&_code]:block inline-block">
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -56,11 +57,21 @@ import { UserRPC } from 'vovk-client';
 const result = await UserRPC.getUsers({ query: { search: 'John' } });
 ```
 
-</div>
+You can also use [React Query](https://react-query.tanstack.com/) to fetch data.
+
+```ts
+import { useQuery } from '@tanstack/react-query';
+import { UserRPC } from 'vovk-client';
+// ...
+const { data, error, isLoading } = useQuery({
+  queryKey: UserRPC.getUsers.queryKey(),
+  queryFn: () => UserRPC.getUsers({ query: { search: 'John' } }),
+});
+```
 
 ### Deploy
 
-The `vovk init` command automatically modifies the `package.json` file to run `vovk generate` before `next build`. This ensures that the client library is generated before building the Next.js app. In case if you chosen to modify the scripts manually, you can use the following command to generate the client library:
+The `vovk init` command automatically modifies the `package.json` file to run `vovk generate` before `next build` via `prebuild` script. This ensures that the client library is generated before building the Next.js app. In case if you chosen to modify the scripts manually, you can use the following command to generate the client library:
 
 ```bash npm2yarn
 npx vovk generate

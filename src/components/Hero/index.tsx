@@ -16,7 +16,7 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
         <div className="space-y-6">
-          <div className="inline-flex items-center rounded-full border border-border bg-background/50 px-3 py-1 font-semibold">
+          <div className="inline-flex items-center rounded-full bg-background/50 px-3 py-1 font-semibold text-4xl opacity-60">
             Back-end for Next.js
           </div>
           <div className="inline-flex items-center rounded-full border border-border bg-background/50 px-3 py-1 text-sm" hidden>

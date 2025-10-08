@@ -8,6 +8,8 @@ For an illustration, let's create a simple authorization decorator that checks i
 - Adds `currentUser` to the request metadata object, represented as `AuthMeta` interface.
 - Implements role-based access control with `Permission` enum.
 
+The `identifyUserAndCheckPermissions` function is a placeholder for your actual logic to identify the user from the request (e.g., from a JWT token or session) and check if they have the required permissions.
+
 ```ts filename="src/decorators/authGuard.ts"
 import { createDecorator, HttpException, HttpStatus, type VovkRequest } from 'vovk';
 import type { User } from '@/types';
@@ -50,7 +52,7 @@ const authGuard = createDecorator(async (req, next, permission: Permission) => {
 export default authGuard;
 ```
 
-Then import the `authGuard` decorator and related members and apply it to the controller methods, passing it after the `@get`, `@post`, etc. decorators.
+Import the `authGuard` decorator and related members and apply it to the controller methods, passing it after the `@get`, `@post`, etc. decorators.
 
 ```ts filename="src/modules/user/UserController.ts"
 import { get, prefix, operation } from 'vovk';

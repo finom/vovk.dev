@@ -5,7 +5,7 @@ import GithubFiles from '@/components/GithubFiles';
 
 Rust client can be generated with `vovk generate` command using [rs](/templates#rs) template or [rsSrc](/templates#rssrc) template.
 
-Generate Rust package with the [CLI](/cli):
+You can generate a Rust package with the [CLI](/cli):
 
 ```sh npm2yarn
 npx vovk generate --from rs --out ./rust_package
@@ -32,7 +32,7 @@ The package is ready to be published to [crates.io](https://crates.io/) with `ca
 cargo publish --manifest-path rust_package/Cargo.toml
 ```
 
-In case if you want to generate Rust source only, to be used as part of another Rust project, you can use `rsSrc` template:
+In case if you want to generate Rust source only, to be used as part of another Rust project, you can use [rsSrc](/templates#rssrc) template:
 
 ```sh npm2yarn
 npx vovk generate --from rsSrc --out ./rust_src
@@ -49,7 +49,7 @@ This will generate a Rust source with the following structure:
   </FileTree.Folder>
 </FileTree>
 
-## Configuring the Rust Client
+## Configuring the Rust client
 
 The generation can be [configured](/config), so the client will be generated automatically with `generate` command with no flags but also when [vovk dev](/dev) is run, that performs "hot generation" whenever the schema is changed. In order to do that, you need to add `rs` template to the [composed client](/composed) config:
 
@@ -63,7 +63,7 @@ const config = {
 export default config;
 ```
 
-The [rs](/templates#rs) template as well as some other templates has default `outDir` (by default equals to `./dist_rust`) for the composed client configuration, that can be changed by defining a [template definition](/templates#defs) in the config:
+The [rs](/templates#rs) template as well as some other templates has default `outDir` (by default equals to `./dist_rust`) for the composed client configuration, that can be changed with [template definitions](/templates#defs) in the config:
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -81,7 +81,7 @@ const config = {
 export default config;
 ```
 
-## Generated Rust Client Example
+## Generated Rust client example
 
 ### JSON endpoints
 
@@ -218,7 +218,7 @@ pub mod user_rpc {
 
 All RPC modules are generated in the `lib.rs` file, that contains all the RPC methods as functions but also types that are used in the RPC methods. The nested data structures are generated as nested modules, containing corresponding `struct` definitions or other types.
 
-The nested structures can be accessed with the `_::` syntax. For example, in order to get the `profile` type from the `update_user_` module, you can use `update_user_::body_::profile` syntax.
+The nested structures can be accessed with the `_::` syntax. For example, in order to get the `body.profile` type from the `update_user_` module, you can use `update_user_::body_::profile` syntax.
 
 The structs can be imported and renamed with `use` statement to follow PascalCase naming convention:
 
@@ -261,7 +261,7 @@ pub fn main() {
 }
 ```
 
-Behind the scenes it uses [reqwest](https://docs.rs/reqwest/latest/reqwest/) for HTTP requests, [jsonschema](https://docs.rs/jsonschema/latest/jsonschema/) for client-side validation and some other libraries.
+Behind the scenes it uses [reqwest](https://docs.rs/reqwest/latest/reqwest/) for HTTP requests, [jsonschema](https://docs.rs/jsonschema/latest/jsonschema/) for client-side validation and some other common libraries.
 
 ### JSONLines endpoints
 

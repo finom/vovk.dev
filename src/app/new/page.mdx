@@ -27,7 +27,7 @@ Options:
   -h, --help                              display help for command
 ```
 
-The command `vovk new` allows to create new [segments](/segment) and modules (such as [controllers](/controller), [services](/service), or custom modules) in the project. It uses `moduleTemplates` option defined at [config](/config) and can be extended with custom templates. It includes two commands in one: `vovk new segment` and `vovk new [module] [name]`.
+The command `vovk new` allows to create new [segments](/segment) and modules (such as [controllers](/controller), [services](/service), or custom modules) in the project. It uses `moduleTemplates` option defined at [config](/config) and can be extended with custom templates. It includes two commands in one: `vovk new segment [segment_name]` and <nobr>`vovk new [module] [module_name_singular]`</nobr>.
 
 ## vovk new segment
 
@@ -83,7 +83,7 @@ The segment produces an API that's going to be available at **/api/foo/...** end
 
 ---
 
-If `vovk new segment foo/bar/baz` is run, it creates a nested segment represented as **/src/app/api/foo/bar/baz/[[...vovk]]/route.ts** file, available as **/api/foo/bar/baz/...** endpoint. `segmentName` option equals to `foo/bar/baz`.
+When `vovk new segment foo/bar/baz` is run, it creates a nested segment represented as **/src/app/api/foo/bar/baz/[[...vovk]]/route.ts** file, available as **/api/foo/bar/baz/...** endpoint. `segmentName` option equals to `"foo/bar/baz"`.
 
 ## vovk new [module] [name]
 
@@ -129,7 +129,7 @@ export default config;
 
 **vovk-cli** provides built-in example templates for controllers and services located at **module-templates** folder at the NPM package. Every [validation](/validation) library has its own example template for controllers that's also located at **module-templates** folder of corresponding NPM package.
 
-[vovk init](/cli/init) initializes the Vovk.ts project with the corresponding templates defined at the [config](/config) file.
+[vovk init](/init) initializes the Vovk.ts project with the corresponding templates defined at the [config](/config) file.
 
 ### Shortcuts
 
@@ -148,3 +148,7 @@ npx vovk new controller service user
 ### Custom templates 🚧
 
 Coming soon.
+
+## Roadmap
+
+- 📝 Document custom module templates and available variables.

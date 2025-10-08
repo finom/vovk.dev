@@ -1,6 +1,6 @@
 # Callable handlers
 
-Every controller method created with [withValidationLibrary](/validation/introduction) function, that works behind the scenes of all validation libraries, can be used outside of HTTP request context as a regular function. It provides `fn` method that can be used to call the method directly, simulating signature of a resulting RPC module function.
+Every controller method created with [withValidationLibrary](/validation/introduction) function, that works behind the scenes of all validation libraries, can be used outside of HTTP request context as a regular function. It provides `fn` method that can be used to call the method directly, simulating signature of an RPC module method.
 
 Let's say you have the following controller class:
 
@@ -93,7 +93,7 @@ const response = await UserController.updateUser.fn({
 console.log('Response:', response);
 ```
 
-This will invoke `UserController.updateUser` method just like a normal function, performing validation with Zod (or [other library](/validation)) before executing the handler and imitating the same signature as the RPC module function.
+This will invoke `UserController.updateUser` method just like a normal function, performing validation with Zod (or [other library](/validation)) before executing the handler.
 
 There are several core use cases for callable handlers:
 
@@ -126,7 +126,7 @@ export default async function Page() {
 }
 ```
 
-**For LLM Function Calling**: Each controller can be used as a "module" for LLM Function Calling, implemented with `createLLMTools` utility. This allows you to call the controller method as a function from AI models, providing a structured way to interact with your application.
+**For LLM [function calling](/function-calling)**: Each controller can be used as a "module" for LLM function calling, implemented with `createLLMTools` utility in order to call controller methods at the current context, without performing HTTP requests.
 
 ```ts
 import { createLLMTools } from 'vovk';
@@ -140,9 +140,9 @@ console.log(tools); // [{ name, description, parameters, execute }, ...]
 
 ## Rules of callable handlers
 
-`fn` functions do not imitate the `Request` object, but partially simulates [VovkRequest](/controller/request) object, providing only the custom `vovk` property with methods to access input data, such as `async vovk.body()`, `vovk.query()`, `vovk.params()`, and `vovk.meta()`. In other words, `req` properties such as `req.url` or `req.headers` are not defined in the callable handler context. A proper signature of the `req` object looks like `Pick<VovkRequest<BODY, QUERY, PARAMS>, 'vovk'>{:ts}`. In order to make sure that the implemented HTTP handler can be also called with `fn`, you can use object destructing when defining the handler:
+`fn` functions do not imitate the `Request` object, but partially implement [VovkRequest](/controller/request) object, providing only the custom `vovk` property with methods to access input data, such as `async vovk.body()`, `vovk.query()`, `vovk.params()`, and `vovk.meta()`. In other words, `req` properties such as `req.url` or `req.headers` are not defined in the callable handler context. A proper signature of the `req` object looks like `Pick<VovkRequest<Tbody, TQuery, TParams>, 'vovk'>{:ts}`. In order to make sure that the implemented HTTP handler can be also called with `fn`, you can use object destructing when defining the handler to use only `vovk` property:
 
-```ts {8}
+```ts {16}
 export default class UserController {
   @post('{id}')
   static updateUser = withZod({
@@ -159,7 +159,6 @@ export default class UserController {
       /* ... */
     }),
     async handle({ vovk }) {
-      // destructuring req to get "vovk"
       const body = await vovk.body();
       const query = vovk.query();
       const params = vovk.params();
@@ -170,7 +169,7 @@ export default class UserController {
 }
 ```
 
-Another thing to keep in mind is that the callable handler is [decorated](./decorator) with the same decorators as the original HTTP handler, so when you create a decorator that is going to wrap the HTTP handler that is going to be callable, you need to make sure that you don't use `req` properties relative to `NextRequest`, such as `req.url`, `req.headers` or `req.nextUrl`.
+Another thing to keep in mind is that the callable handler is [decorated](./decorator) with the same decorators as the original HTTP handler, so when you create a decorator that is going to wrap the HTTP handler that is going to be used with `fn`, you need to make sure that you don't use `req` properties related to `NextRequest`, such as `req.url`, `req.headers` or `req.nextUrl`.
 
 ```ts {4}
 import { createDecorator } from 'vovk';
@@ -184,7 +183,7 @@ const myDecorator = createDecorator(({ vovk }, next) => {
 
 You can check if the handler is called as a callable handler by checking `req.url` property, which is `undefined` in the callable handler context:
 
-```ts {5}
+```ts {4}
 import { createDecorator } from 'vovk';
 
 const myDecorator = createDecorator((req, next) => {
@@ -233,7 +232,7 @@ UserHandlers.updateUser.fn({
 });
 ```
 
-When static class is implemented this way, it behaves like "validated [service](./service)", or "detouched HTTP handlers library", which can be attached to the controller later, or used as a standalone collection of validated functions.
+When static class is implemented this way, it behaves like a "validated [service](./service)", which can be attached to the controller later, or used as a standalone collection of validated functions.
 
 ```ts filename="src/modules/user/UserController.ts" {7}
 import { prefix, post } from 'vovk';

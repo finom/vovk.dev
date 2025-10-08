@@ -4,11 +4,12 @@ import { getPageMap } from 'nextra/page-map';
 import 'nextra-theme-docs/style.css';
 import '@/globals.css';
 import VovkLogo from '@/components/VovkLogo';
-import type { Meta } from 'nextra';
+import type { Metadata } from 'next';
 
-export const metadata: Meta = {
+export const metadata: Metadata = {
+  metadataBase: new URL('https://vovk.dev'),
   title: {
-    default: 'Vovk.ts - RPC Framework',
+    default: 'Vovk.ts - Back-end for Next.js',
     template: '%s | Vovk.ts',
   },
   openGraph: {

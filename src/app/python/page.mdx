@@ -1,14 +1,12 @@
 import { FileTree, Tabs } from 'nextra/components';
 import GithubFiles from '@/components/GithubFiles';
 
------
 
-
-# Python RPC Client (experimental)
+# Python RPC client (experimental)
 
 Python client can be generated with `vovk generate` command using [py](/templates#py) template or [pySrc](/templates#pysrc) template.
 
-Generate Python package with the [CLI](/cli):
+You can generate a Python package with the [CLI](/cli):
 
 ```sh npm2yarn
 npx vovk generate --from py --out ./python_package
@@ -53,21 +51,21 @@ This will generate a Python source with the following structure:
   </FileTree.Folder>
 </FileTree>
 
-## Configuring the Python Client
+## Configuring the Python client
 
-The generation can be [configured](/config), so the client will be generated automatically with `generate` command with no flags but also when [vovk dev](/dev) is run, that performs "hot generation" whenever the schema is changed. In order to do that, you need to add `py` template to the [composed client](/composed) config:
+The generation can be [configured](/config), so the client will be generated automatically with [generate](/generate) command with no flags but also when [vovk dev](/dev) is run, that performs "hot generation" whenever the schema is changed. In order to do that, you need to add `py` template to the [composed client](/composed) config:
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   composedClient: {
-    fromTemplates: ['cjs', 'mjs', 'py'], // keep the default "cjs" and "mjs" templates
+    fromTemplates: ['cjs', 'mjs', 'py'], // keeps the default "cjs" and "mjs" templates
   },
 };
 export default config;
 ```
 
-The [py](/templates#py) template as well as some other templates has default `outDir` (by default equals to `./dist_python`) for the composed client configuration, that can be changed by defining a [template definition](/templates#defs) in the config:
+The [py](/templates#py) template as well as some other templates has default `outDir` (by default equals to `./dist_python`) for the composed client configuration, that can be changed with [template definitions](/templates#defs) in the config:
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -85,7 +83,7 @@ const config = {
 export default config;
 ```
 
-## Generated Python Client Example
+## Generated Python client example
 
 ### JSON endpoints
 
@@ -96,7 +94,7 @@ A [controller](/controller) like this:
 <GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts']} repo="vovk-hello-world" />
 
 
-... will emit [Vovk.ts Schema](/schema), that in its turn will be used to generate the Python client, following the language conventions where possible, adding comments defined at schema `description`, and generating the most suitable types. For example, the `age` is generated as `int`.
+... will emit [Vovk.ts schema](/schema), that in its turn will be used to generate the Python client, following the language conventions where possible, adding comments defined at schema `description`, and generating most suitable number types. For example, the `age` is generated as `int` as per the controller method definition.
 
 ```py filename="./dist_python/src/package_name/__init__.py"
 from __future__ import annotations
@@ -167,7 +165,7 @@ class UserRPC:
         )
 ```
 
-All RPC modules are generated in the `__init__.py` file, that contains all the RPC methods as functions but also types that are used in the RPC methods. The nested data structures are generated as `TypedDict`s.
+All RPC modules are generated in the `__init__.py` file, that contains all the RPC methods as functions but also types that are used in the RPC methods. Types for nested data structures are generated as `TypedDict`s.
 
 The types of `body`, `query` and `params` can be obtained from the RPC module using pattern `[PascalCaseMethodName][InputType]`. For example, a controller method originaly named `updateUser` will have types `UpdateUserBody`, `UpdateUserQuery` and `UpdateUserParams` generated.
 
@@ -202,11 +200,11 @@ if __name__ == "__main__":
 
 ```
 
-Behind the scenes it uses [requests](https://pypi.org/project/requests/) for HTTP requests, [jsonschema](https://pypi.org/project/jsonschema/) for client-side validation and some other libraries.
+Behind the scenes it uses [requests](https://pypi.org/project/requests/) for HTTP requests, [jsonschema](https://pypi.org/project/jsonschema/) for client-side validation, plus some other common libraries.
 
 ### JSONLines endpoints
 
-To implement continious streaming with [JSONLines](/controller/jsonlines) endpoints, the client uses `Generator` to that can be used to iterate over the streamed data.
+To implement continious streaming with [JSONLines](/controller/jsonlines) endpoints, Python client implements `Generator` that can be used to iterate over the streamed data.
 
 A controller like this:
 
@@ -246,7 +244,7 @@ class StreamRPC:
         )
 ```
 
-That can be used like this:
+That can be utilized like this:
 
 ```py
 from dist_python.src.vovk_hello_world import StreamRPC  # local module

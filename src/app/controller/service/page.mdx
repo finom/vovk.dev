@@ -1,12 +1,12 @@
 import { Tabs } from 'nextra/components';
 
-# Service class
+# Service
 
-Service is a part of the Controller-Service-Repository pattern that is used to separate business logic from the request handler. It allows to keep your controllers clean and focused on handling HTTP requests, while the service class contains the actual business logic and data manipulation.
+Service module is a part of the Controller-Service-Repository pattern that is used to separate business logic from the request handler. It allows to keep your controllers clean and focused on handling HTTP requests, while the service class contains the actual business logic and data manipulation.
 
-Similarly to controllers, services are implemented as static classes with static methods that don't require decorators or any special design. This means that the static class syntax for services is being just a convention and you can use any applicable way to define business logic: normal classes that need to be instantiated, separate functions, or plain objects.
+Similarly to controllers, services are implemented as static classes with static methods but they don't require usage of decorators or any special design. This means that the static class syntax for services is being just a convention and you can use any applicable way to define business logic: normal classes that need to be instantiated, separate functions, or plain objects.
 
-The best thing about service methods is that their typing can be inferred from controller methods that call them, without causing "implicit any" TS errors. Thanks to [Anders Hejlsberg](https://github.com/ahejlsberg) for a solution for [#58616](https://github.com/microsoft/TypeScript/issues/58616), without this fix to TypeScript language Vovk.ts wouldn't be implementable.
+The best thing about service methods is that their typing can be inferred from controller methods that call them, without causing "implicit any" TS errors. Thanks to legendary [Anders Hejlsberg](https://github.com/ahejlsberg) for a solution for [#58616](https://github.com/microsoft/TypeScript/issues/58616), without this fix to TypeScript language Vovk.ts wouldn't be possible.
 
 Let's say you have the following controller class:
 

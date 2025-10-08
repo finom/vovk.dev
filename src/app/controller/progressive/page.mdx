@@ -9,13 +9,13 @@ import { Suspense } from 'react';
 
 A common use of [JSONLines](./jsonlines) format is to sequentially send multiple data chunks (JSON lines) as a response to a single request. This is useful for long-running operations, such as LLM completions, where you want to send partial results as they become available.
 
-But what if you don't know what chunk will come first, second and so on? In this case, you can use an experimental feature that I call "progressive response", inspired by Dan's Abramov's proposal [Progressive JSON](https://overreacted.io/progressive-json/), where I borrowed the "progressive" name from.
+But what if you don't know what chunk will come first, second and so on? In this case, you can use an experimental feature that I call "progressive response", inspired by Dan's Abramov's proposal [Progressive JSON](https://overreacted.io/progressive-json/), where the "progressive" name came from.
 
 The progressive response feature can also be described as "partial response streaming", similar to [Partial Prerendering](https://nextjs.org/docs/app/getting-started/partial-prerendering), but instead of rendering UI, it "renders" response data in an unknown order. When all the data is sent, the response gets closed.
 
-Let's say you have two functions that return data after some random delay: `getUsers` and `getTasks`, implemented as static methods of a [service class](./service). In a real application, these could be API calls or queries to different databases; they also can be connected to each other by ID, for example, each task can have a user ID that it belongs to, but for this example, we will keep them independent.
+Let's say you have two functions that return data after some random delay: `getUsers` and `getTasks`, implemented as static methods of a [service module](./service). In a real application, these could be API calls or queries to different databases.
 
-With the help of [JSONLinesResponse class](./jsonlines#jsonlinesresponse), we can implement a simple method, whose implementation will look like this:
+With the help of [JSONLinesResponse class](./jsonlines#jsonlinesresponse), we can create a simple method, whose implementation will look like this:
 
 ```ts
 // ...
@@ -32,7 +32,7 @@ void Promise.all([
 - When all promises are resolved, the `resp.close` method is called, which closes the response stream.
 - If any of the promises are rejected, the `resp.throw` method is called, which sends an error response to the client.
 
-The full implementation of the service class looks like this:
+The full implementation of the service module looks like this:
 
 ```ts
 import { JSONLinesResponse, type VovkIteration } from 'vovk';

@@ -2,27 +2,27 @@
 
 ## AI website builders
 
-The minimalism of Vovk.ts allows to easily create complex back-end logic using AI generators, involving minimal input context and making AI agents think less, minimizing hallucinations and improving reliability of the generated RESTful APIs.
+The minimalistic design of Vovk.ts allows to easily create complex back-end logic using AI generators, involving minimal input context and making AI agents think less, minimizing hallucinations and improving reliability of the generated RESTful APIs.
 
 Comparing to Vovk.ts with NestJS, the first one requires to use less imports, less decorators, doesn't require to connect controller and service into a "module", doesn't use dependency injection ([services](/controller/service) are just namespaced functions with no decorators), supports in-line input/output models (so AI doesn't need to create a "dto" classes in a separate file), supporting basically any modern [validation library](/validation), etc.
 
-With modern tooling such as [Prisma ORM](https://www.prisma.io/), even smaller models would be capable to understand the task and generate working and complex code.
+With modern tooling such as [Prisma ORM](https://www.prisma.io/), even small LLM models would be capable to understand the task and generate working and complex code.
 
 Here are the features of Vovk.ts that make it suitable for AI-generated backends:
 
 - Almost zero boilerplate, just a [config](/config) file.
-- Probably the most minimalistic syntax for defining API routes for a backend framework with OAS support.
+- The most minimalistic syntax for defining API routes for a backend framework with OAS support.
 - Requires a single Next.js project, so AI wouldn't struggle with a monorepo.
-- Clear syntax for RPC modules that can be used on front-end.
-- Clear type inference for input/output models.
+- Clear syntax for RPC modules that can be used on the front-end side.
+- Clear type inference for input/output models without extra imports.
 
 Bonus points available out of the box:
 
 - [Multitenancy](/multitenant) support with Next.js Middleware.
 - [OpenAPI documentation](/openapi) with code samples.
-- [Function Calling framework](/function-calling) that turns the controllers (for server-side tools) and RPC modules (for client-side tools) into powerful agents and [MCP servers](/mcp).
-- [OpenAPI mixins](/codegen) that allow to integrate third-party APIs into your project and even use them in the AI agents.
-- [Bundling](/bundle) and [codegen](/codegen) features that allow to create and publish client libraries for your own APIs or for third-party APIs, creating alternative clients for APIs that offer OpenAPI 3+ specifications.
+- [Function calling framework](/function-calling) that turns the controllers (for server-side tools) and RPC modules (for client-side tools) into powerful agents and [MCP servers](/mcp).
+- [OpenAPI mixins](/codegen) that allow to integrate third-party APIs into the AI-generated project.
+- [Bundling](/bundle) and [codegen](/codegen) features that allow to create and publish RPC libraries with minimal effort.
 
 
 ## Using Next.js + Vovk.ts as a standalone RESTful API server
@@ -36,8 +36,8 @@ This allows to use Next.js + Vovk.ts as a standalone RESTful API server, without
 
 -----
 
-Let's say you have an Angular, Vue.js or other front-end project that requires a RESTful API server. You can use a monorepo with two projects, one for the front-end powered by [Vite](https://vite.dev/) and another for the back-end, where the back-end is a Next.js + Vovk.ts project that can emit RPC modules directly to the front-end project (setting `outDir` [config](/config) option to `../front-end/node_modules/.vovk-client` for [composed](/composed) client or `../front-end/src/client` for [segmented](/segmented) client).
+Let's say you have an Angular, Vue.js or other front-end project that requires a RESTful API server. You can use a monorepo with two projects, one for the front-end powered by [Vite](https://vite.dev/) and another for the back-end powered by Next.js and Vovk.ts, that can emit RPC modules directly to the front-end project (setting `outDir` [config](/config) option to `../front-end/node_modules/.vovk-client` for [composed](/composed) client or `../front-end/src/client` for [segmented](/segmented) client).
 
 -----
 
-If you want to use Next.js + Vovk.ts as a standalone RESTful API server, but don't want to set up monorepo, you can split front-end and back-end into two separate repositories, where back-end repository [bundles](/bundle) the client library and publishes it as a private NPM package that can be installed in the front-end project.
+If you want to use Next.js + Vovk.ts as a standalone RESTful API server, but don't want to set up monorepo, you can split front-end and back-end into two separate repositories, where back-end repository [bundles](/bundle) the client library and publishes it as a private NPM package that can be installed into the front-end part.

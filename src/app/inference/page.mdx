@@ -73,7 +73,7 @@ export default class UserController {
 }
 ```
 
-Validated method definition:
+Validated methods define the input types automatically:
 
 ```ts
 import { withZod } from 'vovk-zod';
@@ -104,7 +104,7 @@ await UserRPC.updateUser({
 });
 ```
 
-And all three cases will allow to infer the input types the same way:
+And all these cases will allow to infer the input types the same way:
 
 ```ts
 import type { VovkBody, VovkQuery, VovkParams } from 'vovk';
@@ -145,7 +145,7 @@ export default class UserController {
 }
 ```
 
-For [iteration](/controller/jsonlines) (streaming responses):
+For [JSONLines](/controller/jsonlines) responses:
 
 ```ts
 import { withZod } from 'vovk-zod';

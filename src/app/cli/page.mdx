@@ -7,7 +7,7 @@ npm install vovk-cli@draft --save-dev
 ```
 
 - [vovk init](/init) - creates a new Vovk.ts project.
-- [vovk dev](/dev) - runs Vovk Dev script that watches for changes at controllers and updates the [schema](/schema) and the [client](/client) accordingly when needed.
+- [vovk dev](/dev) - runs Vovk Dev script that watches for changes at controllers and updates the [schema](/schema) and the client, when needed.
 - [vovk generate](/generate) - generates the client based on the [schema](/schema) and [config](/config).
 - [vovk new](/new) - module generator that helps to create segments, controllers, services and other modules that you can define as a template at [config](/config).
-- [vovk bundle](/bundle) - bundles the TypeScript client library into a single package to be published on NPM.
+- [vovk bundle](/bundle) - bundles the TypeScript client library into a single package to be published on NPM. Uses [tsdown](https://tsdown.dev/) API behind the scenes.

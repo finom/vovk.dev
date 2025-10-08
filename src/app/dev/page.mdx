@@ -25,7 +25,7 @@ Options:
 -----
 
 
-The `vovk dev` command runs a script that watches for changes at controllers and updates the [schema](/schema) and the [client](/typescript) accordingly if needed by making HTTP GET requests to `/api/<segment-name>/_schema_` where `<segment-name>` is the name of the segment being affected. If schema is changed the watcher updates the schema JSON files and the client modules.
+The `vovk dev` command runs a script that watches for changes at controllers and updates the [schema](/schema) and the [client](/typescript) accordingly if needed by making HTTP GET requests to `/api/<segment-name>/_schema_` where `<segment-name>` is the name of the segment being affected. If schema is changed the watcher updates the JSON files and the client modules.
 
 ## How it works
 
@@ -34,8 +34,8 @@ The `vovk dev` command runs a script that watches for changes at controllers and
 3. When a change is detected, the script checks if the file contains a [controller](/controller) and if it belongs to a [segment](/segment) by making some simple RegExp checks.
 4. If the file is a controller and belongs to a segment, the script sends a GET request to `/api/<segment-name>/_schema_` to get the updated schema.
 5. The script checks if the schema is changed and if so:
-   - If list of controllers is changed (added, removed, renamed), or method definition (including validation) is changed, the script updates the schema by saving it to [.vovk-schema](/config#schemaoutdir) folder as a .json file making it fast to serialize and import after.
-   - If list of controllers is changed (added, removed, renamed), the script updates the client. The client imports the schema in order build the exported library properly. The client is generated at [node_modules/.vovk-client](/composed#outdir) folder and is re-exported by [vovk-client](/packages#vovk-client) package.
+   - If list of controllers is changed (added, removed, renamed), or method definition (including validation) is changed, the script updates the schema by saving it to [.vovk-schema](/config#schemaoutdir) folder as a `<segment-name>.json` file.
+   - If list of controllers is changed (added, removed, renamed), the script also updates the client. The client imports the schema in order to initialize the exported library properly. By default, the [composed client](/composed) is generated at `node_modules/.vovk-client` folder and is re-exported by [vovk-client](/packages#vovk-client) package. When [segmented client](/segmented) is used, it generates files to the source folder, that by default is set to `./src/client`.
 
 <Image src={devSvg} alt="vovk dev" className="dark:invert" />
 

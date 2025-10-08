@@ -1,6 +1,6 @@
-# Vercel Cron Jobs
+# Vercel Cron jobs
 
-[Vercel Cron Jobs](https://vercel.com/docs/cron-jobs) require simple authorization using an environment variable. This can be achieved by creating a [decorator](/controller/decorator) that checks authorization header with a secret key.
+[Vercel Cron jobs](https://vercel.com/docs/cron-jobs) require simple authorization using an environment variable. This can be achieved by creating a [decorator](/controller/decorator) that checks authorization header with a secret key.
 
 ```ts filename="src/decorators/cronGuard.ts"
 import { HttpException, HttpStatus, createDecorator } from 'vovk';

@@ -2,26 +2,34 @@ import { Tabs } from 'nextra/components';
 
 # Client-side validation for RPC methods
 
-The [schema](/schema) emitted by the server-side code is primarily used to build the RPC modules, but as a side-effect it can also be used for client-side validation. The cllient-side validation library is defined by hooking into the RPC module template via [validateOnClient](/imports#validateonclient) import.
+The [schema](/schema) emitted by the server-side code is primarily used to build the RPC modules, but as an implementation side-effect it can also be used for client-side validation. The cllient-side validation library is defined by hooking into the RPC module template via [validateOnClient](/imports#validateonclient) import.
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
-  imports: {
-    validateOnClient: 'my-client-validation-library',
-  },
+  generatorConfig: {
+    imports: {
+      validateOnClient: 'my-client-validation-library',
+    },
+  }
 };
+
 export default config;
 ```
 
+This will affect the generated RPC modules to import the given client-side validation library.
+
 ```ts filename="./node_modules/.vovk-client/index.mjs"
-import { validateOnClient } from 'my-client-validation-library';
 // ...
+export const UserRPC = createRPC(
+  schema, '', 'UserRPC', import('vovk'),
+  { validateOnClient: import('my-client-validation-library') }
+);
 ```
 
 ## vovk-ajv
 
-[vovk-ajv](https://www.npmjs.com/package/vovk-ajv) is the primary library that implements the client-side validation using [Ajv](https://www.npmjs.com/package/ajv). It is installed and set up automatically when `npx vovk-init` is used. It validates the JSON schemas emitted by the server-side code. **vovk-ajv** supports additional configuration listed as `config.libs.ajv` in the [vovk.config](/config) file, such as Ajv options, localization and target version of the JSON schema.
+[vovk-ajv](https://www.npmjs.com/package/vovk-ajv) is the primary library that implements the client-side validation using [Ajv](https://www.npmjs.com/package/ajv). It is installed and set up automatically when `npx vovk-init` is used. **vovk-ajv** supports additional configuration listed as `config.libs.ajv` in the [vovk.config](/config) file, such as Ajv options, localization and target version of the JSON schema.
 
 ```bash npm2yarn
 npm install vovk-ajv@draft
@@ -72,9 +80,9 @@ export const validateOnClient = createValidateOnClient({
 
 ## FormData
 
-As there is no standard way to describe `FormData` in JSON Schema, every validation library got to provide its own way to generate OAS-compatible schema for `FormData` requests.
+As there is no standard way to describe `FormData` in JSON Schema, every validation library have to provide its own way to generate OAS-compatible schema for `FormData` requests.
 
-```json
+```json {6}
 {
   "type": "object",
   "properties": {
@@ -86,9 +94,11 @@ As there is no standard way to describe `FormData` in JSON Schema, every validat
 }
 ```
 
-Zod 4 includes `.file()` schema that is converted to the OAS schema above but for others it needs to be solved individually. It's outlined very library mentioned at this documentation (for arktype it's solved by using a `fallback`, for Valibot you need to use `overrideSchema` etc).
+Zod 4 includes `.file()` schema that is converted to the valid [OAS schema](https://zod.dev/json-schema?id=file-schemas) but for other libraries it needs to be solved individually. It's outlined for every library mentioned at this documentation (for arktype it's solved by using a `fallback`, for Valibot you need to use `overrideSchema` etc).
 
-In case if you use a library that isn't mentioned here and you don't know how to properly generate the schema for the library, the easiest way to ignore that is to use `disableClientValidation` option in the generated RPC modules:
+---
+
+In case if you use a library that isn't mentioned here and you don't know how to make it properly generate the OAS file schema, the easiest way to work around this problem is to use `disableClientValidation` option in the generated RPC modules:
 
 ```ts
 import { UserRPC } from 'vovk-client';

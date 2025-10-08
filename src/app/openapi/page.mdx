@@ -1,4 +1,4 @@
-# Framework for public REST API
+# RESTful API with OpenAPI
 
 Vovk.ts automatically generates OpenAPI specification from the defined controllers and methods. The generated client exports `openapi` object for [composed client](/composed) and for each chunk of [segmented client](/segmented) separately.
 
@@ -14,7 +14,7 @@ The `openapi` object can also be imported from `vovk-client/openapi` or `@client
 
 The object is a ready-to-use OpenAPI specification that can be used with any tool that supports OpenAPI 3+.
 
-You can create a [static segment](/segment/static) with a simple controller that exposes the spec as a JSON file.
+You can use the object directly or create a [static segment](/segment/static) with a simple [controller](/controller) that exposes the spec as a JSON endpoint.
 
 ```sh npm2yarn
 npx vovk new segment --static static
@@ -23,8 +23,6 @@ npx vovk new segment --static static
 ```sh npm2yarn
 npx vovk new controller static/openApi --empty
 ```
-
-The object can be used directly or exposed as an endpoint:
 
 ```ts filename="src/modules/static/openapi/OpenApiController.ts"
 import { get, operation } from "vovk";
@@ -40,7 +38,8 @@ export default class OpenApiController {
 }
 ```
 
-On the client-side you can use any OpenAPI tooling, but it's recommended to [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react) as Vovk.ts generates code snippets:
+On the client-side you can use any OpenAPI tooling, but it's recommended to [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react) as Vovk.ts generates code snippets that can be copied directly to your codebase.
+
 
 ```tsx
 import { ApiReferenceReact } from "@scalar/api-reference-react";
@@ -69,4 +68,4 @@ async function App() {
 export default App;
 ```
 
-See what it looks like in the ["Hello World" app](https://vovk-hello-world.vercel.app/openapi).
+See what it looks like in the ["Hello World" app](https://vovk-hello-world.vercel.app/openapi). For more info, check the ["Hello World"](/hello-world) page.
