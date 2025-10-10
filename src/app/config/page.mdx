@@ -1,10 +1,10 @@
 # `vovk.config.{js,cjs,mjs}`
 
-The config file is used to define options for the [CLI](/cli), update [template definitions](/templates), and customize some other settings. At some cases it's optional, since the CLI can use default options or flags, but for more advanced usage it's recommended to create a config file.
+The config file is used to define options for the [CLI](/cli), update [template definitions](/templates), and customize other settings. In some cases, it's optional, since the CLI can use default options or flags, but for more advanced usage, it's recommended to create a config file.
 
-## Valid config file names
+## Valid Config File Names
 
-The config can be implemented either as a CJS module or as a ESM module. It supports the following extensions: **.js**, **.cjs**, **.mjs** and can be stored at the root of the project as well as at [.config](https://dot-config.github.io/) folder. In other words, the following paths are valid:
+The config can be implemented either as a CJS module or as an ESM module. It supports the following extensions: **.js**, **.cjs**, **.mjs**, and can be stored at the root of the project as well as in the [.config](https://dot-config.github.io/) folder. In other words, the following paths are valid:
 
 - **vovk.config.js**
 - **vovk.config.cjs**
@@ -13,21 +13,21 @@ The config can be implemented either as a CJS module or as a ESM module. It supp
 - **.config/vovk.config.cjs**
 - **.config/vovk.config.mjs**
 
-When [vovk init](/init) is executed, in order to create proper file name, it checks if the project is a module and, and if the **.config** folder exists.
+When [vovk init](/init) is executed, it checks if the project is a module and if the **.config** folder exists to create the proper file name.
 
 ## Config Options
 
-The config options extend `VovkConfig` type from `vovk` package and can be used to define the following options:
+The config options extend the `VovkConfig` type from the `vovk` package and can be used to define the following options:
 
 <a name="emitconfig" />
 ### `emitConfig: boolean | string[]`
 
-Indicates whether the config options should be emitted as [.vovk-schema/\_meta.json](/schema) file. If set to `true`, it will emit all options. If set to an array of strings, it will emit only the specified options. Default is <nobr>`["libs", "generatorConfig"]`</nobr>.
+Indicates whether the config options should be emitted as the [.vovk-schema/\_meta.json](/schema) file. If set to `true`, it will emit all options. If set to an array of strings, it will emit only the specified options. Default is <nobr>`["libs", "generatorConfig"]`</nobr>.
 
 <a name="clienttemplatedefs" />
 ### `clientTemplateDefs: object`
 
-Extends the [template definitions](/template#defs) with the custom definitions that can be used as `fromTemplates` field in the [composed client](/composed) or [segmented client](/segmented).
+Extends the [template definitions](/templates#defs) with custom definitions that can be used as the `fromTemplates` field in the [composed client](/composed) or [segmented client](/segmented).
 
 <a name="composedclient" />
 ### `composedClient: object`
@@ -47,32 +47,32 @@ Redefines config options for the [bundle](/bundle), such as [excludeSegments](/b
 <a name="modulesdir" />
 ### `modulesDir = 'src/modules'`
 
-Indicates the directory where the module files are located. Used to generate modules with [vovk new](/new) command and to watch for changes in the modules when [vovk dev](/dev) is running.
+Indicates the directory where the module files are located. Used to generate modules with the [vovk new](/new) command and to watch for changes in the modules when [vovk dev](/dev) is running.
 
 <a name="schemaoutdir" />
 ### `schemaOutDir = '.vovk-schema'`
 
-The directory where the schema is going to be generated. Defaults to `.vovk-schema`.
+The directory where the schema will be generated. Defaults to `.vovk-schema`.
 
 <a name="rootentry" />
 ### `rootEntry = 'api'`
 
-The root entry point for the API routes. By default it's `api`, meaning that the API routes will be served from `/api` path and the segments (`route.ts` files) are located in the `./src/app/api` folder (`src/` dir is optional). If you want to serve the API from the root of the domain, set it to an empty string `''`. In this case the segments will be located in the `./src/app` folder.
+The root entry point for the API routes. By default, it's `api`, meaning that the API routes will be served from the `/api` path and the segments (`route.ts` files) are located in the `./src/app/api` folder (the `src/` directory is optional). If you want to serve the API from the root of the domain, set it to an empty string `''`. In this case, the segments will be located in the `./src/app` folder.
 
 <a name="rootsegmentmodulesdirname" />
 ### `rootSegmentModulesDirName = ''`
 
-Used exclusively by the [vovk new](/new) command when multiple segments are used. If set to a non-empty string, the root segment modules will be created in the folder with this name. For example, if it's set to `"root"`, then when `vovk new controller user` is executed, the controller will be created at **src/modules/root/user/UserController.ts** instead of **src/modules/user/UserController.ts** (the root of the [modulesDir](#modulesdir))
+Used exclusively by the [vovk new](/new) command when multiple segments are used. If set to a non-empty string, the root segment modules will be created in a folder with this name. For example, if it's set to `"root"`, then when `vovk new controller user` is executed, the controller will be created at **src/modules/root/user/UserController.ts** instead of **src/modules/user/UserController.ts** (the root of the [modulesDir](#modulesdir)).
 
 <a name="loglevel" />
 ### `logLevel = 'info'`
 
-Defines the [log level](https://www.npmjs.com/package/loglevel) for the CLI. The values are `"debug"`, `"info"`, `"warn"`, `"error"`. By default it's `"info"`. Set it to `"debug"` to see underlying operations, such as file watching information.
+Defines the [log level](https://www.npmjs.com/package/loglevel) for the CLI. The values are `"debug"`, `"info"`, `"warn"`, `"error"`. By default, it's `"info"`. Set it to `"debug"` to see underlying operations, such as file watching information.
 
 <a name="devhttps" />
 ### `devHttps = false`
 
-[Progressive Web Apps](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/What_is_a_progressive_web_app) require HTTPS protocol to be used both in development and production. In order to enable HTTPS in development you can use `--experimental-https` flag with `next dev` command and enable HTTPS mode for [vovk dev](/dev) by setting `devHttps` to `true` or providing `--https` flag to the command.
+[Progressive Web Apps](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/What_is_a_progressive_web_app) require the HTTPS protocol to be used both in development and production. To enable HTTPS in development, you can use the `--experimental-https` flag with the `next dev` command and enable HTTPS mode for [vovk dev](/dev) by setting `devHttps` to `true` or providing the `--https` flag to the command.
 
 ```js filename="/vovk.config.mjs"
 const config = {
@@ -95,7 +95,7 @@ If you don't want to set the HTTPS mode enabled by default, you can create anoth
 <a name="moduletemplates" />
 ### `moduleTemplates: object`
 
-Record of module template names and their paths. Used by [vovk new](/new) command to define the templates for the service, controller or any other kind of module.
+Record of module template names and their paths. Used by the [vovk new](/new) command to define templates for services, controllers, or any other kind of module.
 
 ```js filename="/vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -141,7 +141,7 @@ const config = {
 export default config;
 ```
 
-If `"libs"` is present at [emitConfig](#emitconfig), it will be emitted to the `.vovk-schema/_meta.json` file and can be accessed multiple ways.
+If `"libs"` is present in [emitConfig](#emitconfig), it will be emitted to the `.vovk-schema/_meta.json` file and can be accessed in multiple ways.
 
 ```ts
 import { schema, UserRPC } from 'vovk-client';
@@ -153,33 +153,33 @@ console.log(UserRPC.updateUser.fullSchema.meta.config.libs.ajv.localize); // 'en
 <a name="generatorconfig" />
 ### `generatorConfig`
 
-The `generatorConfig` object is used to hack into the generated client code by changing [imports](/imports), `origin`, or adding [OpenAPI mixins](/codegen).
+The `generatorConfig` object is used to customize the generated client code by changing [imports](/imports), `origin`, or adding [OpenAPI mixins](/codegen).
 
 #### `origin: string | null`
 
-The origin for the client, used to generate the client with proper URLs. Defaults to `''`, meaning that the client will use relative URLs. If you want to use absolute URLs, set it to your domain, e.g. `https://example.com`.
+The origin for the client, used to generate the client with proper URLs. Defaults to `''`, meaning that the client will use relative URLs. If you want to use absolute URLs, set it to your domain, e.g., `https://example.com`.
 
 #### `package: VovkPackageJson`
 
-Used to generate `package.json` (for [TypeScript client](/typescript)), `Cargo.toml` (for [Rust client](/rust)), or `pyproject.toml` (for [Python client](/python)). It controls the `README.md` generation in order to include the package name, version, description and other fields but also changes the generated code samples to include the proper package name. 
+Used to generate `package.json` (for the [TypeScript client](/typescript)), `Cargo.toml` (for the [Rust client](/rust)), or `pyproject.toml` (for the [Python client](/python)). It controls the `README.md` generation to include the package name, version, description, and other fields, and also changes the generated code samples to include the proper package name.
 
-By default the names of Python and Rust packages are generated from the `name` field by converting it from `kebab-case` to `snake_case`. The `package` object also includes `py_name` and `rs_name` fields that can be used to override the names of packages respectively.
+By default, the names of Python and Rust packages are generated from the `name` field by converting it from `kebab-case` to `snake_case`. The `package` object also includes `py_name` and `rs_name` fields that can be used to override the package names respectively.
 
 #### `readme: VovkReadmeConfig`
 
-Used to customize the generated `README.md` file. It can contain `banner` field that will be added to the top of the file, `installCommand` field to customize the installation command, and `description` field to override a description to the package that by default is taken from the `package.description` field.
+Used to customize the generated `README.md` file. It can contain a `banner` field that will be added to the top of the file, an `installCommand` field to customize the installation command, and a `description` field to override the package description that by default is taken from the `package.description` field.
 
 #### `samples: VovkSamplesConfig`
 
-Used to customize the generated code samples in `README.md` files but also in the [Scalar](https://scalar.com/) OpenAPI documentation. Allows to make the snippet function explicitly render `apiRoot` and `headers` fields.
+Used to customize the generated code samples in `README.md` files as well as in the [Scalar](https://scalar.com/) OpenAPI documentation. Allows the snippet function to explicitly render `apiRoot` and `headers` fields.
 
 #### `openAPIObject: Partial<import('openapi3-ts/oas31').OpenAPIObject>`
 
-Customizes the generated OpenAPI schema. It can contain `info`, `servers`, `components` and other fields that will be merged with the automatically generated schema.
+Customizes the generated OpenAPI schema. It can contain `info`, `servers`, and other fields that will be merged with the automatically generated schema.
 
 #### `reExports: Record<string, string>`
 
-Used to re-export variables from other modules. The key is the name of variables to be re-exported, and the value is the module path. The names are compiled into the re-export curly braces and the paths are resolved to match output directory. This feature is useful when you want to re-export something besides the generated RPC modules from the client (including [bundled](/bundle) package).
+Used to re-export variables from other modules. The key is the name of the variables to be re-exported, and the value is the module path. The names are compiled into the re-export curly braces, and the paths are resolved to match the output directory. This feature is useful when you want to re-export something besides the generated RPC modules from the client (including the [bundled](/bundle) package).
 
 ```js filename="/vovk.config.mjs"
 const config = {
@@ -208,7 +208,7 @@ export { default as MyDefault } from './src/defaultExport';
 import { type MyType, MyClass, myFunction, RenamedComponent, MyDefault } from 'vovk-client';
 ```
 
-When [segmented](/segmented) client is used, the top level `generatorConfig.reExports` are applied to the root segment code.
+When the [segmented](/segmented) client is used, the top-level `generatorConfig.reExports` are applied to the root segment code.
 
 ```ts
 import { type MyType, MyClass, myFunction, RenamedComponent, MyDefault } from '@/client/root';
@@ -216,11 +216,11 @@ import { type MyType, MyClass, myFunction, RenamedComponent, MyDefault } from '@
 
 #### `imports: { fetcher, validateOnClient, createRPC }`
 
-Used to customize the imports of `fetcher`, `validateOnClient` and `createRPC` functions. See [Imports](/imports) for more details.
+Used to customize the imports of `fetcher`, `validateOnClient`, and `createRPC` functions. See [Imports](/imports) for more details.
 
 #### `segments`
 
-Used to configure each segment individually. It has the same properties as `generatorConfig` (such as `origin`, `package`, `readme`, `samples`, `openAPIObject`, `reExports`, `imports`) but also additional fields. Note that `imports.createRPC` is applicable to the top level `generatorConfig` only. The additional fields are:
+Used to configure each segment individually. It has the same properties as `generatorConfig` (such as `origin`, `package`, `readme`, `samples`, `openAPIObject`, `reExports`, `imports`) but also additional fields. Note that `imports.createRPC` is applicable to the top-level `generatorConfig` only. The additional fields are:
 
 ##### `rootEntry: string | null`
 
@@ -232,4 +232,4 @@ Overrides the name of the segment used in the generated code. Used for [multiten
 
 ##### `openAPIMixin: VovkOpenAPIMixin`
 
-Turns the segment into an OpenAPI mixin, mixing the generated client with third party APIs. See [OpenAPI mixins](/codegen) page for more details.
+Turns the segment into an OpenAPI mixin, mixing the generated client with third-party APIs. See the [OpenAPI mixins](/codegen) page for more details.

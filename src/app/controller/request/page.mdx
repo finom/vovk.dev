@@ -1,8 +1,8 @@
 import { Callout } from 'nextra/components';
 
-# `VovkRequest` type
+# `VovkRequest` Type
 
-Request object accepted by controller methods is represented by `VovkRequest` type. It extends `NextRequest` type from Next.js by defining input `body` and `query` (but also `params`, see below) types. You can use it to strictly type built-in response methods like `req.json()` and `req.nextUrl.searchParams` that originally loosely typed as `any` and `string | null`.
+The request object accepted by controller methods is represented by the `VovkRequest` type. It extends the `NextRequest` type from Next.js by defining input `body` and `query` (as well as `params`, see below) types. You can use it to strictly type built-in response methods like `req.json()` and `req.nextUrl.searchParams`, which are originally loosely typed as `any` and `string | null`.
 
 ```ts
 import { put, type VovkRequest } from 'vovk';
@@ -17,17 +17,17 @@ export default class UserController {
 }
 ```
 
-[Validation libraries](/validation) define type of request by themselves so you don't usually need to use `VovkRequest` manually.
+[Validation libraries](/validation) define the request type themselves, so you don't usually need to use `VovkRequest` manually.
 
-Also notice the second argument of the handler method. It is used to define the type of parameters extracted from the request URL.
+Also note the second argument of the handler method. It is used to define the type of parameters extracted from the request URL.
 
 ### `req.vovk`
 
-To avoid tweaking the original `NextRequest` object, Vovk introduces `req.vovk` object that contains additional utilities for request processing. Validation libraries (like [vovk-dto](/validation/dto)) can override the functions to return a different type.
+To avoid modifying the original `NextRequest` object, Vovk introduces the `req.vovk` object, which contains additional utilities for request processing. Validation libraries (like [vovk-dto](/validation/dto)) can override these functions to return a different type.
 
 ### `async req.vovk.body()`
 
-Function `req.vovk.body` returns the request body serialized as an object. In most cases, it behaves the same as `req.json()` method.
+The `req.vovk.body` function returns the request body serialized as an object. In most cases, it behaves the same as the `req.json()` method.
 
 ```ts
 import { post, type VovkRequest } from 'vovk';
@@ -42,7 +42,7 @@ export default class UserController {
 
 ### `req.vovk.query()`
 
-Function `req.vovk.query` returns serialized query parameters of the request.
+The `req.vovk.query` function returns serialized query parameters of the request.
 
 ```ts
 import { get, type VovkRequest } from 'vovk';
@@ -55,9 +55,9 @@ export default class UserController {
 }
 ```
 
-#### Nested queries
+#### Nested Queries
 
-The nested data is serialized as a query string with square brackets. It's commonly known as "PHP-style query string notation" or "bracket notation".
+Nested data is serialized as a query string with square brackets. This is commonly known as "PHP-style query string notation" or "bracket notation".
 
 In this notation:
 
@@ -101,7 +101,7 @@ Is parsed as:
 
 ### `req.vovk.params()`
 
-Function `req.vovk.params` returns serialized parameters of the request. In order to define proper typing for it you need to use 3rd generic argument for `VovkRequest` type.
+The `req.vovk.params` function returns serialized parameters of the request. To define proper typing for it, you need to use the third generic argument for the `VovkRequest` type.
 
 ```ts
 import { get, type VovkRequest } from 'vovk';
@@ -117,7 +117,7 @@ export default class UserController {
 
 ### `async req.vovk.form()`
 
-Function `req.vovk.form` returns `FormData` of the request serialized as an object. It's a type-safe alternative to `req.formData()` that reads form data and uses `Object.fromEntries(formData.entries())` to convert it to a normal object. The generic argument defines the shape of the form data.
+The `req.vovk.form` function returns the `FormData` of the request serialized as an object. It's a type-safe alternative to `req.formData()` that reads form data and uses `Object.fromEntries(formData.entries())` to convert it to a normal object. The generic argument defines the shape of the form data.
 
 ```ts
 interface Data {
@@ -133,11 +133,11 @@ const formDataObject = await req.vovk.form<Data>();
 // const formDataObject = Object.fromEntries(body.entries()) as Data;
 ```
 
-When [validation](/validation) libraries is used with `isForm` option, the `req.vovk.form` method will be typed automatically with no need to specify the generic parameter.
+When [validation](/validation) libraries are used with the `isForm` option, the `req.vovk.form` method will be typed automatically with no need to specify the generic parameter.
 
 ### `req.vovk.meta()`
 
-Function `req.vovk.meta` allows to get and set meta value of the request. The only argument is optional and, if provided, it sets meta information extending the existing meta information. It returns the current meta value. In order to define the type of meta value, you need to pass a generic type.
+The `req.vovk.meta` function allows you to get and set the meta value of the request. The only argument is optional and, if provided, sets meta information by extending the existing meta information. It returns the current meta value. To define the type of the meta value, you need to pass a generic type.
 
 ```ts
 interface RequestMeta {
@@ -153,36 +153,7 @@ req.vovk.meta<RequestMeta>({ foo: 'foo', bar: 'bar' });
 req.vovk.meta<RequestMeta>({ currentUser: user });
 
 // get meta information
-const meta = req.vovk.meta<RequestMeta>(); // meta type is RequestMeta including foo, bar and currentUser
+const meta = req.vovk.meta<RequestMeta>(); // meta type is RequestMeta including foo, bar, and currentUser
 ```
 
-The metadata is usually set in a custom [decorator](/controller/decorator) and read in the controller method.
-
-#### Metadata set by client
-
-Besides normal inputs such as `body`, `query`, and `params`, RPC module methods also accept `meta` object as an input that is sent by setting `x-meta` header with JSON-serialized data. On the server side this header is parsed and set as `xMetaHeader` property of the metadata object.
-
-On client-side, pass `meta` object to the RPC method:
-
-```ts
-import { UserRPC } from 'vovk-client';
-
-const user = await UserRPC.getUsers({
-  meta: { hello: 'world' },
-});
-```
-
-On server-side, you can access it like this:
-
-```ts
-import { get, type VovkRequest } from 'vovk';
-
-export default class UserController {
-  @get()
-  static async getUsers(req: VovkRequest) {
-    const { xMetaHeader } = req.vovk.meta<{ xMetaHeader: { hello: string } }>();
-    console.log(xMetaHeader); // Outputs: { hello: 'world' }
-    // ...
-  }
-}
-```
+The metadata is usually set in a custom [decorator](/controller/decorator) and read in the controller method. Read more about it in the [meta documentation](/controller/meta).

@@ -1,10 +1,10 @@
 import { Steps, Tabs, Callout } from 'nextra/components';
 
-# Manual install
+# Manual Install
 
 <Steps>
 
-## Create Next.js project with App Router and TypeScript
+## Create a Next.js project with App Router and TypeScript
 
 ```bash npm2yarn
 npx create-next-app my-app --ts --app --src-dir
@@ -13,7 +13,7 @@ npx create-next-app my-app --ts --app --src-dir
 cd my-app
 ```
 
-`src` dir is optional but recommended, as it keeps the root directory clean.
+The `src` directory is optional but recommended, as it keeps the root directory clean.
 
 ## Install "vovk" and "vovk-client"
 
@@ -33,15 +33,15 @@ const vovkConfig = {};
 export default vovkConfig;
 ```
 
-## Install validation library and enable client validation
+## Install a validation library and enable client-side validation
 
-For Zod validation on server-side and Ajv on client-side you can install the following packages:
+For Zod validation on the server side and Ajv on the client side, install the following packages:
 
 ```sh npm2yarn
-npm i vovk-zod vovk-ajv
+npm i zod vovk-zod vovk-ajv
 ```
 
-Modify `validateOnClient` import at your config file to enable client-side validation:
+Modify the `validateOnClient` import in your config file to enable client-side validation:
 
 ```ts filename="vovk.config.mjs"
 // @ts-check
@@ -59,11 +59,11 @@ export default vovkConfig;
 
 [Read more about validation](/validation).
 
-## Update "dev" and create "prebuild" NPM scripts
+## Update the "dev" script and create a "prebuild" NPM script
 
-There are two ways to run Vovk.ts and Next.js server concurrently: explicitly and implicitly. The explicit way is to install `concurrently` package and run both scripts with it, this requires `PORT` variable to be set. The implicit way is to make Vovk.ts CLI to run Next.js server by itself. At this case **vovk-cli** will assign the port automatically.
+There are two ways to run Vovk.ts and the Next.js server concurrently: explicitly and implicitly. The explicit way is to install the `concurrently` package and run both scripts with it, which requires the `PORT` variable to be set. The implicit way is to have the Vovk.ts CLI run the Next.js server itself. In this case, **vovk-cli** will assign the port automatically.
 
-The `prebuild` script will run `vovk generate` before `next build` in order to generate the client library before building the Next.js app.
+The `prebuild` script will run `vovk generate` before `next build` to generate the client library before building the Next.js app.
 
 <Tabs items={['Explicit', 'Implicit']} >
   <Tabs.Tab>
@@ -98,7 +98,7 @@ npm i -D concurrently
 
 ## Enable decorators
 
-In your **tsconfig.json** set `"experimentalDecorators"` to `true`.
+In your **tsconfig.json**, set `"experimentalDecorators"` to `true`.
 
 ```json
 {
@@ -109,9 +109,9 @@ In your **tsconfig.json** set `"experimentalDecorators"` to `true`.
 }
 ```
 
-## Create controller
+## Create a controller
 
-Create **HelloController.ts** at **/src/modules/hello/** with same-named static class.
+Create **HelloController.ts** at **/src/modules/hello/** with a same-named static class.
 
 ```ts filename="src/modules/hello/HelloController.ts"
 import { get, prefix } from 'vovk';
@@ -125,11 +125,11 @@ export default class HelloController {
 }
 ```
 
-## Create root segment
+## Create a root segment
 
-Create the root [segment](/segment) **/src/app/api/[[...vovk]]/route.ts** where **[[...vovk]]** is a folder name indicating what Next.js documentation calls ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) (the slug can be any valid slug, such as <nobr>**[[...mySlug]]**</nobr>).
+Create the root [segment](/segment) **/src/app/api/[[...vovk]]/route.ts**, where **[[...vovk]]** is a folder name indicating what the Next.js documentation calls an ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) (the slug can be any valid slug, such as <nobr>**[[...mySlug]]**</nobr>).
 
-At the code below `HelloRPC` indicates the name of the generated RPC module and `HelloController` is the controller module created above.
+In the code below, `HelloRPC` indicates the name of the generated RPC module, and `HelloController` is the controller module created above.
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
@@ -156,7 +156,7 @@ Navigate to [http://localhost:3000/api/greetings/greeting](http://localhost:3000
 
 ## Create a React component
 
-Now the client is generated you can safely import your client library from **vovk-client**.
+Now that the client is generated, you can safely import your client library from **vovk-client**.
 
 ```tsx filename="src/app/page.tsx"
 'use client';
@@ -183,13 +183,13 @@ export default function MyComponent() {
 }
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the result.
 
 <Callout type="info" emoji="ℹ️">
-  Note that if you're using VSCode you're probably going to need to [restart TS
-  server](https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server) each time when you add a new
+  Note that if you're using VSCode, you'll probably need to [restart the TS
+  server](https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server) each time you add a new
   controller class to your app. Changing the `controller` list is the only case when you may need to restart the TS server
-  manually, other changes such as adding new methods or changing [validation](/validation) will be picked up automatically.
+  manually; other changes, such as adding new methods or changing [validation](/validation), will be picked up automatically.
 </Callout>
 
 </Steps>

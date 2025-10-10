@@ -1,14 +1,14 @@
 # Decorators
 
-The purpose of controller decorators is to provide a way to extend the functionality of controller methods. They can be used to implement cross-cutting concerns, such as logging, caching, validation, and authorization. They also allow to add custom metadata to the handler, which can be used for various purposes, such as identifying authorized users.
+The purpose of controller decorators is to provide a way to extend the functionality of controller methods. They can be used to implement cross-cutting concerns such as logging, caching, validation, and authorization. They also allow you to add custom metadata to the handler, which can be used for various purposes, such as identifying authorized users.
 
 `createDecorator` is a higher-order function that produces a decorator factory (a function that returns a decorator) for controller class methods. It accepts a middleware function with the following parameters:
 
-- `request`, which extends [VovkRequest](/controller/request). It provides `req.vovk.meta` method to get and set metadata for the request object to share data between decorators and the route handler.
+- `request`, which extends [VovkRequest](/controller/request). It provides the `req.vovk.meta` method to get and set metadata for the request object to share data between decorators and the route handler.
 - `next`, a function that should be invoked and its result returned to call subsequent decorators or the route handler.
-- ... additional arguments are passed through to the decorator factory.
+- Additional arguments are passed through to the decorator factory.
 
-The second argument of `createDecorator` is an optional init handler. It's called every time when decorator is initialised and it's purpose is to populate **.vovk-schema/*.json** with validation or custom data. It can return an object with optional keys `"validation"`, `"operationObject"` and `"misc"` that will be merged with the handler schema, or a function that returns the object and receives the existing handler schema as an argument for proper merging.
+The second argument of `createDecorator` is an optional init handler. It's called every time the decorator is initialized, and its purpose is to populate **.vovk-schema/*.json** with validation or custom data. It can return an object with optional keys `"validation"`, `"operationObject"`, and `"misc"` that will be merged with the handler schema, or a function that returns the object and receives the existing handler schema as an argument for proper merging.
 
 ```ts
 import { createDecorator, get, HttpException, HttpStatus } from 'vovk';
@@ -39,7 +39,7 @@ const myDecorator = createDecorator(
     return next();
   },
   (a: string, b: number) => {
-    console.info('Decorator is initialised with', a, b);
+    console.info('Decorator is initialized with', a, b);
     return {
       validation: {
         /* ... */
@@ -52,10 +52,14 @@ const myDecorator = createDecorator(
 export default class MyController {
   @get.auto()
   @myDecorator('baz', 1) // Passes 'baz' as 'a', and 1 as 'b'
-  static doSomething() {
+  static doSomething(req) {
     const meta = req.vovk.meta<ReqMeta>();
     console.log(meta); // Outputs: { foo: 'bar', a: 'baz', b: 1 }
     // ...
   }
 }
 ```
+
+See also:
+- [Authorization with decorators](/authorization)
+- [Vercel Cron jobs](/cron)

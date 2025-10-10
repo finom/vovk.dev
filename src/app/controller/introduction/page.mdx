@@ -11,11 +11,11 @@ import { VovkNewDynamic } from './VovkNewDynamic';
 
 ## Definition
 
-Controller module is a static class (a class that has static methods only and it's never instantiated) that handles incoming HTTP requests.
+A controller module is a static class (a class that has only static methods and is never instantiated) that handles incoming HTTP requests.
 
-Methods of this class, that are decorated with an HTTP decorator (like `@get()` or `@post()`), become request handlers and accept 2 arguments: [VovkRequest](/controllers/request) (that is inherited from `NextRequest`) and parameters that are set by the decorator path.
+Methods of this class that are decorated with an HTTP decorator (like `@get()` or `@post()`) become request handlers and accept 2 arguments: [VovkRequest](/controllers/request) (which is inherited from `NextRequest`) and parameters that are set by the decorator path.
 
-By default, `NextRequest` type doesn't provide any information about the request body or query parameters, so the body is casted as `any` and query parameters are casted as `string | null`.
+By default, the `NextRequest` type doesn't provide any information about the request body or query parameters, so the body is cast as `any` and query parameters are cast as `string | null`.
 
 ```ts
 import type { NextRequest } from 'next';
@@ -34,7 +34,7 @@ export default class UserController {
 }
 ```
 
-To add the required body and query types you need replace `NextRequest` by `VovkRequest` and define the types as generic arguments.
+To add the required body and query types, you need to replace `NextRequest` with `VovkRequest` and define the types as generic arguments.
 
 ```ts filename="src/modules/user/UserController.ts"
 import { prefix, put, type VovkRequest } from 'vovk';
@@ -57,7 +57,7 @@ export default class UserController {
 ```
 
 <Callout type="info" emoji="ℹ️">
-  Hint: to make sure that the class is never instantiated, you can make it abstract.
+  Hint: To ensure that the class is never instantiated, you can make it abstract.
 
 ```ts
 export default abstract class UserController {
@@ -67,11 +67,11 @@ export default abstract class UserController {
 
 </Callout>
 
-As you can see we've changed nothing more than the type of `req` but now `data` receives type of `Partial<User>` and `userRole` is casted as `'user' | 'moderator' | 'admin'` and does not extend `null` anymore.
+As you can see, we've changed nothing more than the type of `req`, but now `data` receives the type of `Partial<User>` and `notify` is cast as `'email' | 'push' | 'none'` and no longer extends `null`.
 
 ### Validation
 
-To validate the request body, query parameters, and headers you can use [validation libraries](/validation). At this case you don't need to use `VovkRequest` manually, as the validation library will define the request type by itself.
+To validate the request body, query parameters, and headers, you can use [validation libraries](/validation). In this case, you don't need to use `VovkRequest` manually, as the validation library will define the request type itself.
 
 ```ts filename="src/modules/user/UserController.ts"
 import { z } from 'zod';
@@ -118,11 +118,11 @@ export default class UserController {
 }
 ```
 
-Note that in order to be able to use safe self-inferences at [service modules](/controller/service), the `handle` method doesn't force the return type, being able to return any value. However, you can use `satisfies` operator to make sure that the returned value matches the expected output type.
+Note that to enable safe self-inference in [service modules](/controller/service), the `handle` method doesn't enforce the return type and can return any value. However, you can use the `satisfies` operator to ensure that the returned value matches the expected output type.
 
 ## Initialization
 
-Once the controller is defined it needs to be initialized in a [segment route](/segment) by adding it to the `controllers` object. The key of this object defines the name of the resulting RPC module variable exported from `"vovk-client"` or [segmented client](/segmented).
+Once the controller is defined, it needs to be initialized in a [segment route](/segment) by adding it to the `controllers` object. The key of this object defines the name of the resulting RPC module variable exported from `"vovk-client"` or the [segmented client](/segmented).
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
@@ -137,7 +137,7 @@ export type Controllers = typeof controllers;
 export const { GET, POST, PUT, DELETE } = initSegment({ controllers });
 ```
 
-This will "compile" the `UserController` into `UserRPC` that performs `fetch` requests to the `/api/users` subpath.
+This will "compile" the `UserController` into `UserRPC`, which performs `fetch` requests to the `/api/users` subpath.
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -150,9 +150,9 @@ const updatedUser = await UserRPC.updateUser({
 });
 ```
 
-## Auto-generated endpoints
+## Auto-Generated Endpoints
 
-All HTTP decorators provide `.auto` method that generates endpoint name automatically from the method name that makes the handler definition more RPC-ish.
+All HTTP decorators provide an `.auto` method that generates the endpoint name automatically from the method name, making the handler definition more RPC-like.
 
 ```ts filename="src/modules/user/UserController.ts"
 import { prefix, put } from 'vovk';
@@ -167,11 +167,11 @@ export default class UserController {
 }
 ```
 
-## Return types
+## Return Types
 
-### Custom object
+### Custom Object
 
-The HTTP-decorated static methods of controllers can return several kinds of objects. For example, a regular object literal.
+The HTTP-decorated static methods of controllers can return several types of objects. For example, a regular object literal.
 
 ```ts
 // ...
@@ -183,7 +183,7 @@ export default class HelloController {
 }
 ```
 
-Another example - if the controller method returns Prisma ORM invocation the type is going to be recognised accordingly.
+Another example: if the controller method returns a Prisma ORM invocation, the type will be recognized accordingly.
 
 ```ts
 // ...
@@ -199,11 +199,11 @@ export default class UserController {
 }
 ```
 
-At this case the returned value of client method `UserRPC.updateUser` gets `User` type generated at **@prisma/client**.
+In this case, the returned value of the client method `UserRPC.updateUser` gets the `User` type generated in **@prisma/client**.
 
-### Response object
+### Response Object
 
-HTTP handlers can also return regular `Response` object, including `NextResponse`.
+HTTP handlers can also return a regular `Response` object, including `NextResponse`.
 
 ```ts
 // ...
@@ -217,7 +217,7 @@ export default class HelloController {
 }
 ```
 
-When `NextResponse.json(...)` is returned from the controller method, the client library is going to recognise the return type as expected.
+When `NextResponse.json(...)` is returned from the controller method, the client library will recognize the return type as expected.
 
 ```ts
 import { NextResponse } from 'next/server';

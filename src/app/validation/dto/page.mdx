@@ -2,7 +2,7 @@ import { Tabs } from 'nextra/components';
 
 # Validation with class-validator
 
-Since Vovk.ts was heavily inspired by [NestJS](https://nestjs.com/) it also supports [class-validator](https://www.npmjs.com/package/class-validator) library for server-side and client-side validation.
+Since Vovk.ts was heavily inspired by [NestJS](https://nestjs.com/), it also supports the [class-validator](https://www.npmjs.com/package/class-validator) library for server-side and client-side validation.
 
 ```sh npm2yarn
 npm install vovk-dto@draft
@@ -88,17 +88,17 @@ export class UpdateUserResponseDto {
   </Tabs.Tab>
 </Tabs>
 
-As you can see, the DTOs are decorated with [`JSONSchema`](https://www.npmjs.com/package/class-validator-jsonschema) decorator to describe the properties of the DTOs when they're converted to JSON schemas. **vovk-dto** uses `targetConstructorToSchema` function from **class-validator-jsonschema** to convert the DTOs to JSON schemas in order to be used for [OpenAPI](/openapi) specification, [codegen](/codegen) and [function calling](/function-calling).
+As you can see, the DTOs are decorated with the `@JSONSchema` decorator to describe the properties of the DTOs when they're converted to JSON schemas. [vovk-dto](https://www.npmjs.com/package/vovk-dto) uses the `targetConstructorToSchema` function from [class-validator-jsonschema](https://www.npmjs.com/package/class-validator-jsonschema) to convert the DTOs to JSON schemas for use in the [OpenAPI](/openapi) specification, [codegen](/codegen), and [function calling](/function-calling).
 
-Also notice that in the example above the `req.vovk` object is used to access the validated input data. The `req.vovk.body()`, `req.vovk.query()` and `req.vovk.params()` methods return the validated data as instances of the corresponding DTO classes. The `req.json()`, `req.nextUrl.searchParams` and the 2nd argument of the `handle` function are still relevant ways to access the raw data.
+Also note that in the example above, the `req.vovk` object is used to access the validated input data. The `req.vovk.body()`, `req.vovk.query()`, and `req.vovk.params()` methods return the validated data as instances of the corresponding DTO classes. The `req.json()`, `req.nextUrl.searchParams`, and the second argument of the `handle` function are still valid ways to access the raw data.
 
 <a name="validateonclient" />
 
-## Client-side validation with DTOs
+## Client-Side Validation with DTOs
 
-As [class-validator-jsonschema](https://www.npmjs.com/package/class-validator-jsonschema) package allows to convert DTOs to JSON schemas, the common way of client-side validation with [vovk-ajv](/validation/client) may have various restrictions as the conversion to JSON schema is [limited](https://www.npmjs.com/package/class-validator-jsonschema#limitations).
+As the [class-validator-jsonschema](https://www.npmjs.com/package/class-validator-jsonschema) package allows you to convert DTOs to JSON schemas, the common approach of client-side validation with [vovk-ajv](/validation/client) may have various restrictions, as the conversion to JSON schema is [limited](https://www.npmjs.com/package/class-validator-jsonschema#limitations).
 
-For the most robust solution it's recommended to use **vovk-dto/validateOnClient** module that exports `validateOnClient` function that can be used as an [import](/imports#validateonclient) in the [vovk.config](/config) file:
+For the most robust solution, it's recommended to use the **vovk-dto/validateOnClient** module, which exports the `validateOnClient` function that can be used as an [import](/imports#validateonclient) in the [vovk.config](/config) file:
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -113,7 +113,7 @@ const config = {
 export default config;
 ```
 
-In order to perform the client-side validation, the input data should be transformed to the corresponding DTO class with [class-transformer](https://www.npmjs.com/package/class-transformer). If input data is a plain object, or `FormData` it **will not be validated**. 
+To perform client-side validation, the input data should be transformed to the corresponding DTO class with [class-transformer](https://www.npmjs.com/package/class-transformer). If input data is a plain object or `FormData`, it **will not be validated**.
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -132,20 +132,20 @@ const respData = await UserRPC.updateUser({
 const dtoInstance = plainToInstance(UpdateUserResponseDto, respData);
 ```
 
-In a rare scnario, in case if the data is neither a DTO class nor a plain object, nor `FormData`, the validation can be skipped with `disableClientValidation`.
+In rare scenarios where the data is neither a DTO class, a plain object, nor `FormData`, validation can be skipped with `disableClientValidation`.
 
 ```ts
 import { UserRPC } from 'vovk-client';
 
 await UserRPC.updateUser({
-  body: nonDtoInstance, // not a DTO class, not plain object nor FormData
+  body: nonDtoInstance, // not a DTO class, plain object, or FormData
   disableClientValidation: true,
 });
 ```
 
 ## dto-mapped-types
 
-In order to be able to apply pick, omit, partial and intersection patterns to DTOs, you can use [dto-mapped-types](https://www.npmjs.com/package/dto-mapped-types) package that is forked from [@nestjs/mapped-types](https://www.npmjs.com/package/@nestjs/mapped-types) but doesn't have unnecessary dependencies. It provides the same functionality as the original package but without the need to install **@nestjs/common** package.
+To apply pick, omit, partial, and intersection patterns to DTOs, you can use the [dto-mapped-types](https://www.npmjs.com/package/dto-mapped-types) package, which is forked from [@nestjs/mapped-types](https://www.npmjs.com/package/@nestjs/mapped-types) but without unnecessary dependencies. It provides the same functionality as the original package without requiring the **@nestjs/common** package.
 
 ```ts filename="src/modules/user/UserDto.ts"
 import { IsString, IsEmail, MinLength, MaxLength, IsUUID } from 'class-validator';
@@ -178,7 +178,7 @@ export class CreateUserDto extends OmitType(UserDto, ['id']) {
 
 ## FormData
 
-In order to make the DTO emit proper JSON schema for files when using `isForm: true` option in the validation handler, you need to provide OAS-compatible schema for the file fields using `@JSONSchema` decorator:
+To make the DTO emit a proper JSON schema for files when using the `isForm: true` option in the validation handler, you need to provide an OAS-compatible schema for the file fields using the `@JSONSchema` decorator:
 
 ```ts {6}
 import { JSONSchema } from 'class-validator-jsonschema';

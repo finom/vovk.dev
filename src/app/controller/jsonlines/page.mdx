@@ -1,13 +1,13 @@
 import { JSONLinesExample } from '../../../components/vovk-examples';
 import { Suspense } from 'react';
 
-# JSON Lines streaming
+# JSON Lines Streaming
 
 <div className="example">
   <JSONLinesExample />
 </div>
 
-Vovk.ts includes first class support for [JSONLines](https://jsonlines.org/) format, which is a convenient way to implement "one request - many responses". It's perfect for LLM completions, but also opens up a new field for experiments, such as [progressive responses](/controller/progressive) and [polling](/polling). JSONLines is another kind of output that uses `iteration` validation field and produces `application/jsonl` content-type if client-side sends `Accept: application/jsonl` header. If the `Accepts` header doesn't include `application/jsonl`, the output is returned as `text/plain` to be available when the endpoint URL is opened directly in the browser.
+Vovk.ts includes first-class support for the [JSON Lines](https://jsonlines.org/) format, which is a convenient way to implement "one request - many responses". It's perfect for LLM completions and also opens up new possibilities for experiments, such as [progressive responses](/controller/progressive) and [polling](/polling). JSON Lines is another output type that uses the `iteration` validation field and produces the `application/jsonl` content type if the client side sends an `Accept: application/jsonl` header. If the `Accept` header doesn't include `application/jsonl`, the output is returned as `text/plain` to be viewable when the endpoint URL is opened directly in a browser.
 
 ```ts
 import { z } from 'zod';
@@ -40,7 +40,7 @@ export default class StreamController {
 }
 ```
 
-When used with a [service](./service), the iterable can be delegated with `yield*` syntax:
+When used with a [service](./service), the iterable can be delegated using the `yield*` syntax:
 
 ```ts filename="src/modules/stream/StreamController.ts"
 import { prefix, post, type VovkIteration } from 'vovk';
@@ -83,7 +83,7 @@ export default class StreamService {
 }
 ```
 
-On the client side, the JSONLines output can be consumed using [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterators](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator), allowing to process each line as it arrives:
+On the client side, the JSON Lines output can be consumed using [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterators](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator), allowing you to process each line as it arrives:
 
 ```ts
 import { StreamRPC } from 'vovk-client';
@@ -96,15 +96,15 @@ for await (const { message } of stream) {
 ```
 
 <a name="jsonlinesresponse" />
-## `JSONLinesResponse` class
+## `JSONLinesResponse` Class
 
-If generators aren't sutable for JSON streaming at a particular case, you can use `JSONLinesResponse` class inherited from `Response` class that uses `TransformStream#readable` as response body.
+If generators aren't suitable for JSON streaming in a particular case, you can use the `JSONLinesResponse` class, which inherits from the `Response` class and uses `TransformStream#readable` as the response body.
 
-It's a lower-level API that is used behind the scenes to implement generator logic described above.
+This is a lower-level API that is used behind the scenes to implement the generator logic described above.
 
-A service method at this case is implemented as a regular function that accepts `JSONLinesResponse` instance as a pointer to send messages manually.
+A service method in this case is implemented as a regular function that accepts a `JSONLinesResponse` instance as a pointer to send messages manually.
 
-There is what the streaming service might look like:
+Here's what the streaming service might look like:
 
 ```ts filename="src/modules/stream/StreamService.ts"
 import type { JSONLinesResponse } from 'vovk';
@@ -125,9 +125,9 @@ export default class StreamService {
 }
 ```
 
-As you can see, tokens are sent using `JSONLinesResponse#send` method and, when the stream is completed, it needs to be closed with `JSONLinesResponse#close`.
+As you can see, tokens are sent using the `JSONLinesResponse#send` method, and when the stream is completed, it needs to be closed with `JSONLinesResponse#close`.
 
-The controller class returns an instance of `JSONLinesResponse` and the streaming is performed a floating Promise above the `return` statement.
+The controller class returns an instance of `JSONLinesResponse`, and the streaming is performed in a floating Promise above the `return` statement.
 
 ```ts
 import { prefix, get, JSONLinesResponse, type VovkRequest } from 'vovk';
@@ -146,7 +146,7 @@ export default class StreamController {
 }
 ```
 
-`JSONLinesResponse` class also provides `throw` method that safely closes the stream and makes the client to re-throw the received error.
+The `JSONLinesResponse` class also provides a `throw` method that safely closes the stream and causes the client to re-throw the received error.
 
 ```ts
 await resp.throw(new Error('Stream error'));

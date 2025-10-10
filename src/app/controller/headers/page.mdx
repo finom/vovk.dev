@@ -1,8 +1,8 @@
 # Headers
 
-## Request headers
+## Request Headers
 
-Request headers can be received using built-in Next.js `headers` function.
+Request headers can be received using the built-in Next.js `headers` function.
 
 ```ts
 import { headers } from 'next/headers';
@@ -11,7 +11,7 @@ const reqHeaders = headers();
 const userAgent = reqHeaders.get('user-agent');
 ```
 
-Or using `req.headers` provided by [Web Request API](https://developer.mozilla.org/en-US/docs/Web/API/Request/headers).
+Or by using `req.headers` provided by the [Web Request API](https://developer.mozilla.org/en-US/docs/Web/API/Request/headers).
 
 ```ts
 import { prefix, get } from 'vovk';
@@ -33,7 +33,7 @@ export default class UserController {
 
 ### Cookies
 
-To work with cookies you can use [cookies](https://nextjs.org/docs/app/api-reference/functions/cookies) function exported by Next.js headers module.
+To work with cookies, you can use the [cookies](https://nextjs.org/docs/app/api-reference/functions/cookies) function exported by the Next.js headers module.
 
 ```ts
 import { cookies } from 'next/headers';
@@ -48,7 +48,7 @@ export default class UserController {
 }
 ```
 
-## Response headers
+## Response Headers
 
 All HTTP decorators support custom response headers passed as the second argument option.
 
@@ -62,7 +62,7 @@ export default class UserController {
 }
 ```
 
-To enable CORS headers you can use `cors: true` option.
+To enable CORS headers, you can use the `cors: true` option.
 
 ```ts
 // ...
@@ -74,7 +74,7 @@ export default class UserController {
 }
 ```
 
-For auto-generated endpoints `cors` and `headers` are defined as the only argument.
+For auto-generated endpoints, `cors` and `headers` are defined as the only argument.
 
 ```ts
 // ...
@@ -86,9 +86,9 @@ export default class UserController {
 }
 ```
 
-### Dynamic response headers
+### Dynamic Response Headers
 
-To set up dynamic response headers you can use `NextResponse` object that is provided by Next.js.
+To set up dynamic response headers, you can use the `NextResponse` object provided by Next.js.
 
 ```ts
 import { NextResponse } from 'next/server';
@@ -97,7 +97,7 @@ import { NextResponse } from 'next/server';
 export default class UserController {
   @put('do-something')
   static async doSomething() {
-    return NextResponse.json({ hello: 'world' }, { 'x-hello': 'world' });
+    return NextResponse.json({ hello: 'world' }, { headers: { 'x-hello': 'world' } });
   }
 }
 ```

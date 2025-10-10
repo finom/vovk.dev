@@ -1,13 +1,13 @@
 # CLI
 
-Vovk provides a set of commands to simplify the development process. The commands are available via `vovk` binary that is installed with **vovk-cli** package.
+Vovk provides a set of commands to simplify the development process. The commands are available via the `vovk` binary that is installed with the **vovk-cli** package.
 
 ```sh npm2yarn
 npm install vovk-cli@draft --save-dev
 ```
 
 - [vovk init](/init) - creates a new Vovk.ts project.
-- [vovk dev](/dev) - runs Vovk Dev script that watches for changes at controllers and updates the [schema](/schema) and the client, when needed.
+- [vovk dev](/dev) - runs the Vovk Dev script that watches for changes in controllers and updates the [schema](/schema) and the client when needed.
 - [vovk generate](/generate) - generates the client based on the [schema](/schema) and [config](/config).
-- [vovk new](/new) - module generator that helps to create segments, controllers, services and other modules that you can define as a template at [config](/config).
-- [vovk bundle](/bundle) - bundles the TypeScript client library into a single package to be published on NPM. Uses [tsdown](https://tsdown.dev/) API behind the scenes.
+- [vovk new](/new) - module generator that helps create segments, controllers, services, and other modules that you can define as `moduleTemplates` in the [config](/config).
+- [vovk bundle](/bundle) - bundles the TypeScript client library into a single package to be published on NPM. Uses the [tsdown](https://tsdown.dev/) API behind the scenes.

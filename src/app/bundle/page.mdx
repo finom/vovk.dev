@@ -1,7 +1,6 @@
 import { FileTree } from 'nextra/components';
 
-# TypeScript Bundle
-
+# TypeScript Bundle (Experimental)
 
 ```sh filename="Quick CLI Ref"
 $ npx vovk bundle@draft --help
@@ -28,21 +27,20 @@ Options:
 
 -----
 
-
-The TypeScript RPC library can be bundled and published to NPM with pre-filled `package.json` and `README.md` files with `bundle` command:
+The TypeScript RPC library can be bundled and published to NPM with pre-filled `package.json` and `README.md` files using the `bundle` command:
 
 ```sh npm2yarn
 npx vovk bundle
 ```
 
-Internally, the bundling is made executing the following steps:
+Internally, the bundling is performed by executing the following steps:
 
-1. It generates a client into `tmp_prebundle` directory (configured with `bundle.prebundleOutDir: string{:ts}`) using [ts](/templates#ts) template.
-2. Uses [tsdown API](https://tsdown.dev/) to bundle the generated client into a few compiled files at `dist` directory.
-3. Generates `package.json` and `README.md` files from [packageJson](/templates#packagejson) and [readme](/templates#readme) templates.
+1. It generates a client into the `tmp_prebundle` directory (configured with `bundle.prebundleOutDir: string{:ts}`) using the [ts](/templates#ts) template.
+2. Uses the [tsdown API](https://tsdown.dev/) to bundle the generated client into a few compiled files in the `dist` directory.
+3. Generates `package.json` and `README.md` files from the [packageJson](/templates#packagejson) and [readme](/templates#readme) templates.
 4. Deletes the `tmp_prebundle` directory (configured with `bundle.keepPrebundleDir: boolean{:ts}`).
 
-After the bundling, the package can be published to NPM:
+After bundling, the package can be published to NPM:
 
 ```sh npm2yarn
 npm publish dist
@@ -92,28 +90,23 @@ The `prebundleOutDir` is the directory where the TypeScript client will be gener
 
 If set to `true`, the `prebundleOutDir` will not be deleted after bundling. This can be useful for debugging or other purposes. Defaults to `false`.
 
-### `package`
-
-The `package` object allows you to define the content of the generated `package.json` and `README.md` (for document title, description and version). You can specify fields like `name`, `version`, `description`, etc. By default it uses the root `package.json` file properties, extended with [package](/composed#package) option of [composed client](/composed).
-
 ### `tsdownBuildOptions`
 
-Any options that can be passed to [tsdown](https://tsdown.dev/) `build` function. The options are outlined in the [tsdown documentation](https://tsdown.ru/reference/config-options).
+Any options that can be passed to the [tsdown](https://tsdown.dev/) `build` function. The options are outlined in the [tsdown documentation](https://tsdown.ru/reference/config-options).
 
 ### `generatorConfig`
 
-The `generatorConfig` object accepts and overrides the same options as the [generatorConfig](/config#generatorconfig) of the root of the [config](/config) file.
+The `generatorConfig` object accepts and overrides the same options as the [generatorConfig](/config#generatorconfig) at the root of the [config](/config) file.
 
 ## Troubleshooting
 
-At some TypeScript module configuration cases you might get the following errors:
-
+In some TypeScript module configuration cases, you might encounter the following errors:
 
 ```
 [UNLOADABLE_DEPENDENCY] Error: Could not load lib/internal/methods/object.ts - No such file or directory (os error 2).
 ```
 
-or 
+or
 
 ```
 [plugin rolldown-plugin-dts:generate]
@@ -134,7 +127,7 @@ const config = {
 export default config;
 ```
 
-`moduleResolution` set to `bundler` fixes the first error, and `paths` set to the `vovk/*` module fixes the second error:
+Setting `moduleResolution` to `bundler` fixes the first error, and setting `paths` to the `vovk/*` module fixes the second error:
 
 ```ts filename="tsconfig.bundle.json" {3,6}
 {

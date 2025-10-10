@@ -1,12 +1,12 @@
-# Authorization with decorators
+# Authorization with Decorators
 
-Authorization of requests can be implemented using [decorators](/controller/decorator) that checks if a user is authorised and passes down useful information such as current user to the controller handler via [metadata](/controller/meta) that can be accessed via `req.vovk.meta()` method.
+Authorization of requests can be implemented using [decorators](/controller/decorator) that check if a user is authorized and pass down useful information, such as the current user, to the controller handler via [metadata](/controller/meta), which can be accessed via the `req.vovk.meta()` method.
 
-For an illustration, let's create a simple authorization decorator that checks if a user is authorised and has the required permissions to access the resource. The `authGuard` decorator below does the following:
+For illustration, let's create a simple authorization decorator that checks if a user is authorized and has the required permissions to access the resource. The `authGuard` decorator below does the following:
 
-- Checks if a user is authorised and returns an `Unauthorised` status if not.
-- Adds `currentUser` to the request metadata object, represented as `AuthMeta` interface.
-- Implements role-based access control with `Permission` enum.
+- Checks if a user is authorized and returns an `Unauthorized` status if not.
+- Adds `currentUser` to the request metadata object, represented as the `AuthMeta` interface.
+- Implements role-based access control with the `Permission` enum.
 
 The `identifyUserAndCheckPermissions` function is a placeholder for your actual logic to identify the user from the request (e.g., from a JWT token or session) and check if they have the required permissions.
 
@@ -19,12 +19,12 @@ export enum Permission {
   CAN_DO_THAT = 'CAN_DO_THAT',
 }
 
-// Metadata interface allows to access the currentUser in the controller
+// Metadata interface allows access to the currentUser in the controller
 export interface AuthMeta {
   currentUser: User;
 }
 
-// Create a function that identifies the user, checks permissions and updates the request metadata
+// Create a function that identifies the user, checks permissions, and updates the request metadata
 const checkAuth = async (req: VovkRequest, permission: Permission) => {
   const currentUser = identifyUserAndCheckPermissions(req, permission);
 
@@ -52,7 +52,7 @@ const authGuard = createDecorator(async (req, next, permission: Permission) => {
 export default authGuard;
 ```
 
-Import the `authGuard` decorator and related members and apply it to the controller methods, passing it after the `@get`, `@post`, etc. decorators.
+Import the `authGuard` decorator and related members and apply it to the controller methods, placing it after the `@get`, `@post`, etc. decorators.
 
 ```ts filename="src/modules/user/UserController.ts"
 import { get, prefix, operation } from 'vovk';

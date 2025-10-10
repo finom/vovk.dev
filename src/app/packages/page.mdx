@@ -1,10 +1,10 @@
-# Packages and repos
+# Packages and Repos
 
-## Packages of the [main monorepo](https://github.com/finom/vovk):
+## Packages of the [Main Monorepo](https://github.com/finom/vovk):
 
 ### [vovk](https://www.npmjs.com/package/vovk)
 
-The main library that provides the core functionality of Vovk.ts. It includes decorators, utilities, types and other features that are going to be imported by server-side and client-side code. It's dependent on a few libraries that provide TypeScript types and shows 100% self-composition [on Bundlephobia](https://bundlephobia.com/package/vovk).
+The main library that provides the core functionality of Vovk.ts. It includes decorators, utilities, types, and other features that will be imported by server-side and client-side code. It depends on a few libraries that provide TypeScript types and shows 100% self-composition [on Bundlephobia](https://bundlephobia.com/package/vovk).
 
 ```sh npm2yarn
 npm install vovk@draft
@@ -12,7 +12,7 @@ npm install vovk@draft
 
 ### [vovk-cli](https://www.npmjs.com/package/vovk-cli)
 
-The [CLI](/cli) package. Can be installed globally or as a dev dependency. Provides `vovk` binary.
+The [CLI](/cli) package. Can be installed globally or as a dev dependency. Provides the `vovk` binary.
 
 ```sh npm2yarn
 npm install vovk-cli@draft --save-dev
@@ -24,7 +24,7 @@ npx vovk <command>
 
 ### [vovk-client](https://www.npmjs.com/package/vovk-client)
 
-The client package that re-exports the [composed](/composed) [TypeScript](/typescript) client, by default located at **node_modules/.vovk-client**. It can be imported in the client-side code in NodeJS or in another JavaScript environment to access the RPC methods and schemas.
+The client package that re-exports the [composed](/composed) [TypeScript](/typescript) client, by default located at **node_modules/.vovk-client**. It can be imported in the client-side code in Node.js or in another JavaScript environment to access the RPC methods and schemas.
 
 ```sh npm2yarn
 npm install vovk-client@draft
@@ -32,7 +32,7 @@ npm install vovk-client@draft
 
 ### [vovk-init](https://www.npmjs.com/package/vovk-init)
 
-The shortcut for `vovk-cli init` command that initializes the Vovk.ts project with [config](/config).
+The shortcut for the `vovk-cli init` command that initializes the Vovk.ts project with a [config](/config).
 
 ```sh npm2yarn
 npx vovk-init
@@ -40,7 +40,7 @@ npx vovk-init
 
 ### [vovk-zod](https://www.npmjs.com/package/vovk-zod)
 
-The [Zod](/validation/zod) validation library that provides `withZod` function to validate HTTP requests on the server with Zod 4 and `withZod` function that supports Zod 3 and can be imported as `vovk-zod/v3`.
+The [Zod](/validation/zod) validation library that provides the `withZod` function to validate HTTP requests on the server with Zod 4 and a `withZod` function that supports Zod 3 and can be imported as `vovk-zod/v3`.
 
 ```sh npm2yarn
 npm install vovk-zod@draft
@@ -48,7 +48,7 @@ npm install vovk-zod@draft
 
 ### [vovk-dto](https://www.npmjs.com/package/vovk-dto)
 
-The [DTO](/validation/dto) validation library that provides `withDto` function to validate HTTP requests on the server side with [class-validator](https://www.npmjs.com/package/class-validator) and `validateOnClient` function (as `vovk-dto/validateOnClient` module) to validate data on the client side with class-validator instead of [Ajv](/validation/client#ajv).
+The [DTO](/validation/dto) validation library that provides the `withDto` function to validate HTTP requests on the server side with [class-validator](https://www.npmjs.com/package/class-validator) and the `validateOnClient` function (as the `vovk-dto/validateOnClient` module) to validate data on the client side with class-validator instead of [Ajv](/validation/client#ajv).
 
 ```sh npm2yarn
 npm install vovk-dto@draft
@@ -56,7 +56,7 @@ npm install vovk-dto@draft
 
 ### [vovk-yup](https://www.npmjs.com/package/vovk-yup)
 
-The [Yup](/validation/yup) validation library that provides `withYup` function to validate HTTP requests on the server.
+The [Yup](/validation/yup) validation library that provides the `withYup` function to validate HTTP requests on the server.
 
 ```sh npm2yarn
 npm install vovk-yup@draft
@@ -64,7 +64,7 @@ npm install vovk-yup@draft
 
 ### [vovk-ajv](https://www.npmjs.com/package/vovk-ajv)
 
-Exports `validateOnClient` function that validates input data on the client-side with emitted JSON schema.
+Exports the `validateOnClient` function that validates input data on the client side with the emitted JSON schema.
 
 ```sh npm2yarn
 npm install vovk-ajv@draft
@@ -94,11 +94,11 @@ npm install vovk-rust@draft --save-dev
 npm install vovk-apis@draft --save-dev
 ```
 
-## Other repos and packages
+## Other Repos and Packages
 
 ### [vovk-hello-world](https://github.com/finom/vovk-hello-world)
 
-A "minimal" example of using Vovk.ts. See ["Hello World"](/hello-world) page for more details.
+A "minimal" example of using Vovk.ts. See the ["Hello World"](/hello-world) page for more details.
 
 ### [vovk-multitenant-example](https://github.com/finom/vovk-multitenant-example)
 
@@ -110,7 +110,7 @@ Random examples and proofs of concepts.
 
 ### [dto-mapped-types](https://github.com/finom/dto-mapped-types)
 
-A fork of [@nestjs/mapped-types](https://www.npmjs.com/package/@nestjs/mapped-types) package without [@nestjs/common](https://www.npmjs.com/package/@nestjs/common) dependency and can be used in Edge Runtime. It also imports reflect-metadata/lite and fixes some other issues appeared in Edge.
+A fork of the [@nestjs/mapped-types](https://www.npmjs.com/package/@nestjs/mapped-types) package without the [@nestjs/common](https://www.npmjs.com/package/@nestjs/common) dependency and can be used in Edge Runtime. It also imports reflect-metadata/lite and fixes some other issues that appeared in Edge.
 
 ### [vovk-perf-test](https://github.com/finom/vovk-perf-test)
 

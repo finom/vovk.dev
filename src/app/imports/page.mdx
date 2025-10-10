@@ -1,8 +1,8 @@
-# TypeScript RPC customization
+# TypeScript RPC Customization
 
-The generated TypeScript library is customized by replacing imports of lower level libraries. It can be done by modifying `imports` object in the [config](/config) file that may contain [fetcher](./fetcher), [validateOnClient](./validateOnClient) or [createRPC](./createRPC).
+The generated TypeScript library is customized by replacing imports of lower-level libraries. This can be done by modifying the `imports` object in the [config](/config) file, which may contain [fetcher](#fetcher), [validateOnClient](#validateonclient), or [createRPC](#createrpc-advanced).
 
-By default (if [vovk-ajv](/validation/client) is used for client-side validation), an `index.mjs` file that generates `UserRPC` module might look like this:
+By default (if [vovk-ajv](/validation/client) is used for client-side validation), an `index.mjs` file that generates the `UserRPC` module might look like this:
 
 ```ts filename="./node_modules/.vovk-client/index.mjs"
 import { createRPC } from 'vovk';
@@ -41,7 +41,7 @@ export const UserRPC = createRPC(schema, '', 'UserRPC', import('../../src/lib/fe
 });
 ```
 
-`fetcher` and `validateOnClient` can also be set individually for each [segment](/segment). The first one enables you to have different sets of options or authorization mechanisms for different segments (including [OpenAPI mixins](/codegen)). The second one allows to use different validation libraries for different segments.
+`fetcher` and `validateOnClient` can also be set individually for each [segment](/segment). The first one enables you to have different sets of options or authorization mechanisms for different segments (including [OpenAPI mixins](/codegen)). The second one allows you to use different validation libraries for different segments.
 
 ```ts
 /** @type {import('vovk').VovkConfig} */
@@ -66,13 +66,13 @@ export default config;
 
 ## `fetcher`
 
-The `fetcher` is a function that is used to prepare handlers, perform client-side validation, make HTTP requests, distinguish between content-type, wether it's a JSON, [JSONLines](/streaming) or another kind of `Response` object, and return the response in a proper format.
+The `fetcher` is a function used to prepare handlers, perform client-side validation, make HTTP requests, distinguish between content types (whether it's JSON, [JSON Lines](/streaming), or another kind of `Response` object), and return the response in the proper format.
 
-- If content-type is `application/json`, it will return the parsed JSON object.
-- If content-type is `application/jsonl` or `application/jsonlines`, it will return a disposable async iterable.
-- For other content-types, it will return the `Response` object as is, where you can access text or binary data.
+- If the content type is `application/json`, it will return the parsed JSON object.
+- If the content type is `application/jsonl` or `application/jsonlines`, it will return a disposable async iterable.
+- For other content types, it will return the `Response` object as is, where you can access text or binary data.
 
-It also can handle custom options that are passed to the RPC method.
+It can also handle custom options that are passed to the RPC method.
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -86,7 +86,7 @@ const user = await UserRPC.updateUser({
 
 ### `createFetcher`
 
-The path to the file defined at `imports.fetcher` needs to export `fetcher` variable. In order to simplify creation of the custom fetcher, you can use the `createFetcher` function, exported from the `vovk` package.
+The path to the file defined at `imports.fetcher` needs to export a `fetcher` variable. To simplify the creation of a custom fetcher, you can use the `createFetcher` function exported from the `vovk` package.
 
 ```ts filename="./src/lib/fetcher.ts"
 import { createFetcher } from 'vovk';
@@ -123,7 +123,7 @@ export const fetcher = createFetcher<{
 });
 ```
 
-This will result all the RPC modules accept the desired options:
+This will result in all RPC modules accepting the desired options:
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -142,23 +142,23 @@ await UserRPC.updateUser({
 
 #### `prepareRequestInit(init: RequestInit, options: T)`
 
-This function is used to prepare the `RequestInit` object before making the HTTP request. It can be used to set authorization headers, or Next.js specific options defined as `next` property in the `RequestInit` object. It accepts the `init` object that is prepared for the request (has body, headers etc.) and the `options` object that contains custom options passed to the RPC method. The function must return a `RequestInit` object that can be built upon the original `init` object. The function can also be used for any other logic that needs to be executed before the request is made, such as logging.
+This function is used to prepare the `RequestInit` object before making the HTTP request. It can be used to set authorization headers or Next.js-specific options defined as the `next` property in the `RequestInit` object. It accepts the `init` object that is prepared for the request (has body, headers, etc.) and the `options` object that contains custom options passed to the RPC method. The function must return a `RequestInit` object that can be built upon the original `init` object. The function can also be used for any other logic that needs to be executed before the request is made, such as logging.
 
 #### `transformResponse(data: any, options: T)`
 
-This function is used to transform the response data before it is returned to the caller. It can be used to post-process received data. The data type is defined by the received content-type header, so it can be a JSON object, a [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterators](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator), or a `Response` object. The function should return the transformed data that will be received by the caller.
+This function is used to transform the response data before it is returned to the caller. It can be used to post-process received data. The data type is defined by the received content-type header, so it can be a JSON object, a [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator), or a `Response` object. The function should return the transformed data that will be received by the caller.
 
 #### `onError(error: HttpException, options: T)`
 
-This function is called when an error occurs during the request. It can be used to show error messages, logging, or perform any other error handling that needs to be done.
+This function is called when an error occurs during the request. It can be used to show error messages, perform logging, or handle any other error handling that needs to be done.
 
 #### `onSuccess(data: any, options: T)`
 
-This function is called when the request is successful. It can be used to show success messages, logging, or perform any other success handling that needs to be done.
+This function is called when the request is successful. It can be used to show success messages, perform logging, or handle any other success handling that needs to be done.
 
 ## `validateOnClient`
 
-The `validateOnClient` function is used to define how client-side validation should be performed for the RPC method input (`params`, `query` and `body`). It can be created with `createValidateOnClient` function that is exported from the `vovk` package. It accepts `validate` property that accepts one of the inputs data, validation schema, and some additional options, and returns the validated data or throws an error if validation fails. The validation is performed only when both input and schema are provided.
+The `validateOnClient` function is used to define how client-side validation should be performed for the RPC method input (`params`, `query`, and `body`). It can be created with the `createValidateOnClient` function exported from the `vovk` package. It accepts a `validate` property that receives one of the input data, validation schema, and some additional options, and returns the validated data or throws an error if validation fails. Validation is performed only when both input and schema are provided.
 
 ```ts filename="./src/lib/validateOnClient.ts"
 import { validateData } from 'validation-library';
@@ -180,6 +180,6 @@ export const validateOnClient = createValidateOnClient({
 
 For more details on client-side validation, see the [client-side validation](/validation/client) page.
 
-## `createRPC` (advanced)
+## `createRPC` (Advanced)
 
-The `createRPC` customization can be used to replace the default RPC client completely and can be configured globally only, not per-segment (as you can do for `fetcher` or `validateOnClient`). It's an advanced feature with no known use-case so far. Feel free to ask on [Github Discussions](https://github.com/finom/vovk/discussions).
+The `createRPC` customization can be used to replace the default RPC client completely and can be configured globally only, not per-segment (as you can do for `fetcher` or `validateOnClient`). It's an advanced feature with no known use case so far. Feel free to ask on [GitHub Discussions](https://github.com/finom/vovk/discussions).

@@ -1,8 +1,8 @@
-# Proxy endpoints
+# Proxy Endpoints
 
 ## JSON
 
-You can easily create a proxy endpoint by fetching data from another server with `fetch` function that, in its turn, returns `Response` instance that's automatically handled by Next.js. The only thing you need to do is to force a different return type in order to make the client infer it correctly.
+You can easily create a proxy endpoint by fetching data from another server with the `fetch` function, which, in turn, returns a `Response` instance that's automatically handled by Next.js. The only thing you need to do is force a different return type to make the client infer it correctly.
 
 ```ts
 import { get } from 'vovk';
@@ -17,7 +17,7 @@ export default class ProxyController {
 
 See this [example in action](http://vovk-examples.vercel.app/proxy).
 
-On the client-side the return type is going to be inferred as expected.
+On the client side, the return type will be inferred as expected.
 
 ```ts
 import { ProxyRPC } from 'vovk-client';
@@ -26,7 +26,7 @@ import { ProxyRPC } from 'vovk-client';
 const { greeting } = await ProxyRPC.getHello();
 ```
 
-You can also define response type at the client method if you want to keep the original return type to be `Response`.
+You can also define the response type at the client method if you want to keep the original return type as `Response`.
 
 ```ts
 import { ProxyRPC } from 'vovk-client';
@@ -37,14 +37,14 @@ const { greeting } = await ProxyRPC.getHello<{ greeting: string }>();
 
 ## Blob
 
-When return type isn't changed, the client will automatically resolve the response as `Response` object. This is useful when you need to fetch a file or binary data.
+When the return type isn't changed, the client will automatically resolve the response as a `Response` object. This is useful when you need to fetch a file or binary data.
 
 ```ts
 import { get } from 'vovk';
 
 export default class ProxyController {
-  @get('proxy')
-  static proxy() {
+  @get('pdf-proxy')
+  static getPdf() {
     return fetch('https://example.com/example.pdf');
   }
 }
@@ -54,7 +54,7 @@ export default class ProxyController {
 import { ProxyRPC } from 'vovk-client';
 
 // ...
-const response = await ProxyRPC.proxy();
+const response = await ProxyRPC.getPdf();
 const buffer = await response.arrayBuffer();
 const blob = new Blob([buffer], { type: 'application/pdf' });
 // ...

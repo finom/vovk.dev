@@ -1,6 +1,6 @@
 # RESTful API with OpenAPI
 
-Vovk.ts automatically generates OpenAPI specification from the defined controllers and methods. The generated client exports `openapi` object for [composed client](/composed) and for each chunk of [segmented client](/segmented) separately.
+Vovk.ts automatically generates OpenAPI specifications from the defined controllers and methods. The generated client exports an `openapi` object for the [composed client](/composed) and for each chunk of the [segmented client](/segmented) separately.
 
 ```ts
 import { UserRPC, openapi } from 'vovk-client'; // composed client
@@ -10,7 +10,7 @@ import { UserRPC, openapi } from 'vovk-client'; // composed client
 import { UserRPC, openapi } from '@/client/user/index.ts'; // segmented client
 ```
 
-The `openapi` object can also be imported from `vovk-client/openapi` or `@client/user/openapi` that import the object only, without the RPC client.
+The `openapi` object can also be imported from `vovk-client/openapi` or `@/client/user/openapi`, which import the object only, without the RPC client.
 
 The object is a ready-to-use OpenAPI specification that can be used with any tool that supports OpenAPI 3+.
 
@@ -38,8 +38,7 @@ export default class OpenApiController {
 }
 ```
 
-On the client-side you can use any OpenAPI tooling, but it's recommended to [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react) as Vovk.ts generates code snippets that can be copied directly to your codebase.
-
+On the client side, you can use any OpenAPI tooling, but it's recommended to use [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react), as Vovk.ts generates code snippets that can be copied directly to your codebase.
 
 ```tsx
 import { ApiReferenceReact } from "@scalar/api-reference-react";

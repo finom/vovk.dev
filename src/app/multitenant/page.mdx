@@ -1,9 +1,9 @@
 import { Steps, FileTree } from 'nextra/components';
 import Image from 'next/image';
 
-# Multitenacy (experimental)
+# Multitenancy (Experimental)
 
-This article describes how to host multiple tenants/websites, served from different subdomains in a single Next.js application. The back-end and front-end are served as different serverless functions, and the app is implemented as a single Next.js project, making it not only easy to maintain and deploy but also cost-effective, simplifying infrastructure management and reducing hosting costs.
+This article describes how to host multiple tenants/websites served from different subdomains in a single Next.js application. The back-end and front-end are served as different serverless functions, and the app is implemented as a single Next.js project, making it not only easy to maintain and deploy but also cost-effective, simplifying infrastructure management and reducing hosting costs.
 
 <Image
   src="/draw/multitenancy.svg"
@@ -13,7 +13,7 @@ This article describes how to host multiple tenants/websites, served from differ
   className="dark:invert m-auto"
 />
 
-This guide will walk you through the steps to implement multitenancy in your Next.js application with a little help from Vovk.ts, making possible to serve different areas of your application under different subdomains, illustrated by implementing the following areas, showcasing multiple use-cases:
+This guide will walk you through the steps to implement multitenancy in your Next.js application with a little help from Vovk.ts, making it possible to serve different areas of your application under different subdomains, illustrated by implementing the following areas, showcasing multiple use cases:
 
 - [example.com](https://multitenant.vovk.dev/) for the root tenant,
 - [admin.example.com](https://admin.multitenant.vovk.dev/) for the admin tenant,
@@ -23,16 +23,16 @@ This guide will walk you through the steps to implement multitenancy in your Nex
 
 The live example is available at [multitenant.vovk.dev](https://multitenant.vovk.dev/), and the source code is available in the [vovk-multitenant-example](https://github.com/finom/vovk-multitenant-example).
 
-Each tenant has its own root API endpoint, served from the corresponding domain `/api` path. In other words, API for the customer tenant is served from `customer.example.com/api`, and API for the admin tenant is served from `admin.example.com/api`. These root endpoints are implemented as [segments](/segments) and handled by the Next.js middleware to rewrite the request to the appropriate path based on the tenant subdomain.
+Each tenant has its own root API endpoint, served from the corresponding domain's `/api` path. In other words, the API for the customer tenant is served from `customer.example.com/api`, and the API for the admin tenant is served from `admin.example.com/api`. These root endpoints are implemented as [segments](/segments) and handled by the Next.js middleware to rewrite the request to the appropriate path based on the tenant subdomain.
 
-For the front-end, you're going to use the built-in Next.js [dynamic routes](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes) to handle tenant-specific paths. For example, the specific customer tenant page will have its own page file `src/customer/[customer_name]/page.tsx`, and the admin tenant will use `src/admin/page.tsx`.
+For the front-end, you'll use the built-in Next.js [dynamic routes](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes) to handle tenant-specific paths. For example, the specific customer tenant page will have its own page file `src/customer/[customer_name]/page.tsx`, and the admin tenant will use `src/admin/page.tsx`.
 
-Vovk.ts provides a tiny routing utility `multitenant` that accepts request information and returns the action to take, such as redirecting to a specific subdomain or rewriting the request to a different path. It's going to be used in the Next.js middleware to handle the request and redirect or rewrite it to the appropriate path based on the tenant subdomain.
+Vovk.ts provides a tiny routing utility called `multitenant` that accepts request information and returns the action to take, such as redirecting to a specific subdomain or rewriting the request to a different path. It will be used in the Next.js middleware to handle the request and redirect or rewrite it to the appropriate path based on the tenant subdomain.
 
 <Steps>
 ## Configure DNS
 
-In order to set up [multitenant.vovk.dev](https://multitenant.vovk.dev/) with the subdomains I've used Vercel as a hosting provider. The DNS records are configured as follows:
+To set up [multitenant.vovk.dev](https://multitenant.vovk.dev/) with the subdomains, I've used Vercel as a hosting provider. The DNS records are configured as follows:
 
 | Type         | Host           | Value                 |
 | ------------ | -------------- | --------------------- |
@@ -48,9 +48,9 @@ On the Vercel side, the project domains are configured as follows:
   className="mx-auto my-2"
 />
 
-See [Vercel documentation](https://vercel.com/docs/domains/working-with-domains/add-a-domain) for more information on configuring domains or check your hosting provider documentation for configuring wildcard subdomains.
+See the [Vercel documentation](https://vercel.com/docs/domains/working-with-domains/add-a-domain) for more information on configuring domains or check your hosting provider's documentation for configuring wildcard subdomains.
 
-On the screenshot the following domains are configured:
+In the screenshot, the following domains are configured:
 
 - `multitenant.vovk.dev` for the root tenant,
 - `admin.multitenant.vovk.dev` for the admin tenant,
@@ -58,7 +58,7 @@ On the screenshot the following domains are configured:
 - `*.customer.multitenant.vovk.dev` for a specific customer tenant, like `acme.customer.multitenant.vovk.dev`, it's going to share customer tenant API,
 - `pro.acme.customer.multitenant.vovk.dev` to illustrate multiple subdomains. Vercel has limited support for wildcard subdomains, and `acme` is used as a placeholder for the customer name to illustrate the idea.
 
-## Organize front-end routes
+## Organize Front-End Routes
 
 Use Next.js built-in [dynamic routes](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes) to handle tenant-specific paths.
 
@@ -114,9 +114,9 @@ Use Next.js built-in [dynamic routes](https://nextjs.org/docs/app/api-reference/
   </FileTree.Folder>
 </FileTree>
 
-## Create back-end API segments and controllers
+## Create Back-End API Segments and Controllers
 
-After [setting up Vovk.ts](/getting-started) application, the easiest way to get started is to use the Vovk.ts CLI to create the segments and controllers. The CLI will generate the necessary files for you, so you can focus on implementing the business logic.
+After [setting up a Vovk.ts](/getting-started) application, the easiest way to get started is to use the Vovk.ts CLI to create the segments and controllers. The CLI will generate the necessary files for you, so you can focus on implementing the business logic.
 
 First, create the API segments for each tenant. The segments will handle the requests to the root API endpoints for each tenant.
 
@@ -129,13 +129,13 @@ npx vovk new segment customer/pro # create "customer/pro" segment at src/app/api
 
 Read more about Vovk.ts [segments](/segments).
 
-Next, create the controllers for each segment. For example, to create `ProductService` and `ProductController` for the root segment at `src/modules/product/` folder use:
+Next, create the controllers for each segment. For example, to create `ProductService` and `ProductController` for the root segment in the `src/modules/product/` folder, use:
 
 ```sh npm2yarn
 npx vovk new controller service product
 ```
 
-Create the `UserService` and `UserController` for the admin segment at `src/modules/admin/user/` folder:
+Create the `UserService` and `UserController` for the admin segment in the `src/modules/admin/user/` folder:
 
 ```sh npm2yarn
 npx vovk new controller service admin/user
@@ -143,13 +143,13 @@ npx vovk new controller service admin/user
 
 Read more about Vovk.ts [controllers](/controllers).
 
-## Enable segmented client
+## Enable Segmented Client
 
-By default, Vovk.ts uses so-called "composed client" emitted to `node_modules/.vovk-client` folder, that in its turn re-exported from `"vovk-client"` package. The modules import all [schemas](/schema) from `.vovk-schema` folder, making the entire app schema be visible for an inspection in every front-end module that imports the client.
+By default, Vovk.ts uses a so-called "composed client" emitted to the `node_modules/.vovk-client` folder, which is, in turn, re-exported from the `"vovk-client"` package. The modules import all [schemas](/schema) from the `.vovk-schema` folder, making the entire app schema visible for inspection in every front-end module that imports the client.
 
-This problem is solved by introducing [segmented client](/segmented) that generates a separate client for each segment, allowing you to import only the schemas that are relevant to the used segment. Each segment will have its own directory in the project folder and the client will import only a schema that is relevant to that segment.
+This problem is solved by introducing a [segmented client](/segmented) that generates a separate client for each segment, allowing you to import only the schemas that are relevant to the used segment. Each segment will have its own directory in the project folder, and the client will import only the schema that is relevant to that segment.
 
-This approach also allows higher order segments (such as "admin") to import lower order segments (such as "customer"), making it possible to share the RPC libraries between segments but keep the back-end implementation invisible to the pages where its RPC modules are not used.
+This approach also allows higher-order segments (such as "admin") to import lower-order segments (such as "customer"), making it possible to share the RPC libraries between segments while keeping the back-end implementation invisible to pages where its RPC modules are not used.
 
 <Image
   src="/draw/segmented-client.svg"
@@ -159,7 +159,7 @@ This approach also allows higher order segments (such as "admin") to import lowe
   className="mx-auto my-2 dark:invert"
 />
 
-In order to do that, you need to disable the composed client (at this case you don't need the `"vovk-client"` package) and enable the segmented client in your [config file](/config).
+To do that, you need to disable the composed client (in this case, you don't need the `"vovk-client"` package) and enable the segmented client in your [config file](/config).
 
 ```ts filename="vovk.config.mjs"
 // @ts-check
@@ -185,7 +185,7 @@ import { ProductRPC } from '@/client/product';
 await ProductRPC.getProducts();
 ```
 
-And the file structure of the generated client will look like this (we skip some files for brevity, see [segmented client docs](/segmented) for more information):
+And the file structure of the generated client will look like this (we skip some files for brevity; see [segmented client docs](/segmented) for more information):
 
 <FileTree>
   <FileTree.Folder name="src/client" defaultOpen>
@@ -228,7 +228,7 @@ And the file structure of the generated client will look like this (we skip some
   </FileTree.Folder>
 </FileTree>
 
-## Update segment configuration
+## Update Segment Configuration
 
 Now we need to specify the `segmentNameOverride` options for every segment (except the root segment) in the [config file](/config). This option overrides the default segment name used in the URL path (was `"customer/pro"`, now an empty string `""`).
 
@@ -259,16 +259,16 @@ const config = {
 export default config;
 ```
 
-## Create middleware
+## Create Middleware
 
-Package `"vovk"` provides a utility function `multitenant` that plays a role of a router for your multitenant application. It accepts the request information and returns the action that `middleware` needs to take, such as redirecting to a specific subdomain or rewriting the request to a different path.
+The `"vovk"` package provides a utility function called `multitenant` that plays the role of a router for your multitenant application. It accepts the request information and returns the action that `middleware` needs to take, such as redirecting to a specific subdomain or rewriting the request to a different path.
 
 The function accepts the following parameters:
 
-- `requestUrl`: the URL of the request, including the protocol, host, and path, can be obtained from `request.url`.
-- `requestHost`: the host of the request, can be obtained from `request.headers.get("host")`.
-- `targetHost`: the host to which the request should be redirected or rewritten, can be set to your production domain or `localhost:3000` for local development.
-- `overrides`: an object that maps tenant subdomain domain names to their specific routing rules. Each rule is an array of objects with `from` and `to` properties, where `from` is the path prefix to match and `to` is the path to which the request should be rewritten or redirected.
+- `requestUrl`: the URL of the request, including the protocol, host, and path; can be obtained from `request.url`.
+- `requestHost`: the host of the request; can be obtained from `request.headers.get("host")`.
+- `targetHost`: the host to which the request should be redirected or rewritten; can be set to your production domain or `localhost:3000` for local development.
+- `overrides`: an object that maps tenant subdomain names to their specific routing rules. Each rule is an array of objects with `from` and `to` properties, where `from` is the path prefix to match and `to` is the path to which the request should be rewritten or redirected.
 
 When a wildcard subdomain is used, the square bracket pattern such as `[customer_name]` will be used to provide the [Dynamic Segment](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes) and passed with `params`.
 
@@ -337,7 +337,7 @@ export const config = {
 };
 ```
 
-## Update hosts for local development
+## Update Hosts for Local Development
 
 Update your `/etc/hosts` file to support subdomains on localhost.
 

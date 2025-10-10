@@ -1,0 +1,7 @@
+You’re improving the documentation for the Vovk.ts framework. Your job is to make the text sound smoother and more professional while keeping the original intent and structure.
+
+Please:
+
+Improve phrasing, grammar, and punctuation so it reads clearly and naturally.
+
+You can slightly improve the content when it helps make the explanation clearer or more polished, but don’t change the meaning or remove important details.

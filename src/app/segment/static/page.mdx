@@ -1,10 +1,10 @@
-# Static segment
+# Static Segment
 
 ```sh npm2yarn
 npx vovk new segment openapi --static # will create a new static segment with name "openapi" at src/app/api/openapi/[[...vovk]]/route.ts
 ```
 
-Next.js is able to render API endpoints at build time using [generateStaticParams](https://nextjs.org/docs/app/api-reference/functions/generate-static-params). Vovk.ts provides `generateStaticAPI` function to utilize this feature and generate static API endpoints for the lowest latency possible. You can use it to serve OpenAPI data, historical data (you can configure CI/CD job to be run periodically to update it), or any other static data that doesn't change often. It can also be used in a [Static Export mode](https://nextjs.org/docs/pages/building-your-application/deploying/static-exports) with the `output: 'export'` Next.js config setting:
+Next.js can render API endpoints at build time using [generateStaticParams](https://nextjs.org/docs/app/api-reference/functions/generate-static-params). Vovk.ts provides the `generateStaticAPI` function to utilize this feature and generate static API endpoints for the lowest possible latency. You can use it to serve OpenAPI data, historical data (you can configure a CI/CD job to run periodically to update it), or any other static data that doesn't change often. It can also be used in [Static Export mode](https://nextjs.org/docs/pages/building-your-application/deploying/static-exports) with the `output: 'export'` Next.js config setting:
 
 ```ts filename="next.config.js"
 /** @type {import('next').NextConfig} */
@@ -15,7 +15,7 @@ const nextConfig = {
 module.exports = nextConfig;
 ```
 
-The only thing you need to do is to implement `generateStaticParams` that returns `generateStaticAPI` with controller list.
+The only thing you need to do is implement `generateStaticParams` that returns `generateStaticAPI` with the controller list.
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
 // ...
@@ -28,7 +28,7 @@ export function generateStaticParams() {
 export const { GET } = initSegment({ controllers });
 ```
 
-In order to make it work on a static website hosting like Github Pages, you may need to define `.json` extension in your endpoint definition to make it return proper HTTP headers.
+To make it work on static website hosting like GitHub Pages, you may need to define the `.json` extension in your endpoint definition to ensure proper HTTP headers are returned.
 
 ```ts
 import { get, prefix } from 'vovk';
@@ -42,9 +42,9 @@ export default class HelloController {
 }
 ```
 
-As result you're going to get an endpoint that looks like that: [https://vovk.dev/api/hello/greeting.json](https://vovk.dev/api/hello/greeting.json) (hosted on Github Pages).
+As a result, you'll get an endpoint that looks like this: [https://vovk.dev/api/hello/greeting.json](https://vovk.dev/api/hello/greeting.json) (hosted on GitHub Pages).
 
-In case if you use a custom slug (e.g. `/src/app/api/[[...custom]]/route.ts`) instead of `vovk`, the default value, you can provide it as a second argument.
+If you use a custom slug (e.g., `/src/app/api/[[...custom]]/route.ts`) instead of `vovk`, the default value, you can provide it as a second argument.
 
 ```ts
 export function generateStaticParams() {
@@ -52,9 +52,9 @@ export function generateStaticParams() {
 }
 ```
 
-## Static endpoint params
+## Static Endpoint Parameters
 
-`@get` decorator accepts a set of options, one of them is `staticParams` that allows to define static parameters for the endpoint to simulate conditional routing. The example below demonstrates a static API represented by a single handler that renders 6 sets of static parameters: section (`a | b`) and page (`1 | 2 | 3`).
+The `@get` decorator accepts a set of options, one of which is `staticParams`, which allows you to define static parameters for the endpoint to simulate conditional routing. The example below demonstrates a static API represented by a single handler that renders 6 sets of static parameters: section (`a | b`) and page (`1 | 2 | 3`).
 
 ```ts
 import { z } from 'zod/v4';
@@ -98,11 +98,11 @@ It will build 6 JSON files:
 - [/static-params/b/page2.json](https://vovk-examples.vercel.app/api/static/static-params/b/page2.json)
 - [/static-params/b/page3.json](https://vovk-examples.vercel.app/api/static/static-params/b/page3.json)
 
-See live example [here](https://vovk-examples.vercel.app/static-params)
+See the live example [here](https://vovk-examples.vercel.app/static-params).
 
-## RPC client
+## RPC Client
 
-It doesn't matter wether you use static API or dynamic one, you can use the same RPC client to call it. This includes client-side validation, type inference, etc.
+It doesn't matter whether you use a static API or a dynamic one; you can use the same RPC client to call it. This includes client-side validation, type inference, etc.
 
 ```ts
 const resp = await StaticParamsRPC.getStaticParams({
@@ -117,7 +117,7 @@ console.log(resp); // { section: 'a', page: '1' }
 
 ## Troubleshooting
 
-Sometimes when `output: 'export'` is set at the `next.config.js` you may see the schema parsing error, when `dev` command is run:
+Sometimes when `output: 'export'` is set in `next.config.js`, you may see a schema parsing error when the `dev` command is run:
 
 ```
  ⨯ SyntaxError: Unexpected non-whitespace character after JSON at position 396 (line 1 column 397)
@@ -126,4 +126,4 @@ Sometimes when `output: 'export'` is set at the `next.config.js` you may see the
 }
 ```
 
-In order to avoid this error, when `npm run dev` is going to be run, close the browser tabs where the app is opened until the initial request to `/_schema_` is finished. After that you can open the app in the browser again and it should work fine. If you still see the error, feel free open an issue at [Vovk.ts GitHub repository](https://github.com/finom/vovk) with the details.
+To avoid this error when running `npm run dev`, close the browser tabs where the app is opened until the initial request to `/_schema_` is finished. After that, you can open the app in the browser again, and it should work fine. If you still see the error, feel free to open an issue at the [Vovk.ts GitHub repository](https://github.com/finom/vovk) with the details.

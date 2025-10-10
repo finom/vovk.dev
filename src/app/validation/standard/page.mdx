@@ -1,10 +1,10 @@
 # Standard Schema Validation
 
-[Standard Schema](https://github.com/standard-schema/standard-schema) is a convention supported by modern validation libraries that implements a common interface for defining and validating data structures. It's supported by libraries like [Zod 4](https://www.npmjs.com/package/zod), [Arktype](https://www.npmjs.com/package/arktype), [Valibot](https://www.npmjs.com/package/valibot) and many others. Check full list of libraries that implement Standard Schema [at the original repository](https://github.com/standard-schema/standard-schema?tab=readme-ov-file#what-schema-libraries-implement-the-spec).
+[Standard Schema](https://github.com/standard-schema/standard-schema) is a convention supported by modern validation libraries that implements a common interface for defining and validating data structures. It's supported by libraries like [Zod 4](https://www.npmjs.com/package/zod), [ArkType](https://www.npmjs.com/package/arktype), [Valibot](https://www.npmjs.com/package/valibot), and many others. Check the full list of libraries that implement Standard Schema [at the original repository](https://github.com/standard-schema/standard-schema?tab=readme-ov-file#what-schema-libraries-implement-the-spec).
 
-Vovk.ts provides a simple `createStandardValidation` function that creates a custom validation library that uses Standard Schema. The only option of this function is `toJSONSchema` function that defines how to convert the models to JSON Schema format.
+Vovk.ts provides a simple `createStandardValidation` function that creates a custom validation library using Standard Schema. The only option for this function is the `toJSONSchema` function, which defines how to convert the models to JSON Schema format.
 
-## Arktype example
+## ArkType Example
 
 Create `withArk` somewhere in your codebase:
 
@@ -68,7 +68,7 @@ export default class UserController {
 }
 ```
 
-## Valibot example
+## Valibot Example
 
 Create `withValibot` somewhere in your codebase:
 
@@ -136,4 +136,4 @@ export default class UserController {
 }
 ```
 
-All other libraries are implemented in a similar way, the only difference might be `toJSONSchema` implementations. Once [standard-schema/issues/21](https://github.com/standard-schema/standard-schema/issues/21) is resolved, the requirement to use `createStandardValidation` will probably become obsolete in most of cases.
+All other libraries are implemented in a similar way; the only difference may be in the `toJSONSchema` implementations. Once [standard-schema/issues/21](https://github.com/standard-schema/standard-schema/issues/21) is resolved, the requirement to use `createStandardValidation` will likely become obsolete in most cases.

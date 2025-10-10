@@ -1,8 +1,8 @@
-# Request meta
+# Request Meta
 
-Vovk.ts provides a way to pass additional metadata to the controller methods, which can be useful for various purposes, such as logging, analytics, or custom processing. The main purpose of this feature is to set request metadata in a custom decorator, which can be used later in the controller handler or in other decorators, declared after the one that sets the metadata.
+Vovk.ts provides a way to pass additional metadata to controller methods, which can be useful for various purposes such as logging, analytics, or custom processing. The main purpose of this feature is to set request metadata in a custom decorator, which can be used later in the controller handler or in other decorators declared after the one that sets the metadata.
 
-Metadata is accessible through the `vovk.meta` method in the controller handler and at decorators.
+Metadata is accessible through the `vovk.meta` method in the controller handler and in decorators.
 
 ```ts {4,13}
 import { createDecorator, get, type VovkRequest } from 'vovk';
@@ -38,7 +38,7 @@ As you can see, the generic type is required only when you want to access the me
 const { hello } = req.vovk.meta({ hello: 'world' });
 ```
 
-In order to reset the metadata, you can call `req.vovk.meta(null)`, which will clear the metadata object.
+To reset the metadata, you can call `req.vovk.meta(null)`, which will clear the metadata object.
 
 ```ts
 req.vovk.meta(null);
@@ -47,13 +47,13 @@ console.log(req.vovk.meta()); // {}
 
 To summarize:
 
-- In order to set metadata, use `req.vovk.meta({ key: value })`. It will return the metadata object typed as the passed object.
+- To set metadata, use `req.vovk.meta({ key: value })`. It will return the metadata object typed as the passed object.
 - To access metadata, use `req.vovk.meta<{ key: Type }>()`, which will return the metadata object typed as the passed generic type.
 - To reset metadata, use `req.vovk.meta(null)`, which will clear the metadata object.
 
-## Client-side meta with `xMetaHeader` key
+## Client-Side Meta with `xMetaHeader` Key
 
-The compiled RPC module handlers can send a custom underlying request metadata to the server, that is transferred as JSON string at `x-meta` header. This is useful when you want to pass additional information from the client-side to the server-side, such as user preferences, session data, or any other custom data that is relevant to the request.
+The compiled RPC module handlers can send custom underlying request metadata to the server, which is transferred as a JSON string in the `x-meta` header. This is useful when you want to pass additional information from the client side to the server side, such as user preferences, session data, or any other custom data relevant to the request.
 
 ```ts {5}
 import { UserRPC } from 'vovk-client';
@@ -64,7 +64,7 @@ const user = await UserRPC.getUser({
 });
 ```
 
-The `getUser` controller method as well as the [decorators](./decorator) can access this metadata through the `req.vovk.meta` method under `xMetaHeader` key:
+The `getUser` controller method, as well as the [decorators](./decorator), can access this metadata through the `req.vovk.meta` method under the `xMetaHeader` key:
 
 ```ts {6-7}
 import { get, type VovkRequest } from 'vovk';
@@ -79,4 +79,4 @@ export default class UserController {
 }
 ```
 
-This design protects the server-side metadata from being overwritten by the client-side code, as it is only accessible through the `xMetaHeader` key.
+This design protects server-side metadata from being overwritten by client-side code, as it is only accessible through the `xMetaHeader` key.

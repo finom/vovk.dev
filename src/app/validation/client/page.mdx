@@ -1,8 +1,8 @@
 import { Tabs } from 'nextra/components';
 
-# Client-side validation for RPC methods
+# Client-Side Validation for RPC Methods
 
-The [schema](/schema) emitted by the server-side code is primarily used to build the RPC modules, but as an implementation side-effect it can also be used for client-side validation. The cllient-side validation library is defined by hooking into the RPC module template via [validateOnClient](/imports#validateonclient) import.
+The [schema](/schema) emitted by the server-side code is primarily used to build the RPC modules, but as an implementation side-effect, it can also be used for client-side validation. The client-side validation library is defined by hooking into the RPC module template via the [validateOnClient](/imports#validateonclient) import.
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -29,7 +29,7 @@ export const UserRPC = createRPC(
 
 ## vovk-ajv
 
-[vovk-ajv](https://www.npmjs.com/package/vovk-ajv) is the primary library that implements the client-side validation using [Ajv](https://www.npmjs.com/package/ajv). It is installed and set up automatically when `npx vovk-init` is used. **vovk-ajv** supports additional configuration listed as `config.libs.ajv` in the [vovk.config](/config) file, such as Ajv options, localization and target version of the JSON schema.
+[vovk-ajv](https://www.npmjs.com/package/vovk-ajv) is the primary library that implements client-side validation using [Ajv](https://www.npmjs.com/package/ajv). It is installed and set up automatically when `npx vovk-init` is used. **vovk-ajv** supports additional configuration listed as `config.libs.ajv` in the [vovk.config](/config) file, such as Ajv options, localization, and target version of the JSON schema.
 
 ```bash npm2yarn
 npm install vovk-ajv@draft
@@ -58,11 +58,11 @@ export default config;
 
 ## vovk-dto/validateOnClient
 
-When using [class-validator](/validation/dto) for server-side validation, you can use the same DTOs to validate client-side requests. For more information see the [DTO client-side validation](/validation/dto#validateonclient) section.
+When using [class-validator](/validation/dto) for server-side validation, you can use the same DTOs to validate client-side requests. For more information, see the [DTO client-side validation](/validation/dto#validateonclient) section.
 
-## Custom client-side validation
+## Custom Client-Side Validation
 
-A custom `validateOnClient` function can be implemented with `createClientValidation` function that accepts `validate` option, that in its turn accepts the input data, validation schema and some extra information about the request. The `validate` function should return the validated input data or throw an error if the validation fails. The `meta` object contains information about the request such as `type`, `endpoint`, etc. It can optionally throw `HttpException` with `0` status as default behavior for failed client-side validation.
+A custom `validateOnClient` function can be implemented with the `createClientValidation` function, which accepts a `validate` option. This option, in turn, accepts the input data, validation schema, and some extra information about the request. The `validate` function should return the validated input data or throw an error if validation fails. It can optionally throw `HttpException` with status `0` as the default behavior for failed client-side validation. The `meta` object contains information about the request, such as `type`, `endpoint`, etc. 
 
 ```ts
 import { createValidateOnClient, HttpException, HttpStatus } from 'vovk';
@@ -80,7 +80,7 @@ export const validateOnClient = createValidateOnClient({
 
 ## FormData
 
-As there is no standard way to describe `FormData` in JSON Schema, every validation library have to provide its own way to generate OAS-compatible schema for `FormData` requests.
+As there is no standard way to describe `FormData` in JSON Schema, every validation library must provide its own way to generate an OAS-compatible schema for `FormData` requests.
 
 ```json {6}
 {
@@ -94,11 +94,11 @@ As there is no standard way to describe `FormData` in JSON Schema, every validat
 }
 ```
 
-Zod 4 includes `.file()` schema that is converted to the valid [OAS schema](https://zod.dev/json-schema?id=file-schemas) but for other libraries it needs to be solved individually. It's outlined for every library mentioned at this documentation (for arktype it's solved by using a `fallback`, for Valibot you need to use `overrideSchema` etc).
+Zod 4 includes a `.file()` schema that is converted to a valid [OAS schema](https://zod.dev/json-schema?id=file-schemas), but for other libraries, this needs to be solved individually. This is outlined for every library mentioned in this documentation (for ArkType, it's solved by using a `fallback`; for Valibot, you need to use `overrideSchema`, etc.).
 
 ---
 
-In case if you use a library that isn't mentioned here and you don't know how to make it properly generate the OAS file schema, the easiest way to work around this problem is to use `disableClientValidation` option in the generated RPC modules:
+If you use a library that isn't mentioned here and you don't know how to make it properly generate the OAS file schema, the easiest workaround is to use the `disableClientValidation` option in the generated RPC modules:
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -110,4 +110,4 @@ const respData = await UserRPC.updateUser({
 });
 ```
 
-This way the client-side validation will be skipped, but the server-side validation will still be performed. The file will not appear in the generated OpenAPI specification, but the endpoint will still accept `multipart/form-data` requests.
+This way, client-side validation will be skipped, but server-side validation will still be performed. The file will not appear in the generated OpenAPI specification, but the endpoint will still accept `multipart/form-data` requests.

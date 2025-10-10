@@ -1,8 +1,8 @@
-# Getting started
+# Getting Started
 
-Vovk.ts as a back-end framework supports a wide range of validation libraries. The validation models are emitted as JSON Schemas in order to be used for validation on the client side (but also for code generation, [OpenAPI spec](/openapi) and [LLM Tools](/function-calling), etc). 
+Vovk.ts as a back-end framework supports a wide range of validation libraries. The validation models are emitted as JSON Schemas to be used for validation on the client side (as well as for code generation, [OpenAPI spec](/openapi), [LLM Tools](/function-calling), etc.).
 
-Every validation library uses an internal `withValidationLibrary` function that is used to wrap the controller handler, providing unified list of options and extending the handler with extra features. Each library is named as `with[name]` where the `name` is the name of the library, e.g. [`withZod`](/validation/zod).
+Every validation library uses an internal `withValidationLibrary` function that wraps the controller handler, providing a unified list of options and extending the handler with extra features. Each library is named as `with[name]`, where `name` is the name of the library, e.g., [`withZod`](/validation/zod).
 
 ## Options
 
@@ -18,9 +18,9 @@ export default class UserController {
     body: z.object({ /* ...*/ })
     params: z.object({ /* ...*/ }),
     query: z.object({ /* ...*/ }),
-    output: z.object({ /* ...*/ }), // in case of JSON response
-    // iteration: z.object({ /* ...*/ }), // in case of JSONLines response
-    // validateEachIteration: true, // for JSONLines response only
+    output: z.object({ /* ...*/ }), // for JSON response
+    // iteration: z.object({ /* ...*/ }), // for JSON Lines response
+    // validateEachIteration: true, // for JSON Lines response only
     disableServerSideValidation: ['body', 'query'], // disable server-side validation for body and query
     skipSchemaEmission: ['output'], // skip schema emission for output
     isForm: false, // default
@@ -31,45 +31,45 @@ export default class UserController {
 }
 ```
 
-### `body`, `query` and `params`
+### `body`, `query`, and `params`
 
-The `body`, `query` and `params` options are used to specify input validation schemas. These schemas are used to validate the incoming request data before it reaches the controller handler.
+The `body`, `query`, and `params` options are used to specify input validation schemas. These schemas validate the incoming request data before it reaches the controller handler.
 
 ### `output` and `iteration`
 
-The `output` and `iteration` options are used to specify the output validation schemas, where `output` is used for regular JSON responses and `iteration` is used for [JSONLines](/controller/jsonlines) responses. Both are optional and they don't affect the generated RPC modules typing, but recommended for enabling crutial features such as [OpenAPI spec](/openapi) generation, [Function Calling](/function-calling) and [Codegen](/codegen) for [Python](/python), [Rust](/rust) and other further clients. The `output` and `iteration` aren't used for the client-side validation.
+The `output` and `iteration` options are used to specify output validation schemas, where `output` is for regular JSON responses and `iteration` is for [JSON Lines](/controller/jsonlines) responses. Both are optional and don't affect the generated RPC module typing, but they're recommended for enabling crucial features such as [OpenAPI spec](/openapi) generation, [function calling](/function-calling), and [Codegen](/codegen) for [Python](/python), [Rust](/rust), and other future clients. The `output` and `iteration` schemas are not used for client-side validation.
 
 ### `isForm`
 
-The `isForm` option is used to specify whether the request body is a form data. This is useful for handling file uploads and other form-related data. Setting it to `true` changes the RPC method typing to accept `FormData{:ts}` on the client side as `body` option and adds `x-isForm` field to the emitted JSON Schema for the body validation schema.
+The `isForm` option specifies whether the request body is form data. This is useful for handling file uploads and other form-related data. Setting it to `true` changes the RPC method typing to accept `FormData{:ts}` on the client side as the `body` option and adds the `x-isForm` field to the emitted JSON Schema for the body validation schema.
 
 ### `handle`
 
-The `handle` is the controller handler function that will be executed after the validation is successful and return a response. It provides a type-flavoured `NextRequest{:ts}`, represented as [`VovkRequest<TBody, TQuery, TParams>{:ts}`](/controller/request) type as the first argument, and `params: TParams{:ts}` value as the second argument.
+The `handle` function is the controller handler that will be executed after validation succeeds and returns a response. It provides a type-enhanced `NextRequest{:ts}`, represented as the [`VovkRequest<TBody, TQuery, TParams>{:ts}`](/controller/request) type as the first argument, and the `params: TParams{:ts}` value as the second argument.
 
 ### `disableServerSideValidation`
 
-The `disableServerSideValidation` option is used to disable the server-side validation for the specified validation library. It can be a boolean value that indicates whether to disable validation on the server-side completely, or an array of validation types (`body`, `query`, `params`, `output`, `iteration`). This option does not affect type inference in the generated RPC modules, nor the client-side validation.
+The `disableServerSideValidation` option disables server-side validation for the specified validation library. It can be a boolean value that indicates whether to disable validation on the server side completely, or an array of validation types (`body`, `query`, `params`, `output`, `iteration`). This option does not affect type inference in the generated RPC modules or client-side validation.
 
 ### `skipSchemaEmission`
 
-The `skipSchemaEmission` option is used to skip the emission of the JSON Schemas for the handler, allowing to hide implementation details from the client-side code. It can be a boolean value that disables schema emission completely, or an array of validation types to skip schema emission for specific validation types (`body`, `query`, `params`, `output`, `iteration`). This option does not affect type inference in the generated RPC modules but disables features that depend on the emitted schemas, including client-side validation.
+The `skipSchemaEmission` option skips the emission of JSON Schemas for the handler, allowing you to hide implementation details from the client-side code. It can be a boolean value that disables schema emission completely, or an array of validation types to skip schema emission for specific validation types (`body`, `query`, `params`, `output`, `iteration`). This option does not affect type inference in the generated RPC modules but disables features that depend on the emitted schemas, including client-side validation.
 
 ### `validateEachIteration`
 
-The `validateEachIteration` option is used exclusively for the `iteration` validation schema. It indicates whether to validate each item in the iteration response, where by default it validates only the first `iteration` item.
+The `validateEachIteration` option is used exclusively for the `iteration` validation schema. It indicates whether to validate each item in the iteration response. By default, it validates only the first `iteration` item.
 
 ### `operation`
 
-An optional `operation` object can be provided to specify OAS operation details for the method when `@operation` decorator is not aplicable. Might be useful when using [`fn`](/controller/fn) on a normal function, not a class method.
+An optional `operation` object can be provided to specify OAS operation details for the method when the `@operation` decorator is not applicable. This might be useful when using [`fn`](/controller/fn) on a normal function rather than a class method.
 
 ## Features
 
-A handler created with `withValidationLibrary` function gets some extra features that enhance its capabilities.
+A handler created with the `withValidationLibrary` function gains extra features that enhance its capabilities.
 
 ### `fn`
 
-The `fn` property alllows to call the handler function directly, at the current context, without making an HTTP request. It follows similar signature as the generated RPC handler and accepts the same parameters.
+The `fn` property allows you to call the handler function directly in the current context without making an HTTP request. It follows a similar signature to the generated RPC handler and accepts the same parameters.
 
 ```ts
 const result = await UserController.updateUser.fn({
@@ -100,7 +100,7 @@ const schema = UserController.updateUser.schema;
 // same as UserRPC.updateUser.schema
 ```
 
-The `schema` property provides the method schema for the handler, similar to the RPC method schema. It's used in tendem with the `fn` property to build [function calling tools](/function-calling) to call the handler by AI without making an HTTP request.
+The `schema` property provides the method schema for the handler, similar to the RPC method schema. It's used in tandem with the `fn` property to build [function calling tools](/function-calling) to call the handler by AI without making an HTTP request.
 
 ### `models`
 
@@ -108,4 +108,4 @@ The `schema` property provides the method schema for the handler, similar to the
 const bodyModel = UserController.updateUser.models.body;
 ```
 
-The `models` property is exclusive to the server-side methods. It allows to access the original validation models used in the handler.
+The `models` property is exclusive to server-side methods. It allows you to access the original validation models used in the handler.

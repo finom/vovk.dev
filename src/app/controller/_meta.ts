@@ -2,17 +2,17 @@ import type { MetaRecord } from 'nextra';
 
 const meta = {
   introduction: 'Getting started',
-  request: 'VovkRequest type',
+  request: 'VovkRequest Type',
   service: 'Service',
   errors: 'Errors',
   headers: 'Headers',
   redirect: 'redirect and notFound',
   decorator: 'Decorators',
   jsonlines: 'JSON Lines',
-  fn: 'Callable handlers',
-  meta: 'Request meta',
+  fn: 'Callable Handlers',
+  meta: 'Request Meta',
   progressive: 'Progressive Response 🧪',
-  'form-data': 'FormData',
+  formdata: 'FormData',
 } satisfies MetaRecord;
 
 export const icons: Record<keyof typeof meta, string> = {
@@ -27,7 +27,7 @@ export const icons: Record<keyof typeof meta, string> = {
   fn: '🔧',
   meta: '📌',
   progressive: '📈',
-  'form-data': '📝',
+  formdata: '📝',
 };
 
 export default meta;

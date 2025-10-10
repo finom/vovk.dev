@@ -2,7 +2,6 @@ import Image from 'next/image';
 import newModuleSvg from '../../excalidraw/vovk-new-module.svg';
 import newSegmentSvg from '../../excalidraw/vovk-new-segment.svg';
 
-
 # vovk new
 
 ```sh filename="Quick CLI Ref"
@@ -16,7 +15,7 @@ Options:
   -o, --overwrite                         overwrite existing files
   --static                                (new segment only) if the segment is static
   --template, --templates <templates...>  (new module only) override config template; accepts an array of
-                                          strings that correspond the order of the components
+                                          strings that correspond to the order of the components
   --out, --out-dir <dirname>              (new module only) override outDir in template file; relative to the
                                           root of the project
   --no-segment-update                     (new module only) do not update segment files when creating a new
@@ -27,19 +26,19 @@ Options:
   -h, --help                              display help for command
 ```
 
-The command `vovk new` allows to create new [segments](/segment) and modules (such as [controllers](/controller), [services](/service), or custom modules) in the project. It uses `moduleTemplates` option defined at [config](/config) and can be extended with custom templates. It includes two commands in one: `vovk new segment [segment_name]` and <nobr>`vovk new [module] [module_name_singular]`</nobr>.
+The `vovk new` command allows you to create new [segments](/segment) and modules (such as [controllers](/controller), [services](/service), or custom modules) in the project. It uses the `moduleTemplates` option defined in the [config](/config) and can be extended with custom templates. It includes two commands in one: `vovk new segment [segment_name]` and <nobr>`vovk new [module] [module_name_singular]`</nobr>.
 
 ## vovk new segment
 
 <Image src={newSegmentSvg} alt="vovk new segment" className="dark:invert lg:max-w-[50%]" />
 
-### Root segment
+### Root Segment
 
 ```sh npm2yarn
 npx vovk new segment
 ```
 
-If `vovk new segment` is run without the segment argument, it creates a root segment represented as [prettified](https://www.npmjs.com/package/prettier) **/src/app/api/[[...vovk]]/route.ts** file. `segmentName` option of `initSegment` equals to an empty string and can be omitted.
+If `vovk new segment` is run without the segment argument, it creates a root segment represented as a [prettified](https://www.npmjs.com/package/prettier) **/src/app/api/[[...vovk]]/route.ts** file. The `segmentName` option of `initSegment` equals an empty string and can be omitted. The generated file contains the following content:
 
 ```ts
 import { initSegment } from 'vovk';
@@ -54,19 +53,19 @@ export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
 });
 ```
 
-The segment is going to produce a new schema when the `vovk dev` command is run located at **.vovk-schema/root.json**.
+The segment will produce a new schema when the `vovk dev` command is run, located at **.vovk-schema/root.json**.
 
-The segment produces an API that's going to be available at **/api/...** endpoint.
+The segment produces an API that will be available at the **/api/...** endpoint.
 
-Root segment can be used together with other segments of any depth.
+The root segment can be used together with other segments of any depth.
 
-### Nested segment
+### Nested Segment
 
 ```sh npm2yarn
 npx vovk new segment foo
 ```
 
-`npx vovk new segment foo` creates a new [prettified](https://www.npmjs.com/package/prettier) **route.ts** file in the **/src/app/api/foo/[[...vovk]]/** directory. The file contains a new segment with the following content:
+`npx vovk new segment foo` creates a new [prettified](https://www.npmjs.com/package/prettier) **route.ts** file in the **/src/app/api/foo/[[...vovk]]/** directory. The generated file contains a new segment with the following content:
 
 ```ts
 // ...
@@ -77,13 +76,13 @@ export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
 });
 ```
 
-The segment is going to produce a new schema when the `vovk dev` command is run located at **.vovk-schema/foo.json**.
+The segment will produce a new schema when the `vovk dev` command is run, located at **.vovk-schema/foo.json**.
 
-The segment produces an API that's going to be available at **/api/foo/...** endpoint.
+The segment produces an API that will be available at the **/api/foo/...** endpoint.
 
 ---
 
-When `vovk new segment foo/bar/baz` is run, it creates a nested segment represented as **/src/app/api/foo/bar/baz/[[...vovk]]/route.ts** file, available as **/api/foo/bar/baz/...** endpoint. `segmentName` option equals to `"foo/bar/baz"`.
+When `vovk new segment foo/bar/baz` is run, it creates a nested segment represented as the **/src/app/api/foo/bar/baz/[[...vovk]]/route.ts** file, available at the **/api/foo/bar/baz/...** endpoint. The `segmentName` option equals `"foo/bar/baz"`.
 
 ## vovk new [module] [name]
 
@@ -93,21 +92,21 @@ When `vovk new segment foo/bar/baz` is run, it creates a nested segment represen
 npx vovk new controller service foo/user
 ```
 
-`vovk new [anything but segment]` is used to create new [prettified](https://www.npmjs.com/package/prettier) modules at **/src/modules** folder.
+`vovk new [anything but segment]` is used to create new [prettified](https://www.npmjs.com/package/prettier) modules in the **/src/modules** folder.
 
 The command has the following structure:
 
 - `npx vovk new` - the command itself.
 - Components - types of modules to create (`controller`, `service`, or a custom module).
-- Module name (singular) with an optional segment name separated by a slash. `foo/user`, where `foo` is a segment name and `user` is a module name, creates a module in the **/src/modules/foo/user/** folder and updates `foo` segment. The segment name is optional and can be omitted if the module is related to the root segment:
+- Module name (singular) with an optional segment name separated by a slash. `foo/user`, where `foo` is a segment name and `user` is a module name, creates a module in the **/src/modules/foo/user/** folder and updates the `foo` segment. The segment name is optional and can be omitted if the module is related to the root segment:
 
 ```sh npm2yarn
 npx vovk new controller service user
 ```
 
-When a new controller is created with `vovk new` command, the script updates the list of `controllers` at the segment file and updates `route.ts` file with the new controller using [AST](https://www.npmjs.com/package/ts-morph).
+When a new controller is created with the `vovk new` command, the script updates the list of `controllers` in the segment file and updates the `route.ts` file with the new controller using [AST](https://www.npmjs.com/package/ts-morph).
 
-Paths to templates are defined at the [config](/config) file with the `moduleTemplates` option.
+Paths to templates are defined in the [config](/config) file with the `moduleTemplates` option.
 
 ```js filename="vovk.config.mjs"
 /** @type {import('vovk-cli').VovkConfig} */
@@ -123,29 +122,29 @@ const config = {
 export default config;
 ```
 
-`npx vovk new controller state dto user` creates **UserController.ts**, **UserService.ts**, and **UserDto.ts** files at **/src/modules/user** folder and will update the root segment.
+`npx vovk new controller state dto user` creates **UserController.ts**, **UserService.ts**, and **UserDto.ts** files in the **/src/modules/user** folder and will update the root segment.
 
-### Built-in templates
+### Built-in Templates
 
-**vovk-cli** provides built-in example templates for controllers and services located at **module-templates** folder at the NPM package. Every [validation](/validation) library has its own example template for controllers that's also located at **module-templates** folder of corresponding NPM package.
+**vovk-cli** provides built-in example templates for controllers and services located in the **module-templates** folder of the NPM package. Some [validation](/validation) library has its own example template for controllers, which is also located in the **module-templates** folder of the corresponding NPM package.
 
-[vovk init](/init) initializes the Vovk.ts project with the corresponding templates defined at the [config](/config) file.
+[vovk init](/init) initializes the Vovk.ts project with the corresponding templates defined in the [config](/config) file.
 
 ### Shortcuts
 
-Controller and service can be created with shortcuts:
+Controllers and services can be created with shortcuts:
 
 ```sh
 npx vovk n c s user
 ```
 
-This command is an equivalent of:
+This command is equivalent to:
 
 ```sh
 npx vovk new controller service user
 ```
 
-### Custom templates 🚧
+### Custom Templates 🚧
 
 Coming soon.
 

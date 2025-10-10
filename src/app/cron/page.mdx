@@ -1,6 +1,6 @@
-# Vercel Cron jobs
+# Vercel Cron Jobs
 
-[Vercel Cron jobs](https://vercel.com/docs/cron-jobs) require simple authorization using an environment variable. This can be achieved by creating a [decorator](/controller/decorator) that checks authorization header with a secret key.
+[Vercel Cron Jobs](https://vercel.com/docs/cron-jobs) require simple authorization using an environment variable. This can be achieved by creating a [decorator](/controller/decorator) that checks the authorization header with a secret key.
 
 ```ts filename="src/decorators/cronGuard.ts"
 import { HttpException, HttpStatus, createDecorator } from 'vovk';
@@ -32,7 +32,7 @@ export default class CronController {
 }
 ```
 
-Add the cron job to the `vercel.json` file. The `schedule` field uses the cron syntax (at this case the cron job will run every day at midnight).
+Add the cron job to the `vercel.json` file. The `schedule` field uses the cron syntax (in this case, the cron job will run every day at midnight).
 
 ```json filename="/vercel.json"
 {

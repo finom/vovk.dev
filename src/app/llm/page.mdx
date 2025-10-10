@@ -1,18 +1,19 @@
-# LLM completions
+# LLM Completions
 
-## JSONLines
+## JSON Lines
 
-LLM completions can be streamed using [JSON Lines](https://jsonlines.org/) format, which is a convenient way to send a stream of JSON objects over HTTP. On the back-end streaming is implemented with [Generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator) functions, which allows to yield data as it becomes available. Read more about [streaming with Vovk.ts](/controller/jsonlines).
+LLM completions can be streamed using the [JSON Lines](https://jsonlines.org/) format, which is a convenient way to send a stream of JSON objects over HTTP. On the back-end, streaming is implemented with [Generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator) functions, which allow you to yield data as it becomes available. For the OpenAI API (as well as for other completion APIs), this can be done by delegating the iterable using the `yield*` syntax.
+
+Read more about [JSONLines Response](/controller/jsonlines) and [Controllers](/controllers).
 
 ```ts filename="src/modules/llm/LlmController.ts"
-import { type VovkRequest, post, prefix, operation, HttpException, HttpStatus } from 'vovk';
+import { post, prefix, operation, type VovkRequest } from 'vovk';
 import OpenAI from 'openai';
 
 @prefix('openai')
 export default class OpenAiController {
   @operation({
     summary: 'Create a chat completion',
-    description: 'Create a chat completion using OpenAI and yield the response',
   })
   @post('chat')
   static async *createChatCompletion(
@@ -30,23 +31,26 @@ export default class OpenAiController {
 }
 ```
 
+On the client side, you can use a [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator) to read the stream:
+
 ```ts
 // ...
 using completion = await OpenAiRPC.createChatCompletion({
   body: { messages: [...messages, userMessage] },
 });
-// ...
+
+for await (const part of completion) {
+  // ...
+}
 ```
 
-See [example](https://vovk-examples.vercel.app/openai) for more details.
+See [live example](https://vovk-examples.vercel.app/openai) for more details.
 
 ## Vercel AI SDK
 
-> The AI SDK is the TypeScript toolkit designed to help developers build AI-powered applications with React, Next.js, Vue, Svelte, Node.js, and more.
+> The AI SDK is the TypeScript toolkit designed to help developers build AI-powered applications with React, Next.js, Vue, Svelte, Node.js, and more. Read more about the [Vercel AI SDK](https://sdk.vercel.ai/docs/introduction).
 
-Read more about the [Vercel AI SDK](https://sdk.vercel.ai/docs/introduction).
-
-Vovk.ts supports every built-in feature of Next.js and, as a result, it can be used with the Vercel AI SDK returning `Response` object from `toDataStreamResponse` function with no additional changes.
+Vovk.ts supports every built-in feature of Next.js and, as a result, can be used with the Vercel AI SDK by returning a `Response` object from the `toDataStreamResponse` function with no additional tricks.
 
 ```ts filename="src/modules/ai-sdk/AiSdkController.ts"
 import { post, prefix, operation, type VovkRequest } from 'vovk';
@@ -57,17 +61,10 @@ import { openai } from '@ai-sdk/openai';
 export default class AiSdkController {
   @operation({
     summary: 'Vercel AI SDK',
-    description:
-      'Uses [@ai-sdk/openai](https://www.npmjs.com/package/@ai-sdk/openai) and ai packages to chat with an AI model',
   })
   @post('chat')
   static async chat(req: VovkRequest<{ messages: UIMessage[] }>) {
     const { messages } = await req.json();
-    const LIMIT = 5;
-
-    if (messages.filter(({ role }) => role === 'user').length > LIMIT) {
-      throw new HttpException(HttpStatus.BAD_REQUEST, `You can only send ${LIMIT} messages at a time`);
-    }
 
     return streamText({
       model: openai('gpt-5-nano'),
@@ -78,7 +75,7 @@ export default class AiSdkController {
 }
 ```
 
-On the client-side, you can **@ai-sdk/react** package to interact with the endpoint and build a chat interface.
+On the client side, you can use the [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) package to interact with the endpoint and build a chat interface as per the original SDK design.
 
 ```tsx
 'use client';
@@ -122,3 +119,6 @@ export default function Page() {
   );
 }
 ```
+
+
+See [live example](https://vovk-examples.vercel.app/ai-sdk) for more details.
