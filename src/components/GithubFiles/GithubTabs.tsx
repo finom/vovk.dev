@@ -34,6 +34,7 @@ const GithubTabs = ({ githubFiles, owner, repo, ghRef, id }: Props) => {
             className="inline-block align-middle ml-1"
             href={`https://github.com/${owner}/${repo}/tree/${ghRef}/${path}`}
             target="_blank"
+            title="View on GitHub"
           >
             <svg
               width="16"

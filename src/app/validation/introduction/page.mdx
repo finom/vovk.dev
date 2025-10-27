@@ -63,6 +63,10 @@ The `validateEachIteration` option is used exclusively for the `iteration` valid
 
 An optional `operation` object can be provided to specify OAS operation details for the method when the `@operation` decorator is not applicable. This might be useful when using [`fn`](/controller/fn) on a normal function rather than a class method.
 
+### `preferTransformed = true`
+
+By default, Vovk.ts validation libraries transform the incoming data into the validation result format. This is usually the desired behavior, but in some cases, you might want to use the raw incoming/outgoing data without any transformations applied. Setting `preferTransformed` to `false` will make all features where validation models are used (`body`, `query`, `params`, `output`, `iteration` validation) to return the original data format instead of the transformed one.
+
 ## Features
 
 A handler created with the `withValidationLibrary` function gains extra features that enhance its capabilities.

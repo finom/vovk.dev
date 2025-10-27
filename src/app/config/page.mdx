@@ -22,7 +22,7 @@ The config options extend the `VovkConfig` type from the `vovk` package and can 
 <a name="emitconfig" />
 ### `emitConfig: boolean | string[]`
 
-Indicates whether the config options should be emitted as the [.vovk-schema/\_meta.json](/schema) file. If set to `true`, it will emit all options. If set to an array of strings, it will emit only the specified options. Default is <nobr>`["libs", "generatorConfig"]`</nobr>.
+Indicates whether the config options should be emitted as the [.vovk-schema/\_meta.json](/schema) file. If set to `true`, it will emit all options. If set to an array of strings, it will emit only the specified options. Default is <nobr>`["libs", "outputConfig"]`</nobr>.
 
 <a name="clienttemplatedefs" />
 ### `clientTemplateDefs: object`
@@ -151,9 +151,9 @@ console.log(UserRPC.updateUser.fullSchema.meta.config.libs.ajv.localize); // 'en
 ```
 
 <a name="generatorconfig" />
-### `generatorConfig`
+### `outputConfig`
 
-The `generatorConfig` object is used to customize the generated client code by changing [imports](/imports), `origin`, or adding [OpenAPI mixins](/codegen).
+The `outputConfig` object is used to customize the generated client code by changing [imports](/imports), `origin`, or adding [OpenAPI mixins](/codegen).
 
 #### `origin: string | null`
 
@@ -184,7 +184,7 @@ Used to re-export variables from other modules. The key is the name of the varia
 ```js filename="/vovk.config.mjs"
 const config = {
   // ...
-  generatorConfig: {
+  outputConfig: {
     reExports: {
       'type MyType': './src/types',
       'MyClass, myFunction': './src/utils',
@@ -208,7 +208,7 @@ export { default as MyDefault } from './src/defaultExport';
 import { type MyType, MyClass, myFunction, RenamedComponent, MyDefault } from 'vovk-client';
 ```
 
-When the [segmented](/segmented) client is used, the top-level `generatorConfig.reExports` are applied to the root segment code.
+When the [segmented](/segmented) client is used, the top-level `outputConfig.reExports` are applied to the root segment code.
 
 ```ts
 import { type MyType, MyClass, myFunction, RenamedComponent, MyDefault } from '@/client/root';
@@ -220,7 +220,7 @@ Used to customize the imports of `fetcher`, `validateOnClient`, and `createRPC` 
 
 #### `segments`
 
-Used to configure each segment individually. It has the same properties as `generatorConfig` (such as `origin`, `package`, `readme`, `samples`, `openAPIObject`, `reExports`, `imports`) but also additional fields. Note that `imports.createRPC` is applicable to the top-level `generatorConfig` only. The additional fields are:
+Used to configure each segment individually. It has the same properties as `outputConfig` (such as `origin`, `package`, `readme`, `samples`, `openAPIObject`, `reExports`, `imports`) but also additional fields. Note that `imports.createRPC` is applicable to the top-level `outputConfig` only. The additional fields are:
 
 ##### `rootEntry: string | null`
 

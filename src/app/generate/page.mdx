@@ -38,7 +38,7 @@ The `vovk generate` command generates [TypeScript](/typescript), [Rust](/rust), 
 
 - `composedClient` - settings for the [composed client](/composed), where you can define the output directory, included/excluded segments, and list of used [templates](/templates).
 - `segmentedClient` - settings for the [segmented client](/segmented), where you can define the output directory, included/excluded segments, and list of used [templates](/templates).
-- `generatorConfig` - list of options that allows you to configure `origin`, [imports](/imports), [OpenAPI mixins](/codegen), and more.
+- `outputConfig` - list of options that allows you to configure `origin`, [imports](/imports), [OpenAPI mixins](/codegen), and more.
 - `clientTemplateDefs` - definitions of available [templates](/templates) for client generation.
 
 You can refer to the [config](/config) page for more details on how to configure these options.
@@ -65,11 +65,11 @@ You can refer to the [config](/config) page for more details on how to configure
 
 Mixins are used to extend the schema with additional endpoints defined in one or more OpenAPI specs. You can read more about them on the [OpenAPI Mixins](/codegen) page.
 
-- `--openapi`, `--openapi-spec <openapi_path_or_urls...>` - use one or more OpenAPI specs for client generation. It accepts either a path to a local file or a URL. If a URL is provided, the command makes an HTTP GET request to fetch the spec. Can be replicated in the config option `generatorConfig.segments.mixinName.openAPIMixin.source.url` for remote specs or `generatorConfig.segments.mixinName.openAPIMixin.source.file` for local files.
-- `--openapi-module-name`, `--openapi-get-module-name <names...>` - list of module names corresponding to the index of the `--openapi` option. Allows you to pass a string value that can be replicated in the config option `generatorConfig.segments.mixinName.openAPIMixin.getModuleName`.
-- `--openapi-method-name`, `--openapi-get-method-name <names...>` - list of method names corresponding to the index of the `--openapi` option. Allows you to pass a string value that can be replicated in the config option `generatorConfig.segments.mixinName.openAPIMixin.getMethodName`.
-- `--openapi-root-url <urls...>` - list of root URLs corresponding to the index of the `--openapi` option. Allows you to pass a string value that can be replicated in the config option `generatorConfig.segments.mixinName.openAPIMixin.apiRoot`.
-- `--openapi-mixin-name <names...>` - list of mixin names corresponding to the index of the `--openapi` option. Defines a name of a pseudo-segment that will be used in the generated client. In the config, it's defined as the key in the `generatorConfig.segments` object.
+- `--openapi`, `--openapi-spec <openapi_path_or_urls...>` - use one or more OpenAPI specs for client generation. It accepts either a path to a local file or a URL. If a URL is provided, the command makes an HTTP GET request to fetch the spec. Can be replicated in the config option `outputConfig.segments.mixinName.openAPIMixin.source.url` for remote specs or `outputConfig.segments.mixinName.openAPIMixin.source.file` for local files.
+- `--openapi-module-name`, `--openapi-get-module-name <names...>` - list of module names corresponding to the index of the `--openapi` option. Allows you to pass a string value that can be replicated in the config option `outputConfig.segments.mixinName.openAPIMixin.getModuleName`.
+- `--openapi-method-name`, `--openapi-get-method-name <names...>` - list of method names corresponding to the index of the `--openapi` option. Allows you to pass a string value that can be replicated in the config option `outputConfig.segments.mixinName.openAPIMixin.getMethodName`.
+- `--openapi-root-url <urls...>` - list of root URLs corresponding to the index of the `--openapi` option. Allows you to pass a string value that can be replicated in the config option `outputConfig.segments.mixinName.openAPIMixin.apiRoot`.
+- `--openapi-mixin-name <names...>` - list of mixin names corresponding to the index of the `--openapi` option. Defines a name of a pseudo-segment that will be used in the generated client. In the config, it's defined as the key in the `outputConfig.segments` object.
 - `--openapi-fallback <paths...>` - save one or more OpenAPI specs to the specified paths and use them as a fallback if the URL is not available. It accepts paths to local files that correspond to the index of the `--openapi` option.
 - `--watch <s>` - watch for changes in the schema or OpenAPI spec and regenerate the client. It accepts a number in seconds to throttle the watcher or make an HTTP request to the OpenAPI spec URL every `s` seconds or when the local file changes.
 
@@ -78,6 +78,6 @@ Mixins are used to extend the schema with additional endpoints defined in one or
 - `--prettify` - prettify the output files using [Prettier](https://prettier.io/). Can be configured in the config option `composedClient.prettifyClient` and `segmentedClient.prettifyClient`.
 - `--schema`, `--schema-path <path>` - override the path to the schema folder defined in `schemaOutDir`.
 - `--config`, `--config-path <config>` - override the path to the config file. By default, it reads all combinations of allowed config file names and gives a warning if more than one file is found.
-- `--origin <url>` - override the `origin` defined in `generatorConfig.origin`.
+- `--origin <url>` - override the `origin` defined in `outputConfig.origin`.
 - `--log-level <level>` - set the log level. Available levels are: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. By default, it's set to `info`.
 - `-h, --help` - display help for the command.

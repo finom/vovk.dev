@@ -8,7 +8,7 @@ const meta = {
   standard: 'Standard Schema',
   zod: 'Zod 3 and 4',
   dto: 'class-validator',
-  yup: 'Yup (obsolete)',
+  yup: { title: 'Yup (obsolete)', display: 'hidden' },
 } satisfies MetaRecord;
 
 export const icons: Omit<Record<keyof typeof meta, string>, `#${string}`> = {

@@ -59,7 +59,7 @@ const config = {
     tsdownBuildOptions: {
       outDir: 'dist', // default
     },
-    generatorConfig: {
+    outputConfig: {
       origin: 'https://example.com',
       requires: {
         readme: '.', // default
@@ -94,9 +94,9 @@ If set to `true`, the `prebundleOutDir` will not be deleted after bundling. This
 
 Any options that can be passed to the [tsdown](https://tsdown.dev/) `build` function. The options are outlined in the [tsdown documentation](https://tsdown.ru/reference/config-options).
 
-### `generatorConfig`
+### `outputConfig`
 
-The `generatorConfig` object accepts and overrides the same options as the [generatorConfig](/config#generatorconfig) at the root of the [config](/config) file.
+The `outputConfig` object accepts and overrides the same options as the [outputConfig](/config#generatorconfig) at the root of the [config](/config) file.
 
 ## Troubleshooting
 

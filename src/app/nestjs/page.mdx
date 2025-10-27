@@ -184,7 +184,7 @@ If the flags are too long or if you want to use additional Vovk.ts features, cre
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk-cli').VovkConfig} */
 const config = {
-  generatorConfig: {
+  outputConfig: {
     segments: {
       nest: {
         openAPIMixin: {
@@ -245,7 +245,7 @@ npm i vovk-ajv@draft
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
-  generatorConfig: {
+  outputConfig: {
     imports: {
       validateOnClient: 'vovk-ajv',
     },
@@ -265,7 +265,7 @@ npm i vovk-dto@draft
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
-  generatorConfig: {
+  outputConfig: {
     imports: {
       validateOnClient: 'vovk-dto/validateOnClient',
     },

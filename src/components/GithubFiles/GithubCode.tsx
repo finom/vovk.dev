@@ -8,17 +8,18 @@ interface Props {
   owner: string;
   repo: string;
   ghRef: string;
-
+  highlightLines?: number[];
+  cutLines?: (number | [number, number])[];
 }
 
-const GithubCode = ({ githubFiles, owner, repo, ghRef }: Props) => {
+const GithubCode = ({ githubFiles, owner, repo, ghRef, highlightLines, cutLines }: Props) => {
   const id = useId(); // Ensure unique IDs for tabs
   return (
     <div className={`bg-code rounded-lg mt-4`} id={id}>
       <GithubTabs githubFiles={githubFiles} owner={owner} repo={repo} ghRef={ghRef} id={id} />
       {githubFiles.map(({ content }, i) => (
         <div key={i} className={`h-full github-tab-content ${i ? 'hidden' : ''}`} id={`tab-${id}-${i}`}>
-          <CodeBlock lineNumbers>{content.trim()}</CodeBlock>
+          <CodeBlock lineNumbers highlightLines={highlightLines} cutLines={cutLines}>{content.trim()}</CodeBlock>
         </div>
       ))}
     </div>

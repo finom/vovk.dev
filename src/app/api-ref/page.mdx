@@ -541,14 +541,20 @@ An object that represents the options for the fetcher function.
 
 ### `VovkStreamAsyncIterable`
 
-The iterable object returned by an RPC method for [JSON Lines](/controller/jsonlines) responses. Besides `Symbol.asyncIterator`, `Symbol.dispose`, and `Symbol.asyncDispose` methods, it also contains a `status` property with the HTTP status code, an `asPromise` method that resolves all data as a single promise, an `onIterate` method that accepts a callback function and calls it on each iteration, and a `cancel` method that cancels the request.
+The iterable object returned by an RPC method for [JSON Lines](/controller/jsonlines) responses. Besides `Symbol.asyncIterator`, `Symbol.dispose`, and `Symbol.asyncDispose` methods, it also contains a `status` property with the HTTP status code, an `asPromise` method that resolves all data as a single promise, an `onIterate` method that accepts a callback function and calls it on each iteration, and a `abortController: AbortController{:ts}` that aborts the request with the `abortController.abort(){:ts}` method.
 
 ```ts
 const response = await StreamRPC.streamLines();
 
 for await (const item of response) {
   console.log(item);
+
+  if(something) {
+    response.abortController.abort();
+  }
 }
+
+
 
 const allItems = await response.asPromise();
 ```
@@ -598,17 +604,17 @@ export type VovkValidationType = 'body' | 'query' | 'params' | 'output' | 'itera
 
 An internal type that represents the config file with all default values applied.
 
-### `VovkGeneratorConfig`
+### `VovkOutputConfig`
 
-The configuration options for the generator that can be defined as root-level `generatorConfig`, `generatorConfig.segments[segmentName]`, `bundle.generatorConfig`, or `templateDef.generatorConfig` in the [config](/config) file. The actual values are resolved by the [resolveGeneratorConfigValues](#resolvegeneratorconfigvalues) function.
+The configuration options for the generator that can be defined as root-level `outputConfig`, `outputConfig.segments[segmentName]`, `bundle.outputConfig`, or `templateDef.outputConfig` in the [config](/config) file. The actual values are resolved by the [resolveGeneratorConfigValues](#resolvegeneratorconfigvalues) function.
 
 ### `VovkReadmeConfig`
 
-The configuration options for README generation at `VovkGeneratorConfig.readme`, such as `banner`, `installCommand`, or `description`.
+The configuration options for README generation at `VovkOutputConfig.readme`, such as `banner`, `installCommand`, or `description`.
 
 ### `VovkSamplesConfig`
 
-The configuration options for code samples generation at `VovkGeneratorConfig.samples`, such as `apiRoot` or `headers`.
+The configuration options for code samples generation at `VovkOutputConfig.samples`, such as `apiRoot` or `headers`.
 
 ### `VovkPackageJson`
 
@@ -616,4 +622,4 @@ The configuration options for the `package.json` generation. Has extra keys `rs_
 
 ### `VovkOpenAPIMixin`
 
-The configuration options for OpenAPI generation at `VovkGeneratorConfig.openAPIMixin`. See [OpenAPI Mixins](/codegen) for more info.
+The configuration options for OpenAPI generation at `VovkOutputConfig.openAPIMixin`. See [OpenAPI Mixins](/codegen) for more info.

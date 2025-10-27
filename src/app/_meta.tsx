@@ -23,7 +23,7 @@ const meta = {
   'quick-install': 'Quick Install',
   'manual-install': 'Manual Install',
   'hello-world': '"Hello World!" Example 🚧',
-  performance: 'Overhead Performance',
+  performance: 'Overhead Performance 🚧',
 
   '#common': separator('Common'),
   schema: 'Schema',
@@ -45,7 +45,7 @@ const meta = {
   cli: 'CLI',
   bundle: (
     <>
-      <code className="nextra-code">vovk bundle 🧪</code>
+      <code className="nextra-code">vovk bundle 🧪 🚧</code>
     </>
   ),
   dev: <code className="nextra-code">vovk dev</code>,
@@ -59,21 +59,21 @@ const meta = {
   '###': { type: 'separator' },
   '#scenarios': separator('Usage Scenarios'),
   openapi: 'RESTful API with OpenAPI',
-  saas: 'SaaS framework',
+  saas: 'SaaS framework 🚧',
   codegen: 'OpenAPI Codegen',
   nestjs: 'RPC for NestJS',
   'other-scenarios': 'Other Scenarios',
   '#ai': separator('AI Applications'),
   llm: 'LLM Completions',
-  'function-calling': 'Function Calling 🚧',
+  'function-calling': 'Function Calling',
   'realtime-ui': 'Real-time UI 🧪 🚧',
   polling: 'Real-time Polling 🧪 🚧',
   mcp: 'MCP Server 🚧',
 
   '#guides': separator('Other Guides'),
   multitenant: 'Multitenancy 🧪',
-  authorization: 'Authorization',
-  cron: 'Vercel Cron Jobs',
+  authorization: 'Authorization 🚧',
+  cron: 'Vercel Cron Jobs 🚧',
   proxy: 'Proxy Endpoints',
 } satisfies MetaRecord;
 

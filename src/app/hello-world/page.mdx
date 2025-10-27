@@ -4,16 +4,24 @@ import IFrame from './IFrame';
 
 # "Hello World" showcase
 
-The "Hello World" app is a simple example that showcases some of the core features of Vovk.ts. More specifically, it demonstrates:
-
-- An `updateUser` method served as `POST` to `/api/users/{id}` endpoint.
-- A [JSONLines](/controller/jsonlines) handler `streamTokens` served as `GET` to `/api/streams/tokens`.
-- An OpenAPI specification that describes the API endpoints powered by [Scalar](https://scalar.com/).
-- Building and packaging the app with Vovk CLI and external tools.
+The "Hello World" app is a Next.js/Vovk.ts project example that showcases some of the core features of Vovk.ts by implementing an HTML form with some extra features. It implements `UserController` with an `updateUser` method served as `POST` to `/api/users/{id}` endpoint, `StreamController` with a JSONLines handler `streamTokens` served as `GET` to `/api/streams/tokens` endpoint, but also `OpenApiController` with `getSpec` method served as `GET` to `/api/static/openapi/spec.json` endpoint that provides an OpenAPI specification for the API from a static segment. The OpenAPI documentation can be viewed at [`/openapi` page](https://vovk-hello-world.vercel.app/openapi).
 
 The project can be explored at the [GitHub repository](https://github.com/finom/vovk-hello-world) and viewed live at [vovk-hello-world.vercel.app](https://vovk-hello-world.vercel.app/). Bundled and generated files are available in the Git index as [dist](https://github.com/finom/vovk-hello-world/tree/main/dist), [dist_rust](https://github.com/finom/vovk-hello-world/tree/main/dist_rust) and [dist_python](https://github.com/finom/vovk-hello-world/tree/main/dist_python), so you can explore (usually they should be `.gitignore`'d). 
 
-All code snippets on this page directly built from the source code of the app and demos are served within an iframe.
+All code snippets on this page directly pulled from the source code on Github and HTML pages are served within an iframe.
+
+## Topics/concepts covered 
+
+- [Zod validation](/validation/zod), with a `body`, `query` and `params` inputs and schema descriptions using Zod's [meta](https://zod.dev/metadata#meta) method.
+- [Client-side validation](/validation/client) for RPC method requests.
+- [Composed](/composed) & [segmented](/segmented) [TypeScript](/typescript) client.
+- [JSONLines](/controller/jsonlines) streaming.
+- [Type inference](/inference) in a [service](/controller/service), while [controller](/controller) method returns service's method result.
+- `useQuery` and `useMutation` usage with [queryKey](/typescript#react-query) method.
+- [Generation](/codegen) of [Rust](/rust) and [Python](/python) clients with README, published on [Crates.io](https://crates.io/crates/vovk_hello_world) and [PyPI](https://pypi.org/project/vovk-hello-world/).
+- TypeScript client [bundle](/bundle) with README, published on [NPM](https://www.npmjs.com/package/vovk-hello-world).
+- [OpenAPI spec](/openapi) with code samples served from [static](/segment/static) [segment](/segment/introduction) using [Scalar](https://scalar.com/).
+
 
 ## Live Demo
 

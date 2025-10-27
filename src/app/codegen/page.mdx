@@ -164,7 +164,7 @@ A basic config file will look like this:
 ```ts filename="vovk.config.js"
 /** @type {import('vovk').VovkConfig} */
 const config = {
-  generatorConfig: {
+  outputConfig: {
     imports: {
       validateOnClient: 'vovk-ajv',
     },
@@ -175,7 +175,7 @@ export default config;
 
 ### Define OpenAPI Mixins
 
-A mixin can be defined as a pseudo-[segment](/segment) in the `segments` object of the `generatorConfig` by setting the `openAPIMixin` property. It expects an object with the following properties:
+A mixin can be defined as a pseudo-[segment](/segment) in the `segments` object of the `outputConfig` by setting the `openAPIMixin` property. It expects an object with the following properties:
 
 - `source` - an object with either `url` (for remote specs), `path` (for local specs), or `object` (for inline specs). The `url` variant can also be extended with a `fallback` property that points to a local file path to be used when the remote URL is not reachable.
 - `getModuleName` - a string or a function that defines names of the generated RPC modules. The string can be `nestjs-operation-id`, described on the [NestJS](/nestjs) page, or any other string that will be used as is.
@@ -187,7 +187,7 @@ A Petstore example with a remote URL and fallback to a local file:
 ```ts filename="vovk.config.js"
 /** @type {import('vovk').VovkConfig} */
 const config = {
-  generatorConfig: {
+  outputConfig: {
     imports: {
       validateOnClient: 'vovk-ajv',
     },
@@ -236,7 +236,7 @@ import startCase from 'lodash/startCase.js';
 
 /** @type {import('vovk').VovkConfig} */
 const config = {
-  generatorConfig: {
+  outputConfig: {
     imports: {
       validateOnClient: 'vovk-ajv',
     },
@@ -292,7 +292,7 @@ You can customize the fetching function for each mixin individually or use a sin
 ```ts filename="vovk.config.js"
 /** @type {import('vovk').VovkConfig} */
 const config = {
-  generatorConfig: {
+  outputConfig: {
     // ...
     segments: {
         petstore: {
@@ -352,7 +352,7 @@ import { PetstoreRPC, GithubIssuesRPC, type Mixins } from '../lib/client';
 
 ### Segmented Client
 
-The [segmented client](/segmented) splits the code into multiple chunks, storing each mixin in a separate folder described as a segment name (`petstore`, `github`, etc., from `generatorConfig.segments`).
+The [segmented client](/segmented) splits the code into multiple chunks, storing each mixin in a separate folder described as a segment name (`petstore`, `github`, etc., from `outputConfig.segments`).
 
 By default, they are emitted to the `src/client` folder, but you can change the output folder by setting the `outDir` property in the `segmentedClient` config.
 

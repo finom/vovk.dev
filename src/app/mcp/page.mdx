@@ -1,6 +1,8 @@
+import GithubFiles from '@/components/GithubFiles';
+
 # MCP Server
 
-Once we've covered [Function Calling](/function-calling), [Real-time UI](/realtime-ui) but also how to do [real-time polling](/polling), it's time to add the last bit of the puzzle and proof that [your API is an MCP](https://www.youtube.com/watch?v=eeOANluSqAE) if it's built with Vovk.ts. For that we're going to use [@vercel/mcp-adapter](https://www.npmjs.com/package/@vercel/mcp-adapter) package that allows us to easily create an MCP server on Nest.js.
+Once we've covered [Function Calling](/function-calling), [Real-time UI](/realtime-ui) but also how to do [real-time polling](/polling), it's time to add the last bit of the puzzle and proof that [your API **is** an MCP](https://www.youtube.com/watch?v=eeOANluSqAE) if it's built with Vovk.ts. For that we're going to use [@vercel/mcp-adapter](https://www.npmjs.com/package/@vercel/mcp-adapter) package that allows us to easily create an MCP server on Nest.js.
 
 The `createLLMTools` function accepts a `resultFormatter` option that accepts a function to format the result of the tool execution that's coming back to the LLM, but also a string with a special value `mcp` that formats the result in a way that MCP server expects. This is all we need to do to make our tools output MCP-compatible and return the results in the following format:
 
@@ -15,7 +17,7 @@ The `createLLMTools` function accepts a `resultFormatter` option that accepts a 
 }
 ```
 
-```ts {7}
+```ts {10}
 import { createLLMTools } from "vovk";
 import UserController from "@/modules/user/UserController";
 import TaskController from "@/modules/task/TaskController";
@@ -31,7 +33,7 @@ const { tools } = createLLMTools({
 
 There is where custom operation properties such as `x-tool-successMessage` and  `x-tool-errorMessage` will be useful to make the output more LLM-friendly.
 
-```ts {12-13}
+```ts {14-15}
 import { prefix, get, put, post, del, operation } from "vovk";
 import UserService from "./UserService";
 import { z } from "zod";
@@ -55,6 +57,8 @@ export default class UserController {
     handle: async ({ vovk }) =>
       UserService.updateUser(vovk.params().id, await vovk.body()),
   });
+
+  // ...
 }
 ```
 
@@ -71,45 +75,14 @@ This will turn the `text` property of the output to "User updated successfully" 
 }
 ```
 
-Now create the route file as per the [adapter documentation](https://github.com/vercel/mcp-handler).
+Now create the route file as per the [library documentation](https://github.com/vercel/mcp-handler).
+
+We're going to use `UserController` and `TaskController` as the source of the MCP tools. The methods of the controllers will be executed at the same context, instead of making HTTP requests, as they follow the rules of [callable handlers](/controller/fn).
 
 
-```ts filename="src/app/api/mcp/route.mdx" {1-36}
-import { createMcpHandler } from "@vercel/mcp-adapter";
-import { createLLMTools } from "vovk";
-import UserController from "@/modules/user/UserController";
-import TaskController from "@/modules/task/TaskController";
-import { convertJsonSchemaToZod } from "zod-from-json-schema";
-import { mapValues } from "lodash";
+<GithubFiles paths={['src/app/api/mcp/route.ts']} repo="vovk-ai-demo" highlightLines={[30]} />
 
-const { tools } = createLLMTools({
-  modules: {
-    UserController,
-    TaskController,
-  },
-  resultFormatter: "mcp",
-  onError: (e) => console.error("Error", e),
-});
-
-const handler = createMcpHandler(
-  (server) => {
-    tools.forEach(({ name, execute, description, parameters }) => {
-      server.tool(
-        name,
-        description,
-        mapValues(parameters?.properties ?? {}, convertJsonSchemaToZod),
-        execute,
-      );
-    });
-  },
-  {},
-  { basePath: "/api" },
-);
-
-export { handler as GET, handler as POST, handler as DELETE };
-```
-
-As you can see, we convert the JSON Schema parameters of each tool to Zod schemas using [zod-from-json-schema](https://www.npmjs.com/package/zod-from-json-schema) package, as MCP adapter expects Zod schemas. This will work for all available validation libraries. But if you use Zod, you can also use `models` property of a tool to get the Zod schema directly, as shown below:
+A parameters argument passed to `server.tool` method expects Zod schemas, so we need to convert the JSON Schema parameters of each tool to Zod schemas using [zod-from-json-schema](https://www.npmjs.com/package/zod-from-json-schema) package. This will work for all available [validation libraries](/validation). But if you already use Zod to validate incoming requests, you can also use `models` property of a tool to get the Zod schema directly, as shown below:
 
 ```ts
 // ...
@@ -154,3 +127,4 @@ const { tools } = createLLMTools({
 });
 // ...
 ```
+

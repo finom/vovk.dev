@@ -9,6 +9,10 @@ import { Suspense } from 'react';
 
 Vovk.ts includes first-class support for the [JSON Lines](https://jsonlines.org/) format, which is a convenient way to implement "one request - many responses". It's perfect for LLM completions and also opens up new possibilities for experiments, such as [progressive responses](/controller/progressive) and [polling](/polling). JSON Lines is another output type that uses the `iteration` validation field and produces the `application/jsonl` content type if the client side sends an `Accept: application/jsonl` header. If the `Accept` header doesn't include `application/jsonl`, the output is returned as `text/plain` to be viewable when the endpoint URL is opened directly in a browser.
 
+> [!IMPORTANT]
+>
+> As response size is not known in advance, JSON Lines responses cannot be compressed with Gzip, Brotli or other algorithms. Make sure to consider this when using JSON Lines for large responses.
+
 ```ts
 import { z } from 'zod';
 import { prefix, post, type VovkIteration } from 'vovk';
@@ -93,6 +97,26 @@ using stream = await StreamRPC.getJSONLines();
 for await (const { message } of stream) {
   console.log('Received message:', message);
 }
+```
+
+The iterable, (represented as `stream` variable in the example above) besides `Symbol.asyncIterator`, `Symbol.dispose`, and `Symbol.asyncDispose` methods, also provides the following members:
+
+- `status`: The status of the HTTP response (e.g. 200 for OK, 404 for Not Found).
+- `asPromise`: Returns a promise that resolves with an array of all emitted values when the stream is completed.
+- `onIterate`: Registers a callback to be called on each iteration.
+- `abortController`: An `AbortController` instance that can be used to abort the stream. When stream is closed with `abortController.abort(){:ts}`, it throws an `AbortError`.
+
+The `using` statement ensures that the stream is aborted using `stream.abortController.abort('Stream disposed'){:ts}` when it goes out of variable scope.
+
+```ts
+console.log('Response status:', stream.status);
+stream.onIterate((item) => {
+  console.log('Iterated item:', item);
+});
+if(someCondition) {
+  stream.abortController.abort();
+}
+console.log('All messages:', await stream.asPromise());
 ```
 
 <a name="jsonlinesresponse" />

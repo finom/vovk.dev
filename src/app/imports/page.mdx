@@ -14,12 +14,12 @@ export const UserRPC = createRPC(schema, '', 'UserRPC', import('vovk'), {
 });
 ```
 
-When the `generatorConfig.imports` are modified:
+When the `outputConfig.imports` are modified:
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
-  generatorConfig: {
+  outputConfig: {
     imports: {
       fetcher: './src/lib/fetcher',
       validateOnClient: './src/lib/validateOnClient',
@@ -46,7 +46,7 @@ export const UserRPC = createRPC(schema, '', 'UserRPC', import('../../src/lib/fe
 ```ts
 /** @type {import('vovk').VovkConfig} */
 const config = {
-  generatorConfig: {
+  outputConfig: {
     imports: { // applied to all segments
       fetcher: './src/lib/fetcher',
       validateOnClient: './src/lib/validateOnClient',
@@ -140,19 +140,21 @@ await UserRPC.updateUser({
 
 `createFetcher` accepts an object with the following members:
 
-#### `prepareRequestInit(init: RequestInit, options: T)`
+#### `prepareRequestInit(init: RequestInit, options: T){:ts}`
 
 This function is used to prepare the `RequestInit` object before making the HTTP request. It can be used to set authorization headers or Next.js-specific options defined as the `next` property in the `RequestInit` object. It accepts the `init` object that is prepared for the request (has body, headers, etc.) and the `options` object that contains custom options passed to the RPC method. The function must return a `RequestInit` object that can be built upon the original `init` object. The function can also be used for any other logic that needs to be executed before the request is made, such as logging.
 
-#### `transformResponse(data: any, options: T)`
+#### `transformResponse(data: unknown, options: T, info: { response: Response, init: RequestInit, schema: VovkHandlerSchema }){:ts}`
 
 This function is used to transform the response data before it is returned to the caller. It can be used to post-process received data. The data type is defined by the received content-type header, so it can be a JSON object, a [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator), or a `Response` object. The function should return the transformed data that will be received by the caller.
 
-#### `onError(error: HttpException, options: T)`
+The third argument `info` contains additional information about the request, including the original `Response` object, the `RequestInit` object used for the request, and the `VovkHandlerSchema` that describes the handler being called, such as `schema.operationObject`.
+
+#### `onError(error: HttpException, options: T){:ts}`
 
 This function is called when an error occurs during the request. It can be used to show error messages, perform logging, or handle any other error handling that needs to be done.
 
-#### `onSuccess(data: any, options: T)`
+#### `onSuccess(data: unknown, options: T){:ts}`
 
 This function is called when the request is successful. It can be used to show success messages, perform logging, or handle any other success handling that needs to be done.
 

@@ -30,7 +30,7 @@ This study evaluates two critical performance dimensions:
 
 ### Methodology
 
-Request overhead testing measures the framework's impact on individual request latency. Since Vovk.ts builds upon Next.js's native routing capabilities, our goal is to isolate and measure the additional processing time introduced by the framework's decorator system, parameter validation, and routing logic.
+Request overhead testing measures the framework's impact on individual request latency. Since Vovk.ts builds upon Next.js's native routing capabilities, our goal is to isolate and measure the additional processing time introduced by the framework's decorator system.
 
 #### Test Design
 
@@ -58,11 +58,6 @@ export default class ResourceController {
 Each controller exposes two endpoints:
 - A parameterless GET endpoint with validation to reject unexpected parameters.
 - A POST endpoint with a required `{id}` path parameter and corresponding validation.
-
-This design ensures realistic overhead measurement by including:
-- Decorator metadata processing.
-- Route pattern matching for parameterized paths.
-- Error handling pathways.
 
 #### Testing Variables
 

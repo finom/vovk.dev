@@ -239,7 +239,7 @@ Every RPC method has access to the emitted JSON schema. They are available in th
 - `schema` - the schema for this method of type `VovkHandlerSchema`;
 - `controllerSchema` - the schema object of the method's controller of type `VovkControllerSchema`;
 - `segmentSchema` - the schema object of the segment of type `VovkSegmentSchema`;
-- `fullSchema` - the full schema object of type `VovkSchema` that includes all available segments as well as emitted config (by default, `"libs"` and `"generatorConfig"` options only; see [config documentation](/config)).
+- `fullSchema` - the full schema object of type `VovkSchema` that includes all available segments as well as emitted config (by default, `"libs"` and `"outputConfig"` options only; see [config documentation](/config)).
 
 ```ts
 console.log(UserRPC.updateUser.schema.validation.body); // get body validation JSON schema
@@ -249,6 +249,7 @@ console.log(UserRPC.updateUser.fullSchema.config.libs.ajv); // get config option
 
 This design also allows you to create [LLM tools](/function-calling) that can use the schema to define the tool parameters.
 
+<a id="react-query" />
 ## React Query
 
 Every RPC method has a `queryKey` utility that returns a key for the method that is guaranteed to be unique across the app and can be used with [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query). It returns an array of values that can be used as a key for the React Query cache. The array contains the following values: `[segmentName, controllerPrefix, rpcModuleName, decoratorPath, httpMethod, ...key]{:ts}`, where `...key` is an optional array of additional keys that can be used to differentiate similar queries that can be passed to the `queryKey` method.

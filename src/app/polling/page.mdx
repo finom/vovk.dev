@@ -1,53 +1,272 @@
 import GithubFiles from '@/components/GithubFiles';
 
+TODO: deletions need to be explicit
+
 # Real-time polling (experimental)
 
-In the [previous article](/realtime-ui) we've covered how to use LLM Real-time API to get instant updates in the UI while user talks to the app. On this page we'll cover how to use an experimental polling feature to get updates from the server made by other users or third party services, such as [MCP](/mcp), getting UI to be in sync with the server. In order to make the app deployable to any hosting provider, we want to avoid any non-HTTP protocols, such as WebSockets, so we use simple HTTP polling powered by [JSONLines](/controller/jsonlines) to achieve this.
+In the [previous article](/realtime-ui) we've covered how to use OpenAPI Real-time API to get instant updates in the UI while user talks to the app. The LLM functions created with `createLLMTools` were executed at the browser by AI, making HTTP requests to the server with RPC modules.
+
+On this page we'll cover how to use database polling to get updates from the server made by other users or third party services, such as [MCP](/mcp), getting UI to be in sync with the database. In order to make the app deployable to any hosting provider, we want to avoid any non-HTTP protocols, such as WebSockets, so we're going to use polling via HTTP powered by [JSONLines](/controller/jsonlines) to achieve this.
 
 ## Redis DB as event bus
 
-Theoretically, we could just poll the main database for changes, but that would be inefficient in terms of DB load and network traffic. Instead, we use a separate Redis database as an event bus. Whenever something changes in the main database, we write a small event to Redis, and our polling service reads these events and sends them to the clients.
+Theoretically, we could just poll the main Postgres database for changes, but that would be quite inefficient. Instead, we're going to use a Redis database as an event bus. Whenever something changes in the main database, we write a small event to Redis DB, and our DB polling service is going to read it every second and send it to the clients, who have the app open.
 
-Since we use [Prisma](https://www.prisma.io/) as our main database ORM, we can use [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. That's where the `DatabaseService` mentioned at [previous article](/realtime-ui) comes into play.
+Since we use [Prisma](https://www.prisma.io/) as our main database ORM, we can use [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. That's where the `DatabaseService` mentioned at [previous article](/realtime-ui) come into play.
 
-<GithubFiles paths={['src/modules/database/DatabaseService.ts', 'src/modules/database/DatabaseEventsService.ts']} repo="vovk-ai-demo" />
+<GithubFiles paths={['src/modules/database/DatabaseService.ts']} repo="vovk-ai-demo" cutLines={[3, [7, 13]]} highlightLines={[19, 95]} />
 
-As you can see, we create a Prisma client extension that hooks into `create`, `update`, and `delete` operations for all models. Whenever one of these operations is performed, we write an event to Redis with the help of `DatabaseEventsService` class with the model id, entity type, date and operation type. This is enough information for our polling service to know what has changed.
+- The `getClient` method calls `DatabaseEventsService.beginEmitting(){:ts}` to start the event emitter. The `beginEmitting` function runs a `setInterval` that connects to Redis and periodically checks for new events. If a new event is found, it emits an event using [mitt](https://npmjs.com/package/mitt) event emitter.
+- `prisma.$extends` creates a hook into all Prisma model operations, figuring out if the operation changes the database, and if it does, it calls `await DatabaseEventsService.createChanges([change]){:ts}`, that writes the change to the Redis database. The change has the following shape, capturing creates, updates and deletions:
 
-## Polling endpoint
+```ts
+export type DBChange = {
+  id: string;
+  entityType: EntityType;
+  date: string;
+  type: "create" | "update" | "delete";
+};
+```
 
-Now that we have a way to write events to Redis, we need a way to read them and send them to the clients. This is where the `DatabasePollService` and `DatabasePollController` come into play. The controller implements one [JSONLines](/controller/jsonlines) endpoint that is going to stream data to the clients as it becomes available. The service uses `JSONLinesResponse` instance passed from the controller to send data to the clients and safely closes the connection in 30 seconds, so the clients will need to reconnect.
+The `date` field indicates the time when the change was made.
 
-<GithubFiles paths={['src/modules/database/DatabasePollService.ts', 'src/modules/database/DatabasePollController.ts']} repo="vovk-ai-demo" />
+- For `create` and `update` operations it uses `updatedAt` DB field (IMPORTANT: all DB operations must include this field).
+- For `delete` operation it uses current time.
+
+The `delete` operation also adds `__isDeleted` property, that is read by front-end in order to make the deleted entity disappear using `enumerable: false` for the entity registry item. This part is outlined in the [previous article](/realtime-ui).
+
+Operations like `find...` and `count` don't trigger any change, so they're passed thru as is.
+
+Besides the `beginEmitting` and `createChanges`, the `DatabaseEventsService` implements `connect` method as well as `mitt` instance as `emitter` property, that are used by the polling service `DatabasePollService` (explained in the next section) to get notified about new events.
+
+<GithubFiles paths={['src/modules/database/DatabaseEventsService.ts']} repo="vovk-ai-demo" />
+
+## Polling controller and service
+
+Now that we have a way to write events to Redis, but also an implemented database change event emitter, we can implement an endpoint for polling, that will allow clients to receive updates in real-time. This is where the `DatabasePollService` and `DatabasePollController` come into play. The controller implements a single [JSONLines](/controller/jsonlines) endpoint that is going to stream data to the clients as it becomes available. The service uses [JSONLinesResponse](/controller/jsonlines#jsonlinesresponse) instance passed from the controller as the only argument to send data to the clients and safely closes the connection in 30 seconds, so the clients are going to need to reconnect.
+
+<GithubFiles paths={['src/modules/database/DatabasePollService.ts', 'src/modules/database/DatabasePollController.ts']} repo="vovk-ai-demo"  />
+
+- Once `delete` DB change event is captured with `DatabaseEventsService.emitter`, it's sent to the clients with `resp.send` method, containing `id`, `entityType`, extracted from Redis, but also `__isDeleted: true` property, that is used by the front-end to hide the entity from the UI by making it non-enumerable in the entity registry.
+- Once `update` or `create` DB change event is captured, the service fetches the full entity from the main Postgres database and sends it to the clients, as Redis change event entry only contains the change event metadata, not the full entity data.
+
 
 ## Client-side logic
 
-On the client-side, anywhere in the app (e.g. a React component), we can use the `DatabasePollRPC.poll()` method to get a stream of database events. As any [JSONLines](/controller/jsonlines) RPC method, it returns an async iterable that we can use in a `for await` loop to get new events as they arrive. Since the connection can be closed by the server or fail due to network issues, we wrap the polling logic in a retry loop with exponential backoff. As the [fetcher](/imports#fetcher) is already [set](/realtime-ui), the body of the loop can be empty, as we don't need to handle the data manually.
+On the client-side, anywhere in the app (e.g. a React component), we can use the `DatabasePollRPC.poll()` method to get a stream of database events. As any [JSONLines](/controller/jsonlines) RPC method, it returns an async iterable that we can use in a `for await` loop to get new events as they arrive. Since the connection can be closed by the server or fail due to network issues, we wrap the polling logic in a retry loop to perform reconnections, but not when `AbortError` is thrown. As the [fetcher](/imports#fetcher) is already [set](/realtime-ui#fetcher), the body of the loop can be empty, as we don't need to handle the data manually.
 
-```ts
-  useEffect(() => {
-    async function poll(retries = 0) {
-      try {
-        while (true) {
-          using iterable = await DatabasePollRPC.poll();
+Front-end code, besides the polling logic, also includes on/off toggle state saved to `localStorage`, so the user can enable or disable polling as needed.
 
-          for await (const iteration of iterable) {
-            console.log("New DB update:", iteration);
-          }
-        }
-      } catch (error) {
-        if (retries < 5) {
-          console.error("Polling failed, retrying...", error);
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          return poll(retries + 1);
+```tsx
+const [isPollingEnabled, setIsPollingEnabled] = useState(false);
+const pollingAbortControllerRef = useRef<AbortController | null>(null);
+
+useEffect(() => {
+  const isEnabled = localStorage.getItem("isPollingEnabled");
+  setIsPollingEnabled(isEnabled === "true");
+}, []);
+
+useEffect(() => {
+  localStorage.setItem("isPollingEnabled", isPollingEnabled.toString());
+  async function poll(retries = 0) {
+    if (!isPollingEnabled) {
+      pollingAbortControllerRef.current?.abort();
+      return;
+    }
+    try {
+      while (true) {
+        console.log("START POLLING");
+        const iterable = await DatabasePollRPC.poll();
+        pollingAbortControllerRef.current = iterable.abortController;
+
+        for await (const iteration of iterable) {
+          console.log("New DB update:", iteration);
         }
       }
+    } catch (error) {
+      if (
+        retries < 5 &&
+        (error as Error & { cause?: Error }).cause?.name !== "AbortError"
+      ) {
+        console.error("Polling failed, retrying...", error);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        return poll(retries + 1);
+      }
     }
+  }
 
-    void poll();
-  }, []);
+  void poll();
+
+  return () => {
+    pollingAbortControllerRef.current?.abort();
+  };
+}, [isPollingEnabled]);
 ```
 
-## Practical usage: Telegram bot
+## Bonus: Telegram bot (unstable)
 
-As an example of a third-party source of database changes, you can explore the [TelegramService](https://github.com/vovk-ai-demo/src/modules/telegram/TelegramService.ts) implementation and a small [TelegramController](https://github.com/vovk-ai-demo/src/modules/telegram/TelegramController.ts). Coming soon...
+As a bonus example of a third-party source of database changes, you can explore the [TelegramService](https://github.com/vovk-ai-demo/src/modules/telegram/TelegramService.ts) implementation and a small [TelegramController](https://github.com/vovk-ai-demo/src/modules/telegram/TelegramController.ts). It accepts either a text message or a voice message from the user, handles voice-to-text transcription if needed using OpenAI Whisper API and uses the same `createLLMTools` function on the server-side:
+
+```ts
+const { tools } = createLLMTools({
+  modules: {
+    UserController,
+    TaskController,
+  },
+});
+```
+
+The Telegram API library is implemented with [OpenAPI mixins](/codegen) and used as an `TelegramRPC` module to invoke Telegram API methods.
+
+```ts filename="vovk.config.mjs"
+// @ts-check
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  // ...
+  outputConfig: {
+    // ...
+    segments: {
+      telegram: {
+        openAPIMixin: {
+          source: {
+            url: "https://raw.githubusercontent.com/sys-001/telegram-bot-api-versions/refs/heads/main/files/openapi/yaml/v183.yaml",
+            fallback: ".openapi-cache/telegram.yaml",
+          },
+          getModuleName: "TelegramRPC",
+          getMethodName: ({ path }) => path.replace(/^\//, ""),
+          errorMessageKey: "description",
+        },
+      },
+    },
+  },
+};
+
+export default config;
+```
+
+The `TelegramService` class is responsible for interacting with the Telegram API and generating AI responses using Vercel AI SDK.
+
+```ts filename="src/modules/telegram/TelegramService.ts"
+import OpenAI from "openai";
+import { TelegramRPC } from "vovk-client";
+
+const openai = new OpenAI();
+
+export default class TelegramService {
+  static get apiRoot() {
+    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+    if (!TELEGRAM_BOT_TOKEN) {
+      throw new Error("Missing TELEGRAM_BOT_TOKEN environment variable");
+    }
+    return `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
+  }
+
+  // ...
+
+  private static async generateAIResponse(
+    chatId: number,
+    userMessage: string,
+    systemPrompt: string,
+  ): Promise<{ botResponse: string; messages: ModelMessage[] }> {
+    // Get chat history
+    const history = await this.getChatHistory(chatId);
+    const messages = [
+      ...this.formatHistoryForVercelAI(history),
+      { role: "user", content: userMessage } as const,
+    ];
+    const { tools } = createLLMTools({
+      modules: {
+        UserController,
+        TaskController,
+      },
+    });
+  
+    // Generate a response using Vercel AI SDK
+    const { text } = await generateText({
+      model: vercelOpenAI("gpt-5"),
+      system: systemPrompt,
+      messages,
+      stopWhen: stepCountIs(16),
+      tools: {
+        ...Object.fromEntries(
+          tools.map(({ name, execute, description, parameters }) => [
+            name,
+            tool<KnownAny, KnownAny>({
+              execute,
+              description,
+              inputSchema: jsonSchema(parameters as KnownAny),
+            }),
+          ]),
+        ),
+      },
+    });
+
+    const botResponse = text || "I couldn't generate a response.";
+
+    // Add user message to history
+    await this.addToHistory(chatId, "user", userMessage);
+    // Add assistant response to history
+    await this.addToHistory(chatId, "assistant", botResponse);
+
+    messages.push({
+      role: "assistant",
+      content: botResponse,
+    });
+
+    return { botResponse, messages };
+  }
+
+  private static async sendTextMessage(
+    chatId: number,
+    text: string,
+  ): Promise<void> {
+    await TelegramRPC.sendMessage({
+      body: {
+        chat_id: chatId,
+        text: text,
+        parse_mode: "html",
+      },
+      apiRoot: this.apiRoot,
+    });
+  }
+
+  private static async sendVoiceMessage(
+    chatId: number,
+    text: string,
+  ): Promise<void> {
+    try {
+      // Generate speech from text using OpenAI TTS
+      const speechResponse = await openai.audio.speech.create({
+        model: "tts-1",
+        voice: "alloy",
+        input: text,
+        response_format: "opus",
+      });
+
+      // Convert the response to a Buffer
+      const voiceBuffer = Buffer.from(await speechResponse.arrayBuffer());
+
+      const formData = new FormData();
+      formData.append("chat_id", String(chatId));
+      formData.append(
+        "voice",
+        new Blob([voiceBuffer], { type: "audio/ogg" }),
+        "voice.ogg",
+      );
+
+      // Send the voice message
+      await TelegramRPC.sendVoice({
+        body: formData,
+        apiRoot: this.apiRoot,
+      });
+    } catch (error) {
+      console.error("Error generating voice message:", error);
+      // Fallback to text message if voice generation fails
+      await this.sendTextMessage(chatId, text);
+    }
+  }
+
+  // ...
+}
+```
+
