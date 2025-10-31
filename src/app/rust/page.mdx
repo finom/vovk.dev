@@ -3,15 +3,15 @@ import GithubFiles from '@/components/GithubFiles';
 
 # Rust RPC Client (Experimental)
 
-The Rust client can be generated with the `vovk generate` command using the [rs](/templates#rs) template or [rsSrc](/templates#rssrc) template.
+The Rust client can be generated with `vovk generate` using the [rs](/templates#rs) or [rsSrc](/templates#rssrc) template.
 
-You can generate a Rust package with the [CLI](/cli):
+Generate a Rust package with the [CLI](/cli):
 
 ```sh npm2yarn
 npx vovk generate --from rs --out ./rust_package
 ```
 
-This will generate a Rust package with the following structure:
+This produces the following structure:
 
 <FileTree>
   <FileTree.Folder name="rust_package" defaultOpen>
@@ -26,19 +26,19 @@ This will generate a Rust package with the following structure:
   </FileTree.Folder>
 </FileTree>
 
-The package is ready to be published to [crates.io](https://crates.io/) with the `cargo publish` command:
+Publish to [crates.io](https://crates.io/) with:
 
 ```sh
 cargo publish --manifest-path rust_package/Cargo.toml
 ```
 
-If you want to generate Rust source only to be used as part of another Rust project, you can use the [rsSrc](/templates#rssrc) template:
+If you prefer generating source files to embed in another Rust project, use the [rsSrc](/templates#rssrc) template:
 
 ```sh npm2yarn
 npx vovk generate --from rsSrc --out ./rust_src
 ```
 
-This will generate a Rust source with the following structure:
+This generates:
 
 <FileTree>
   <FileTree.Folder name="rust_src" defaultOpen>
@@ -51,7 +51,7 @@ This will generate a Rust source with the following structure:
 
 ## Configuring the Rust Client
 
-The generation can be [configured](/config) so the client will be generated automatically with the `generate` command with no flags, and also when [vovk dev](/dev) is run, which performs "hot generation" whenever the schema changes. To do that, you need to add the `rs` template to the [composed client](/composed) config:
+You can [configure](/config) generation so the client is produced automatically by the default [generate](/generate) command (no flags) and during [vovk dev](/dev), which performs “hot generation” whenever the schema changes. Add the `rs` template to the [composed client](/composed) config:
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -63,7 +63,7 @@ const config = {
 export default config;
 ```
 
-The [rs](/templates#rs) template, as well as some other templates, has a default `outDir` (by default equals to `./dist_rust`) for the composed client configuration, which can be changed with [template definitions](/templates#defs) in the config:
+The [rs](/templates#rs) template (and others) has a default `outDir` (`./dist_rust`) for composed clients. Override it via [template definitions](/templates#defs):
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -73,7 +73,7 @@ const config = {
     rs: {
       extends: 'rs', // extends the built-in "rs" template
       composedClient: {
-        outDir: './my_dist_rust', // updates the out directory for the composed client
+        outDir: './my_dist_rust', // custom output directory for the composed client
       },
     },
   },
@@ -85,13 +85,13 @@ export default config;
 
 ### JSON Endpoints
 
-All the code below was copied with slight modifications from a real example, explained on the [Hello World](/hello-world) page.
+The snippets below are adapted from a real example described on the [Hello World](/hello-world) page.
 
 A [controller](/controller) like this:
 
 <GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts']} repo="vovk-hello-world" />
 
-...will emit a [Vovk.ts Schema](/schema), which will, in turn, be used to generate the Rust client, following the language conventions where possible, adding comments defined in the schema `description`, and generating the most suitable types. For example, `age` is generated as `u8` (unsigned 8-bit integer) because of the presence of `min` and `max` constraints.
+...emits a [Vovk.ts schema](/schema), which is then used to generate the Rust client following Rust conventions, adding comments from the schema `description`, and choosing suitable types. For example, `age` is generated as `u8` due to `min`/`max` constraints.
 
 ```rs filename="./dist_rust/src/lib.rs"
 mod http_request;
@@ -215,11 +215,11 @@ pub mod user_rpc {
 }
 ```
 
-All RPC modules are generated in the `lib.rs` file, which contains all the RPC methods as functions as well as types that are used in the RPC methods. Nested data structures are generated as nested modules containing corresponding `struct` definitions or other types.
+All RPC modules are generated in `lib.rs`, which contains RPC functions and the associated types. Nested structures are emitted as nested modules with corresponding `struct` definitions or types.
 
-The nested structures can be accessed with the `_::` syntax. For example, to get the `body.profile` type from the `update_user_` module, you can use the `update_user_::body_::profile` syntax.
+Access nested structures via `_::`. For example, `body.profile` is `update_user_::body_::profile`.
 
-The structs can be imported and renamed with a `use` statement to follow PascalCase naming convention:
+Use `use` to import and rename structs to follow PascalCase:
 
 ```rs
 use std::io::Write;
@@ -260,19 +260,19 @@ pub fn main() {
 }
 ```
 
-Behind the scenes, it uses [reqwest](https://docs.rs/reqwest/latest/reqwest/) for HTTP requests, [jsonschema](https://docs.rs/jsonschema/latest/jsonschema/) for client-side validation, and some other common libraries.
+Under the hood, it uses [reqwest](https://docs.rs/reqwest/latest/reqwest/) for HTTP, [jsonschema](https://docs.rs/jsonschema/latest/jsonschema/) for client-side validation, and other common crates.
 
 ### JSON Lines Endpoints
 
-To implement continuous streaming with [JSON Lines](/controller/jsonlines) endpoints, the client uses the `Iterator` trait to return an async iterator that can be used to iterate over the streamed data.
+For continuous streaming with [JSON Lines](/controller/jsonlines) endpoints, the client implements the `Iterator` trait to return an async-capable iterator for streamed data.
 
 A controller like this:
 
 <GithubFiles paths={['src/modules/stream/StreamController.ts', 'src/modules/stream/StreamService.ts']} repo="vovk-hello-world" />
 
-Will be compiled to the following Rust code:
+Compiles to:
 
-```ts filename="./dist_rust/src/lib.rs"
+```rs filename="./dist_rust/src/lib.rs"
 pub mod stream_rpc {
     #[allow(unused_imports)]
     use crate::http_request::{HttpException, http_request, http_request_stream};
@@ -326,14 +326,14 @@ pub mod stream_rpc {
 }
 ```
 
-That can be used like this:
+Usage:
 
 ```rs
 use std::io::Write;
 use vovk_hello_world_local::open_api_rpc::stream_rpc;
 pub fn main() {
   let stream_response = stream_rpc::stream_tokens(
-      (), // () as no body, query, or params are expected
+      (), // no body, query, or params
       (),
       (),
       None,
@@ -357,6 +357,6 @@ pub fn main() {
 
 ## Roadmap
 
-- 🧩 Use `.await?{:rs}` instead of blocking calls.
-- 🐞 Allow circular $refs with [OpenAPI mixins](/codegen).
+- 🧩 Use async (.await) instead of blocking calls.
+- 🐞 Allow circular $refs with [OpenAPI Mixins](/codegen).
 - ✨ Generate importable types for named schemas defined in `components/schemas`.

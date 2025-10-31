@@ -4,15 +4,15 @@ import GithubFiles from '@/components/GithubFiles';
 
 # Python RPC Client (Experimental)
 
-The Python client can be generated with the `vovk generate` command using the [py](/templates#py) template or [pySrc](/templates#pysrc) template.
+Generate the Python client with `vovk generate` using the [py](/templates#py) or [pySrc](/templates#pysrc) template.
 
-You can generate a Python package with the [CLI](/cli):
+Create a Python package with the [CLI](/cli):
 
 ```sh npm2yarn
 npx vovk generate --from py --out ./python_package
 ```
 
-This will generate a Python package with the following structure:
+This produces:
 
 <FileTree>
   <FileTree.Folder name="python_package" defaultOpen>
@@ -28,19 +28,19 @@ This will generate a Python package with the following structure:
   </FileTree.Folder>
 </FileTree>
 
-The package is ready to be published to [PyPI](https://pypi.org/) with the following command:
+Publish to [PyPI](https://pypi.org/) with:
 
 ```sh
 python3 -m build ./python_package --wheel --sdist && python3 -m twine upload ./python_package/dist/*
 ```
 
-If you want to generate Python source only to be used as part of another Python project, you can use the `pySrc` template:
+If you prefer generating source files to embed in another Python project, use the `pySrc` template:
 
 ```sh npm2yarn
 npx vovk generate --from pySrc --out ./python_src
 ```
 
-This will generate a Python source with the following structure:
+This generates:
 
 <FileTree>
   <FileTree.Folder name="python_src" defaultOpen>
@@ -53,7 +53,7 @@ This will generate a Python source with the following structure:
 
 ## Configuring the Python Client
 
-The generation can be [configured](/config) so the client will be generated automatically with the [generate](/generate) command with no flags, and also when [vovk dev](/dev) is run, which performs "hot generation" whenever the schema changes. To do that, you need to add the `py` template to the [composed client](/composed) config:
+You can [configure](/config) generation so the client is produced automatically by the default [generate](/generate) command (no flags) and during [vovk dev](/dev), which performs “hot generation” on schema changes. Add the `py` template to the [composed client](/composed) config:
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -65,7 +65,7 @@ const config = {
 export default config;
 ```
 
-The [py](/templates#py) template, as well as some other templates, has a default `outDir` (by default equals to `./dist_python`) for the composed client configuration, which can be changed with [template definitions](/templates#defs) in the config:
+The [py](/templates#py) template (and others) has a default `outDir` (`./dist_python`) for composed clients. Override it via [template definitions](/templates#defs):
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -75,7 +75,7 @@ const config = {
     py: {
       extends: 'py', // extends the built-in "py" template
       composedClient: {
-        outDir: './my_dist_python', // updates the out directory for the composed client
+        outDir: './my_dist_python', // custom output directory for the composed client
       },
     },
   },
@@ -87,13 +87,13 @@ export default config;
 
 ### JSON Endpoints
 
-All the code below was copied with slight modifications from a real example, explained on the [Hello World](/hello-world) page.
+The snippets below are adapted from a real example described on the [Hello World](/hello-world) page.
 
 A [controller](/controller) like this:
 
 <GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts']} repo="vovk-hello-world" />
 
-...will emit a [Vovk.ts schema](/schema), which will, in turn, be used to generate the Python client, following the language conventions where possible, adding comments defined in the schema `description`, and generating the most suitable number types. For example, `age` is generated as `int` as per the controller method definition.
+...emits a [Vovk.ts schema](/schema), which is then used to generate the Python client, following Python conventions, adding comments from `description`, and selecting appropriate number types. For example, `age` is generated as `int`, matching the controller definition.
 
 ```py filename="./dist_python/src/package_name/__init__.py"
 from __future__ import annotations
@@ -102,10 +102,10 @@ from .api_client import ApiClient, HttpException
 
 HttpException = HttpException
 
-client = ApiClient('https://vovk-hello-world.vercel.app/api')
+client = ApiClient('https://hello-world.vovk.dev/api')
  
 class UserRPC: 
-    # UserRPC.update_user POST `https://vovk-hello-world.vercel.app/api/users/{id}`
+    # UserRPC.update_user POST `https://hello-world.vovk.dev/api/users/{id}`
     class __UpdateUserBody_profile(TypedDict):
         """
         User profile object
@@ -164,10 +164,9 @@ class UserRPC:
         )
 ```
 
-All RPC modules are generated in the `__init__.py` file, which contains all the RPC methods as functions as well as types that are used in the RPC methods. Types for nested data structures are generated as `TypedDict`s.
+All RPC modules are generated in `__init__.py`, which contains the RPC functions and the associated types. Types for nested structures are emitted as `TypedDict`s.
 
-The types of `body`, `query`, and `params` can be obtained from the RPC module using the pattern `[PascalCaseMethodName][InputType]`. For example, a controller method originally named `updateUser` will have types `UpdateUserBody`, `UpdateUserQuery`, and `UpdateUserParams` generated.
-
+Types for `body`, `query`, and `params` follow the pattern `[PascalCaseMethodName][InputType]`. For a method `updateUser`, you get `UpdateUserBody`, `UpdateUserQuery`, and `UpdateUserParams`.
 
 ```py
 from dist_python.src.vovk_hello_world import UserRPC
@@ -196,24 +195,23 @@ if __name__ == "__main__":
       main()
   except Exception as e:
       print(f"Error: {e}")
-
 ```
 
-Behind the scenes, it uses [requests](https://pypi.org/project/requests/) for HTTP requests, [jsonschema](https://pypi.org/project/jsonschema/) for client-side validation, plus some other common libraries.
+Under the hood, it uses [requests](https://pypi.org/project/requests/) for HTTP, [jsonschema](https://pypi.org/project/jsonschema/) for client-side validation, and other common libraries.
 
 ### JSON Lines Endpoints
 
-To implement continuous streaming with [JSON Lines](/controller/jsonlines) endpoints, the Python client implements a `Generator` that can be used to iterate over the streamed data.
+For continuous streaming with [JSON Lines](/controller/jsonlines) endpoints, the Python client returns a `Generator` you can iterate over.
 
 A controller like this:
 
 <GithubFiles paths={['src/modules/stream/StreamController.ts', 'src/modules/stream/StreamService.ts']} repo="vovk-hello-world" />
 
-Will be compiled to the following Python code:
+Compiles to:
 
 ```py filename="./dist_python/src/package_name/__init__.py"
 class StreamRPC: 
-    # StreamRPC.stream_tokens GET `https://vovk-hello-world.vercel.app/api/streams/tokens`
+    # StreamRPC.stream_tokens GET `https://hello-world.vovk.dev/api/streams/tokens`
     class StreamTokensIteration(TypedDict):
         """
         Streamed token object
@@ -243,7 +241,7 @@ class StreamRPC:
         )
 ```
 
-That can be utilized like this:
+Usage:
 
 ```py
 from dist_python.src.vovk_hello_world import StreamRPC  # local module
@@ -260,10 +258,9 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         print(f"Error: {e}")
-
 ```
 
 ## Roadmap
 
-- 🐞 Allow circular $refs with [OpenAPI mixins](/codegen).
+- 🐞 Allow circular $refs with [OpenAPI Mixins](/codegen).
 - ✨ Generate importable types for named schemas defined in `components/schemas`.

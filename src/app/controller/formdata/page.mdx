@@ -1,6 +1,6 @@
 # FormData
 
-To make a controller method accept form data requests, you need to set the `isForm` option to `true` in the [validation library](/validation) wrapper.
+To accept form data requests, set the `isForm` option to `true` in the [validation library](/validation) wrapper.
 
 ```ts {8}
 import { withZod } from 'vovk-zod';
@@ -22,7 +22,7 @@ export default class UserController {
 }
 ```
 
-This will make the `req` variable typed as `VovkRequest<FormData, ...>` and the RPC method's `body` type will be inferred as `FormData`.
+This makes `req` typed as `VovkRequest<FormData, ...>`, and the RPC method’s `body` type is inferred as `FormData`.
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -38,7 +38,7 @@ await UserRPC.createUser({
 
 ## Accessing Form Data
 
-The form data can be accessed using the built-in `req.formData()` method.
+Access form data using the built‑in `req.formData()` method.
 
 ```ts {8}
 //...
@@ -55,7 +55,7 @@ export default class UserController {
 }
 ```
 
-You can also use `req.vovk.form()`, which serializes the form data into an object.
+You can also use `req.vovk.form()`, which serializes the form data into a plain object.
 
 ```ts {11}
 // ...
@@ -77,7 +77,7 @@ export default class UserController {
 
 ## Using Lists
 
-If the form data is expected to contain one or more values for the same key, it's recommended to use a union schema of the value type and an array of the value type, because `FormData` doesn't distinguish between single and multiple values.
+If the form data can contain one or more values for the same key, use a union schema of the value type and an array of the value type, because `FormData` doesn’t distinguish between single and multiple values.
 
 ```ts {10}
 import { withZod } from 'vovk-zod';
@@ -125,7 +125,7 @@ await UserRPC.createUser({
 });
 ```
 
-The same rule applies to files:
+The same recommendation applies to files:
 
 ```ts {10}
 import { withZod } from 'vovk-zod';
@@ -149,6 +149,4 @@ export default class UserController {
 
 ## Client-Side Validation Limitations
 
-Note that [vovk-ajv](/validation/client) does not have built-in support for OpenAPI-compatible `format: "binary"`, and the file size, type, etc., are not validated on the client side.
-
-Also note that [vovk-dto/validateOnClient](/validation/dto#validateonclient) doesn't validate `body` at all if it's an instance of `FormData`.
+Note that [vovk-ajv](/validation/client) does not currently support the OpenAPI‑compatible `format: "binary"`, and file size, type, etc., are not validated on the client side.

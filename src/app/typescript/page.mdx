@@ -1,6 +1,6 @@
 # TypeScript RPC Client
 
-[Controllers](/controller) implemented with Vovk.ts are compiled into RPC modules with a similar structure but different argument signatures. Having the following controller defined:
+[Controllers](/controller) implemented with Vovk.ts compile to RPC modules that share the same structure but have different argument signatures. For example, given the controller below:
 
 ```ts filename="src/modules/user/UserController.ts"
 import { z } from 'zod';
@@ -47,7 +47,7 @@ export default class UserController {
 }
 ```
 
-It will be compiled into the following RPC module that has `body`, `params`, and `query` as a triple input.
+It compiles to the following RPC method, which accepts `body`, `params`, and `query` as a three-part input.
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -59,7 +59,7 @@ const updatedUser = await UserRPC.updateUser({
 });
 ```
 
-Behind the scenes, the `updateUser` method serializes `query` and `params` to the URL and sends a regular `fetch` request to the server, which is then handled by the `UserController.updateUser` method on the server side. The response is returned as a promise that resolves to the output type defined in the controller.
+Behind the scenes, `updateUser` performs [client-side validation](/validation/client), serializes `query` and `params` into the URL, and issues a standard `fetch` request. The server handles it in `UserController.updateUser`. The RPC method returns a promise that resolves to the return type used in the controller method.
 
 ```ts
 const resp = await fetch(`/api/users/${id}?notify=push`, {
@@ -74,15 +74,15 @@ const updatedUser = await resp.json();
 
 ## RPC Method Options
 
-Every RPC method has a set of options that can be passed to it besides `body`, `params`, and `query`. The list of options can be [extended with a custom `fetcher`](/imports#fetcher).
+In addition to `body`, `params`, and `query`, every RPC method accepts a set of options. This list can be [extended via a custom `fetcher`](/imports#fetcher).
 
 ### `apiRoot`
 
-An option that allows you to override the default API root. By default, it's `/api` and can be [configured](/config) by setting `rootEntry` and/or `origin`.
+Overrides the default API root path. The default is `/api` and can also be [configured](/config) via `rootEntry` and/or `origin`.
 
 ### `init`
 
-Allows you to set `RequestInit` options (the `fetch` function options) for a method. Can be used to set `headers`, `credentials`, and other options supported by [the native `fetch`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) but also [custom Next.js options](https://nextjs.org/docs/app/api-reference/functions/fetch) like `next: { revalidate: number }{:ts}`.
+Lets you pass `RequestInit` options (the `fetch` options) such as `headers` and `credentials`, as well as [Next.js-specific options](https://nextjs.org/docs/app/api-reference/functions/fetch) like `next: { revalidate: number }{:ts}`.
 
 ```ts
 const user = await UserRPC.updateUser({
@@ -107,7 +107,7 @@ const user = await UserRPC.updateUser({
 
 ### `transform`
 
-Transforms the return value of the method. It can be a function that takes the handled response data and original `Response` object and returns a transformed value.
+Allows you to post-process the result. Provide a function that receives the parsed response data and the original `Response` and returns a transformed value.
 
 ```ts
 const user = await UserRPC.updateUser({
@@ -127,7 +127,7 @@ const user = await UserRPC.updateUser({
 });
 ```
 
-It can also be used to receive the `Response` as part of the return value:
+You can also return the `Response` alongside the data:
 
 ```ts
 const [user, response] = await UserRPC.updateUser({
@@ -148,7 +148,7 @@ response satisfies Response;
 
 ### `disableClientValidation`
 
-Disables client-side validation for this invocation. This might be useful while debugging validation errors when you want to receive server-side validation errors instead. See the [validation page](/validation) for more details.
+Turns off client-side validation for this call. Useful when debugging to surface server-side validation errors instead. See the [validation page](/validation) for details.
 
 ```ts
 await UserRPC.updateUser({
@@ -159,7 +159,7 @@ await UserRPC.updateUser({
 
 ### `interpretAs`
 
-Overrides the response content-type interpretation. Originally created for cases when the server returns JSON Lines but the content-type isn't set to `application/jsonl`.
+Overrides how the response content type is interpreted. Useful, for example, when the server returns JSON Lines but does not set `content-type` to `application/jsonl`.
 
 ```ts
 const user = await UserRPC.updateUser({
@@ -178,11 +178,11 @@ const user = await UserRPC.updateUser({
 
 ### `validateOnClient`
 
-Overrides the `validateOnClient` set in [imports](/imports#validateonclient).
+Overrides the `validateOnClient` setting from [imports](/imports#validateonclient).
 
 ## Customization
 
-The client library's fetching function, as well as its types, can be customized to follow logic required by the application. See the [`fetcher` customization docs](/imports#fetcher) for more details.
+You can customize the client's fetch function and its types to match your app’s needs. See the [`fetcher` customization docs](/imports#fetcher) for details.
 
 ```ts
 await UserRPC.updateUser({
@@ -194,7 +194,7 @@ await UserRPC.updateUser({
 
 ## Type Override
 
-If your code makes it impossible to recognize the return type, you can override it manually with no need to convert it to `unknown` first.
+If type inference cannot determine the return type, you can specify it explicitly—no need to cast to `unknown` first.
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -218,7 +218,7 @@ export default class UserController {
 }
 ```
 
-If an iterable is returned, the client library will cast the method as a [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator) to implement [JSON Lines](/controller/jsonlines) response streaming.
+If the handler returns an async iterable, the client casts the method to a [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator) to enable [JSON Lines](/controller/jsonlines) streaming.
 
 ```ts
 import { StreamRPC } from 'vovk-client';
@@ -230,12 +230,9 @@ for await (const { message } of stream) {
 }
 ```
 
-
-
 ## Access to Schema
 
-Every RPC method has access to the emitted JSON schema. They are available in the following properties:
-
+Every RPC method exposes the emitted JSON schema through the following properties:
 - `schema` - the schema for this method of type `VovkHandlerSchema`;
 - `controllerSchema` - the schema object of the method's controller of type `VovkControllerSchema`;
 - `segmentSchema` - the schema object of the segment of type `VovkSegmentSchema`;
@@ -244,7 +241,7 @@ Every RPC method has access to the emitted JSON schema. They are available in th
 ```ts
 console.log(UserRPC.updateUser.schema.validation.body); // get body validation JSON schema
 console.log(UserRPC.updateUser.schema.operationObject); // get OpenAPI operationObject spec for this method
-console.log(UserRPC.updateUser.fullSchema.config.libs.ajv); // get config option
+console.log(UserRPC.updateUser.fullSchema.meta.config.libs.ajv); // get config option
 ```
 
 This design also allows you to create [LLM tools](/function-calling) that can use the schema to define the tool parameters.
@@ -252,7 +249,7 @@ This design also allows you to create [LLM tools](/function-calling) that can us
 <a id="react-query" />
 ## React Query
 
-Every RPC method has a `queryKey` utility that returns a key for the method that is guaranteed to be unique across the app and can be used with [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query). It returns an array of values that can be used as a key for the React Query cache. The array contains the following values: `[segmentName, controllerPrefix, rpcModuleName, decoratorPath, httpMethod, ...key]{:ts}`, where `...key` is an optional array of additional keys that can be used to differentiate similar queries that can be passed to the `queryKey` method.
+Every RPC method exposes a `queryKey` utility that returns a globally unique key for use with [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query). It is an array: `[segmentName, controllerPrefix, rpcModuleName, decoratorPath, httpMethod, ...key]{:ts}`, where `...key` is an optional array of extra values you provide to differentiate similar queries.
 
 ```tsx
 import { useQuery } from '@tanstack/react-query';
@@ -271,7 +268,7 @@ const MyComponent = () => {
 };
 ```
 
-The query key can be used for cache invalidation, refetching, and other React Query features.
+You can use the key for cache invalidation, refetching, and other React Query features.
 
 ```ts
 queryClient.invalidateQueries({
@@ -279,7 +276,7 @@ queryClient.invalidateQueries({
 });
 ```
 
-Streamed responses can utilize [`streamedQuery`](https://tanstack.com/query/latest/docs/reference/streamedQuery), which allows you to consume [JSON Lines](/controller/jsonlines) responses as an array.
+Streamed responses can utilize [`streamedQuery`](https://tanstack.com/query/latest/docs/reference/streamedQuery), which lets you consume [JSON Lines](/controller/jsonlines) as an array.
 
 ```tsx
 import { useQuery, experimental_streamedQuery as streamedQuery } from '@tanstack/react-query';
@@ -301,7 +298,7 @@ const JSONLinesComponent = () => {
 };
 ```
 
-Mutations also work with RPC module methods as expected.
+Mutations work with RPC module methods as expected.
 
 ```tsx
 import { useMutation } from '@tanstack/react-query';
@@ -332,20 +329,20 @@ const MyComponent = () => {
 
 ## `openapi` and `schema`
 
-The generated client library also includes `openapi` and `schema` exports that can be used to access the OpenAPI spec and the Vovk Schema respectively.
+The generated client also exposes `openapi` and `schema` exports for accessing the OpenAPI spec and the Vovk Schema, respectively.
 
 ```ts
 import { openapi, schema } from 'vovk-client';
 ```
 
-They can also be accessed from corresponding exports that don't include RPC modules:
+You can also import them from module paths that exclude RPC modules:
 
 ```ts
 import { openapi } from 'vovk-client/openapi';
 import { schema } from 'vovk-client/schema';
 ```
 
-This also works with the [segmented client](/segmented), where both `openapi` and `schema` contain data only for the used segment:
+This also works with the [segmented client](/segmented); in that case, both `openapi` and `schema` include data only for the selected segment:
 
 ```ts
 import { openapi } from '@/client/admin/openapi';
@@ -355,10 +352,9 @@ import { schema } from '@/client/admin/schema';
 ## Used Templates
 
 The TypeScript RPC client is generated from the following templates:
-
 - [cjs](/templates#cjs), [mjs](/templates#mjs) (`requires` [schemaCjs](/templates#schemacjs) and [openapiCjs](/templates#openapicjs)) - compiled CJS and ESM modules with TypeScript definitions; used by default in the [composed client](/composed);
-- [ts](/templates#ts) (`requires` [schemaTs](/templates#schemats) and [openapiTs](/templates#openapits)) - uncompiled TypeScript module with TypeScript definitions; used by default in the [segmented client](/segmented);
-- [mixins](/templates#mixins) - `.d.ts` types and `.json` files that are generated when [OpenAPI Mixins](/codegen) are used;
-- [readme](/templates#readme), [packageJson](/templates#packagejson) - `README.md` that contains RPC documentation and `package.json` that can be used to publish the generated library as an NPM package.
+- [ts](/templates#ts) (`requires` [schemaTs](/templates#schemats) and [openapiTs](/templates#openapits)) - uncompiled TypeScript module with type definitions; used by default in the [segmented client](/segmented);
+- [mixins](/templates#mixins) - `.d.ts` types and `.json` files generated when [OpenAPI Mixins](/codegen) are used;
+- [readme](/templates#readme), [packageJson](/templates#packagejson) - `README.md` with RPC documentation and `package.json` suitable for publishing the generated library as an NPM package.
 
-For more information, check the [client templates documentation](/templates).
+For more information, see the [client templates documentation](/templates).

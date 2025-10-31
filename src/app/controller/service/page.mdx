@@ -2,11 +2,11 @@ import { Tabs } from 'nextra/components';
 
 # Service
 
-A service module is part of the Controller-Service-Repository pattern, used to separate business logic from request handlers. It allows you to keep your controllers clean and focused on handling HTTP requests, while the service class contains the actual business logic and data manipulation.
+A service module follows the Controller–Service–Repository pattern and separates business logic from request handlers. It keeps controllers focused on HTTP concerns, while the service encapsulates the business logic and data manipulation.
 
-Similar to controllers, services are implemented as static classes with static methods, but they don't require the use of decorators or any special design. This means that the static class syntax for services is merely a convention, and you can use any applicable way to define business logic: normal classes that need to be instantiated, separate functions, or plain objects.
+Like controllers, services are often written as static classes with static methods, but they do not require decorators or any special structure. The static‑class style is simply a convention—you can instead use instantiated classes, standalone functions, or plain objects.
 
-The best feature of service methods is that their typing can be inferred from controller methods that call them, without causing "implicit any" TypeScript errors. Thanks to the legendary [Anders Hejlsberg](https://github.com/ahejlsberg) for the solution to [#58616](https://github.com/microsoft/TypeScript/issues/58616)—without this fix to the TypeScript language, Vovk.ts wouldn't be possible.
+A key benefit of service methods is that their types can be inferred from the controller methods that call them, without triggering “implicit any” TypeScript errors. Thanks to the legendary [Anders Hejlsberg](https://github.com/ahejlsberg) for the fix in [#58616](https://github.com/microsoft/TypeScript/issues/58616)—without this TypeScript change, Vovk.ts would not be possible.
 
 Let's say you have the following controller class:
 
@@ -54,7 +54,7 @@ export default class UserController {
 }
 ```
 
-As you can see, the `handle` method returns the result of the `UserService.updateUser` method. The `UserService.updateUser` method, in turn, infers types from the controller method, making the validation models (in this case, Zod schemas) the only source of truth for the input and output types, without the need to define them as separate variables.
+As you can see, the `handle` method returns the result of `UserService.updateUser`. That method, in turn, infers its types from the controller method, making the validation models (Zod schemas in this case) the single source of truth for input and output types, with no need to define separate types.
 
 ```ts filename="src/modules/user/UserService.ts"
 import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from 'vovk';
@@ -73,4 +73,4 @@ export default class UserService {
 }
 ```
 
-In other words, service methods can infer types from controller methods, and controller methods can call service methods without causing self-referencing issues.
+In other words, service methods can infer types from controller methods, and controller methods can call service methods without self‑referencing type issues.

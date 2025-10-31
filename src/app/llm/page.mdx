@@ -2,9 +2,9 @@
 
 ## JSON Lines
 
-LLM completions can be streamed using the [JSON Lines](https://jsonlines.org/) format, which is a convenient way to send a stream of JSON objects over HTTP. On the back-end, streaming is implemented with [Generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator) functions, which allow you to yield data as it becomes available. For the OpenAI API (as well as for other completion APIs), this can be done by delegating the iterable using the `yield*` syntax.
+LLM completions can be streamed in the [JSON Lines](https://jsonlines.org/) format—a convenient way to send a sequence of JSON objects over HTTP. On the backend, use [Generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator) functions to yield data as it becomes available. With the OpenAI API (and other completion APIs), you can delegate the iterable using the `yield*` syntax.
 
-Read more about [JSONLines Response](/controller/jsonlines) and [Controllers](/controllers).
+Learn more about the [JSONLines Response](/controller/jsonlines) and [Controllers](/controllers).
 
 ```ts filename="src/modules/llm/LlmController.ts"
 import { post, prefix, operation, type VovkRequest } from 'vovk';
@@ -31,7 +31,7 @@ export default class OpenAiController {
 }
 ```
 
-On the client side, you can use a [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator) to read the stream:
+On the client, you can consume the stream with a [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator):
 
 ```ts
 // ...
@@ -44,13 +44,13 @@ for await (const part of completion) {
 }
 ```
 
-See [live example](https://vovk-examples.vercel.app/openai) for more details.
+See the [live example](https://examples.vovk.dev/openai) for details.
 
 ## Vercel AI SDK
 
 > The AI SDK is the TypeScript toolkit designed to help developers build AI-powered applications with React, Next.js, Vue, Svelte, Node.js, and more. Read more about the [Vercel AI SDK](https://sdk.vercel.ai/docs/introduction).
 
-Vovk.ts supports every built-in feature of Next.js and, as a result, can be used with the Vercel AI SDK by returning a `Response` object from the `toDataStreamResponse` function with no additional tricks.
+Vovk.ts supports all built‑in Next.js features and therefore works seamlessly with the Vercel AI SDK. Simply return the `Response` produced by the stream helper (for example, `toUIMessageStreamResponse`)—no additional wiring required.
 
 ```ts filename="src/modules/ai-sdk/AiSdkController.ts"
 import { post, prefix, operation, type VovkRequest } from 'vovk';
@@ -75,7 +75,7 @@ export default class AiSdkController {
 }
 ```
 
-On the client side, you can use the [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) package to interact with the endpoint and build a chat interface as per the original SDK design.
+On the client, use the [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) package to call the endpoint and build a chat interface following the SDK’s recommended patterns.
 
 ```tsx
 'use client';
@@ -120,5 +120,4 @@ export default function Page() {
 }
 ```
 
-
-See [live example](https://vovk-examples.vercel.app/ai-sdk) for more details.
+See the [live example](https://examples.vovk.dev/ai-sdk) for details.

@@ -1,8 +1,8 @@
 import type { MetaRecord } from 'nextra';
 
 const meta: MetaRecord = {
-  introduction: 'Getting started',
-  static: 'Static segment',
+  introduction: 'Getting Started',
+  static: 'Static Segment',
 };
 
 export const icons: Record<keyof typeof meta, string> = {

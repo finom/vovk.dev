@@ -1,29 +1,29 @@
 # Turn Your Back-End into an AI Agent
 
-Vovk.ts offers LLM Function Calling capabilities, turning route handlers into functions that can be called by AI. This enables you to create a more interactive experience for your users, offering interactions with the back-end via a text chat interface, a [real-time voice interface](/realtime-ui), or [MCP](/mcp).
+Vovk.ts provides LLM function calling capabilities, turning route handlers into functions callable by AI. This enables more interactive user experiences, including interactions via a text chat interface, a [real-time voice interface](/realtime-ui), or [MCP](/mcp).
 
-While existing AI libraries and APIs address *how* to use function calling, Vovk.ts addresses *what* should be called through function calling.
+While many AI libraries and APIs focus on how to use function calling, Vovk.ts focuses on what should be callable.
 
-The feature is implemented with a zero-dependency function `createLLMTools` imported from `"vovk"` that creates a `tools` array that can be mapped to a function calling input for any LLM library. A single tool, converted from a controller handler or RPC handler, implements the `VovkLLMTool` interface that has the following properties:
+This feature is implemented by a zero-dependency function, `createLLMTools`, imported from `"vovk"`. It produces a `tools` array that can be mapped to function-calling inputs for any LLM library. Each tool, converted from a controller or RPC handler, implements the `VovkLLMTool` interface with the following properties:
 
-- `type`: a string literal `"function"`.
-- `name`: a string that represents the function name defined as `${moduleName}_${handlerName}` (module name + underscore + method name).
-- `description`: a string that describes the function. It's built from OpenAPI metadata, concatenating `summary` and `description` operation fields, or forcefully overridden by a custom `x-tool-description` field. If neither of these operation fields is available, `createLLMTools` will ignore the function. In other words, using the `@operation` decorator over [controller](/controller) methods is required to use this feature.
-- `parameters`: a JSON schema object that describes the function's parameters, describing `body`, `query`, and `params` fields, set automatically by a [validation library](/validation).
-- `execute`: a JavaScript function that should be invoked by your code when an LLM calls the tool.
+- `type`: the string literal `"function"`.
+- `name`: the function name in the form `${moduleName}_${handlerName}` (module name + underscore + method name).
+- `description`: a description derived from OpenAPI metadata, concatenating the `summary` and `description` fields, or overridden by a custom `x-tool-description`. If neither is provided, `createLLMTools` ignores the function. In other words, using the `@operation` decorator on [controller](/controller) methods is required for this feature.
+- `parameters`: a JSON Schema object describing `body`, `query`, and `params`, generated automatically by the [validation library](/validation).
+- `execute`: a JavaScript function to be called when the LLM invokes the tool.
 
-The `createLLMTools` function accepts an object with the following properties:
+`createLLMTools` accepts an options object with:
 
-- `modules`: a record of modules explained below.
-- `caller`: an optional function that declares how an RPC method or controller's callable method should be executed to create the `execute` function, introduced for advanced use cases.
-- `onExecute`: an optional callback that is called when `execute` is successfully executed.
-- `onError`: an optional callback that is called when an `execute` function execution fails.
-- `meta`: [metadata](/controller/meta) that will be passed to each controller method or RPC module method. Can contain any data that should be available on the back-end.
-- `resultFormatter`: an optional function that formats the result of the `execute` function before returning it to the LLM. By default, it returns the result as is. Can also be set to `"mcp"` to format the result according to [MCP](/mcp) requirements.
+- `modules`: a record of modules (explained below).
+- `caller`: optional. A function that defines how an RPC method or controller’s callable method should run to produce `execute`. Intended for advanced scenarios.
+- `onExecute`: optional. Called when `execute` completes successfully.
+- `onError`: optional. Called when an `execute` call fails.
+- `meta`: [metadata](/controller/meta) passed to each controller/RPC method. Can include any data you want available on the back end.
+- `resultFormatter`: optional. Formats the result returned to the LLM. By default, returns the raw result. Use `"mcp"` to format according to [MCP](/mcp).
 
-Each item of the `modules` record represents either an RPC module or a controller, which in turn is a function with pre-populated features, such as `schema` that implements the `VovkHandlerSchema` interface. It includes an `operationObject` property populated by the `@operation` decorator.
+Each `modules` entry is either an RPC module or a controller. Controllers are functions with pre-populated features such as `schema` implementing `VovkHandlerSchema`, which includes the `operationObject` populated by the `@operation` decorator.
 
-The `createLLMTools` function distinguishes between an RPC module method and a controller method by the presence of the `isRPC` property on the module. If the property is present and set to `true`, the module method is treated as an RPC module. Otherwise, it's treated as a controller method that has the `fn` property explained on the [callable controller methods](/controller/fn) page (in short, it mimics the signature of the resulting RPC module function to be able to be called in the current context instead of via HTTP).
+`createLLMTools` distinguishes RPC module methods from controller methods by the `isRPC` property. If `isRPC: true` is present, the method is treated as an RPC method. Otherwise, it is treated as a controller method that exposes `fn` (see [callable controller methods](/controller/fn)), mirroring the RPC function signature to allow direct invocation without HTTP.
 
 ```ts
 import { createLLMTools } from 'vovk';
@@ -44,11 +44,11 @@ const { tools } = createLLMTools({
 });
 ```
 
-In the example above, `PostRPC` is an RPC module that contains methods that invoke an HTTP request, and `UserController` is a controller that contains callable methods that, in turn, can be used as regular functions outside of the HTTP request context. This enables function calling both on the server side to make direct DB changes and on the client side to perform HTTP requests. The "client side" can be a browser or any other environment that supports JavaScript and the `fetch` API, such as React Native, Node.js, or Edge Runtime.
+In this example, `PostRPC` is an RPC module whose methods issue HTTP requests, while `UserController` is a controller exposing callable methods that can be used like regular functions outside of an HTTP request. This enables function calling on the server (for direct DB access) and on the client (via HTTP). The “client” can be a browser or any JavaScript environment that supports `fetch`, such as React Native, Node.js, or Edge Runtime.
 
 ## Selecting Specific Methods
 
-To select specific methods from a module, you can use the `pick` or `omit` pattern, implemented by `lodash` or similar utility libraries.
+To include only certain methods from a module, use the `pick`/`omit` pattern from `lodash` or a similar utility.
 
 ```ts
 import { createLLMTools } from 'vovk';
@@ -64,11 +64,11 @@ const { tools } = createLLMTools({
 });
 ```
 
-The `tools` will include LLM functions `createPost` and `getPost` from `PostRPC` and all methods from `UserController` except `deleteUser`.
+The resulting `tools` include `createPost` and `getPost` from `PostRPC`, and all methods from `UserController` except `deleteUser`.
 
 ## Authorizing RPC Calls
 
-To add authorization to the RPC calls, an individual module can be used as a tuple of the `module` itself and an `options` object that contains an `init` object that extends the `RequestInit` interface. This allows you to pass additional headers, such as authentication tokens.
+To add authorization, pass a module as a tuple: the `module` itself and an `options` object with an `init` extending `RequestInit`. This lets you add headers such as auth tokens.
 
 ```ts
 import { createLLMTools } from 'vovk';
@@ -90,7 +90,7 @@ const { tools } = createLLMTools({
 });
 ```
 
-Pick/omit can be combined with the init syntax to select specific methods and authorize them at the same time:
+You can combine pick/omit with the `init` tuple to authorize and select methods at the same time:
 
 ```ts
 import { createLLMTools } from 'vovk';
@@ -116,7 +116,7 @@ const { tools } = createLLMTools({
 
 ## Custom Operation Attributes
 
-You can add custom attributes with the `x-tool-*` syntax to the OpenAPI operation object in the `@operation` decorator. This allows you to add additional information that is specific to AI tooling.
+You can add custom attributes with the `x-tool-*` syntax to the OpenAPI operation in the `@operation` decorator, enabling AI-specific tooling metadata.
 
 ```ts filename="src/modules/user/UserController.ts"
 import { prefix, get, operation } from 'vovk';
@@ -141,27 +141,27 @@ export default class UserController {
 
 ### `x-tool-disable`
 
-Forcefully disables the function for LLM function calling for this method, even if the operation object includes `summary`, `description`, or `x-tool-description` fields.
+Force-disables the function for LLM function calling, even if `summary`, `description`, or `x-tool-description` is present.
 
 ### `x-tool-description`
 
-Overrides the function description for the LLM function that's originally built from `summary` and `description` fields.
+Overrides the generated function description (normally derived from `summary` + `description`).
 
 ### `x-tool-successMessage`
 
-[MCP](/mcp)-specific attribute that's sent to the LLM when the function is executed successfully.
+[MCP](/mcp)-specific attribute sent to the LLM when the function executes successfully.
 
 ### `x-tool-errorMessage`
 
-[MCP](/mcp)-specific attribute that's sent to the LLM when the function execution fails.
+[MCP](/mcp)-specific attribute sent to the LLM when the function execution fails.
 
 ### `x-tool-includeResponse`
 
-[MCP](/mcp)-specific attribute that indicates whether the function response should be included in the message sent back to the LLM after successful execution. By default, it's `true`.
+[MCP](/mcp)-specific attribute indicating whether the function response should be included in the message sent back to the LLM after successful execution. Defaults to `true`.
 
 ## Third-Party APIs
 
-Vovk.ts supports generation of RPC modules for third-party APIs that expose their OpenAPI specification, so you can mix your own back-end functions with third-party APIs in a single agent. See the [Codegen guide](/codegen) for more details.
+Vovk.ts can generate RPC modules from third-party OpenAPI specs, letting you combine your back-end with external APIs in a single agent. See the [Codegen guide](/codegen).
 
 ```ts
 import { createLLMTools } from 'vovk';
@@ -174,21 +174,21 @@ const { tools } = createLLMTools({
 });
 ```
 
-As Vovk.ts CLI can be used as a standalone codegen tool (for [NestJS](/nestjs), for example), you can still use the generated RPC modules with `createLLMTools`.
+Because the Vovk.ts CLI can serve as a standalone code generator (e.g., for [NestJS](/nestjs)), you can still use the generated RPC modules with `createLLMTools`.
 
 ## Function Calling Example
 
-The function calling itself can be implemented using raw AI APIs with [JSON Lines](/controller/jsonlines), but in most cases, as well as for this particular example, the [Vercel AI SDK](https://ai-sdk.dev/) would be sufficient to implement an AI text chat with function calling capabilities.
+You can implement function calling using raw AI APIs with [JSON Lines](/controller/jsonlines). In most cases, including this example, the [Vercel AI SDK](https://ai-sdk.dev/) provides a simple way to build a text chat with function calling.
 
 ### Create LLM Endpoint
 
-Create a new controller and pass your RPC modules or controllers to the `createLLMTools` function as shown above.
+Create a controller and pass your RPC modules or controllers to `createLLMTools` as shown above.
 
 ```sh npm2yarn
 npx vovk new controller aiSdk --empty
 ```
 
-Paste the following code into the `src/modules/ai-sdk/AiSdkController.ts` file, modifying the imports as needed:
+Paste the following into `src/modules/ai-sdk/AiSdkController.ts`, adjusting imports as needed:
 
 ```ts filename="src/modules/ai-sdk/AiSdkController.ts" {18}
 import { createLLMTools, HttpException, HttpStatus, post, prefix, operation, type KnownAny, type VovkRequest } from 'vovk';
@@ -243,11 +243,11 @@ export default class AiSdkController {
 }
 ```
 
-As you can see, the `tools` are mapped into Vercel AI SDK `tool` instances with the help of the `jsonSchema` helper. For another Node.js library case, they can be mapped differently.
+Here, the `tools` are mapped to Vercel AI SDK `tool` instances using `jsonSchema`. For other Node.js libraries, you can map them differently.
 
 ### Create a Front-End Component
 
-On the front-end side, create a component that utilizes the [useChat](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat) hook:
+On the front end, create a component using the [useChat](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat) hook:
 
 ```tsx filename="src/app/page.tsx"
 'use client';
@@ -292,8 +292,8 @@ export default function Page() {
 }
 ```
 
-Check the [Vercel AI SDK documentation](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat) and [LLM guide](/llm).
+See the [Vercel AI SDK docs](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat) and the [LLM guide](/llm).
 
 ## Roadmap
 
-- ✨ Implement a `router` option for `createLLMTools` to allow using hundreds of functions without hitting the LLM function calling limits. The routing itself can be done with vector search or other approaches.
+- ✨ Add a `router` option to `createLLMTools` to support hundreds of functions without hitting LLM function-calling limits. Routing can be implemented using vector search or other approaches.

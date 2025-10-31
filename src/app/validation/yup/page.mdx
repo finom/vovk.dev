@@ -2,17 +2,17 @@
 
 > [!WARNING]
 >
-> This library uses [@sodaru/yup-to-json-schema](https://github.com/sodaru/yup-to-json-schema) to convert Yup models to JSON Schema, and testing has shown unsatisfactory results (for example, it was unable to handle `anyOf` properly). Therefore, I cannot recommend using this library until the issues are resolved. However, because I noticed this too late, I decided to keep it as part of the project, since existing tests help detect type issues early.
+> This library uses [@sodaru/yup-to-json-schema](https://github.com/sodaru/yup-to-json-schema) to convert Yup models to JSON Schema, and testing has shown unsatisfactory results (for example, incorrect handling of `anyOf`). Therefore, it’s not recommended until the issues are resolved. Because this was noticed late, it remains in the project, and existing tests help catch type issues early.
 
-Validation with Yup is performed using the `vovk-yup` package, which provides a `withYup` function to create validated handlers.
+Validation with Yup is provided by the `vovk-yup` package, which exposes a `withYup` function for building validated handlers.
 
 ```sh npm2yarn
 npm install vovk-yup@draft
 ```
 
-```ts filename="src/lib/withYup.ts"
+```ts filename="src/modules/user/UserController.ts"
 import * as yup from 'yup';
-import { prefix, post, operation, type VovkOutput } from 'vovk';
+import { prefix, post, operation } from 'vovk';
 import { withYup } from 'vovk-yup';
 
 @prefix('users')

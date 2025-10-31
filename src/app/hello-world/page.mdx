@@ -4,9 +4,9 @@ import IFrame from './IFrame';
 
 # "Hello World" showcase
 
-The "Hello World" app is a Next.js/Vovk.ts project example that showcases some of the core features of Vovk.ts by implementing an HTML form with some extra features. It implements `UserController` with an `updateUser` method served as `POST` to `/api/users/{id}` endpoint, `StreamController` with a JSONLines handler `streamTokens` served as `GET` to `/api/streams/tokens` endpoint, but also `OpenApiController` with `getSpec` method served as `GET` to `/api/static/openapi/spec.json` endpoint that provides an OpenAPI specification for the API from a static segment. The OpenAPI documentation can be viewed at [`/openapi` page](https://vovk-hello-world.vercel.app/openapi).
+The "Hello World" app is a Next.js/Vovk.ts project example that showcases some of the core features of Vovk.ts by implementing an HTML form with some extra features. It implements `UserController` with an `updateUser` method served as `POST` to `/api/users/{id}` endpoint, `StreamController` with a JSONLines handler `streamTokens` served as `GET` to `/api/streams/tokens` endpoint, but also `OpenApiController` with `getSpec` method served as `GET` to `/api/static/openapi/spec.json` endpoint that provides an OpenAPI specification for the API from a static segment. The OpenAPI documentation can be viewed at [`/openapi` page](https://hello-world.vovk.dev/openapi).
 
-The project can be explored at the [GitHub repository](https://github.com/finom/vovk-hello-world) and viewed live at [vovk-hello-world.vercel.app](https://vovk-hello-world.vercel.app/). Bundled and generated files are available in the Git index as [dist](https://github.com/finom/vovk-hello-world/tree/main/dist), [dist_rust](https://github.com/finom/vovk-hello-world/tree/main/dist_rust) and [dist_python](https://github.com/finom/vovk-hello-world/tree/main/dist_python), so you can explore (usually they should be `.gitignore`'d). 
+The project can be explored at the [GitHub repository](https://github.com/finom/vovk-hello-world) and viewed live at [hello-world.vovk.dev](https://hello-world.vovk.dev/). Bundled and generated files are available in the Git index as [dist](https://github.com/finom/vovk-hello-world/tree/main/dist), [dist_rust](https://github.com/finom/vovk-hello-world/tree/main/dist_rust) and [dist_python](https://github.com/finom/vovk-hello-world/tree/main/dist_python), so you can explore (usually they should be `.gitignore`'d). 
 
 All code snippets on this page directly pulled from the source code on Github and HTML pages are served within an iframe.
 
@@ -27,7 +27,7 @@ All code snippets on this page directly pulled from the source code on Github an
 
 The demo below implements a simple form without validation attributes with "Disable client-side input validation" checkbox that represents [disableClientValidation](/typescript#disableclientvalidation) option.
 
-<IFrame src="https://vovk-hello-world.vercel.app" width="100%" height="780px"></IFrame>
+<IFrame src="https://hello-world.vovk.dev" width="100%" height="780px"></IFrame>
 
 ## `UserController` and `UserService`
 
@@ -67,13 +67,13 @@ The app is [configured](/config) to:
 If you use default config settings, you can generate the client for other languages with:
 
 ```sh npm2yarn
-npx vovk generate --from rs --from py --origin https://vovk-hello-world.vercel.app
+npx vovk generate --from rs --from py --origin https://hello-world.vovk.dev
 ```
 
 And the bundle with:
 
 ```sh npm2yarn
-npx vovk bundle --origin https://vovk-hello-world.vercel.app
+npx vovk bundle --origin https://hello-world.vovk.dev
 ```
 
 <GithubFiles paths={['vovk.config.js']} repo="vovk-hello-world" />
@@ -134,13 +134,13 @@ The `demo` scripts are self-explanatory and can be found in the `package.json` f
 
 ## OpenAPI specification
 
-[OpenAPI specification](https://vovk-hello-world.vercel.app/api/static/openapi/spec.json) requires creating another `GET` endpoint that uses `vovkSchemaToOpenAPI` function to generate the OpenAPI spec from the Vovk.ts [schema](/schema).
+[OpenAPI specification](https://hello-world.vovk.dev/api/static/openapi/spec.json) requires creating another `GET` endpoint that uses `vovkSchemaToOpenAPI` function to generate the OpenAPI spec from the Vovk.ts [schema](/schema).
 
 <GithubFiles paths={['src/modules/static/openapi/OpenApiController.ts']} repo="vovk-hello-world" />
 
 The generated specification also includes the [Scalar](https://scalar.com/) compatible examples that can be copied and pasted to your project stright away.
 
-<IFrame src="https://vovk-hello-world.vercel.app/openapi" width="100%" height="1000px"></IFrame>
+<IFrame src="https://hello-world.vovk.dev/openapi" width="100%" height="1000px"></IFrame>
 
 ## Conclusion
 

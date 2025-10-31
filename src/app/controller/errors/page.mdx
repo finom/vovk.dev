@@ -1,6 +1,6 @@
 # Errors
 
-You can gracefully throw HTTP exceptions using syntax inspired by NestJS. The `HttpException` class accepts 3 arguments: the first is an HTTP code that can be retrieved from `HttpStatus`, the second is a message, and the third is an optional `cause` that can be any object. This object will be JSON-stringified and passed to the client.
+You can gracefully throw HTTP exceptions using syntax inspired by NestJS. The `HttpException` class accepts three arguments: an HTTP code from `HttpStatus`, a message, and an optional `cause` object. This object is JSON‑stringified and sent to the client.
 
 ```ts
 import { HttpException, HttpStatus } from 'vovk';
@@ -12,7 +12,7 @@ static async updateUser(/* ... */) {
 }
 ```
 
-The errors are re-thrown at the client-side with the same interface.
+Errors are rethrown on the client side with the same interface.
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -20,7 +20,7 @@ import { HttpException } from 'vovk';
 
 // ...
 try {
-  const updatedUser = await UserController.updateUser(/* ... */);
+  const updatedUser = await UserRPC.updateUser(/* ... */);
 } catch (e) {
   console.log(e instanceof HttpException); // true
   const err = e as HttpException;
@@ -40,13 +40,13 @@ static async updateUser(/* ... */) {
 }
 ```
 
-You can also throw custom objects that will be re-thrown on the client side as is.
+You can also throw custom objects that are rethrown on the client side as is.
 
 ```ts
 throw { hello: 'World' };
 ```
 
-You can provide a `cause` to the `HttpException` constructor as the third argument to provide more context to the error.
+You can provide a `cause` as the third argument to `HttpException` to supply additional context.
 
 ```ts
 throw new HttpException(HttpStatus.BAD_REQUEST, 'Something went wrong', { hello: 'World' });

@@ -2,9 +2,9 @@ import GithubFiles from '@/components/GithubFiles';
 
 # MCP Server
 
-Once we've covered [Function Calling](/function-calling), [Real-time UI](/realtime-ui) but also how to do [real-time polling](/polling), it's time to add the last bit of the puzzle and proof that [your API **is** an MCP](https://www.youtube.com/watch?v=eeOANluSqAE) if it's built with Vovk.ts. For that we're going to use [@vercel/mcp-adapter](https://www.npmjs.com/package/@vercel/mcp-adapter) package that allows us to easily create an MCP server on Nest.js.
+Now that we’ve covered [Function Calling](/function-calling), [Real-time UI](/realtime-ui), and [Real-Time Database Polling](/polling), let’s add the final piece and demonstrate that [your API is an MCP](https://www.youtube.com/watch?v=eeOANluSqAE) when built with Vovk.ts. We’ll use the [mcp-handler](https://www.npmjs.com/package/mcp-handler) package, which makes it straightforward to create MCP servers on Next.js.
 
-The `createLLMTools` function accepts a `resultFormatter` option that accepts a function to format the result of the tool execution that's coming back to the LLM, but also a string with a special value `mcp` that formats the result in a way that MCP server expects. This is all we need to do to make our tools output MCP-compatible and return the results in the following format:
+The `createLLMTools` function accepts a `resultFormatter` option to format a tool’s execution result before it’s returned to the LLM. It also accepts the special string value `mcp`, which formats the result to meet MCP server expectations. That’s all you need to produce MCP‑compatible tool output in the following shape:
 
 ```ts
 {
@@ -31,7 +31,7 @@ const { tools } = createLLMTools({
 });
 ```
 
-There is where custom operation properties such as `x-tool-successMessage` and  `x-tool-errorMessage` will be useful to make the output more LLM-friendly.
+This is where custom operation properties such as `x-tool-successMessage` and `x-tool-errorMessage` become especially useful for making outputs more LLM‑friendly.
 
 ```ts {14-15}
 import { prefix, get, put, post, del, operation } from "vovk";
@@ -62,7 +62,7 @@ export default class UserController {
 }
 ```
 
-This will turn the `text` property of the output to "User updated successfully" or "Failed to update user" depending on the result of the operation, concatenated with the actual serialized result or error message.
+This sets the `text` field to “User updated successfully” or “Failed to update user,” and appends the serialized result or error message.
 
 ```ts
 {
@@ -75,14 +75,13 @@ This will turn the `text` property of the output to "User updated successfully" 
 }
 ```
 
-Now create the route file as per the [library documentation](https://github.com/vercel/mcp-handler).
+Now create the route file following your chosen MCP library’s documentation.
 
-We're going to use `UserController` and `TaskController` as the source of the MCP tools. The methods of the controllers will be executed at the same context, instead of making HTTP requests, as they follow the rules of [callable handlers](/controller/fn).
+We’ll use `UserController` and `TaskController` as the source of MCP tools. Controller methods run in the same context (rather than over HTTP) because they follow [callable handler](/controller/fn) rules.
 
+<GithubFiles paths={['src/app/api/mcp/route.ts']} repo="vovk-kanban-demo" highlightLines={[30]} />
 
-<GithubFiles paths={['src/app/api/mcp/route.ts']} repo="vovk-ai-demo" highlightLines={[30]} />
-
-A parameters argument passed to `server.tool` method expects Zod schemas, so we need to convert the JSON Schema parameters of each tool to Zod schemas using [zod-from-json-schema](https://www.npmjs.com/package/zod-from-json-schema) package. This will work for all available [validation libraries](/validation). But if you already use Zod to validate incoming requests, you can also use `models` property of a tool to get the Zod schema directly, as shown below:
+Because the `server.tool` parameters argument expects Zod schemas, convert each tool’s JSON Schema parameters to Zod using [zod-from-json-schema](https://www.npmjs.com/package/zod-from-json-schema). This approach works with all supported [validation libraries](/validation). If you already use Zod to validate incoming requests, you can instead access Zod schemas directly via a tool’s `models` property, as shown below:
 
 ```ts
 // ...
@@ -103,9 +102,9 @@ const handler = createMcpHandler(
 // ...
 ```
 
-Note that the `models` property is only available for [callable handlers](/controller/fn) but not for RPC modules.
+Note that the `models` property is available only for [callable handlers](/controller/fn), not RPC modules.
 
-As a small reminder, you can also use 3rd party [OpenAPI mixins](/codegen) to add more tools to your MCP server.
+You can also bring in third‑party [OpenAPI Mixins](/codegen) to extend your MCP server with additional tools.
 
 ```ts
 import { GithubIssuesRPC } from "vovk-client";

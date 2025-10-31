@@ -1,14 +1,18 @@
 # Authorization with Decorators
 
-Authorization of requests can be implemented using [decorators](/controller/decorator) that check if a user is authorized and pass down useful information, such as the current user, to the controller handler via [metadata](/controller/meta), which can be accessed via the `req.vovk.meta()` method.
+Authorization for HTTP requests can be implemented with [decorators](/controller/decorator) that verify whether a user is authorized using any applicable method (e.g., JWT tokens or session cookies) and pass useful context—such as the current user and their roles—to the controller handler via [metadata](/controller/meta), accessible through `req.vovk.meta<T>(){:ts}`.
 
-For illustration, let's create a simple authorization decorator that checks if a user is authorized and has the required permissions to access the resource. The `authGuard` decorator below does the following:
+Authentication, in turn, can be implemented using standard Next.js methods described in the [Next.js authentication documentation](https://nextjs.org/docs/app/guides/authentication). It is briefly covered in the [Real-Time UI](/realtime-ui#auth) article.
 
-- Checks if a user is authorized and returns an `Unauthorized` status if not.
-- Adds `currentUser` to the request metadata object, represented as the `AuthMeta` interface.
+## Role-Based Access Control
+
+For illustration, let’s define a simple authorization decorator that ensures a user is authenticated and has the required permission to access a resource. The `authGuard` decorator below:
+
+- Verifies the user is authorized; otherwise returns an `Unauthorized` status.
+- Adds `currentUser` to request metadata, represented by the `AuthMeta` interface.
 - Implements role-based access control with the `Permission` enum.
 
-The `identifyUserAndCheckPermissions` function is a placeholder for your actual logic to identify the user from the request (e.g., from a JWT token or session) and check if they have the required permissions.
+The `identifyUserAndCheckPermissions` function is a placeholder for your logic to identify the user from the request (e.g., from a JWT token or session) and check whether they have the required permission.
 
 ```ts filename="src/decorators/authGuard.ts"
 import { createDecorator, HttpException, HttpStatus, type VovkRequest } from 'vovk';
@@ -19,12 +23,12 @@ export enum Permission {
   CAN_DO_THAT = 'CAN_DO_THAT',
 }
 
-// Metadata interface allows access to the currentUser in the controller
+// Metadata interface allows access to currentUser in the controller
 export interface AuthMeta {
   currentUser: User;
 }
 
-// Create a function that identifies the user, checks permissions, and updates the request metadata
+// Identify the user, check permissions, and update request metadata
 const checkAuth = async (req: VovkRequest, permission: Permission) => {
   const currentUser = identifyUserAndCheckPermissions(req, permission);
 
@@ -45,14 +49,14 @@ const authGuard = createDecorator(async (req, next, permission: Permission) => {
   if (!isAuthorized) {
     throw new HttpException(HttpStatus.UNAUTHORIZED, 'Unauthorized');
   }
-  // The user is authorized, and the metadata is set; proceed to the next decorator or controller handler
+  // The user is authorized and metadata is set; proceed to the next decorator or controller handler
   return next();
 });
 
 export default authGuard;
 ```
 
-Import the `authGuard` decorator and related members and apply it to the controller methods, placing it after the `@get`, `@post`, etc. decorators.
+Import the `authGuard` decorator and related members, then apply it to controller methods after the `@get`, `@post`, etc., decorators.
 
 ```ts filename="src/modules/user/UserController.ts"
 import { get, prefix, operation } from 'vovk';
@@ -73,5 +77,52 @@ export default class UserController {
   }
 
   // ...
+}
+```
+
+## Vercel Cron Jobs
+
+[Vercel Cron Jobs](https://vercel.com/docs/cron-jobs) require simple authorization via an environment variable. You can implement this by creating a [decorator](/controller/decorator) that checks the `Authorization` header against a secret.
+
+```ts filename="src/decorators/cronGuard.ts"
+import { HttpException, HttpStatus, createDecorator } from 'vovk';
+
+const cronGuard = createDecorator(async (req, next) => {
+  if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
+    throw new HttpException(HttpStatus.UNAUTHORIZED, 'Unauthorized');
+  }
+
+  return next();
+});
+
+export default cronGuard;
+```
+
+Apply the `cronGuard` decorator to the controller method that should be protected by the cron job authorization.
+
+```ts filename="src/modules/cron/CronController.ts"
+import { get, prefix } from 'vovk';
+import cronGuard from '../decorators/cronGuard';
+
+@prefix('cron')
+export default class CronController {
+  @get('do-something')
+  @cronGuard()
+  static async doSomething() {
+    // ...
+  }
+}
+```
+
+Add a cron job to `vercel.json`. The `schedule` field uses standard cron syntax (this example runs daily at midnight).
+
+```json filename="/vercel.json"
+{
+  "crons": [
+    {
+      "path": "/api/cron/do-something",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }
 ```

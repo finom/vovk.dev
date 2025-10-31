@@ -34,50 +34,50 @@ Options:
   -h, --help                                                   display help for command
 ```
 
-The `vovk generate` command generates [TypeScript](/typescript), [Rust](/rust), and [Python](/python) RPC clients from existing [schema](/schema) files that by default are located in the `.vovk-schema` folder. It can be configured in the [config](/config) file but also overridden with some of the CLI flags. The configuration settings are spread across multiple config options as well as pages of this documentation, such as:
+The `vovk generate` command creates [TypeScript](/typescript), [Rust](/rust), and [Python](/python) RPC clients from existing [schema](/schema) files, which are in `.vovk-schema` by default. You can change this via the [config](/config) file or override it with CLI flags. Relevant configuration spans several options and documentation pages, including:
 
-- `composedClient` - settings for the [composed client](/composed), where you can define the output directory, included/excluded segments, and list of used [templates](/templates).
-- `segmentedClient` - settings for the [segmented client](/segmented), where you can define the output directory, included/excluded segments, and list of used [templates](/templates).
-- `outputConfig` - list of options that allows you to configure `origin`, [imports](/imports), [OpenAPI mixins](/codegen), and more.
-- `clientTemplateDefs` - definitions of available [templates](/templates) for client generation.
+- `composedClient`: settings for the [composed client](/composed), including the output directory, included/excluded segments, and [templates](/templates).
+- `segmentedClient`: settings for the [segmented client](/segmented), including the output directory, included/excluded segments, and [templates](/templates).
+- `outputConfig`: options to configure `origin`, [imports](/imports), [OpenAPI Mixins](/codegen), and more.
+- `clientTemplateDefs`: definitions of available [templates](/templates).
 
-You can refer to the [config](/config) page for more details on how to configure these options.
+See the [config](/config) page for details.
 
 ## Available Flags
 
 ### Composed Client Flags
 
-- `--composed-only` - generate only the composed client even if the segmented client is enabled in the config.
-- `--out`, `--composed-out <path>` - override the output directory for the composed client defined in `composedClient.outDir`.
-- `--from`, `--composed-from <templates...>` - override the list of templates for the composed client defined in `composedClient.templates`.
-- `--include`, `--composed-include-segments <segments...>` - override the list of included segments for the composed client defined in `composedClient.includeSegments`.
-- `--exclude`, `--composed-exclude-segments <segments...>` - override the list of excluded segments for the composed client defined in `composedClient.excludeSegments`.
+- `--composed-only` — generate only the composed client, even if the segmented client is enabled.
+- `--out`, `--composed-out <path>` — override `composedClient.outDir`.
+- `--from`, `--composed-from <templates...>` — override `composedClient.templates`.
+- `--include`, `--composed-include-segments <segments...>` — override `composedClient.includeSegments`.
+- `--exclude`, `--composed-exclude-segments <segments...>` — override `composedClient.excludeSegments`.
 
 ### Segmented Client Flags
 
-- `--segmented-only` - generate only the segmented client even if the composed client is enabled in the config.
-- `--segmented-out <path>` - override the output directory for the segmented client defined in `segmentedClient.outDir`.
-- `--segmented-from <templates...>` - override the list of templates for the segmented client defined in `segmentedClient.templates`.
-- `--segmented-include-segments <segments...>` - override the list of included segments for the segmented client defined in `segmentedClient.includeSegments`.
-- `--segmented-exclude-segments <segments...>` - override the list of excluded segments for the segmented client defined in `segmentedClient.excludeSegments`.
+- `--segmented-only` — generate only the segmented client, even if the composed client is enabled.
+- `--segmented-out <path>` — override `segmentedClient.outDir`.
+- `--segmented-from <templates...>` — override `segmentedClient.templates`.
+- `--segmented-include-segments <segments...>` — override `segmentedClient.includeSegments`.
+- `--segmented-exclude-segments <segments...>` — override `segmentedClient.excludeSegments`.
 
 ### OpenAPI Mixin Flags
 
-Mixins are used to extend the schema with additional endpoints defined in one or more OpenAPI specs. You can read more about them on the [OpenAPI Mixins](/codegen) page.
+Mixins extend the schema with additional endpoints defined in one or more OpenAPI specs. See [OpenAPI Mixins](/codegen).
 
-- `--openapi`, `--openapi-spec <openapi_path_or_urls...>` - use one or more OpenAPI specs for client generation. It accepts either a path to a local file or a URL. If a URL is provided, the command makes an HTTP GET request to fetch the spec. Can be replicated in the config option `outputConfig.segments.mixinName.openAPIMixin.source.url` for remote specs or `outputConfig.segments.mixinName.openAPIMixin.source.file` for local files.
-- `--openapi-module-name`, `--openapi-get-module-name <names...>` - list of module names corresponding to the index of the `--openapi` option. Allows you to pass a string value that can be replicated in the config option `outputConfig.segments.mixinName.openAPIMixin.getModuleName`.
-- `--openapi-method-name`, `--openapi-get-method-name <names...>` - list of method names corresponding to the index of the `--openapi` option. Allows you to pass a string value that can be replicated in the config option `outputConfig.segments.mixinName.openAPIMixin.getMethodName`.
-- `--openapi-root-url <urls...>` - list of root URLs corresponding to the index of the `--openapi` option. Allows you to pass a string value that can be replicated in the config option `outputConfig.segments.mixinName.openAPIMixin.apiRoot`.
-- `--openapi-mixin-name <names...>` - list of mixin names corresponding to the index of the `--openapi` option. Defines a name of a pseudo-segment that will be used in the generated client. In the config, it's defined as the key in the `outputConfig.segments` object.
-- `--openapi-fallback <paths...>` - save one or more OpenAPI specs to the specified paths and use them as a fallback if the URL is not available. It accepts paths to local files that correspond to the index of the `--openapi` option.
-- `--watch <s>` - watch for changes in the schema or OpenAPI spec and regenerate the client. It accepts a number in seconds to throttle the watcher or make an HTTP request to the OpenAPI spec URL every `s` seconds or when the local file changes.
+- `--openapi`, `--openapi-spec <openapi_path_or_urls...>` — use one or more OpenAPI specs (local paths or URLs). For URLs, the command fetches the spec via HTTP GET. Mirrors `outputConfig.segments.mixinName.openAPIMixin.source.url` (remote) or `.source.file` (local).
+- `--openapi-module-name`, `--openapi-get-module-name <names...>` — module names aligned by index with `--openapi`. Mirrors `outputConfig.segments.mixinName.openAPIMixin.getModuleName`.
+- `--openapi-method-name`, `--openapi-get-method-name <names...>` — method names aligned by index with `--openapi`. Mirrors `outputConfig.segments.mixinName.openAPIMixin.getMethodName`.
+- `--openapi-root-url <urls...>` — root URLs aligned by index with `--openapi`. Mirrors `outputConfig.segments.mixinName.openAPIMixin.apiRoot`.
+- `--openapi-mixin-name <names...>` — mixin names aligned by index with `--openapi`. In config, serves as the key in `outputConfig.segments`.
+- `--openapi-fallback <paths...>` — save OpenAPI specs to the specified paths and use them as a fallback if the URL is unavailable. Paths align by index with `--openapi`.
+- `--watch <s>` — watch the schema or OpenAPI spec and regenerate the client. Accepts a throttle interval in seconds. For remote specs, performs an HTTP request every `s` seconds; for local files, regenerates on change.
 
 ### Other Flags
 
-- `--prettify` - prettify the output files using [Prettier](https://prettier.io/). Can be configured in the config option `composedClient.prettifyClient` and `segmentedClient.prettifyClient`.
-- `--schema`, `--schema-path <path>` - override the path to the schema folder defined in `schemaOutDir`.
-- `--config`, `--config-path <config>` - override the path to the config file. By default, it reads all combinations of allowed config file names and gives a warning if more than one file is found.
-- `--origin <url>` - override the `origin` defined in `outputConfig.origin`.
-- `--log-level <level>` - set the log level. Available levels are: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. By default, it's set to `info`.
-- `-h, --help` - display help for the command.
+- `--prettify` — prettify output files with [Prettier](https://prettier.io/). Mirrors `composedClient.prettifyClient` and `segmentedClient.prettifyClient`.
+- `--schema`, `--schema-path <path>` — override the schema folder defined by `schemaOutDir`.
+- `--config`, `--config-path <config>` — override the config file path. By default, all supported filenames are checked; a warning is shown if multiple are found.
+- `--origin <url>` — override `outputConfig.origin`.
+- `--log-level <level>` — set log level: `trace`, `debug`, `info`, `warn`, `error`, `fatal` (default: `info`).
+- `-h, --help` — show help.

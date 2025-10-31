@@ -3,15 +3,11 @@ import { Suspense } from 'react';
 
 # JSON Lines Streaming
 
-<div className="example">
-  <JSONLinesExample />
-</div>
-
-Vovk.ts includes first-class support for the [JSON Lines](https://jsonlines.org/) format, which is a convenient way to implement "one request - many responses". It's perfect for LLM completions and also opens up new possibilities for experiments, such as [progressive responses](/controller/progressive) and [polling](/polling). JSON Lines is another output type that uses the `iteration` validation field and produces the `application/jsonl` content type if the client side sends an `Accept: application/jsonl` header. If the `Accept` header doesn't include `application/jsonl`, the output is returned as `text/plain` to be viewable when the endpoint URL is opened directly in a browser.
+Vovk.ts includes first‑class support for the [JSON Lines](https://jsonlines.org/) format, a convenient way to implement “one request—many responses.” It’s perfect for LLM completions and opens up new possibilities for experiments, such as [progressive responses](/controller/progressive) and [polling](/polling). JSON Lines is another output type that uses the `iteration` validation field and produces the `application/jsonl` content type if the client sends an `Accept: application/jsonl` header. If the `Accept` header doesn’t include `application/jsonl`, the output is returned as `text/plain` so it’s viewable when the endpoint URL is opened directly in a browser.
 
 > [!IMPORTANT]
 >
-> As response size is not known in advance, JSON Lines responses cannot be compressed with Gzip, Brotli or other algorithms. Make sure to consider this when using JSON Lines for large responses.
+> Because the response size is not known in advance, JSON Lines responses cannot be compressed with Gzip, Brotli, or other algorithms. Keep this in mind for large responses.
 
 ```ts
 import { z } from 'zod';
@@ -99,14 +95,14 @@ for await (const { message } of stream) {
 }
 ```
 
-The iterable, (represented as `stream` variable in the example above) besides `Symbol.asyncIterator`, `Symbol.dispose`, and `Symbol.asyncDispose` methods, also provides the following members:
+The iterable (represented as `stream` above), besides `Symbol.asyncIterator`, `Symbol.dispose`, and `Symbol.asyncDispose`, also provides:
 
-- `status`: The status of the HTTP response (e.g. 200 for OK, 404 for Not Found).
-- `asPromise`: Returns a promise that resolves with an array of all emitted values when the stream is completed.
-- `onIterate`: Registers a callback to be called on each iteration.
-- `abortController`: An `AbortController` instance that can be used to abort the stream. When stream is closed with `abortController.abort(){:ts}`, it throws an `AbortError`.
+- `status`: The HTTP response status (e.g., 200 for OK, 404 for Not Found).
+- `asPromise`: A promise that resolves with an array of all emitted values when the stream completes.
+- `onIterate`: Registers a callback for each iteration.
+- `abortController`: An `AbortController` instance to abort the stream. When the stream is closed with `abortController.abort()`, it throws an `AbortError`.
 
-The `using` statement ensures that the stream is aborted using `stream.abortController.abort('Stream disposed'){:ts}` when it goes out of variable scope.
+The `using` statement ensures the stream is aborted with `stream.abortController.abort('Stream disposed')` when it goes out of scope.
 
 ```ts
 console.log('Response status:', stream.status);
@@ -122,9 +118,7 @@ console.log('All messages:', await stream.asPromise());
 <a name="jsonlinesresponse" />
 ## `JSONLinesResponse` Class
 
-If generators aren't suitable for JSON streaming in a particular case, you can use the `JSONLinesResponse` class, which inherits from the `Response` class and uses `TransformStream#readable` as the response body.
-
-This is a lower-level API that is used behind the scenes to implement the generator logic described above.
+If generators aren’t suitable for JSON streaming in a particular case, use the `JSONLinesResponse` class, which inherits from `Response` and uses `TransformStream#readable` as the response body. This lower‑level API is used internally to implement the generator logic described above.
 
 A service method in this case is implemented as a regular function that accepts a `JSONLinesResponse` instance as a pointer to send messages manually.
 
@@ -149,7 +143,7 @@ export default class StreamService {
 }
 ```
 
-As you can see, tokens are sent using the `JSONLinesResponse#send` method, and when the stream is completed, it needs to be closed with `JSONLinesResponse#close`.
+As you can see, tokens are sent with `JSONLinesResponse#send`, and when the stream completes, close it with `JSONLinesResponse#close`.
 
 The controller class returns an instance of `JSONLinesResponse`, and the streaming is performed in a floating Promise above the `return` statement.
 
@@ -170,7 +164,7 @@ export default class StreamController {
 }
 ```
 
-The `JSONLinesResponse` class also provides a `throw` method that safely closes the stream and causes the client to re-throw the received error.
+The `JSONLinesResponse` class also provides a `throw` method that safely closes the stream and causes the client to rethrow the received error.
 
 ```ts
 await resp.throw(new Error('Stream error'));

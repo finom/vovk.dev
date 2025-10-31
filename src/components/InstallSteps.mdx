@@ -44,7 +44,7 @@ The `dev` script runs the Next.js dev server and Vovk.ts watcher in parallel. On
 npm run dev
 ```
 
-Then open http://localhost:3000/api/users?search=John
+Then open http://localhost:3000/api/users, where you'll see a placeholder response from the generated `UserController.getUsers` method.
 
 ### Create a React component to display the data
 
@@ -53,7 +53,7 @@ Import the generated client library and use it to fetch data.
 ```ts
 import { UserRPC } from 'vovk-client';
 // ...
-const result = await UserRPC.getUsers({ query: { search: 'John' } });
+const result = await UserRPC.getUsers();
 ```
 
 You can also use [React Query](https://react-query.tanstack.com/) to fetch data.
@@ -64,7 +64,7 @@ import { UserRPC } from 'vovk-client';
 // ...
 const { data, error, isLoading } = useQuery({
   queryKey: UserRPC.getUsers.queryKey(),
-  queryFn: () => UserRPC.getUsers({ query: { search: 'John' } }),
+  queryFn: () => UserRPC.getUsers(),
 });
 ```
 

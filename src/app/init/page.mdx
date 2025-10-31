@@ -27,9 +27,9 @@ Options:
 ```
 -----
 
-The `init` command initializes Vovk.ts in an existing Next.js project. It sets up the necessary configurations and installs the required dependencies to get started with Vovk.ts.
+The `init` command sets up Vovk.ts in an existing Next.js project. It applies the required configuration and installs the necessary dependencies.
 
-You can also use an alias for the `init` command, which is available as a [separate package](/packages#vovk-init).
+You can also use an alias for `init`, available as a [separate package](/packages#vovk-init).
 
 ```sh npm2yarn
 npx vovk-init@draft
@@ -44,43 +44,45 @@ npx vovk-cli@draft init
 ## Available Flags
 
 ### `--prefix <prefix>`
-Specifies the directory to initialize the project in. If not provided, the current directory is used.
+Directory to initialize the project in. Defaults to the current directory.
 
 ### `-y, --yes`
-Skips all prompts and uses default values.
+Skips prompts and uses default values.
 
 ### `--log-level <level>`
-Sets the log level. Available levels are: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. By default, it's set to `info`.
+Sets the log level: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. Default: `info`.
 
 ### `--use-npm`, `--use-yarn`, `--use-pnpm`, `--use-bun`
-Specifies the package manager to use when installing dependencies.
+Choose the package manager for installing dependencies.
 
 ### `--skip-install`
-Skips the installation of dependencies but still modifies the `package.json` file.
+Skips installing dependencies but still updates `package.json`.
 
 ### `--update-ts-config`
-Updates the `tsconfig.json` file to include necessary configurations for Vovk.ts, such as enabling `experimentalDecorators`.
+Updates `tsconfig.json` with settings needed for Vovk.ts, such as `experimentalDecorators`.
 
 ### `--update-scripts <mode>`
-Updates the `package.json` scripts to include the `dev` script that runs both the Next.js server and Vovk.ts concurrently. The mode can be either "implicit" or "explicit", where "implicit" runs the concurrent API under the hood, and "explicit" uses `concurrently` as a CLI. The flag also sets the `prebuild` script to run `vovk generate` before `next build` to ensure the client library is generated before building the Next.js app.
+Updates `package.json` scripts to run Next.js and Vovk.ts together. Modes:
+- `implicit` — runs the concurrently API under the hood.
+- `explicit` — uses the `concurrently` CLI.
+The flag also sets `prebuild` to run `vovk generate` before `next build` to ensure the client is generated before building.
 
 ### `--lang <languages...>`
-Generates the client for other programming languages. Sets [`composedClient.templates`](/composed#templates) to include "py" for Python and "rs" for Rust.
+Generates clients for additional languages. Sets [`composedClient.templates`](/composed#templates) to include "py" (Python) and "rs" (Rust).
 
 ### `--validation-library <library>`
-Specifies the validation library to use. Supported options are "zod", "class-validator", "valibot", "arktype", or "none" to skip validation. For some libraries that support [Standard Schema](/validation/standard) like "arktype", it also creates a validation library located at **./src/lib/**, for example **./src/lib/withArk.ts**.
-
-If the validation library isn't set to "none", the command updates the [config](/config) file to include `validateOnClient` that corresponds to the chosen validation library.
+Selects a validation library: "zod", "class-validator", "valibot", "arktype", or "none" to skip validation. For libraries supporting [Standard Schema](/validation/standard) like "arktype", it also scaffolds a validation helper in **./src/lib/** (e.g., **./src/lib/withArk.ts**).
+If not set to "none", the command updates the [config](/config) to include the matching `validateOnClient`.
 
 ### `--channel <channel>`
-Specifies the channel to use for fetching packages (default: "latest"). You can use "draft" or "beta" to get the latest features. In this case, you need to use the `@draft` or `@beta` suffix when running the command:
+Specifies the package channel (default: "latest"). Use "draft" or "beta" to access newer features. In that case, use the corresponding suffix when running the command:
 
 ```sh npm2yarn
 npx vovk-init@beta --channel beta
 ```
 
 ### `--dry-run`
-Does not write files to disk but shows what would be done.
+Shows actions without writing files.
 
 ### `-h, --help`
-Displays help for the command.
+Displays help.

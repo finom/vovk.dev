@@ -23,51 +23,51 @@ Options:
 
 -----
 
-The `vovk dev` command runs a script that watches for changes in controllers and updates the [schema](/schema) and the [client](/typescript) accordingly when needed by making HTTP GET requests to `/api/<segment-name>/_schema_`, where `<segment-name>` is the name of the affected segment. If the schema changes, the watcher updates the JSON files and the client modules.
+The `vovk dev` command runs a watcher that monitors controllers and updates the [schema](/schema) and [client](/typescript) as needed. It does this by issuing HTTP GET requests to `/api/<segment-name>/_schema_`, where `<segment-name>` is the relevant segment. If the schema has changed, the watcher updates the JSON files and regenerates the client modules.
 
 ## How It Works
 
-1. `vovk dev` and `next dev` are run together with [concurrently](https://www.npmjs.com/package/concurrently).
-2. `vovk dev` watches for changes in the **/src/modules** folder (can be configured with the [`modulesDir`](/config#modulesdir) config option).
-3. When a change is detected, the script checks if the file contains a [controller](/controller) and if it belongs to a [segment](/segment) by performing some simple RegExp checks.
-4. If the file is a controller and belongs to a segment, the script sends a GET request to `/api/<segment-name>/_schema_` to retrieve the updated schema.
-5. The script checks if the schema has changed, and if so:
-   - If the list of controllers has changed (added, removed, renamed) or method definitions (including validation) have changed, the script updates the schema by saving it to the [.vovk-schema](/config#schemaoutdir) folder as a `<segment-name>.json` file.
-   - If the list of controllers has changed (added, removed, renamed), the script also updates the client. The client imports the schema JSON files to initialize the exported library properly. By default, the [composed client](/composed) is generated in the `node_modules/.vovk-client` folder and is re-exported by the [vovk-client](/packages#vovk-client) package. When the [segmented client](/segmented) is used, it generates files to the source folder, which by default is set to `./src/client`.
+1. `vovk dev` and `next dev` run together via [concurrently](https://www.npmjs.com/package/concurrently).
+2. `vovk dev` watches the **/src/modules** directory (configurable with [`modulesDir`](/config#modulesdir)).
+3. On change, the script checks whether the file contains a [controller](/controller) and belongs to a [segment](/segment) using simple RegExp checks.
+4. If it is a controller within a segment, the script requests `/api/<segment-name>/_schema_` to retrieve the updated schema.
+5. If the schema differs:
+   - If the controller list has changed (added, removed, renamed) or method definitions (including validation) were updated, the script writes the schema to the [.vovk-schema](/config#schemaoutdir) directory as `<segment-name>.json`.
+   - If the controller list changed, the client is also regenerated. The client imports schema JSON files to initialize the exported library. By default, the [composed client](/composed) is generated in `node_modules/.vovk-client` and re-exported by [vovk-client](/packages#vovk-client). When the [segmented client](/segmented) is enabled, files are generated to the source directory (default: `./src/client`).
 
 <Image src={devSvg} alt="vovk dev" className="dark:invert" />
 
-Since the `vovk dev` command is expected to be run together with the Next.js dev server, it can be run in two ways, both involving [concurrently](https://www.npmjs.com/package/concurrently):
+Because `vovk dev` is typically used alongside the Next.js dev server, there are two ways to run it, both using [concurrently](https://www.npmjs.com/package/concurrently):
 
-1. **Explicit way**: This approach might be preferable for those who want less abstraction. The downside of this option is that you need to define the `PORT` variable explicitly:
+1. **Explicit way**: Preferable if you want minimal abstraction. The downside is that you must set `PORT` explicitly:
 
 ```sh
 PORT=3000 npx concurrently 'vovk dev' 'next dev' --kill-others
 ```
 
-In this case, `next dev` flags can be defined as expected:
+You can pass Next.js flags as usual:
 
 ```sh
 PORT=3000 npx concurrently 'vovk dev --https' 'next dev --experimental-https --turbo' --kill-others
 ```
 
-2. **Implicit way**: In this case, the port is assigned automatically. It checks if a port (3000 by default) is already in use and attempts to find the next available one:
+2. **Implicit way**: Ports are assigned automatically. The script checks whether port 3000 (by default) is in use and selects the next available port:
 
 ```sh
 npx vovk dev --next-dev
 ```
 
-To define additional flags for `next dev`, you can pass them after `--`:
+To pass flags to `next dev`, append them after `--`:
 
 ```sh
 npx vovk dev --https --next-dev -- --experimental-https --turbo
 ```
 
-Behind the scenes, the implicit way uses the concurrently API, making both approaches nearly identical.
+Internally, the implicit mode uses the concurrently API, making both approaches nearly identical.
 
 Read more about [HTTPS in development](/config#devhttps).
 
-When [vovk init](/init) is used, the `dev` script is modified in the `package.json` file while preserving the previous value and flags.
+When you run [vovk init](/init), the `dev` script in `package.json` is updated while preserving your previous value and flags:
 
 ```json
 {
@@ -82,13 +82,13 @@ When [vovk init](/init) is used, the `dev` script is modified in the `package.js
 
 ## Run and Exit
 
-The `--exit` flag can be used to kill the process created by `vovk dev` after the schema and the client have been generated. This is useful when you want to run the script once without keeping it running.
+Use the `--exit` flag to terminate the processes started by `vovk dev` after the schema and client are generated. This is useful for one-off runs without keeping the watcher active.
 
 ```sh
 npx vovk dev --next-dev --exit
 ```
 
-You can create a separate script in `package.json` for this purpose:
+For convenience, add a dedicated script in `package.json`:
 
 ```json
 {

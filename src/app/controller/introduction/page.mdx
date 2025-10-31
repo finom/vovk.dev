@@ -3,7 +3,7 @@ import { VovkNewDynamic } from './VovkNewDynamic';
 
 # Controller
 
-**Create a controller with CLI**
+**Create a controller with the CLI**
 
 <VovkNewDynamic />
 
@@ -11,9 +11,9 @@ import { VovkNewDynamic } from './VovkNewDynamic';
 
 ## Definition
 
-A controller module is a static class (a class that has only static methods and is never instantiated) that handles incoming HTTP requests.
+A controller module is a static class (a class with only static methods that is never instantiated) that handles incoming HTTP requests.
 
-Methods of this class that are decorated with an HTTP decorator (like `@get()` or `@post()`) become request handlers and accept 2 arguments: [VovkRequest](/controllers/request) (which is inherited from `NextRequest`) and parameters that are set by the decorator path.
+Methods decorated with an HTTP decorator (like `@get()` or `@post()`) become request handlers and accept two arguments: [VovkRequest](/controller/request) (which extends `NextRequest`) and parameters defined by the decorator path.
 
 By default, the `NextRequest` type doesn't provide any information about the request body or query parameters, so the body is cast as `any` and query parameters are cast as `string | null`.
 
@@ -34,7 +34,7 @@ export default class UserController {
 }
 ```
 
-To add the required body and query types, you need to replace `NextRequest` with `VovkRequest` and define the types as generic arguments.
+To add the required body and query types, replace `NextRequest` with `VovkRequest` and define the types as generics.
 
 ```ts filename="src/modules/user/UserController.ts"
 import { prefix, put, type VovkRequest } from 'vovk';
@@ -67,7 +67,7 @@ export default abstract class UserController {
 
 </Callout>
 
-As you can see, we've changed nothing more than the type of `req`, but now `data` receives the type of `Partial<User>` and `notify` is cast as `'email' | 'push' | 'none'` and no longer extends `null`.
+As you can see, we only changed the type of `req`, but now `data` is `Partial<User>` and `notify` is typed as `'email' | 'push' | 'none'` and no longer includes `null`.
 
 ### Validation
 
@@ -118,7 +118,7 @@ export default class UserController {
 }
 ```
 
-Note that to enable safe self-inference in [service modules](/controller/service), the `handle` method doesn't enforce the return type and can return any value. However, you can use the `satisfies` operator to ensure that the returned value matches the expected output type.
+Note that to enable safe self‑inference in [service modules](/controller/service), the `handle` method doesn’t enforce a return type and can return any value. You can still use the `satisfies` operator to ensure the returned value matches the expected output type.
 
 ## Initialization
 
@@ -152,7 +152,7 @@ const updatedUser = await UserRPC.updateUser({
 
 ## Auto-Generated Endpoints
 
-All HTTP decorators provide an `.auto` method that generates the endpoint name automatically from the method name, making the handler definition more RPC-like.
+All HTTP decorators provide an `.auto` method that generates the endpoint name from the method name, making the handler definition more RPC‑like.
 
 ```ts filename="src/modules/user/UserController.ts"
 import { prefix, put } from 'vovk';

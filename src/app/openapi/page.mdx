@@ -1,20 +1,57 @@
-# RESTful API with OpenAPI
+# OpenAPI Specification with `@operation` Decorator
 
-Vovk.ts automatically generates OpenAPI specifications from the defined controllers and methods. The generated client exports an `openapi` object for the [composed client](/composed) and for each chunk of the [segmented client](/segmented) separately.
+Vovk.ts automatically generates an OpenAPI specification from controller methods, using validation models to populate operation objects with `parameters`, `requestBody`, and `responses`. The `@operation` decorator lets you enrich operation objects with metadata such as `summary`, `description`, `tags`, and more. It accepts a `VovkOperationObject`, which extends the standard OpenAPI `OperationObject` type from [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts) and supports `x-tool-*` properties related to AI capabilities, as described in the [Function Calling](/function-calling) documentation.
+
+```ts filename="src/modules/user/UserController.ts"
+import { put, prefix, operation } from "vovk";
+import { z } from "zod";
+import { withZod } from "vovk-zod";
+
+@prefix("users")
+export default class UserController {
+  @operation({
+    summary: "Update User",
+    description: "Update user information",
+  })
+  @put("{id}")
+  static updateUser = withZod({
+    isForm: true,
+    params: z.object({
+      id: z.uuid(),
+    }),
+    body: z.object({ /* ... */ }),
+    query: z.object({ /* ... */ }),
+    output: z.object({ /* ... */ }),
+    // ...
+  })
+}
+```
+
+The [validation](/validation) models are converted to OpenAPI operation objects according to the following mapping:
+
+- `params` → `parameters` with `in: "path"`
+- `query` → `parameters` with `in: "query"`
+- `body` → `requestBody` with the `application/json` content type (`isForm` changes it to `multipart/form-data`)
+- `output` → `responses` with status `200` and `application/json` content type
+- `iteration` → `responses` with status `200` and `application/jsonl` content type
+
+## Utilizing the Generated OpenAPI Specification
+
+The generated RPC client exports an `openapi` object that contains the full back-end specification for the [composed client](/composed). When using the [segmented client](/segmented), each [segment](/segment) also exports its own specification.
 
 ```ts
 import { UserRPC, openapi } from 'vovk-client'; // composed client
 ```
 
 ```ts
-import { UserRPC, openapi } from '@/client/user/index.ts'; // segmented client
+import { UserRPC, openapi } from '@/client/admin/index.ts'; // segmented client
 ```
 
-The `openapi` object can also be imported from `vovk-client/openapi` or `@/client/user/openapi`, which import the object only, without the RPC client.
+You can alternatively import the `openapi` object from `vovk-client/openapi` or `@/client/admin/openapi` to access the specification independently of the RPC modules.
 
-The object is a ready-to-use OpenAPI specification that can be used with any tool that supports OpenAPI 3+.
+This object is a fully compliant OpenAPI 3.x specification and works with any tool that supports OpenAPI 3 or later.
 
-You can use the object directly or create a [static segment](/segment/static) with a simple [controller](/controller) that exposes the spec as a JSON endpoint.
+You can use the specification directly as a variable or expose it via a [static segment](/segment/static) with a simple [controller](/controller) that serves it as a JSON endpoint.
 
 ```sh npm2yarn
 npx vovk new segment --static static
@@ -29,16 +66,16 @@ import { get, operation } from "vovk";
 import { openapi } from "vovk-client/openapi";
 
 export default class OpenApiController {
-  @operation({ // the operation object definition is optional
-    summary: "OpenAPI spec",
-    description: 'Get the OpenAPI spec for the API',
+  @operation({ // operation object definition is optional
+    summary: "OpenAPI Specification",
+    description: 'Retrieve the OpenAPI specification for the API',
   })
   @get("openapi.json")
   static getSpec = () => openapi;
 }
 ```
 
-On the client side, you can use any OpenAPI tooling, but it's recommended to use [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react), as Vovk.ts generates code snippets that can be copied directly to your codebase.
+On the client side, you can use any OpenAPI documentation generator. We recommend [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react) because Vovk.ts generates code snippets that integrate directly into your codebase.
 
 ```tsx
 import { ApiReferenceReact } from "@scalar/api-reference-react";
@@ -67,4 +104,4 @@ async function App() {
 export default App;
 ```
 
-See what it looks like in the ["Hello World" app](https://vovk-hello-world.vercel.app/openapi). For more info, check the ["Hello World"](/hello-world) page.
+For a live demonstration, see the ["Hello World" application](https://hello-world.vovk.dev/openapi). Additional details are available on the ["Hello World"](/hello-world) page.

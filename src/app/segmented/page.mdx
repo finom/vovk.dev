@@ -2,9 +2,9 @@ import { FileTree } from 'nextra/components';
 
 # Segmented RPC Client
 
-The [Composed RPC Client](/composed) is suitable for single-page applications, but in larger applications, exposing the schema for all segments in a single RPC client isn't always desirable. In this case, with a simple configuration change, you can instruct Vovk.ts to generate separate RPC clients for each segment. This approach is called the **"Segmented RPC Client"** and allows you to split the client into smaller TypeScript files that can be imported separately, hiding RPC modules and their corresponding schemas from specific pages. For example, pages responsible for "customer" functionality won't import "admin" RPC modules, keeping admin implementation details hidden from customer pages.
+The [Composed RPC Client](/composed) works well for single-page applications, but in larger apps exposing the entire schema through a single client may be undesirable. With a small configuration change, you can instruct Vovk.ts to generate separate RPC clients for each segment. This approach—called the **Segmented RPC Client**—splits the client into smaller per-segment TypeScript modules that can be imported independently, keeping RPC modules and their schemas hidden from unrelated pages. For example, “customer” pages won’t import “admin” RPC modules, keeping admin details out of customer code.
 
-By default, the segmented client is generated into the **./src/client** folder (or **./client** folder if you don't use a src folder) from the [ts](/templates#ts) template. For an app with multiple segments, the structure of the generated client may look like this:
+By default, the segmented client is generated in the `./src/client` folder (or `./client` if you don’t use a `src` folder) from the [ts](/templates#ts) template. For an app with multiple segments, the generated structure may look like this:
 
 <FileTree>
   <FileTree.Folder name="src/client" defaultOpen>
@@ -179,7 +179,7 @@ By default, the segmented client is generated into the **./src/client** folder (
   </FileTree.Folder>
 </FileTree>
 
-When you import an RPC module from one of the `.ts` files, the import tree will contain only the schema for that segment and the RPC modules used in that segment. For example, if you import `UserRPC` from the `customer` segment, the import tree will contain only the schema for the `customer` segment located at `.vovk-schema/customer.json` and the RPC modules used in that segment. `.vovk-schema/admin.json` and other JSON files for other segments won't be included in the import tree.
+When you import an RPC module from one of the `.ts` files, the import tree includes only the schema and RPC modules for that segment. For example, importing `UserRPC` from the `customer` segment pulls in `.vovk-schema/customer.json` only; `.vovk-schema/admin.json` and other segment files are not included.
 
 ```ts filename="src/client/customer/index.ts"
 import { UserRPC } from '@/client/customer'; // import tree will contain customer.json
@@ -187,9 +187,9 @@ import { UserRPC } from '@/client/customer'; // import tree will contain custome
 await UserRPC.getUser({ id: '123' });
 ```
 
-The segmented client is also applicable for [Rust](/rust) and [Python](/python) templates, though it has an unknown use case.
+The segmented client also applies to [Rust](/rust) and [Python](/python) templates, though use cases are less common.
 
-In order to enable the segmented client, you need to set the `segmentedClient.enabled` option to `true` in the `vovk.config.mjs` file and optionally disable the composed client by setting `composedClient.enabled` to `false`.
+To enable the segmented client, set `segmentedClient.enabled` to `true` in `vovk.config.mjs`, and optionally disable the composed client by setting `composedClient.enabled` to `false`.
 
 ```ts filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -204,7 +204,7 @@ const config = {
 export default config;
 ```
 
-At this case the **vovk-client** package isn't needed anymore.
+In this case, the **vovk-client** package is no longer needed.
 
 The settings are the same as the settings for the [composed client](/composed).
 

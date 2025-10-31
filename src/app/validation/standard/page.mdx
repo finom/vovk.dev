@@ -1,8 +1,8 @@
 # Standard Schema Validation
 
-[Standard Schema](https://github.com/standard-schema/standard-schema) is a convention supported by modern validation libraries that implements a common interface for defining and validating data structures. It's supported by libraries like [Zod 4](https://www.npmjs.com/package/zod), [ArkType](https://www.npmjs.com/package/arktype), [Valibot](https://www.npmjs.com/package/valibot), and many others. Check the full list of libraries that implement Standard Schema [at the original repository](https://github.com/standard-schema/standard-schema?tab=readme-ov-file#what-schema-libraries-implement-the-spec).
+[Standard Schema](https://github.com/standard-schema/standard-schema) is a convention supported by modern validation libraries that implement a common interface for defining and validating data structures. It is supported by libraries such as [Zod 4](https://www.npmjs.com/package/zod), [ArkType](https://www.npmjs.com/package/arktype), [Valibot](https://www.npmjs.com/package/valibot), and more. See the full list of implementations in the [repository](https://github.com/standard-schema/standard-schema?tab=readme-ov-file#what-schema-libraries-implement-the-spec).
 
-Vovk.ts provides a simple `createStandardValidation` function that creates a custom validation library using Standard Schema. The only option for this function is the `toJSONSchema` function, which defines how to convert the models to JSON Schema format.
+Vovk.ts provides a simple `createStandardValidation` function to build a custom validation library using Standard Schema. Its key option is `toJSONSchema`, which defines how to convert models to JSON Schema.
 
 ## ArkType Example
 
@@ -10,9 +10,9 @@ Create `withArk` somewhere in your codebase:
 
 ```ts filename="src/lib/withArk.ts"
 import { createStandardValidation } from 'vovk';
-import type { type } from 'arktype';
+import { type } from 'arktype';
 
-const withArk = createStandardValidation({
+export const withArk = createStandardValidation({
   toJSONSchema: (model: type) => model.toJsonSchema({
     fallback: { 
       proto: (ctx) => ctx.proto === File ? {
@@ -76,7 +76,7 @@ Create `withValibot` somewhere in your codebase:
 import { createStandardValidation } from 'vovk';
 import { toJsonSchema } from '@valibot/to-json-schema';
 
-const withValibot = createStandardValidation({
+export const withValibot = createStandardValidation({
   toJSONSchema: (model) => toJsonSchema(model, {
     overrideSchema(context) {
       if (context.valibotSchema.type === 'file') {
@@ -136,4 +136,4 @@ export default class UserController {
 }
 ```
 
-All other libraries are implemented in a similar way; the only difference will be in the `toJSONSchema` implementations. Once [standard-schema/issues/21](https://github.com/standard-schema/standard-schema/issues/21) is resolved, the requirement to use `createStandardValidation` will likely become obsolete in most cases.
+Other libraries follow the same pattern; only the `toJSONSchema` implementation differs. Once [standard-schema/issues/21](https://github.com/standard-schema/standard-schema/issues/21) is resolved, using `createStandardValidation` will likely be unnecessary in most cases.

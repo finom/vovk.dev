@@ -1,48 +1,42 @@
-import { Steps } from 'nextra/components';
-
-TODO: Split "AI features" into completions, MCP and realtime-ui sections.
-
 # Framework for SaaS Applications
 
-Next.js in tandem with Vovk.ts offers a framework for building SaaS applications that is easy to deploy, scale, and maintain, while also providing a set of out-of-the-box features that cover common use cases.
+Next.js, combined with Vovk.ts, provides a powerful foundation for building SaaS applications that are easy to deploy, scale, and maintain. It includes a rich set of out-of-the-box features addressing modern requirements and common SaaS use cases.
 
-<Steps>
+## Low-Cost Development and Deployment
 
-## Cheap Development and Deployment
-
-The entire app is implemented as a single Next.js application that, when deployed, splits into multiple serverless functions (smaller "back-ends"), each serving a specific purpose. This makes deployment infrastructure cheaper, as there's only one Next.js app to deploy with minimal configuration, while still being able to scale horizontally by adding more functions defined as Next.js `page.tsx` (UI) and `route.ts` (server-side code) files. It also makes repository management easier, as you don't need to maintain a monorepo that requires additional configuration and tooling.
+The entire app is implemented as a single Next.js application that, when deployed, splits into multiple serverless functions (smaller "back-ends"), each serving a specific purpose. This architecture reduces infrastructure costs while enabling effortless horizontal scaling by adding more functions defined as Next.js `page.tsx` (UI) and `route.ts` (server-side code) files. It also makes repository management significantly easier, as developers don't need to maintain a mono-repository that always requires additional configuration and tooling.
 
 **Read more**
 
 - [Next.js Route Handlers](https://nextjs.org/docs/app/api-reference/file-conventions/route)
-- [Segment Docs](/segment)
+- [Segment](/segment)
 
 ## Enable Multi-Tenancy
 
-In the most classical case, a SaaS application is split into 3 areas:
+A large application often needs to be split into multiple areas, each serving a different purpose and audience. Next.js with Vovk.ts makes it easy to implement multi-tenant SaaS applications that can serve different areas from different domains or subdomains within a single Next.js app (such as [example.com](https://multitenant.vovk.dev/), [admin.example.com](https://admin.multitenant.vovk.dev/), [customer.example.com](https://customer.multitenant.vovk.dev/)), while still being able to share code and resources between them.
 
-1. Root area - serves the landing page with some features like "subscribe to newsletter", stats collection, etc. It's available to all unauthenticated users, serving marketing content, pricing plans, etc.
-2. Customer area - serves authenticated customers, providing access to the main features of the application.
-3. Admin area - serves authenticated administrators, providing access to admin features such as managing customers, billing, etc.
-
-Each area is served from a separate Next.js `route.ts` file, allowing you to split the application into multiple segments, each served as a separate serverless function (i.e., separate "back-ends"). This allows you to scale the application horizontally by adding more functions while still being able to serve different areas of the application from different domains, such as `https://example.com`, `https://admin.example.com`, `https://customer.example.com`, and so on.
 
 **Read more**
 
 - [Next.js Middleware](https://nextjs.org/docs/app/api-reference/file-conventions/middleware)
 - [Vovk.ts Multi-tenancy](/multitenant)
 
-## Enable AI Features
+## Build JARVIS-Grade Real-Time User Interfaces
 
-Vovk.ts is designed to cover the most common use cases for AI-powered applications, such as JSON streaming and function calling, allowing you to build AI-powered applications with minimal effort. The most interesting part is that with some front-end tricks, you can achieve real-time UI updates powered by LLMs, making the user experience more interactive and engaging. This also allows people with disabilities to have a better experience by interacting with the application using voice commands.
+Vovk.ts provides a powerful function calling framework that turns controllers and RPC modules into AI-accessible functions that can be executed at the current evaluation context or or via an HTTP request to the server. With simple front-end techniques, you can build real-time user interfaces that update as the AI generates function parameters, providing a seamless and interactive experience for app users with minimal development effort. This approach is especially useful for people with disabilities, as it allows them to interact with the application using voice commands and see the UI respond in real-time.
 
 **Read more**
+- [Real-Time UI](/realtime-ui)
+- [Function Calling](/function-calling)
+- [Real-Time Polling](/polling)
 
-- [LLM completions: AI SDK / JSON Lines](/llm)
-- [Function calling](/function-calling)
-- [Real-time UI](/realtime-ui)
-- [Real-time polling](/polling)
-- [MCP server](/mcp)
+## Create MCP Servers
+
+Implementing Model Context Protocol (MCP) servers has never been easier. With the function calling framework built into Vovk.ts, you can create MCP servers in no time and with minimal development effort. This allows you to build applications that can seamlessly interact with other AI-powered systems, providing the full range of AI interoperability features developers expect today.
+
+**Read more**
+- [MCP Server](/mcp)
+- [Function Calling](/function-calling)
 
 ## Offer Public API to Your Customers
 
@@ -55,7 +49,7 @@ Vovk.ts implements the conventional RESTful API, allowing you to expose API endp
 
 ## Offer Installable Libraries for Your Public API
 
-The client-side RPC library can be packaged and distributed to be installed and used by other developers, saving your time and money on the development and maintenance of a manually developed library.
+The client-side RPC library can be packaged and distributed to be installed and used by other developers. This enables other developers to integrate with your API quickly, without needing to write boilerplate networking code.
 
 **Read more**
 
@@ -64,11 +58,10 @@ The client-side RPC library can be packaged and distributed to be installed and 
 - [Rust RPC library](/rust)
 - [Python RPC library](/python)
  
-## Use Third-Party APIs
+## Integrate Third-Party APIs
 
 Using third-party APIs has never been easier. The generated RPC library can be mixed with other APIs if they provide an OpenAPI specification document in JSON or YAML format. The generated modules follow the same design as the RPC modules created with the Vovk.ts library, allowing you to use them as part of your function calling or MCP framework.
 
 **Read more**
 
-- [OpenAPI mixins](/codegen)
-</Steps>
+- [OpenAPI Mixins](/codegen)

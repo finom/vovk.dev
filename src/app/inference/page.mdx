@@ -1,6 +1,6 @@
 # Type Inference
 
-Input and output inference is performed by universal types that can be applied to both RPC modules and [controller](/controller) methods.
+Input and output inference is provided by universal types that work for both RPC modules and [controller](/controller) methods.
 
 Client-side inference:
 
@@ -45,9 +45,9 @@ type Yield = VovkYieldType<typeof StreamController.streamTokens>;
 
 ## Input Inference
 
-The source body, query, and params types are defined using [`VovkRequest<TBody, TQuery, ?TParams>{:ts}`](/controller/request), which defines the type of the `req` argument of the controller method. In other words, both raw method definitions and validated method definitions define the input types for `body`, `query`, and `params`.
+Source types for `body`, `query`, and `params` are defined via [`VovkRequest<TBody, TQuery, ?TParams>{:ts}`](/controller/request), which specifies the type of the `req` argument in controller methods. In other words, both raw and validated method definitions determine the input types.
 
-Raw method definition with param as a generic argument:
+Raw method definition with `params` as a generic argument:
 
 ```ts
 import type { VovkRequest } from 'vovk';
@@ -60,7 +60,7 @@ export default class UserController {
 }
 ```
 
-Raw method definition with param as a separate argument:
+Raw method definition with `params` as a separate argument:
 
 ```ts
 import type { VovkRequest } from 'vovk';
@@ -73,7 +73,7 @@ export default class UserController {
 }
 ```
 
-Validated methods define the input types automatically:
+Validated methods infer input types automatically:
 
 ```ts
 import { withZod } from 'vovk-zod';
@@ -92,7 +92,7 @@ export default class UserController {
 }
 ```
 
-All three cases will generate the same RPC method:
+All three cases generate the same RPC method:
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -104,7 +104,7 @@ await UserRPC.updateUser({
 });
 ```
 
-And all these cases will allow you to infer the input types in the same way:
+And they allow you to infer input types identically:
 
 ```ts
 import type { VovkBody, VovkQuery, VovkParams } from 'vovk';
@@ -126,7 +126,7 @@ type Params = VovkParams<typeof UserController.updateUser>; // { param: string }
 
 ## Output/Iteration Inference
 
-The source output and iteration types are defined with [validation libraries](/validation) only.
+Output and iteration types are defined only when using [validation libraries](/validation).
 
 For output:
 
@@ -182,7 +182,7 @@ type Iteration = VovkIteration<typeof StreamController.streamItems>; // { item: 
 
 ## Return/Yield Inference
 
-The `VovkReturnType<T>` and `VovkYieldType<T>` types allow you to infer the actual return type or yield type of a method when its input isn't validated. These types cannot be used for self-references in [services](/controller/service), as they cause "implicit any" TypeScript errors.
+`VovkReturnType<T>` and `VovkYieldType<T>` infer the actual return or yield type of methods when input is not validated. These types cannot be used for self-references in [services](/controller/service), as they cause “implicit any” TypeScript errors.
 
 ```ts
 export default class UserController {

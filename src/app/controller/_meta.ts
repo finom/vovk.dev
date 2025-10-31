@@ -1,7 +1,7 @@
 import type { MetaRecord } from 'nextra';
 
 const meta = {
-  introduction: 'Getting started',
+  introduction: 'Getting Started',
   request: 'VovkRequest Type',
   service: 'Service',
   errors: 'Errors',

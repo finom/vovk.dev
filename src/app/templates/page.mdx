@@ -2,26 +2,26 @@
 
 ## Introduction
 
-Vovk.ts renders the client libraries from [EJS](https://www.npmjs.com/package/ejs) templates. To accommodate potential use cases, Vovk.ts provides simple yet powerful template logic that satisfies the following requirements:
+Vovk.ts renders client libraries from [EJS](https://www.npmjs.com/package/ejs) templates. To accommodate a wide range of use cases, Vovk.ts provides simple yet powerful template logic that meets the following requirements:
 
-1. Render multiple files from a single template definition. This means that a **"template" is a directory** with one or more files, where files with the `.ejs` extension are rendered as EJS templates, and other files are copied as is. An `index.ts.ejs` file is rendered as an `index.ts` file, and an `index.ts` without the `.ejs` extension is copied as is.
-2. Use existing templates as a base for other templates using the `extends` option. This means you can create a new template that extends an existing one and overrides some of its options.
-3. Use existing templates as dependencies for other templates using the `requires` option. This means you can create a new template that uses existing templates as dependencies and renders them in the output directory.
+1. Render multiple files from a single template definition. This means a **"template" is a directory** with one or more files, where files with the `.ejs` extension are rendered as EJS templates and other files are copied as-is. An `index.ts.ejs` file is rendered as `index.ts`, and an `index.ts` without the `.ejs` extension is copied as-is.
+2. Use existing templates as a base for other templates using the `extends` option. This allows you to create a new template that extends an existing one and overrides some of its options.
+3. Use existing templates as dependencies for other templates using the `requires` option. This allows you to create a new template that composes existing templates and renders them into the output directory.
 
-Template definitions are configured in the [config](/config) file under the `clientTemplateDefs` option. By default, the value of this object includes built-in template definitions that can be viewed if you set the [`emitConfig`](/config#emitconfig) option to `true` or, if `emitConfig` is an array, add `clientTemplateDefs` to the list. After that, you can look at the `.vovk-schema/_meta.json` file, which contains the list of all available template definitions under the `config` key.
+Template definitions are configured in [config](/config) under the `clientTemplateDefs` option. By default, this object includes built-in template definitions that become visible if you set [`emitConfig`](/config#emitconfig) to `true` or, if `emitConfig` is an array, add `clientTemplateDefs`. You can then inspect `.vovk-schema/_meta.json`, which lists all available template definitions under `config`.
 
 ## Example
 
-To make it easier to understand the options in the section below, let's break down a built-in template definition for the [Rust client](/rust). The primary template definition is stored under the [rs](#rs) key, indicating the template name that can be used as a `fromTemplates` item in the [segmented client](/segmented) or [composed client](/composed) configuration.
+To make the options in the next section concrete, let’s break down the built-in template definition for the [Rust client](/rust). The primary definition is stored under the [rs](#rs) key, which is the template name used in the [segmented client](/segmented) or [composed client](/composed) configuration.
 
-By itself, it doesn't have files to render, so it doesn't include the `templatePath` option. Instead, it extends the [rsSrc](#rssrc) template definition that renders the Rust source code files only to the `./src` directory relative to `outDir`, the [rsPkg](#rspkg) template definition that renders Cargo-related files to the root of `outDir`, and the [rsReadme](#rsreadme) template definition that renders README files to the root of `outDir`. The `rs` template definition also defines a `composedClient` option that overrides the default `outDir` option to `dist_rust`, so it isn't compiled into the `node_modules/.vovk-client` folder used by the composed [TypeScript](/typescript) client.
+By itself, it doesn’t contain files, so it omits `templatePath`. Instead, it extends the [rsSrc](#rssrc) definition that renders Rust source files to `./src` (relative to `outDir`), the [rsPkg](#rspkg) definition that renders Cargo-related files to the root of `outDir`, and the [rsReadme](#rsreadme) definition that renders README files to the root of `outDir`. The `rs` template definition also sets a `composedClient` option that overrides the default `outDir` to `dist_rust`, so it isn’t compiled into the `node_modules/.vovk-client` folder used by the composed [TypeScript](/typescript) client.
 
-The [rsSrc](#rssrc) template definition uses the `templatePath` option to define the path to the template directory (`lib.rs.ejs`, `http_request.rs`, etc.). It `requires` the [schemaJson](#schemajson) template that renders the `schema.json` file, which contains the full schema combined from separate .json files from the `.vovk-schema/` folder.
+The [rsSrc](#rssrc) definition uses `templatePath` to point to its template directory (`lib.rs.ejs`, `http_request.rs`, etc.). It `requires` the [schemaJson](#schemajson) template that renders `schema.json`, which combines the full schema from the `.vovk-schema/` folder.
 
-Take a look at the example copied from the project codebase. `BuiltInTemplateName` is an enum that contains the names of built-in templates that are equal to their keys:
+Take a look at the example copied from the project codebase. `BuiltInTemplateName` is an enum whose values match the built-in template keys:
 
 ```ts
-const rsTemplateDemo§ = {
+const rsTemplateDemo = {
   [BuiltInTemplateName.schemaJson]: {
     templatePath: `vovk-cli/client-templates/${BuiltInTemplateName.schemaJson}/`,
   },
@@ -50,21 +50,21 @@ const rsTemplateDemo§ = {
 };
 ```
 
-(all paths end with a slash `/` for clarity, but it isn't required)
+(all paths end with a slash `/` for clarity, though it isn’t required)
 
-This approach allows you to generate the full Cargo package with:
+This setup allows you to generate the full Cargo package with:
 
 ```sh npm2yarn
 npx vovk generate --from rs --out ./dist_rust
 ```
 
-As well as to generate the source code only with:
+Or generate only the source code with:
 
 ```sh
 npx vovk generate --from rsSrc --out ./my_rust_project/src
 ```
 
-Or the README.md file only with:
+Or only the `README.md` file with:
 
 ```sh npm2yarn
 npx vovk generate --from rsReadme --out ./my_rust_project
@@ -73,62 +73,74 @@ npx vovk generate --from rsReadme --out ./my_rust_project
 <a name="defs" />
 ## Template Definitions
 
-The list of available options for template definitions:
+The available options:
 
 <a name="extends" />
 ### `extends?: string`
 
-Indicates the name of the built-in template that this template extends. The `extends` option can be used to create a new template definition based on an existing one. It can also be used to redefine built-in template options, such as `segmentedConfig.outDir`.
+Specifies the name of the built-in template this definition extends. Use `extends` to inherit and override options, such as `segmentedConfig.outDir`.
 
 <a name="templatePath" />
 ### `templatePath?: string`
 
-Path to the template directory, relative to the root of the project. If not specified, the template definition can still use [requires](#requires) to include files from other templates.
+Path to the template directory, relative to the project root. If omitted, the template can still use [requires](#requires) to include files from other templates.
 
 <a name="requires" />
 ### `requires?: Record<string, string>`
 
-List of other template definitions that this template uses as dependencies. The keys are the names of the required template definitions, and the values are the paths where the templates will be rendered, relative to the root of the output directory.
+Other template definitions this template depends on. Keys are template names; values are target paths where those templates will be rendered, relative to the output directory root.
 
 <a name="composedClient" />
 ### `composedClient?: object`
 
-Configuration options for the composed client that extend the root `composedClient` option in the [config](/config) file. This can be used to customize the behavior of the composed client for this template to use different `outDir`, `excludeSegments`, etc.
+Options for the composed client that extend the root `composedClient` options in [config](/config). Use this to customize behavior for this template (e.g., `outDir`, `excludeSegments`, etc.).
 
 <a name="segmentedClient" />
 ### `segmentedClient?: object`
 
-Configuration options for the segmented client that extend the root `segmentedClient` option in the [config](/config) file. This can be used to customize the behavior of the segmented client for this template to use different `outDir`, `excludeSegments`, etc.
+Options for the segmented client that extend the root `segmentedClient` options in [config](/config). Use this to customize behavior for this template (e.g., `outDir`, `excludeSegments`, etc.).
 
 <a name="generatorconfig" />
 ### `outputConfig?: object`
 
-Overrides the `outputConfig` option in the root of the [config](/config#generatorconfig) file. This can be used to customize the generated client for this template to use different `origin`, `openAPIObject`, etc.
+Overrides `outputConfig` in the root [config](/config#generatorconfig). Use this to customize the generated client (e.g., `origin`, `openAPIObject`, etc.).
 
 ## Built-in Templates
 
-The list of built-in templates available by default:
+### `rs`
+
+Renders the [Rust](/rust) client package that includes both source code and Cargo files.
+- `requires` [rsSrc](#rssrc) and [rsPkg](#rspkg) templates.
+- Defines a `composedClient` option to set the output directory to `dist_rust`.
+- `extends` [rsSrc](#rssrc) and [rsPkg](#rspkg) templates.
+
+### `py`
+
+Renders the Python client package that includes both source code and setup files.
+- `requires` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
+- Defines a `composedClient` option to set the output directory to `dist_python`.
+- `extends` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
 
 ### `ts`
 
 Used as the default template for the [segmented client](/segmented). Renders TypeScript code.
 
 - `templatePath` is `vovk-cli/client-templates/ts/`.
-- `requires` [schemaTs](#schemats), [openapiTs](#openapits), and [mixins](#mixins) (the last one is used conditionally if [OpenAPI mixins](/codegen) are used).
+- `requires` [schemaTs](#schemats), [openapiTs](#openapits), and [mixins](#mixins) (the last one is used conditionally if [OpenAPI Mixins](/codegen) are used).
 
 ### `cjs`
 
 Used as one of the default templates (the other one is [mjs](#mjs)) for the [composed client](/composed). Renders CommonJS code.
 
 - `templatePath` is `vovk-cli/client-templates/cjs/`.
-- `requires` [schemaCjs](#schemacjs), [openapiCjs](#openapicjs), and [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
+- `requires` [schemaCjs](#schemacjs), [openapiCjs](#openapicjs), and [mixins](#mixins) (the last one is used conditionally if OpenAPI Mixins are used).
 
 ### `mjs`
 
 Used as one of the default templates (the other one is [cjs](#cjs)) for the [composed client](/composed). Renders ES Module code.
 
 - `templatePath` is `vovk-cli/client-templates/mjs/`.
-- `requires` [schemaCjs](#schemacjs), [openapiCjs](#openapicjs), and [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
+- `requires` [schemaCjs](#schemacjs), [openapiCjs](#openapicjs), and [mixins](#mixins) (the last one is used conditionally if OpenAPI Mixins are used).
 
 ### `schemaTs`
 
@@ -182,7 +194,7 @@ Renders the `package.json` file that makes the generated client ready to be publ
 
 ### `mixins`
 
-Generates types and [schema](/schema) for [OpenAPI mixins](/codegen) when they are present.
+Generates types and [schema](/schema) for [OpenAPI Mixins](/codegen) when they are present.
 
 - `templatePath` is `vovk-cli/client-templates/mixins/`.
 
@@ -205,47 +217,3 @@ Renders `Cargo.toml` and `README.md` files for the Rust client.
 Renders the `README.md` file for the Rust client. Works similarly to the [readme](#readme) template.
 
 - `templatePath` is `vovk-rust/client-templates/rsReadme/`.
-
-### `rs`
-
-Renders the [Rust](/rust) client package that includes both source code and Cargo files.
-
-- `requires` [rsSrc](#rssrc) and [rsPkg](#rspkg) templates.
-- defines `composedClient` option to set the output directory to `dist_rust`.
-- `extends` [rsSrc](#rssrc) and [rsPkg](#rspkg) templates.
-
-### `pySrc`
-
-Renders Python source code files, such as `client.py`, `http_request.py`, etc.
-
-- `templatePath` is `vovk-cli/client-templates/pySrc/`.
-- `requires` [schemaJson](#schemajson) template to include the full schema in the generated code.
-
-### `pyPkg`
-
-Renders `setup.py` and `README.md` files for the Python client.
-
-- `templatePath` is `vovk-cli/client-templates/pyPkg/`.
-- `requires` [pyReadme](#pyreadme) template to include the README file in the package.
-
-### `pyReadme`
-
-Renders the `README.md` file for the Python client. Works similarly to the [readme](#readme) template.
-
-- `templatePath` is `vovk-python/client-templates/pyReadme/`.
-
-### `py`
-
-Renders the Python client package that includes both source code and setup files.
-
-- `requires` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
-- defines `composedClient` option to set the output directory to `dist_python`.
-- `extends` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
-
-## Create a New Template with EJS 🚧
-
-Coming soon.
-
-## Roadmap
-
-- 📝 Document custom client templates and available variables.

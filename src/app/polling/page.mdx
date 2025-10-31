@@ -1,23 +1,24 @@
 import GithubFiles from '@/components/GithubFiles';
 
 TODO: deletions need to be explicit
+TODO: Add ticker
 
 # Real-time polling (experimental)
 
-In the [previous article](/realtime-ui) we've covered how to use OpenAPI Real-time API to get instant updates in the UI while user talks to the app. The LLM functions created with `createLLMTools` were executed at the browser by AI, making HTTP requests to the server with RPC modules.
+In the [previous article](/realtime-ui), we covered how to use the OpenAPI Real-time API to deliver instant UI updates while the user interacts with the app. The LLM functions created with `createLLMTools` ran in the browser, where the AI performed HTTP requests to the server using RPC modules.
 
-On this page we'll cover how to use database polling to get updates from the server made by other users or third party services, such as [MCP](/mcp), getting UI to be in sync with the database. In order to make the app deployable to any hosting provider, we want to avoid any non-HTTP protocols, such as WebSockets, so we're going to use polling via HTTP powered by [JSONLines](/controller/jsonlines) to achieve this.
+On this page, we explain how to use database polling to receive updates triggered by other users or third-party services (such as [MCP](/mcp)), keeping the UI in sync with the database. To ensure the app can be deployed to any hosting provider, we avoid non-HTTP protocols such as WebSockets and instead use HTTP polling powered by [JSONLines](/controller/jsonlines).
 
 ## Redis DB as event bus
 
-Theoretically, we could just poll the main Postgres database for changes, but that would be quite inefficient. Instead, we're going to use a Redis database as an event bus. Whenever something changes in the main database, we write a small event to Redis DB, and our DB polling service is going to read it every second and send it to the clients, who have the app open.
+While we could poll the main Postgres database for changes, that approach is inefficient. Instead, we use Redis as an event bus. Whenever the main database changes, we write a small event to Redis. Our polling service reads these events every second and relays them to clients with the app open.
 
-Since we use [Prisma](https://www.prisma.io/) as our main database ORM, we can use [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. That's where the `DatabaseService` mentioned at [previous article](/realtime-ui) come into play.
+Because we use [Prisma](https://www.prisma.io/) as our ORM, we rely on [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. This is where the `DatabaseService` mentioned in the [previous article](/realtime-ui) comes into play.
 
-<GithubFiles paths={['src/modules/database/DatabaseService.ts']} repo="vovk-ai-demo" cutLines={[3, [7, 13]]} highlightLines={[19, 95]} />
+<GithubFiles paths={['src/modules/database/DatabaseService.ts']} repo="vovk-kanban-demo" cutLines={[3, [7, 13]]} highlightLines={[19, 95]} />
 
-- The `getClient` method calls `DatabaseEventsService.beginEmitting(){:ts}` to start the event emitter. The `beginEmitting` function runs a `setInterval` that connects to Redis and periodically checks for new events. If a new event is found, it emits an event using [mitt](https://npmjs.com/package/mitt) event emitter.
-- `prisma.$extends` creates a hook into all Prisma model operations, figuring out if the operation changes the database, and if it does, it calls `await DatabaseEventsService.createChanges([change]){:ts}`, that writes the change to the Redis database. The change has the following shape, capturing creates, updates and deletions:
+- The `getClient` method calls `DatabaseEventsService.beginEmitting(){:ts}` to start emitting events. `beginEmitting` runs a `setInterval` that connects to Redis and periodically checks for new events. When a new event is found, it emits it via [mitt](https://npmjs.com/package/mitt).
+- `prisma.$extends` hooks into all Prisma model operations, determines whether an operation modifies data, and if so calls `await DatabaseEventsService.createChanges([change]){:ts}` to persist a change entry in Redis. The change captures creates, updates, and deletions:
 
 ```ts
 export type DBChange = {
@@ -28,32 +29,31 @@ export type DBChange = {
 };
 ```
 
-The `date` field indicates the time when the change was made.
+The `date` field indicates when the change occurred.
 
-- For `create` and `update` operations it uses `updatedAt` DB field (IMPORTANT: all DB operations must include this field).
-- For `delete` operation it uses current time.
+- For `create` and `update` operations, it uses the `updatedAt` DB field (Important: all write operations must set this field).
+- For `delete` operations, it uses the current time.
 
-The `delete` operation also adds `__isDeleted` property, that is read by front-end in order to make the deleted entity disappear using `enumerable: false` for the entity registry item. This part is outlined in the [previous article](/realtime-ui).
+The `delete` operation also adds an `__isDeleted` property. The front end checks this property to hide the deleted entity by setting `enumerable: false` on the entity registry item (see the [previous article](/realtime-ui)).
 
-Operations like `find...` and `count` don't trigger any change, so they're passed thru as is.
+Operations like `find...` and `count` do not trigger changes and are passed through as-is.
 
-Besides the `beginEmitting` and `createChanges`, the `DatabaseEventsService` implements `connect` method as well as `mitt` instance as `emitter` property, that are used by the polling service `DatabasePollService` (explained in the next section) to get notified about new events.
+In addition to `beginEmitting` and `createChanges`, `DatabaseEventsService` provides a `connect` method and an `emitter` (a `mitt` instance). These are used by the polling service (`DatabasePollService`, discussed next) to be notified about new events.
 
-<GithubFiles paths={['src/modules/database/DatabaseEventsService.ts']} repo="vovk-ai-demo" />
+<GithubFiles paths={['src/modules/database/DatabaseEventsService.ts']} repo="vovk-kanban-demo" />
 
 ## Polling controller and service
 
-Now that we have a way to write events to Redis, but also an implemented database change event emitter, we can implement an endpoint for polling, that will allow clients to receive updates in real-time. This is where the `DatabasePollService` and `DatabasePollController` come into play. The controller implements a single [JSONLines](/controller/jsonlines) endpoint that is going to stream data to the clients as it becomes available. The service uses [JSONLinesResponse](/controller/jsonlines#jsonlinesresponse) instance passed from the controller as the only argument to send data to the clients and safely closes the connection in 30 seconds, so the clients are going to need to reconnect.
+With Redis change entries and the change emitter in place, we can implement a polling endpoint that streams updates to clients in real time. The `DatabasePollController` exposes a single [JSONLines](/controller/jsonlines) endpoint, and `DatabasePollService` uses a [JSONLinesResponse](/controller/jsonlines#jsonlinesresponse) instance (received from the controller) to send data to clients. The service closes the connection safely after 30 seconds, so clients should reconnect.
 
-<GithubFiles paths={['src/modules/database/DatabasePollService.ts', 'src/modules/database/DatabasePollController.ts']} repo="vovk-ai-demo"  />
+<GithubFiles paths={['src/modules/database/DatabasePollService.ts', 'src/modules/database/DatabasePollController.ts']} repo="vovk-kanban-demo"  />
 
-- Once `delete` DB change event is captured with `DatabaseEventsService.emitter`, it's sent to the clients with `resp.send` method, containing `id`, `entityType`, extracted from Redis, but also `__isDeleted: true` property, that is used by the front-end to hide the entity from the UI by making it non-enumerable in the entity registry.
-- Once `update` or `create` DB change event is captured, the service fetches the full entity from the main Postgres database and sends it to the clients, as Redis change event entry only contains the change event metadata, not the full entity data.
-
+- When a `delete` DB change is emitted via `DatabaseEventsService.emitter`, the service sends an event with `id`, `entityType`, and `__isDeleted: true`. The front end uses `__isDeleted` to hide the entity by making it non-enumerable in the registry.
+- When an `update` or `create` change is emitted, the service fetches the full entity from Postgres (since Redis stores only metadata) and sends it to clients.
 
 ## Client-side logic
 
-On the client-side, anywhere in the app (e.g. a React component), we can use the `DatabasePollRPC.poll()` method to get a stream of database events. As any [JSONLines](/controller/jsonlines) RPC method, it returns an async iterable that we can use in a `for await` loop to get new events as they arrive. Since the connection can be closed by the server or fail due to network issues, we wrap the polling logic in a retry loop to perform reconnections, but not when `AbortError` is thrown. As the [fetcher](/imports#fetcher) is already [set](/realtime-ui#fetcher), the body of the loop can be empty, as we don't need to handle the data manually.
+On the client side (for example, in a React component), call `DatabasePollRPC.poll()` to receive a stream of database events. As with any [JSONLines](/controller/jsonlines) RPC method, it returns an async iterable that you can consume in a `for await` loop. Because the server may close the connection or a network error may occur, wrap the logic in a retry loop and avoid reconnecting on `AbortError`. Since the [fetcher](/imports#fetcher) is already [configured](/realtime-ui#fetcher), the loop body can be empty—you do not need to handle data manually.
 
 Front-end code, besides the polling logic, also includes on/off toggle state saved to `localStorage`, so the user can enable or disable polling as needed.
 
@@ -105,7 +105,7 @@ useEffect(() => {
 
 ## Bonus: Telegram bot (unstable)
 
-As a bonus example of a third-party source of database changes, you can explore the [TelegramService](https://github.com/vovk-ai-demo/src/modules/telegram/TelegramService.ts) implementation and a small [TelegramController](https://github.com/vovk-ai-demo/src/modules/telegram/TelegramController.ts). It accepts either a text message or a voice message from the user, handles voice-to-text transcription if needed using OpenAI Whisper API and uses the same `createLLMTools` function on the server-side:
+As an example of a third-party source of database changes, see the [TelegramService](https://github.com/vovk-kanban-demo/src/modules/telegram/TelegramService.ts) and the accompanying [TelegramController](https://github.com/vovk-kanban-demo/src/modules/telegram/TelegramController.ts). It accepts text or voice messages, performs voice-to-text transcription if needed using the OpenAI Whisper API, and uses the same `createLLMTools` function on the server:
 
 ```ts
 const { tools } = createLLMTools({
@@ -116,7 +116,7 @@ const { tools } = createLLMTools({
 });
 ```
 
-The Telegram API library is implemented with [OpenAPI mixins](/codegen) and used as an `TelegramRPC` module to invoke Telegram API methods.
+The Telegram API library is implemented with [OpenAPI Mixins](/codegen) and used as a `TelegramRPC` module to call Telegram API methods.
 
 ```ts filename="vovk.config.mjs"
 // @ts-check
@@ -144,7 +144,7 @@ const config = {
 export default config;
 ```
 
-The `TelegramService` class is responsible for interacting with the Telegram API and generating AI responses using Vercel AI SDK.
+The `TelegramService` class handles interaction with the Telegram API and generates AI responses using the Vercel AI SDK.
 
 ```ts filename="src/modules/telegram/TelegramService.ts"
 import OpenAI from "openai";
