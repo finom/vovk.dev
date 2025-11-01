@@ -1,0 +1,256 @@
+1:"$Sreact.fragment"
+2:I[55169,["/_next/static/chunks/2f545f6d145a6a33.js","/_next/static/chunks/f663ddeedb906bce.js","/_next/static/chunks/b42e1f87491709ea.js","/_next/static/chunks/18261f32c8b1cd5d.js","/_next/static/chunks/442cfc44547bfe65.js","/_next/static/chunks/1aa8e0a9a6fe0f6f.js","/_next/static/chunks/a4f78601a5cf1eea.js","/_next/static/chunks/7a896a6378983d41.js"],"TOCProvider"]
+3:I[769,["/_next/static/chunks/2f545f6d145a6a33.js","/_next/static/chunks/f663ddeedb906bce.js","/_next/static/chunks/b42e1f87491709ea.js","/_next/static/chunks/18261f32c8b1cd5d.js","/_next/static/chunks/442cfc44547bfe65.js","/_next/static/chunks/1aa8e0a9a6fe0f6f.js","/_next/static/chunks/a4f78601a5cf1eea.js","/_next/static/chunks/7a896a6378983d41.js"],"Sidebar"]
+4:I[47486,["/_next/static/chunks/2f545f6d145a6a33.js","/_next/static/chunks/f663ddeedb906bce.js","/_next/static/chunks/b42e1f87491709ea.js","/_next/static/chunks/18261f32c8b1cd5d.js","/_next/static/chunks/442cfc44547bfe65.js","/_next/static/chunks/1aa8e0a9a6fe0f6f.js","/_next/static/chunks/a4f78601a5cf1eea.js","/_next/static/chunks/7a896a6378983d41.js"],"ClientWrapper"]
+9:I[22016,["/_next/static/chunks/2f545f6d145a6a33.js","/_next/static/chunks/f663ddeedb906bce.js","/_next/static/chunks/b42e1f87491709ea.js","/_next/static/chunks/18261f32c8b1cd5d.js","/_next/static/chunks/442cfc44547bfe65.js","/_next/static/chunks/1aa8e0a9a6fe0f6f.js","/_next/static/chunks/a4f78601a5cf1eea.js","/_next/static/chunks/7a896a6378983d41.js"],""]
+a:I[61527,["/_next/static/chunks/2f545f6d145a6a33.js","/_next/static/chunks/f663ddeedb906bce.js","/_next/static/chunks/b42e1f87491709ea.js","/_next/static/chunks/18261f32c8b1cd5d.js","/_next/static/chunks/442cfc44547bfe65.js","/_next/static/chunks/1aa8e0a9a6fe0f6f.js","/_next/static/chunks/a4f78601a5cf1eea.js","/_next/static/chunks/7a896a6378983d41.js"],"Folder"]
+16:I[97367,["/_next/static/chunks/8a07e07106d6caa4.js","/_next/static/chunks/e9a04dc7022658f6.js"],"OutletBoundary"]
+17:"$Sreact.suspense"
+1b:I[83987,["/_next/static/chunks/2f545f6d145a6a33.js","/_next/static/chunks/f663ddeedb906bce.js","/_next/static/chunks/b42e1f87491709ea.js","/_next/static/chunks/18261f32c8b1cd5d.js","/_next/static/chunks/442cfc44547bfe65.js","/_next/static/chunks/1aa8e0a9a6fe0f6f.js","/_next/static/chunks/a4f78601a5cf1eea.js","/_next/static/chunks/7a896a6378983d41.js"],"ToggleWordWrapButton"]
+5:T1a98,import { FileTree } from 'nextra/components';
+
+# Segmented RPC Client
+
+The [Composed RPC Client](/composed) works well for single-page applications, but in larger apps exposing the entire schema through a single client may be undesirable. With a small configuration change, you can instruct Vovk.ts to generate separate RPC clients for each segment. This approach—called the **Segmented RPC Client**—splits the client into smaller per-segment TypeScript modules that can be imported independently, keeping RPC modules and their schemas hidden from unrelated pages. For example, “customer” pages won’t import “admin” RPC modules, keeping admin details out of customer code.
+
+By default, the segmented client is generated in the `./src/client` folder (or `./client` if you don’t use a `src` folder) from the [ts](/templates#ts) template. For an app with multiple segments, the generated structure may look like this:
+
+<FileTree>
+  <FileTree.Folder name="src/client" defaultOpen>
+    <FileTree.Folder name="root" defaultOpen>
+      <FileTree.File
+        name={
+          <span>
+            index.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>./schema.ts</code> and <code>./openapi.ts</code>)
+            </span>
+          </span>
+        }
+      />
+      <FileTree.File
+        name={
+          <span>
+            schema.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>.vovk-schema/root.json</code>)
+            </span>
+          </span>
+        }
+      />
+      <FileTree.File
+        name={
+          <span>
+            openapi.json{' '}
+            <span className="text-gray-500">
+              (root segment OpenAPI schema)
+            </span>
+          </span>
+        }
+      />
+       <FileTree.File
+        name={
+          <span>
+            openapi.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>./openapi.json</code>)
+            </span>
+          </span>
+        }
+      />
+    </FileTree.Folder>
+    <FileTree.Folder name="admin" defaultOpen>
+      <FileTree.File
+        name={
+          <span>
+            index.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>./schema.ts</code> and <code>./openapi.ts</code>)
+            </span>
+          </span>
+        }
+      />
+      <FileTree.File
+        name={
+          <span>
+            schema.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>.vovk-schema/admin.json</code>)
+            </span>
+          </span>
+        }
+      />
+      <FileTree.File
+        name={
+          <span>
+            openapi.json{' '}
+            <span className="text-gray-500">
+              (admin segment OpenAPI schema)
+            </span>
+          </span>
+        }
+      />
+       <FileTree.File
+        name={
+          <span>
+            openapi.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>./openapi.json</code>)
+            </span>
+          </span>
+        }
+      />
+    </FileTree.Folder>
+    <FileTree.Folder name="customer" defaultOpen>
+      <FileTree.File
+        name={
+          <span>
+            index.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>./schema.ts</code> and <code>./openapi.ts</code>)
+            </span>
+          </span>
+        }
+      />
+      <FileTree.File
+        name={
+          <span>
+            schema.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>.vovk-schema/customer.json</code>)
+            </span>
+          </span>
+        }
+      />
+      <FileTree.File
+        name={
+          <span>
+            openapi.json{' '}
+            <span className="text-gray-500">
+              (customer segment OpenAPI schema)
+            </span>
+          </span>
+        }
+      />
+       <FileTree.File
+        name={
+          <span>
+            openapi.ts{' '}
+            <span className="text-gray-500">
+              (imports <code>./openapi.json</code>)
+            </span>
+          </span>
+        }
+      />
+      <FileTree.Folder name="static" defaultOpen>
+        <FileTree.File
+          name={
+            <span>
+              index.ts{' '}
+              <span className="text-gray-500">
+                (imports <code>./schema.ts</code> and <code>./openapi.ts</code>)
+              </span>
+            </span>
+          }
+        />
+        <FileTree.File
+          name={
+            <span>
+              schema.ts{' '}
+              <span className="text-gray-500">
+                (imports <code>.vovk-schema/customer/static.json</code>)
+              </span>
+            </span>
+          }
+        />
+        <FileTree.File
+          name={
+            <span>
+              openapi.json{' '}
+              <span className="text-gray-500">
+                (customer static sub-segment OpenAPI schema)
+              </span>
+            </span>
+          }
+        />
+         <FileTree.File
+          name={
+            <span>
+              openapi.ts{' '}
+              <span className="text-gray-500">
+                (imports <code>./openapi.json</code>)
+              </span>
+            </span>
+          }
+        />
+      </FileTree.Folder>
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+When you import an RPC module from one of the `.ts` files, the import tree includes only the schema and RPC modules for that segment. For example, importing `UserRPC` from the `customer` segment pulls in `.vovk-schema/customer.json` only; `.vovk-schema/admin.json` and other segment files are not included.
+
+```ts filename="src/client/customer/index.ts"
+import { UserRPC } from '@/client/customer'; // import tree will contain customer.json
+
+await UserRPC.getUser({ id: '123' });
+```
+
+The segmented client also applies to [Rust](/rust) and [Python](/python) templates, though use cases are less common.
+
+To enable the segmented client, set `segmentedClient.enabled` to `true` in `vovk.config.mjs`, and optionally disable the composed client by setting `composedClient.enabled` to `false`.
+
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  segmentedClient: {
+    enabled: true,
+  },
+  composedClient: {
+    enabled: false,
+  },
+};
+export default config;
+```
+
+In this case, the **vovk-client** package is no longer needed.
+
+The settings are the same as the settings for the [composed client](/composed).
+
+```ts filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  segmentedClient: {
+    enabled: false, // default
+    fromTemplates: ['ts'], // default
+    outDir: './src/client', // default
+    includeSegments: ['foo'], // exclusive with `excludeSegments`
+    excludeSegments: ['bar'], // exclusive with `includeSegments`
+  },
+};
+```0:{"buildId":"sH5v-eTy_riTsYO8U625v","rsc":["$","$1","c",{"children":[["$","div",null,{"className":"x:mx-auto x:flex x:max-w-(--nextra-content-width)","children":["$","$L2",null,{"value":[],"children":[["$","$L3",null,{}],["$","$L4",null,{"metadata":{"title":"Segmented RPC Client","filePath":"src/app/segmented/page.mdx","timestamp":1761940944000},"sourceCode":"$5","children":["$L6","$L7"]}]]}]}],null,"$L8"]}],"loading":null,"isPartial":false}
+6:["$","div",null,{"id":"nextra-skip-nav"}]
+7:["$","main",null,{"data-pagefind-body":true,"children":[["$","h1",null,{"className":"x:tracking-tight x:text-slate-900 x:dark:text-slate-100 x:font-bold x:mt-2 x:text-4xl","children":["Segmented RPC Client","$undefined"]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["The ",["$","$L9",null,{"href":"/composed","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"Composed RPC Client"}]," works well for single-page applications, but in larger apps exposing the entire schema through a single client may be undesirable. With a small configuration change, you can instruct Vovk.ts to generate separate RPC clients for each segment. This approach—called the ",["$","strong",null,{"children":"Segmented RPC Client"}],"—splits the client into smaller per-segment TypeScript modules that can be imported independently, keeping RPC modules and their schemas hidden from unrelated pages. For example, “customer” pages won’t import “admin” RPC modules, keeping admin details out of customer code."]}],"\n",["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["By default, the segmented client is generated in the ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./src/client"}]," folder (or ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./client"}]," if you don’t use a ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"src"}]," folder) from the ",["$","$L9",null,{"href":"/templates#ts","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"ts"}]," template. For an app with multiple segments, the generated structure may look like this:"]}],"\n",["$","ul",null,{"className":"nextra-filetree x:mt-[1.25em] x:select-none x:text-sm x:text-gray-800 x:dark:text-gray-300 not-prose x:rounded-lg x:border x:px-4 x:py-3 x:inline-flex x:flex-col x:gap-2 nextra-border","children":["$","$La",null,{"name":"src/client","defaultOpen":true,"children":[["$","$La",null,{"name":"root","defaultOpen":true,"children":[["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["index.ts"," ",["$","span",null,{"className":"text-gray-500","children":["(imports ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./schema.ts"}]," and ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./openapi.ts"}],")"]}]]}]]}],["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["schema.ts"," ",["$","span",null,{"className":"text-gray-500","children":["(imports ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":".vovk-schema/root.json"}],")"]}]]}]]}],["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["openapi.json"," ",["$","span",null,{"className":"text-gray-500","children":"(root segment OpenAPI schema)"}]]}]]}],"$Lb"]}],"$Lc","$Ld"]}]}],"\n","$Le","\n","$Lf","\n","$L10","\n","$L11","\n","$L12","\n","$L13","\n","$L14","\n","$L15"]}]
+8:["$","$L16",null,{"children":["$","$17",null,{"name":"Next.MetadataOutlet","children":"$@18"}]}]
+b:["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["openapi.ts"," ",["$","span",null,{"className":"text-gray-500","children":["(imports ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./openapi.json"}],")"]}]]}]]}]
+c:["$","$La",null,{"name":"admin","defaultOpen":true,"children":[["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["index.ts"," ",["$","span",null,{"className":"text-gray-500","children":["(imports ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./schema.ts"}]," and ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./openapi.ts"}],")"]}]]}]]}],["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["schema.ts"," ",["$","span",null,{"className":"text-gray-500","children":["(imports ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":".vovk-schema/admin.json"}],")"]}]]}]]}],["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["openapi.json"," ",["$","span",null,{"className":"text-gray-500","children":"(admin segment OpenAPI schema)"}]]}]]}],["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["openapi.ts"," ",["$","span",null,{"className":"text-gray-500","children":["(imports ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./openapi.json"}],")"]}]]}]]}]]}]
+d:["$","$La",null,{"name":"customer","defaultOpen":true,"children":[["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["index.ts"," ",["$","span",null,{"className":"text-gray-500","children":["(imports ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./schema.ts"}]," and ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./openapi.ts"}],")"]}]]}]]}],["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["schema.ts"," ",["$","span",null,{"className":"text-gray-500","children":["(imports ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":".vovk-schema/customer.json"}],")"]}]]}]]}],["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["openapi.json"," ",["$","span",null,{"className":"text-gray-500","children":"(customer segment OpenAPI schema)"}]]}]]}],["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["openapi.ts"," ",["$","span",null,{"className":"text-gray-500","children":["(imports ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./openapi.json"}],")"]}]]}]]}],["$","$La",null,{"name":"static","defaultOpen":true,"children":[["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["index.ts"," ",["$","span",null,{"className":"text-gray-500","children":["(imports ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./schema.ts"}]," and ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./openapi.ts"}],")"]}]]}]]}],["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["schema.ts"," ",["$","span",null,{"className":"text-gray-500","children":["(imports ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":".vovk-schema/customer/static.json"}],")"]}]]}]]}],["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["openapi.json"," ","$L19"]}]]}],"$L1a"]}]]}]
+e:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["When you import an RPC module from one of the ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":".ts"}]," files, the import tree includes only the schema and RPC modules for that segment. For example, importing ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"UserRPC"}]," from the ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"customer"}]," segment pulls in ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":".vovk-schema/customer.json"}]," only; ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":".vovk-schema/admin.json"}]," and other segment files are not included."]}]
+f:["$","div",null,{"data-pagefind-ignore":"all","className":"nextra-code x:relative x:not-first:mt-[1.25em]","children":[["$","div",null,{"className":"x:px-4 x:text-xs x:text-gray-700 x:dark:text-gray-200 x:bg-gray-100 x:dark:bg-neutral-900 x:flex x:items-center x:h-12 x:gap-2 x:rounded-t-md x:border x:border-gray-300 x:dark:border-neutral-700 x:contrast-more:border-gray-900 x:contrast-more:dark:border-gray-50 x:border-b-0","children":[["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","className":"x:max-w-6 x:shrink-0","children":["$","path",null,{"d":"M0 2.66667V21.3333C0 22.8067 1.19333 24 2.66667 24H21.3333C22.8067 24 24 22.8067 24 21.3333V2.66667C24 1.19333 22.8067 0 21.3333 0H2.66667C1.19333 0 0 1.19333 0 2.66667ZM14.2213 12.6013H11.3973V21.3333H9.12133V12.6013H6.356V10.6667H14.2213V12.6013ZM14.664 20.8347V18.5C14.664 18.5 15.9387 19.4613 17.4693 19.4613C19 19.4613 18.94 18.4613 18.94 18.324C18.94 16.872 14.6053 16.872 14.6053 13.656C14.6053 9.28133 20.9213 11.008 20.9213 11.008L20.8427 13.0867C20.8427 13.0867 19.784 12.38 18.5867 12.38C17.3907 12.38 16.9587 12.9493 16.9587 13.5573C16.9587 15.1267 21.3333 14.9693 21.3333 18.128C21.3333 22.992 14.664 20.8347 14.664 20.8347Z"}]}],["$","span",null,{"className":"x:truncate","children":"src/client/customer/index.ts"}],false]}],["$","pre",null,{"className":"x:group x:focus-visible:nextra-focus x:overflow-x-auto x:subpixel-antialiased x:text-[.9em] x:bg-white x:dark:bg-black x:py-4 x:ring-1 x:ring-inset x:ring-gray-300 x:dark:ring-neutral-700 x:contrast-more:ring-gray-900 x:contrast-more:dark:ring-gray-50 x:contrast-more:contrast-150 x:rounded-b-md not-prose","tabIndex":"0","children":[["$","div",null,{"className":"x:group-hover:opacity-100 x:group-focus:opacity-100 x:opacity-0 x:transition x:focus-within:opacity-100 x:flex x:gap-1 x:absolute x:right-4 x:top-14","children":[["$","$L1b",null,{"children":["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","children":["$","path",null,{"d":"M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"}]}]}],false]}],["$","code",null,{"className":"nextra-code","dir":"ltr","children":[["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":"import"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":" { UserRPC } "}],["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":"from"}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":" '@/client/customer'"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"; "}],["$","span",null,{"style":{"--shiki-light":"#6A737D","--shiki-dark":"#6A737D"},"children":"// import tree will contain customer.json"}]]}],"\n",["$","span",null,{"children":" "}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":"await"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":" UserRPC."}],["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":"getUser"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"({ id: "}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"'123'"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":" });"}]]}]]}]]}]]}]
+10:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["The segmented client also applies to ",["$","$L9",null,{"href":"/rust","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"Rust"}]," and ",["$","$L9",null,{"href":"/python","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"Python"}]," templates, though use cases are less common."]}]
+11:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["To enable the segmented client, set ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"segmentedClient.enabled"}]," to ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"true"}]," in ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"vovk.config.mjs"}],", and optionally disable the composed client by setting ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"composedClient.enabled"}]," to ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"false"}],"."]}]
+12:["$","div",null,{"data-pagefind-ignore":"all","className":"nextra-code x:relative x:not-first:mt-[1.25em]","children":[["$","div",null,{"className":"x:px-4 x:text-xs x:text-gray-700 x:dark:text-gray-200 x:bg-gray-100 x:dark:bg-neutral-900 x:flex x:items-center x:h-12 x:gap-2 x:rounded-t-md x:border x:border-gray-300 x:dark:border-neutral-700 x:contrast-more:border-gray-900 x:contrast-more:dark:border-gray-50 x:border-b-0","children":[["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","className":"x:max-w-6 x:shrink-0","children":["$","path",null,{"d":"M0 2.66667V21.3333C0 22.8067 1.19333 24 2.66667 24H21.3333C22.8067 24 24 22.8067 24 21.3333V2.66667C24 1.19333 22.8067 0 21.3333 0H2.66667C1.19333 0 0 1.19333 0 2.66667ZM14.2213 12.6013H11.3973V21.3333H9.12133V12.6013H6.356V10.6667H14.2213V12.6013ZM14.664 20.8347V18.5C14.664 18.5 15.9387 19.4613 17.4693 19.4613C19 19.4613 18.94 18.4613 18.94 18.324C18.94 16.872 14.6053 16.872 14.6053 13.656C14.6053 9.28133 20.9213 11.008 20.9213 11.008L20.8427 13.0867C20.8427 13.0867 19.784 12.38 18.5867 12.38C17.3907 12.38 16.9587 12.9493 16.9587 13.5573C16.9587 15.1267 21.3333 14.9693 21.3333 18.128C21.3333 22.992 14.664 20.8347 14.664 20.8347Z"}]}],["$","span",null,{"className":"x:truncate","children":"vovk.config.mjs"}],false]}],["$","pre",null,{"className":"x:group x:focus-visible:nextra-focus x:overflow-x-auto x:subpixel-antialiased x:text-[.9em] x:bg-white x:dark:bg-black x:py-4 x:ring-1 x:ring-inset x:ring-gray-300 x:dark:ring-neutral-700 x:contrast-more:ring-gray-900 x:contrast-more:dark:ring-gray-50 x:contrast-more:contrast-150 x:rounded-b-md not-prose","tabIndex":"0","children":[["$","div",null,{"className":"x:group-hover:opacity-100 x:group-focus:opacity-100 x:opacity-0 x:transition x:focus-within:opacity-100 x:flex x:gap-1 x:absolute x:right-4 x:top-14","children":[["$","$L1b",null,{"children":["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","children":["$","path",null,{"d":"M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"}]}]}],false]}],["$","code",null,{"className":"nextra-code","dir":"ltr","children":[["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#6A737D","--shiki-dark":"#6A737D"},"children":"/** "}],["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":"@type"}],["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":" {import('vovk').VovkConfig}"}],["$","span",null,{"style":{"--shiki-light":"#6A737D","--shiki-dark":"#6A737D"},"children":" */"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":"const"}],["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":" config"}],["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":" ="}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":" {"}]]}],"\n",["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"  segmentedClient: {"}]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"    enabled: "}],["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"true"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":","}]]}],"\n",["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"  },"}]}],"\n",["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"  composedClient: {"}]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"    enabled: "}],["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"false"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":","}]]}],"\n","$L1c","\n","$L1d","\n","$L1e"]}]]}]]}]
+13:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["In this case, the ",["$","strong",null,{"children":"vovk-client"}]," package is no longer needed."]}]
+14:["$","p",null,{"className":"x:not-first:mt-[1.25em] x:leading-7","children":["The settings are the same as the settings for the ",["$","$L9",null,{"href":"/composed","className":"x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font x:[text-underline-position:from-font]","children":"composed client"}],"."]}]
+15:["$","div",null,{"data-pagefind-ignore":"all","className":"nextra-code x:relative x:not-first:mt-[1.25em]","children":[["$","div",null,{"className":"x:px-4 x:text-xs x:text-gray-700 x:dark:text-gray-200 x:bg-gray-100 x:dark:bg-neutral-900 x:flex x:items-center x:h-12 x:gap-2 x:rounded-t-md x:border x:border-gray-300 x:dark:border-neutral-700 x:contrast-more:border-gray-900 x:contrast-more:dark:border-gray-50 x:border-b-0","children":[["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","className":"x:max-w-6 x:shrink-0","children":["$","path",null,{"d":"M0 2.66667V21.3333C0 22.8067 1.19333 24 2.66667 24H21.3333C22.8067 24 24 22.8067 24 21.3333V2.66667C24 1.19333 22.8067 0 21.3333 0H2.66667C1.19333 0 0 1.19333 0 2.66667ZM14.2213 12.6013H11.3973V21.3333H9.12133V12.6013H6.356V10.6667H14.2213V12.6013ZM14.664 20.8347V18.5C14.664 18.5 15.9387 19.4613 17.4693 19.4613C19 19.4613 18.94 18.4613 18.94 18.324C18.94 16.872 14.6053 16.872 14.6053 13.656C14.6053 9.28133 20.9213 11.008 20.9213 11.008L20.8427 13.0867C20.8427 13.0867 19.784 12.38 18.5867 12.38C17.3907 12.38 16.9587 12.9493 16.9587 13.5573C16.9587 15.1267 21.3333 14.9693 21.3333 18.128C21.3333 22.992 14.664 20.8347 14.664 20.8347Z"}]}],["$","span",null,{"className":"x:truncate","children":"vovk.config.mjs"}],false]}],["$","pre",null,{"className":"x:group x:focus-visible:nextra-focus x:overflow-x-auto x:subpixel-antialiased x:text-[.9em] x:bg-white x:dark:bg-black x:py-4 x:ring-1 x:ring-inset x:ring-gray-300 x:dark:ring-neutral-700 x:contrast-more:ring-gray-900 x:contrast-more:dark:ring-gray-50 x:contrast-more:contrast-150 x:rounded-b-md not-prose","tabIndex":"0","children":[["$","div",null,{"className":"x:group-hover:opacity-100 x:group-focus:opacity-100 x:opacity-0 x:transition x:focus-within:opacity-100 x:flex x:gap-1 x:absolute x:right-4 x:top-14","children":[["$","$L1b",null,{"children":["$","svg",null,{"viewBox":"0 0 24 24","fill":"currentColor","height":"1em","children":["$","path",null,{"d":"M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3l3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"}]}]}],false]}],["$","code",null,{"className":"nextra-code","dir":"ltr","children":[["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#6A737D","--shiki-dark":"#6A737D"},"children":"/** "}],["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":"@type"}],["$","span",null,{"style":{"--shiki-light":"#6F42C1","--shiki-dark":"#B392F0"},"children":" {import('vovk').VovkConfig}"}],["$","span",null,{"style":{"--shiki-light":"#6A737D","--shiki-dark":"#6A737D"},"children":" */"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":"const"}],["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":" config"}],["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":" ="}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":" {"}]]}],"\n",["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"  segmentedClient: {"}]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"    enabled: "}],["$","span",null,{"style":{"--shiki-light":"#005CC5","--shiki-dark":"#79B8FF"},"children":"false"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":", "}],["$","span",null,{"style":{"--shiki-light":"#6A737D","--shiki-dark":"#6A737D"},"children":"// default"}]]}],"\n",["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"    fromTemplates: ["}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"'ts'"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"], "}],["$","span",null,{"style":{"--shiki-light":"#6A737D","--shiki-dark":"#6A737D"},"children":"// default"}]]}],"\n","$L1f","\n","$L20","\n","$L21","\n","$L22","\n","$L23"]}]]}]]}]
+18:null
+19:["$","span",null,{"className":"text-gray-500","children":"(customer static sub-segment OpenAPI schema)"}]
+1a:["$","li",null,{"className":"x:flex x:items-center x:gap-1 x:break-all","children":[["$","svg",null,{"fill":"none","stroke":"currentColor","viewBox":"0 0 24 24","height":"14","className":"x:shrink-0","children":["$","path",null,{"strokeLinecap":"round","strokeWidth":2,"d":"M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"}]}],["$","span",null,{"children":["openapi.ts"," ",["$","span",null,{"className":"text-gray-500","children":["(imports ",["$","code",null,{"className":"nextra-code","dir":"ltr","children":"./openapi.json"}],")"]}]]}]]}]
+1c:["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"  },"}]}]
+1d:["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"};"}]}]
+1e:["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":"export"}],["$","span",null,{"style":{"--shiki-light":"#D73A49","--shiki-dark":"#F97583"},"children":" default"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":" config;"}]]}]
+1f:["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"    outDir: "}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"'./src/client'"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":", "}],["$","span",null,{"style":{"--shiki-light":"#6A737D","--shiki-dark":"#6A737D"},"children":"// default"}]]}]
+20:["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"    includeSegments: ["}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"'foo'"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"], "}],["$","span",null,{"style":{"--shiki-light":"#6A737D","--shiki-dark":"#6A737D"},"children":"// exclusive with `excludeSegments`"}]]}]
+21:["$","span",null,{"children":[["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"    excludeSegments: ["}],["$","span",null,{"style":{"--shiki-light":"#032F62","--shiki-dark":"#9ECBFF"},"children":"'bar'"}],["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"], "}],["$","span",null,{"style":{"--shiki-light":"#6A737D","--shiki-dark":"#6A737D"},"children":"// exclusive with `includeSegments`"}]]}]
+22:["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"  },"}]}]
+23:["$","span",null,{"children":["$","span",null,{"style":{"--shiki-light":"#24292E","--shiki-dark":"#E1E4E8"},"children":"};"}]}]
