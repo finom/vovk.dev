@@ -2,7 +2,7 @@
 
 Authorization for HTTP requests can be implemented with [decorators](/controller/decorator) that verify whether a user is authorized using any applicable method (e.g., JWT tokens or session cookies) and pass useful context—such as the current user and their roles—to the controller handler via [metadata](/controller/meta), accessible through `req.vovk.meta<T>(){:ts}`.
 
-Authentication, in turn, can be implemented using standard Next.js methods described in the [Next.js authentication documentation](https://nextjs.org/docs/app/guides/authentication). It is briefly covered in the [Real-Time UI](/realtime-ui#auth) article.
+Authentication, in turn, can be implemented using standard Next.js methods described in the [Next.js authentication documentation](https://nextjs.org/docs/app/guides/authentication). It is briefly covered in the [Realtime UI](/realtime-ui#auth) article.
 
 ## Role-Based Access Control
 

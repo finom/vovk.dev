@@ -1,6 +1,6 @@
 # Turn Your Back-End into an AI Agent
 
-Vovk.ts provides LLM function calling capabilities, turning route handlers into functions callable by AI. This enables more interactive user experiences, including interactions via a text chat interface, a [real-time voice interface](/realtime-ui), or [MCP](/mcp).
+Vovk.ts provides LLM function calling capabilities, turning route handlers into functions callable by AI. This enables more interactive user experiences, including interactions via a text chat interface, a [Realtime voice interface](/realtime-ui), or [MCP](/mcp).
 
 While many AI libraries and APIs focus on how to use function calling, Vovk.ts focuses on what should be callable.
 
@@ -165,10 +165,10 @@ Vovk.ts can generate RPC modules from third-party OpenAPI specs, letting you com
 
 ```ts
 import { createLLMTools } from 'vovk';
-import { GithubIssuesRPC, TaskRPC } from 'vovk-client';
+import { GithubIssuesAPI, TaskRPC } from 'vovk-client';
 const { tools } = createLLMTools({
   modules: {
-    GithubIssuesRPC, // 3rd-party API
+    GithubIssuesAPI, // 3rd-party API
     TaskRPC, // your own back-end API
   },
 });

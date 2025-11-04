@@ -1,6 +1,6 @@
 # Getting Started
 
-Vovk.ts, as a backend framework, supports a wide range of validation libraries. Validation models are emitted as JSON Schema for client-side validation and for use in [code generation](/codegen), the [OpenAPI spec](/openapi), [LLM tools](/function-calling), and more.
+Vovk.ts, as a backend framework, supports a wide range of validation libraries. Validation models are emitted as JSON Schema for [client-side validation](/validation/client) and for use in [code generation](/codegen), the [OpenAPI spec](/openapi), [LLM tools](/function-calling), and more.
 
 Every validation library integrates through an internal `withValidationLibrary` function that wraps the controller handler, providing a unified set of options and extending the handler with extra features. Each library follows the `with[name]` naming, where `name` is the library (for example, [`withZod`](/validation/zod)).
 
@@ -81,7 +81,7 @@ const result = await UserController.updateUser.fn({
     query: { /* ... */ },
     params: { /* ... */ },
     meta: { /* ... */ },
-    disableClientSideValidation: false, // default
+    disableClientValidation: false, // default
 });
 
 // same as
@@ -90,7 +90,7 @@ const result = await UserRPC.updateUser({
     query: { /* ... */ },
     params: { /* ... */ },
     meta: { /* ... */ },
-    disableClientSideValidation: false, // default
+    disableClientValidation: false, // default
 });
 ```
 
@@ -112,4 +112,4 @@ The `schema` property exposes the method schema, mirroring the RPC method schema
 const bodyModel = UserController.updateUser.models.body;
 ```
 
-The `models` property is available only on server-side methods. It lets you access the original validation models used by the handler.
+The `models` property is available only on server-side methods, but not on the RPC methods. It lets you access the original validation models used by the handler.

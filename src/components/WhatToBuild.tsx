@@ -23,8 +23,8 @@ const options = [
     href: '/nestjs',
   },
   {
-    title: 'Real-time UI',
-    description: 'Build real-time, intelligent UIs — like Tony Stark’s JARVIS.',
+    title: 'Realtime UI',
+    description: 'Build Realtime, intelligent UIs — like Tony Stark’s JARVIS.',
     icon: '🤖',
     href: '/realtime-ui',
   },

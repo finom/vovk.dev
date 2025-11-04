@@ -1,3 +1,3 @@
 'use client';
 
-export { ProgressiveExample, JSONLinesExample } from 'vovk-examples';
+export { ProgressiveExample, JSONLinesExample, JSONLinesResponseExample, PollExample } from 'vovk-examples';

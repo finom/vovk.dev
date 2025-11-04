@@ -19,8 +19,8 @@ When [vovk init](/init) runs, it checks whether the project uses ES modules and 
 
 The configuration extends the `VovkConfig` type from the `vovk` package and exposes the following options:
 
-<a name="emitconfig" />
-### `emitConfig: boolean | string[]`
+<a name="exposeConfigKeys" />
+### `exposeConfigKeys: boolean | string[]`
 
 Controls whether to emit config options to [.vovk-schema/_meta.json](/schema). If `true`, emits all options. If set to an array of strings, emits only the listed options. Default: <nobr>`["libs"]`</nobr>.
 
@@ -141,7 +141,7 @@ const config = {
 export default config;
 ```
 
-If `"libs"` is present in [emitConfig](#emitconfig), it is emitted to `.vovk-schema/_meta.json` and can be accessed in multiple ways:
+If `"libs"` is present in [exposeConfigKeys](#exposeConfigKeys), it is emitted to `.vovk-schema/_meta.json` and can be accessed in multiple ways:
 
 ```ts
 import { schema, UserRPC } from 'vovk-client';

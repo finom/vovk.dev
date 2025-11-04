@@ -1,7 +1,7 @@
 import { FileTree, Tabs } from 'nextra/components';
 import Image from 'next/image';
 
-# About
+# About Vovk.ts
 
 Vovk.ts is a conceptual back-end meta-framework built on the Next.js App Router, designed and developed by [Andrey Gubanov](https://github.com/finom). It is built for efficiency and an exceptional developer experience.
 
@@ -12,7 +12,7 @@ Vovk.ts is a conceptual back-end meta-framework built on the Next.js App Router,
 - First-class [OpenAPI support](/openapi).
 - Supports a wide range of [validation libraries](/validation), including [Standard Schema](/validation/standard).
 - Single-point deployment for front-end and back-end as a standard Next.js app.
-- [Function calling](/function-calling) framework that turns your app into an AI agent or enables [JARVIS-grade real-time user interfaces](/realtime-ui).
+- [Function calling](/function-calling) framework that turns your app into an AI agent or enables [JARVIS-grade Realtime user interfaces](/realtime-ui).
 - [Fast](/performance).
 - Built on standards and conventions.
 
@@ -142,7 +142,7 @@ export const { GET, POST, PUT, DELETE } = initSegment({
 
 > [!IMPORTANT]
 >
-> This feature requires an additional check of the return type or manual type annotation because the `handle` function isn’t intrinsically tied to its output type and can return `any`. Use `x satisfies VovkOutput<typeof f>{:ts}` or annotate the return type manually. While not required for proper type inference in RPC modules, this can be useful when the handler needs the strictest possible type checking.
+> This feature may require an additional check of the return type or manual type annotation because the `handle` function isn’t intrinsically tied to its output type and can return `any`. Use `x satisfies VovkOutput<typeof f>{:ts}` or annotate the return type manually. While not required for proper type inference in RPC modules, this can be useful when the handler needs the strictest possible type checking.
 
 **More info**
 
@@ -552,7 +552,7 @@ The functions can be executed on the server side (using [controllers](/controlle
 ```ts
 import { createLLMTools } from 'vovk';
 import ProductController from '@/modules/product/ProductController';
-import { UserRPC, GithubIssuesRPC } from 'vovk-client';
+import { UserRPC, GithubIssuesAPI } from 'vovk-client';
 import { pick } from 'lodash';
 
 const { tools } = createLLMTools({
@@ -562,8 +562,8 @@ const { tools } = createLLMTools({
     // call UserRPC methods over HTTP
     UserRPC: pick(UserRPC, ['getUser', 'updateUser']), // only include specific methods of UserRPC
     // add third-party OpenAPI mixin
-    GithubIssuesRPC: [
-      GithubIssuesRPC,
+    GithubIssuesAPI: [
+      GithubIssuesAPI,
       {
         init: {
           headers: {
@@ -581,7 +581,7 @@ console.log(tools); // [{ name, description, parameters, execute }, ...]
 
 **More info**
 - [Function Calling](/function-calling)
-- [Real-Time UI](/realtime-ui)
+- [Realtime UI](/realtime-ui)
 - [Polling](/polling)
 - [MCP Server](/mcp)
 
@@ -643,9 +643,9 @@ console.log(response);
 The Vovk.ts schema and OpenAPI 3.x schema differ but are convertible. This lets you mix Vovk.ts RPC modules with ones generated from OpenAPI schema files, implementing the same calling signature with triple input: `params`, `query`, `body`, and other options available for all RPC modules, such as `init` for custom headers, `apiRoot` to override the API root, etc.
 
 ```ts
-import { GithubIssuesRPC } from 'vovk-client';
+import { GithubIssuesAPI } from 'vovk-client';
 
-const issues = await GithubIssuesRPC.list({
+const issues = await GithubIssuesAPI.list({
   query: { filter: 'created' },
   init: {
     headers: {

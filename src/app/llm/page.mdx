@@ -4,7 +4,7 @@
 
 LLM completions can be streamed in the [JSON Lines](https://jsonlines.org/) format—a convenient way to send a sequence of JSON objects over HTTP. On the backend, use [Generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator) functions to yield data as it becomes available. With the OpenAI API (and other completion APIs), you can delegate the iterable using the `yield*` syntax.
 
-Learn more about the [JSONLines Response](/controller/jsonlines) and [Controllers](/controllers).
+Learn more about the [JSONLines Response](/controller/jsonlines).
 
 ```ts filename="src/modules/llm/LlmController.ts"
 import { post, prefix, operation, type VovkRequest } from 'vovk';
@@ -44,7 +44,7 @@ for await (const part of completion) {
 }
 ```
 
-See the [live example](https://examples.vovk.dev/openai) for details.
+[View live example on examples.vovk.dev »](https://examples.vovk.dev/openai)
 
 ## Vercel AI SDK
 
@@ -120,4 +120,4 @@ export default function Page() {
 }
 ```
 
-See the [live example](https://examples.vovk.dev/ai-sdk) for details.
+[View live example on examples.vovk.dev »](https://examples.vovk.dev/ai-sdk)

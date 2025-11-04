@@ -2,11 +2,22 @@ import AppAlike from './AppAlike';
 import GithubFiles from '@/components/GithubFiles';
 import Image from 'next/image';
 
-# Real-time UI
+# Realtime UI
 
-Function calling framework described at the [previous page](/function-calling) makes possible to create back-end applications that can be controlled by LLMs, executing handlers either at the current context (via [controller modules](/controller)) or thru HTTP protocol via RPC modules. This article describes one of use-cases of this feature - building a real-time UI that can be interacted via text chat or voice interface, updating UI components automatically, while the implementation of the components requires minimal effort. This is a safe alternative to the "AI browsers" as the AI cannot execute arbitrary code in the browser, but only invoke pre-defined functions that perform HTTP requests. The HTTP requests, in their turn, can be [authorized](/authorization).
+## The goal
 
-In order to demonstrate this feature, I've created a demo project of a kanban board that you can find at [GitHub repository](https://github.com/finom/vovk-kanban-demo). The database, implemented with Postgres and Prisma ORM, is going to have only two tables: users and tasks, while it can be easily extended to include more tables in a real application. Note that the described project is just a demo and might need additional optimizations and improvements to be used in production.
+- [Use OpenAI Realtime Voice API](https://platform.openai.com/docs/guides/realtime) to call HTTP endpoints
+- Make the UI update automatically when the data arrives by adjusting application state management
+
+## Introduction
+
+Function calling framework described at the [previous page](/function-calling) makes possible to create back-end applications that can be controlled by LLMs, executing handlers either at the current context (via [controller modules](/controller)) or thru HTTP protocol via RPC modules. This article describes one of practical use-cases of this feature - building a Realtime UI that can be interacted via text chat or voice interface, updating UI components automatically, while the implementation of the components requires minimal effort. 
+
+This is a safe alternative to the "AI browsers" as the AI cannot execute arbitrary code in the browser, but only invoke pre-defined functions that perform HTTP requests. The HTTP requests, in their turn, can be [authorized](/authorization) as usual, so that the AI can only access the data that the user is authorized to access.
+
+In order to demonstrate this feature, I've created a demo project of a kanban board that you can find at [GitHub repository](https://github.com/finom/vovk-kanban-demo). The database, implemented with Postgres and Prisma ORM, is going to have only two tables: users and tasks, while it can be easily extended to include more tables in a real application. 
+
+Note that the described project is just a demo and might need additional optimizations and improvements to be used in production.
 
 
 Here's how you can install and run it locally:
@@ -44,7 +55,9 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ### Entity Registry Overview
 
-At this article I'm going to describe an efficient way to synchronise application state with the back-end data, that can be applied to any application even if it isn't using Vovk.ts at all. This idea is state-library-agnostic and database-agnostic, so you can implement it with any tools you prefer. I'm going to use [Postgres](https://www.postgresql.org/) as a database, [Prisma](https://www.prisma.io/) as an ORM, [Zustand](https://zustand-demo.pmnd.rs/) as a state management library and, of course Vovk.ts as a back-end framework. The demo also uses [Redis](https://redis.io/) as database event bus, in order to implement [polling](/polling) functionality, but it's out of the scope of this article.
+At this article I'm going to describe an efficient way to synchronise application state with the back-end data, that can be applied to any application even if it isn't using Vovk.ts at all. This idea is state-library-agnostic and database-agnostic, so you can implement it with any tools you prefer. 
+
+I'm going to use [Postgres](https://www.postgresql.org/) as a database, [Prisma](https://www.prisma.io/) as an ORM, [Zustand](https://zustand-demo.pmnd.rs/) as a state management library and, of course Vovk.ts as a back-end framework. The demo also uses [Redis](https://redis.io/) as database event bus, in order to implement DB polling functionality, it will be described in the [next article](/polling).
 
 Let's say we have an more or less complex application with multiple components that use the same data that's incoming from the server. As the most simple example imaginable, we have a user profile component that displays displays user's full name at multiple components. Once the data is updated we want to update all the components that use this data.
 
@@ -75,7 +88,7 @@ If all components that use database data are using this approach, we can request
 
 ### WebRTC-based Voice AI
 
-As setting up real-time API from OpenAI with function calling is a bit tricky, I've borrowed most of the code from [repository](https://github.com/cameronking4/openai-realtime-api-nextjs) created by [Cameron King](https://github.com/cameronking4). In short, the code authorizes the WebRTC connection in a [separate controller](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/realtime/RealtimeController.ts), and then establishes a peer-to-peer connection with OpenAI Realtime API, sending audio data from the microphone and receiving audio responses. The original hooks, such as `useToolsFunctions` and `useWebRTCAudioSession`, are left as is, with only a few minor changes.
+As setting up Realtime API from OpenAI with function calling is a bit tricky, I've borrowed most of the code from [repository](https://github.com/cameronking4/openai-realtime-api-nextjs) created by [Cameron King](https://github.com/cameronking4). In short, the code authorizes the WebRTC connection in a [separate controller](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/realtime/RealtimeController.ts), and then establishes a peer-to-peer connection with OpenAI Realtime API, sending audio data from the microphone and receiving audio responses. The original hooks, such as `useToolsFunctions` and `useWebRTCAudioSession`, are left as is, with only a few minor changes.
 
 As the connection is peer-to-peer, the audio data is sent directly from the browser to OpenAI servers, without passing it thru our back-end. The functions that are going to be executed are the methods of the RPC modules. In other words, AI is going to make HTTP requests to our back-end from the browser, supporting authorization that's already implemented for normal requests. This makes the execution of the functions almmost instant, with only a small delay caused by the network latency.
 
@@ -100,7 +113,7 @@ but also exports `isLoggedIn` function that is created for `sessionGuard` decora
 
 <GithubFiles paths={['src/decorators/sessionGuard.ts']} repo="vovk-kanban-demo" />
 
-The `sessionGuard` decorator applied to all controller methods. `typeof req.url !== 'undefined'{:ts}` check is required to distinguish between HTTP requests [`fn`](/controller/fn) invocations.
+The `sessionGuard` decorator applied to all controller methods. `typeof req.url !== 'undefined'{:ts}` check is required to distinguish between HTTP requests and [`fn`](/controller/fn) invocations.
 
 
 ## Designing the database
@@ -174,11 +187,9 @@ The controllers and services are quite self-explanatory: we decorate each method
 - Creations and updates are followed by `EmbeddingService.generateEntityEmbedding` calls and the search endpoints use `EmbeddingService.vectorSearch` function. The `EmbeddingService` itself wouldn't be described here as it's out of the scope of this article (it's already too big), but you can check the full code at the [GitHub repository](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/embedding/EmbeddingService.ts). In short, it uses [OpenAI embeddings](https://platform.openai.com/docs/guides/embeddings) and [pgvector](https://github.com/pgvector/pgvector) to store and search embeddings in the database.
 - Rest of the features will be described at [polling](/polling) article.
 
-Here is the code for `UserController` and `UserService` directly fetched from the project repository:
+Here is the code for `UserController`, `UserService`, `TaskController`, and `TaskService` directly fetched from the project repository:
 
-<GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts']} repo="vovk-kanban-demo" />
-
-Task's controller and service implemented similarly.
+<GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts', 'src/modules/task/TaskController.ts', 'src/modules/task/TaskService.ts']} repo="vovk-kanban-demo" />
 
 ## Setting up the Entity Registry
 
@@ -397,6 +408,16 @@ export default UsersExample;
 ```
 
 As you can see `useQuery` invocation doesn't require to read `data` property anymore, as the response is processed by the registry automatically. The invocation of `UserRPC.getUsers()` or any other RPC method (with `useQuery` or without) can be placed anywhere in the app, and all components that use user data are going to be updated automatically.
+
+In order to be sure that the UI doesn't display deleted entities, even if the `userIds` array contains them, you can add additional filtering in the components, for example:
+
+```tsx
+const users = useRegistry(
+  useShallow(({ user: { ...user } }) => userIds.filter((id) => id in user).map((id) => user[id])),
+);
+```
+
+`...user` destructing will make sure that non-enumerable properties are not included in the resulting object.
 
 ## Final bit: enabling function calling
 

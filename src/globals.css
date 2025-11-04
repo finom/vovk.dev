@@ -39,17 +39,24 @@ html {
   }
 
   button {
-    @apply py-2 px-4 cursor-pointer rounded-2xl transition-colors my-2 
-          disabled:opacity-70 disabled:pointer-events-none
-          bg-violet-600 text-white hover:bg-violet-800
-          dark:bg-slate-600 dark:text-white dark:hover:bg-slate-700;
+    @apply inline-flex items-center justify-center whitespace-nowrap
+           rounded-md text-sm font-medium
+           ring-offset-background transition-colors
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+           disabled:pointer-events-none disabled:opacity-50
+           h-10 px-4 py-2
+           bg-primary text-primary-foreground hover:bg-primary/90;
   }
 
   input[type='text'],
   input[type='number'] {
-    @apply appearance-none rounded-sm w-full py-1 px-3 leading-tight focus:outline-hidden my-2
-              border border-gray-200 dark:border-slate-600
-              dark:bg-slate-800 dark:text-gray-200;
+    @apply inline-flex items-center justify-center whitespace-nowrap
+           rounded-md text-sm font-medium
+           ring-offset-background transition-colors
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+           disabled:pointer-events-none disabled:opacity-50
+           h-10 px-4 py-2
+           bg-primary text-primary-foreground hover:bg-primary/90;
   }
 
   ul {
@@ -58,6 +65,10 @@ html {
     li {
       @apply mb-1;
     }
+  }
+
+  p {
+    @apply mt-1;
   }
 }
 

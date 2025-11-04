@@ -8,7 +8,7 @@ Vovk.ts renders client libraries from [EJS](https://www.npmjs.com/package/ejs) t
 2. Use existing templates as a base for other templates using the `extends` option. This allows you to create a new template that extends an existing one and overrides some of its options.
 3. Use existing templates as dependencies for other templates using the `requires` option. This allows you to create a new template that composes existing templates and renders them into the output directory.
 
-Template definitions are configured in [config](/config) under the `clientTemplateDefs` option. By default, this object includes built-in template definitions that become visible if you set [`emitConfig`](/config#emitconfig) to `true` or, if `emitConfig` is an array, add `clientTemplateDefs`. You can then inspect `.vovk-schema/_meta.json`, which lists all available template definitions under `config`.
+Template definitions are configured in [config](/config) under the `clientTemplateDefs` option. By default, this object includes built-in template definitions that become visible if you set [`exposeConfigKeys`](/config#exposeConfigKeys) to `true` or, if `exposeConfigKeys` is an array, add `clientTemplateDefs`. You can then inspect `.vovk-schema/_meta.json`, which lists all available template definitions under `config`.
 
 ## Example
 

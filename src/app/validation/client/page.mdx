@@ -1,4 +1,4 @@
-// import { Tabs } from 'nextra/components';
+import { Tabs } from 'nextra/components';
 
 # Client-Side Validation for RPC Methods
 
@@ -101,16 +101,15 @@ Zod 4 includes a `.file()` schema that is converted to a valid [OAS schema](http
 
 ---
 
-If you’re using an unlisted library and can’t produce a proper OAS file schema, the simplest workaround is to set `disableClientSideValidation` in the generated RPC call:
+If you’re using an unlisted library and can’t produce a proper OAS file schema, the simplest workaround is to set `disableClientValidation` in the generated RPC call:
 
 ```ts
 import { UserRPC } from 'vovk-client';
 
 const respData = await UserRPC.updateUser({
-  body: formData, // FormData instance
-  params: { id: '...' },
-  disableClientSideValidation: true, // disable client-side validation
+  body: { /* ... */ },
+  params: { /* ... */ },
+  disableClientValidation: true, // disable client-side validation
 });
 ```
 
-This skips client-side validation while keeping server-side validation intact. The file field won’t appear in the generated OpenAPI spec, but the endpoint will still accept `multipart/form-data` requests.

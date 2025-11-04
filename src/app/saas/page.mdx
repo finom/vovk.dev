@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 # Framework for SaaS Applications
 
 Next.js, combined with Vovk.ts, provides a powerful foundation for building SaaS applications that are easy to deploy, scale, and maintain. It includes a rich set of out-of-the-box features addressing modern requirements and common SaaS use cases.
@@ -15,20 +17,27 @@ The entire app is implemented as a single Next.js application that, when deploye
 
 A large application often needs to be split into multiple areas, each serving a different purpose and audience. Next.js with Vovk.ts makes it easy to implement multi-tenant SaaS applications that can serve different areas from different domains or subdomains within a single Next.js app (such as [example.com](https://multitenant.vovk.dev/), [admin.example.com](https://admin.multitenant.vovk.dev/), [customer.example.com](https://customer.multitenant.vovk.dev/)), while still being able to share code and resources between them.
 
+<Image
+  src="/draw/multitenancy.svg"
+  alt="Multitenancy"
+  width={1398.4921875 / 2}
+  height={1005.0703125 / 2}
+  className="dark:invert m-auto"
+/>
 
 **Read more**
 
 - [Next.js Middleware](https://nextjs.org/docs/app/api-reference/file-conventions/middleware)
 - [Vovk.ts Multi-tenancy](/multitenant)
 
-## Build JARVIS-Grade Real-Time User Interfaces
+## Build JARVIS-Grade Realtime User Interfaces
 
-Vovk.ts provides a powerful function calling framework that turns controllers and RPC modules into AI-accessible functions that can be executed at the current evaluation context or or via an HTTP request to the server. With simple front-end techniques, you can build real-time user interfaces that update as the AI generates function parameters, providing a seamless and interactive experience for app users with minimal development effort. This approach is especially useful for people with disabilities, as it allows them to interact with the application using voice commands and see the UI respond in real-time.
+Vovk.ts provides a powerful function calling framework that turns controllers and RPC modules into AI-accessible functions that can be executed at the current evaluation context or or via an HTTP request to the server. With simple front-end techniques, you can build Realtime user interfaces that update as the AI generates function parameters, providing a seamless and interactive experience for app users with minimal development effort. This approach is especially useful for people with disabilities, as it allows them to interact with the application using voice commands and see the UI respond in Realtime.
 
 **Read more**
-- [Real-Time UI](/realtime-ui)
+- [Realtime UI](/realtime-ui)
 - [Function Calling](/function-calling)
-- [Real-Time Polling](/polling)
+- [Realtime Polling](/polling)
 
 ## Create MCP Servers
 

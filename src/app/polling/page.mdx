@@ -1,13 +1,27 @@
 import GithubFiles from '@/components/GithubFiles';
+import { PollExample } from '../../components/vovk-examples';
 
 TODO: deletions need to be explicit
-TODO: Add ticker
 
-# Real-time polling (experimental)
+# Realtime polling (experimental)
 
-In the [previous article](/realtime-ui), we covered how to use the OpenAPI Real-time API to deliver instant UI updates while the user interacts with the app. The LLM functions created with `createLLMTools` ran in the browser, where the AI performed HTTP requests to the server using RPC modules.
+## The goal
+
+- Make the UI update automatically when the data is changed by other users or third-party services
+- Use only HTTP protocol (no WebSockets, no SSE) to ensure compatibility with any hosting provider
+
+##  Introduction
+
+In the [previous article](/realtime-ui), we covered how to use the OpenAPI Realtime API to deliver instant UI updates while the user interacts with the app. The LLM functions created with `createLLMTools` ran in the browser, where the AI performed HTTP requests to the server using RPC modules.
 
 On this page, we explain how to use database polling to receive updates triggered by other users or third-party services (such as [MCP](/mcp)), keeping the UI in sync with the database. To ensure the app can be deployed to any hosting provider, we avoid non-HTTP protocols such as WebSockets and instead use HTTP polling powered by [JSONLines](/controller/jsonlines).
+
+The component below demonstrates a simple polling example that receives incremental updates from the server every second (see "Network" tab at dev tools). After 10 updates, the server closes the connection, and the client reconnects automatically. We can use the same approach to receive database updates in real time, by having the server send updates whenever the database changes.
+
+<div className="example">
+<PollExample />
+[View on examples.vovk.dev »](https://examples.vovk.dev/polling)
+</div>
 
 ## Redis DB as event bus
 
@@ -116,7 +130,7 @@ const { tools } = createLLMTools({
 });
 ```
 
-The Telegram API library is implemented with [OpenAPI Mixins](/codegen) and used as a `TelegramRPC` module to call Telegram API methods.
+The Telegram API library is implemented with [OpenAPI Mixins](/codegen) and used as a `TelegramAPI` module to call Telegram API methods.
 
 ```ts filename="vovk.config.mjs"
 // @ts-check
@@ -132,7 +146,7 @@ const config = {
             url: "https://raw.githubusercontent.com/sys-001/telegram-bot-api-versions/refs/heads/main/files/openapi/yaml/v183.yaml",
             fallback: ".openapi-cache/telegram.yaml",
           },
-          getModuleName: "TelegramRPC",
+          getModuleName: "TelegramAPI",
           getMethodName: ({ path }) => path.replace(/^\//, ""),
           errorMessageKey: "description",
         },
@@ -148,7 +162,7 @@ The `TelegramService` class handles interaction with the Telegram API and genera
 
 ```ts filename="src/modules/telegram/TelegramService.ts"
 import OpenAI from "openai";
-import { TelegramRPC } from "vovk-client";
+import { TelegramAPI } from "vovk-client";
 
 const openai = new OpenAI();
 
@@ -220,7 +234,7 @@ export default class TelegramService {
     chatId: number,
     text: string,
   ): Promise<void> {
-    await TelegramRPC.sendMessage({
+    await TelegramAPI.sendMessage({
       body: {
         chat_id: chatId,
         text: text,
@@ -255,7 +269,7 @@ export default class TelegramService {
       );
 
       // Send the voice message
-      await TelegramRPC.sendVoice({
+      await TelegramAPI.sendVoice({
         body: formData,
         apiRoot: this.apiRoot,
       });

@@ -491,36 +491,6 @@ The shape of the [config](/config) file.
 
 The shape of the LLM tool created by the [createLLMTools](#createllmtools) function.
 
-## System Functions for Additional Hacking (Advanced)
-
-### `createVovkApp`
-
-An internal function that creates the Vovk.ts app with the decorators and init function.
-
-```ts
-export const { get, post, put, patch, del, head, options, prefix, initSegment } = createVovkApp();
-```
-
-### `createRPC`
-
-Function that creates RPC modules out of the [schema](/schema) and types inferred from [controllers](/controller). It's imported by the generated TypeScript, ESM, and CJS files and can be [customized in the config](/imports).
-
-### `createCodeSamples`
-
-Creates code samples that are used by [Scalar](/openapi) and README.md generators.
-
-### `openAPIToVovkSchema`
-
-Converts OpenAPI schema to Vovk.ts schema.
-
-### `vovkSchemaToOpenAPI`
-
-Converts Vovk.ts schema to OpenAPI schema.
-
-### `resolveGeneratorConfigValues`
-
-Resolves the generator config values for a specific case (if it's a bundle, segmented or composed client, etc.) based on the provided schema and options.
-
 ## System Types
 
 ### `KnownAny`
@@ -553,8 +523,6 @@ for await (const item of response) {
     response.abortController.abort();
   }
 }
-
-
 
 const allItems = await response.asPromise();
 ```
@@ -623,3 +591,37 @@ The configuration options for the `package.json` generation. Has extra keys `rs_
 ### `VovkOpenAPIMixin`
 
 The configuration options for OpenAPI generation at `VovkOutputConfig.openAPIMixin`. See [OpenAPI Mixins](/codegen) for more info.
+
+## System Functions for Additional Hacking (Advanced)
+
+> [!WARNING]
+>
+> These functions can be changed in future versions without a major release.
+
+### `createVovkApp`
+
+An internal function that creates the Vovk.ts app with the decorators and init function.
+
+```ts
+export const { get, post, put, patch, del, head, options, prefix, initSegment } = createVovkApp();
+```
+
+### `createRPC`
+
+Function that creates RPC modules out of the [schema](/schema) and types inferred from [controllers](/controller). It's imported by the generated TypeScript, ESM, and CJS files and can be [customized in the config](/imports).
+
+### `createCodeSamples`
+
+Creates code samples that are used by [Scalar](/openapi) and README.md generators.
+
+### `openAPIToVovkSchema`
+
+Converts OpenAPI schema to Vovk.ts schema.
+
+### `vovkSchemaToOpenAPI`
+
+Converts Vovk.ts schema to OpenAPI schema.
+
+### `resolveGeneratorConfigValues`
+
+Resolves the generator config values for a specific case (if it's a bundle, segmented or composed client, etc.) based on the provided schema and options.

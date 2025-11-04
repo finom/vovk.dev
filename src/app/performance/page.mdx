@@ -1,87 +1,60 @@
-# Measuring Framework Overhead Performance
+# Overhead Performance
 
-> [!IMPORTANT]
->
-> This is the only article in this documentation written by AI (Claude Opus 4.1 + slight author's edits), which was prompted with real results from human-written performance tests that you can find in the [vovk-perf-test](https://github.com/finom/vovk-perf-test) repository. It focuses on measuring the performance overhead a single [segment](/segment). 
->
-> In short, the tests reveal O(1) request routing complexity, thanks to efficient caching, and O(n) initialization scaling, being only 10 times slower than no-op decorators.
->
-> The performance of Next.js itself is not measured here, as it is out of scope. The tests were run on a Apple M4 Pro chip.
 
-## Executive Summary
 
-Performance overhead in back-end frameworks can significantly impact application scalability and user experience. This article presents a comprehensive methodology for measuring Vovk.ts framework overhead, a TypeScript framework built on Next.js API routes. Through systematic testing of request handling and initialization overhead, we demonstrate that Vovk.ts maintains constant-time request routing complexity O(1) even with 10,000+ endpoints, while initialization scales linearly O(n) with acceptable performance characteristics compared to baseline decorator operations.
+## TL;DR
 
-## Introduction
+- Goal: measure Vovk.ts overhead over native Next.js route handlers (not HTTP stack).
+- Routing: O(1) across 1–10,000 controllers (20,000 endpoints). Median latency ~1.1 µs; at 10,000 controllers ~1.3 µs. Throughput ~750k–930k ops/s/core.
+- Cold start: O(n). ~5.5 ms at 1,000 controllers; ~63 ms at 10,000. About 8–10× the cost of no‑op decorators.
+- Notes: Tinybench on Apple M4 Pro. Next.js runtime cost is out of scope. Compiled from real benchmark output with AI assistance and minor edits. See vovk-perf-test repo for scripts.
 
-Modern back-end frameworks must balance developer experience with runtime performance. While frameworks provide powerful abstractions through decorators, dependency injection, and automatic routing, these features introduce overhead that can impact application performance at scale. Understanding and quantifying this overhead is crucial for making informed architectural decisions.
+## Reproducing the Tests
 
-Vovk.ts operates as a layer over Next.js API routes, creating route handlers through a decorator-based controller pattern:
+Clone the repo:
 
-```typescript
+```sh
+git clone https://github.com/finom/vovk-perf-test.git
+cd vovk-perf-test
+```
+
+Install dependencies via:
+
+```sh npm2yarn
+npm i
+```
+
+Run performance tests via:
+
+```sh npm2yarn
+npm run perf-test
+```
+
+## Overview
+
+Vovk.ts sits on top of Next.js API routes and generates handlers via decorators applied to controller methods:
+
+```ts filename="src/app/api/[[...vovk]]/route.ts"
 export const { GET, POST } = initSegment({ controllers });
 ```
 
-This study evaluates two critical performance dimensions:
-1. **Request Overhead**: The additional latency introduced when routing and handling HTTP requests.
-2. **Cold Start Overhead**: The initialization time required when bootstrapping controllers.
+We measure framework overhead in two dimensions:
+- Request Overhead: per-request routing/handler overhead.
+- Cold Start Overhead: initialization time for controllers/metadata.
+
+Source: test scripts in the vovk-perf-test repository.
 
 ## Request Overhead
 
-### Methodology
+### Methodology (short)
 
-Request overhead testing measures the framework's impact on individual request latency. Since Vovk.ts builds upon Next.js's native routing capabilities, our goal is to isolate and measure the additional processing time introduced by the framework's decorator system.
+- Autogenerate N controllers (N ∈ \{1, 10, 100, 1,000, 10,000\}), each exposing:
+  - GET without params (reject unexpected id).
+  - POST with path param "\{id\}" (require id).
+- Minimal handler logic; measure full routing + handler path.
+- Tinybench: 100 ms min per test, nanosecond timing; report median latency/throughput.
 
-#### Test Design
-
-The testing framework generates controllers programmatically using a standardized template that represents typical production patterns:
-
-```typescript
-@prefix('resource-name')
-export default class ResourceController {
-    @operation({ summary: 'Get Resources' })
-    @get()
-    static getResources = (_req: unknown, params: KnownAny) => {
-        if('id' in params) throw new Error('Unexpected id param');
-        return null;
-    }
-
-    @operation({ summary: 'Create Resource' })
-    @post('{id}')
-    static createResource = (_req: unknown, params: KnownAny) => {
-        if(!('id' in params)) throw new Error('Missing id param');
-        return null;
-    };
-}
-```
-
-Each controller exposes two endpoints:
-- A parameterless GET endpoint with validation to reject unexpected parameters.
-- A POST endpoint with a required `{id}` path parameter and corresponding validation.
-
-#### Testing Variables
-
-To understand how the framework scales, we test five distinct configurations:
-- **1 Controller** (2 endpoints): Baseline measurement.
-- **10 Controllers** (20 endpoints): Small application.
-- **100 Controllers** (200 endpoints): Medium application.
-- **1,000 Controllers** (2,000 endpoints): Large enterprise application.
-- **10,000 Controllers** (20,000 endpoints): Extreme-scale stress test.
-
-#### Measurement Protocol
-
-Each test configuration runs using Tinybench with:
-- 100ms minimum runtime per test.
-- Automatic sample size determination for statistical significance.
-- Nanosecond precision timing.
-- Median and average latency calculations.
-- Throughput measurements in operations per second.
-
-The testing isolates framework overhead by measuring the complete request handling pipeline while keeping business logic minimal (returning null).
-
-### Results Analysis
-
-The performance results demonstrate exceptional scalability characteristics:
+### Results
 
 | Controllers | Endpoints | GET Latency (med) | POST Latency (med) | GET Throughput (med ops/s) | POST Throughput (med ops/s) |
 |------------|-----------|-------------------|--------------------|-----------------------------|------------------------------|
@@ -91,74 +64,30 @@ The performance results demonstrate exceptional scalability characteristics:
 | 1,000      | 2,000     | 1,083 ns          | 1,125 ns           | 923,361                     | 888,889                      |
 | 10,000     | 20,000    | 1,292 ns          | 1,333 ns           | 773,994                     | 750,188                      |
 
-#### Key Observations
-
-1. **Constant-Time Complexity**: Request latency remains virtually unchanged from 1 to 1,000 controllers, proving O(1) routing complexity. The framework's routing mechanism efficiently maps requests without iterating through all available endpoints.
-
-2. **Sub-Microsecond Overhead**: With median latencies consistently around 1.1 microseconds, the framework adds negligible overhead to request processing. This translates to theoretical throughput exceeding 900,000 requests per second per core.
-
-3. **Marginal Degradation at Extreme Scale**: Only at 10,000 controllers (20,000 endpoints) do we observe a slight increase in latency (~20%), likely due to memory cache effects rather than algorithmic complexity. Even at this scale, throughput remains above 750,000 ops/s.
-
-4. **Consistent GET vs POST Performance**: The similar performance between GET and POST operations with path parameters indicates efficient parameter extraction and pattern matching.
-
-### Performance Implications
-
-The constant-time routing performance has significant architectural implications:
-
-- **Microservice Decomposition**: Large monolithic applications can be safely built without performance concerns about endpoint count.
-- **API Versioning**: Multiple API versions can coexist without degrading performance.
-- **Feature Flags**: Dynamic endpoint enable/disable patterns won't impact routing performance.
-- **Multi-Tenancy**: Per-tenant endpoint variations scale without overhead concerns.
+Key takeaways:
+- O(1) routing: stable latency from 1 to 1,000 controllers; small bump at 10,000.
+- Sub‑µs overhead at typical scales; GET≈POST indicates efficient param extraction.
 
 ## Cold Start Overhead
 
-### Methodology
+### Methodology (short)
 
-Cold start overhead measures the time required to initialize the framework's routing infrastructure and controller metadata. This metric is critical for:
-- Serverless deployments where containers frequently cold start.
-- Development experience with hot module reloading.
-- Kubernetes environments with aggressive pod scaling.
-- CI/CD pipeline performance.
+For N ∈ \{1, 10, 100, 1,000, 10,000\} measure:
+- App creation, decorator processing, metadata build, and initSegment().
+- Compare to equivalent classes using no‑op decorators to isolate framework work.
 
-#### Test Design
+Example no‑op decorators:
 
-The cold start tests measure the complete initialization sequence:
-
-1. **Framework Instantiation**: Creating the Vovk application instance.
-2. **Decorator Processing**: Applying class and method decorators.
-3. **Metadata Collection**: Building routing tables and operation schemas.
-4. **Segment Initialization**: Calling `initSegment()` to finalize setup.
-
-To establish a performance baseline, we compare against no-op decorators that perform minimal processing:
-
-```typescript
-function noopDecorator(arg?: KnownAny) {
-  return function <T>(
-    target: KnownAny,
-    propertyKey: string,
-    descriptor?: TypedPropertyDescriptor<T>,
-  ): KnownAny {
-    return descriptor;
-  };
+```ts
+function noopDecorator() {
+  return function (..._args: any[]) {};
+}
+function noopClassDecorator() {
+  return function <T extends new (...a: any[]) => any>(c: T) { return c; };
 }
 ```
 
-This comparison isolates the framework's processing overhead from the fundamental cost of TypeScript decorator execution.
-
-#### Testing Variables
-
-We measure initialization time across five scales:
-- **1 Controller**: Minimal application.
-- **10 Controllers**: Typical microservice.
-- **100 Controllers**: Large application.
-- **1,000 Controllers**: Enterprise monolith.
-- **10,000 Controllers**: Stress test scenario.
-
-Each configuration is benchmarked against equivalent no-op decorator applications to establish the overhead ratio.
-
-### Results Analysis
-
-The initialization performance shows linear scaling with strong baseline efficiency:
+### Results
 
 | Controllers | Vovk.ts Init Time (med) | No-op Time (med) | Overhead Ratio | Throughput (ops/s) |
 |-------------|-------------------------|------------------|----------------|-------------------|
@@ -168,72 +97,15 @@ The initialization performance shows linear scaling with strong baseline efficie
 | 1,000       | 5,519.8 μs              | 646.1 μs         | 8.5x           | 181               |
 | 10,000      | 62,769.2 μs             | 7,629.1 μs       | 8.2x           | 16                |
 
-#### Key Observations
+Key takeaways:
+- O(n) init: linear in controller count with stable per‑controller cost.
+- Absolute times are small for long‑lived services; still acceptable for serverless at typical sizes.
 
-1. **Linear Scaling O(n)**: Initialization time scales linearly with controller count, as expected for metadata processing operations. This predictable scaling enables accurate capacity planning.
+## Practical guidance
 
-2. **Consistent Overhead Ratio**: The framework maintains an 8-10x overhead compared to no-op decorators, demonstrating efficient metadata processing. This ratio actually improves at scale, suggesting good cache locality and optimization.
-
-3. **Acceptable Absolute Times**: Even with 1,000 controllers, initialization completes in ~5.5ms. This is negligible for long-running services and acceptable for serverless cold starts.
-
-4. **Memory Efficiency**: The decreasing overhead ratio at scale (10.6x → 8.2x) indicates efficient memory usage patterns and good CPU cache utilization.
-
-### Performance Implications
-
-The linear initialization scaling has important deployment considerations:
-
-#### Serverless Environments
-- Applications with &lt;100 controllers: Negligible cold start impact (&lt;1ms).
-- Applications with 100-1,000 controllers: Minimal impact (1-6ms).
-- Recommendation: Consider controller bundling strategies for &gt;1,000 endpoints.
-
-#### Development Experience
-- Hot reload performance remains snappy up to 1,000 controllers.
-- Large applications benefit from modular development with selective controller loading.
-
-#### Production Deployments
-- For Kubernetes/container deployments: Even 10,000 controllers initialize in ~63ms.
-- Health check delays should account for initialization time in large applications.
-- Consider lazy loading strategies for rarely-used controllers.
-
-## Performance Optimization Strategies
-
-Based on these findings, we recommend the following optimization strategies:
-
-### 1. Controller Organization
-- Group related endpoints within controllers to minimize controller count.
-- Use path parameters effectively to reduce endpoint proliferation.
-- Consider controller inheritance for shared functionality.
-
-### 2. Deployment Architecture
-- For serverless: Keep controller count below 100 for optimal cold starts.
-- For containers: Up to 10,000 controllers remain viable with proper health checks.
-- Use environment-based controller loading to exclude unused features.
-
-### 3. Development Workflow
-- Implement controller lazy loading in development for large applications.
-- Use module federation for independent team development.
-- Cache decorator metadata in development builds.
-
-## Conclusion
-
-The performance testing methodology demonstrates that Vovk.ts achieves exceptional runtime efficiency while maintaining developer-friendly abstractions. The framework's constant-time O(1) request routing scales to extreme endpoint counts without degradation, while linear O(n) initialization overhead remains manageable even for enterprise-scale applications.
-
-Key achievements:
-- **Sub-microsecond request overhead** maintains high throughput at any scale.
-- **Predictable initialization scaling** enables accurate capacity planning.
-- **10x decorator overhead ratio** represents efficient metadata processing.
-- **Production viability** proven up to 10,000+ controllers.
-
-These performance characteristics position Vovk.ts as a production-ready framework suitable for applications ranging from microservices to large-scale enterprise monoliths. The negligible request overhead ensures that developer productivity gains from the decorator-based architecture come without runtime performance sacrifice.
-
-## Future Work
-
-Potential areas for continued performance investigation:
-- Memory consumption analysis at various scales.
-- Comparison with other TypeScript back-end frameworks (?).
-- Impact of middleware chains on request overhead (such as [`withValidationLibrary`](/validation) and custom [decorators](/controller/decorator)).
+- For high-performance workloads: split the app into multiple [segments](/segment) (e.g., serverless functions built with Next.js route.ts files).
+- In theory, with careful segment management and adequate hardware, a single Next.js/Vovk.ts app can host up to ~1,000,000 endpoints. Validate this in your environment; practical limits will be memory, bundle size, cold start budgets, and platform quotas.
 
 ---
 
-*Performance testing conducted with Tinybench on Node.js runtime. Results may vary based on hardware, Node.js version, and compilation targets.*
+Benchmarks: Tinybench on Node.js; hardware Apple M4 Pro. Numbers can vary by runtime, hardware, and build settings. Scripts/results: https://github.com/finom/vovk-perf-test

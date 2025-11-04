@@ -88,6 +88,8 @@ export class UpdateUserResponseDto {
   </Tabs.Tab>
 </Tabs>
 
+[View live example on examples.vovk.dev »](https://examples.vovk.dev/dto)
+
 As shown above, DTOs use the `@JSONSchema` decorator to describe properties when converted to JSON Schema. [vovk-dto](https://www.npmjs.com/package/vovk-dto) relies on `targetConstructorToSchema` from [class-validator-jsonschema](https://www.npmjs.com/package/class-validator-jsonschema) to produce schemas for the [OpenAPI](/openapi) spec, [codegen](/codegen), and [function calling](/function-calling).
 
 Also note that `req.vovk` exposes validated input. The `req.vovk.body()`, `req.vovk.query()`, and `req.vovk.params()` methods return instances of the corresponding DTO classes. You can still access raw data via `req.json()`, `req.nextUrl.searchParams`, and the second argument of the `handle` function.
@@ -131,14 +133,14 @@ const respData = await UserRPC.updateUser({
 });
 ```
 
-In rare cases where the data is neither a DTO instance, a plain object, nor `FormData`, you can skip validation with `disableClientSideValidation`.
+In rare cases where the data is neither a DTO instance, a plain object, nor `FormData`, you can skip validation with `disableClientValidation`.
 
 ```ts
 import { UserRPC } from 'vovk-client';
 
 await UserRPC.updateUser({
   body: nonDtoInstance, // not a DTO instance, plain object, or FormData
-  disableClientSideValidation: true,
+  disableClientValidation: true,
 });
 ```
 

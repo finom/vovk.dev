@@ -82,7 +82,7 @@ const options = [
   {
     title: 'Multitenancy',
     icon: '🏘️',
-    href: '/multitenancy',
+    href: '/multitenant',
   },
   {
     title: 'CLI',
@@ -105,7 +105,7 @@ const options = [
     href: '/function-calling',
   },
   {
-    title: 'JARVIS-Grade Real-Time UI',
+    title: 'JARVIS-Grade Realtime UI',
     icon: '✨',
     href: '/realtime-ui',
   },
