@@ -6,7 +6,7 @@
 
 The core library providing decorators, utilities, types, and other features used by both server-side and client-side code. It depends only on a few type-focused libraries and is reported as 100% self-composed on [Bundlephobia](https://bundlephobia.com/package/vovk).
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm install vovk@draft
 ```
 
@@ -14,11 +14,11 @@ npm install vovk@draft
 
 The [CLI](/cli) package. Install globally or as a dev dependency. Provides the `vovk` binary.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm install vovk-cli@draft --save-dev
 ```
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk <command>
 ```
 
@@ -26,7 +26,7 @@ npx vovk <command>
 
 The client package that re-exports the [composed](/composed) [TypeScript](/typescript) client, typically located in `node_modules/.vovk-client`. Import it from client-side code (Node.js or browser) to access RPC methods and schemas.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm install vovk-client@draft
 ```
 
@@ -34,7 +34,7 @@ npm install vovk-client@draft
 
 A shortcut for the `vovk-cli init` command that initializes a Vovk.ts project with a [config](/config).
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk-init
 ```
 
@@ -42,7 +42,7 @@ npx vovk-init
 
 The [Zod](/validation/zod) integration. Exposes `withZod` for validating HTTP requests on the server with Zod 4, and provides a Zod 3-compatible `withZod` available via `vovk-zod/v3`.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm install vovk-zod@draft
 ```
 
@@ -50,7 +50,7 @@ npm install vovk-zod@draft
 
 The [DTO](/validation/dto) integration. Provides `withDto` for validating HTTP requests on the server with [class-validator](https://www.npmjs.com/package/class-validator), and `validateOnClient` (via `vovk-dto/validateOnClient`) to validate data on the client with class-validator instead of [Ajv](/validation/client#ajv).
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm install vovk-dto@draft
 ```
 
@@ -58,7 +58,7 @@ npm install vovk-dto@draft
 
 The [Yup](/validation/yup) integration. Provides `withYup` for validating HTTP requests on the server.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm install vovk-yup@draft
 ```
 
@@ -66,7 +66,7 @@ npm install vovk-yup@draft
 
 Exposes `validateOnClient` to validate input data on the client using the emitted JSON Schema.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm install vovk-ajv@draft
 ```
 
@@ -74,7 +74,7 @@ npm install vovk-ajv@draft
 
 Provides Python client templates and utilities to generate the [Python client library](/python).
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm install vovk-python@draft --save-dev
 ```
 
@@ -82,7 +82,7 @@ npm install vovk-python@draft --save-dev
 
 Provides Rust client templates and utilities to generate the [Rust client library](/rust).
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm install vovk-rust@draft --save-dev
 ```
 

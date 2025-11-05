@@ -55,7 +55,7 @@ Initialize a segment by calling `initSegment` in **route.ts**. The function acce
 
 ### The Root Segment
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk new segment # creates a new root segment at src/app/api/[[...vovk]]/route.ts
 ```
 
@@ -65,7 +65,7 @@ For simple single-page apps, a single root segment is sufficient. In this setup,
 
 Example **route.ts** for a single-segment app:
 
-```ts filename="src/app/api/[[...vovk]]/route.ts"
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
 import UserController from '../../modules/user/UserController';
 import PostController from '../../modules/post/PostController';
@@ -106,7 +106,7 @@ Each segment’s nested folder determines both the API path and the segment name
 
 For non-root segments, provide `segmentName` to `initSegment`:
 
-```ts filename="src/app/api/foo/[[...vovk]]/route.ts"
+```ts showLineNumbers copy filename="src/app/api/foo/[[...vovk]]/route.ts"
 // ...
 
 export const { GET, POST, PUT, DELETE } = initSegment({

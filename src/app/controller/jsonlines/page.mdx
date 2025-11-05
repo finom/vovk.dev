@@ -14,7 +14,7 @@ Vovk.ts includes first‑class support for the [JSON Lines](https://jsonlines.or
 >
 > Because the response size is not known in advance, JSON Lines responses cannot be compressed with Gzip, Brotli, or other algorithms. Keep this in mind for large responses.
 
-```ts
+```ts showLineNumbers copy
 import { z } from 'zod';
 import { prefix, post, type VovkIteration } from 'vovk';
 import { withZod } from 'vovk-zod';
@@ -47,7 +47,7 @@ export default class StreamController {
 
 When used with a [service](./service), the iterable can be delegated using the `yield*` syntax:
 
-```ts filename="src/modules/stream/StreamController.ts"
+```ts showLineNumbers copy filename="src/modules/stream/StreamController.ts"
 import { prefix, post, type VovkIteration } from 'vovk';
 import StreamService from './StreamService';
 
@@ -66,7 +66,7 @@ export default class StreamController {
 }
 ```
 
-```ts filename="src/modules/stream/StreamService.ts"
+```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts"
 import type { VovkIteration } from 'vovk';
 import type { StreamController } from './StreamController';
 
@@ -90,7 +90,7 @@ export default class StreamService {
 
 On the client side, the JSON Lines output can be consumed using [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterators](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator), allowing you to process each line as it arrives:
 
-```ts
+```ts showLineNumbers copy
 import { StreamRPC } from 'vovk-client';
 
 using stream = await StreamRPC.getJSONLines();
@@ -109,7 +109,7 @@ The iterable (represented as `stream` above), besides `Symbol.asyncIterator`, `S
 
 The `using` statement ensures the stream is aborted with `stream.abortController.abort('Stream disposed')` when it goes out of scope.
 
-```ts
+```ts showLineNumbers copy
 console.log('Response status:', stream.status);
 stream.onIterate((item) => {
   console.log('Iterated item:', item);
@@ -129,7 +129,7 @@ A service method in this case is implemented as a regular function that accepts 
 
 Here's what the streaming service might look like:
 
-```ts filename="src/modules/stream/StreamService.ts"
+```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts"
 import type { JSONLinesResponse } from 'vovk';
 
 export type Token = { message: string };
@@ -152,7 +152,7 @@ As you can see, tokens are sent with `JSONLinesResponse#send`, and when the stre
 
 The controller class returns an instance of `JSONLinesResponse`, and the streaming is performed in a floating Promise above the `return` statement.
 
-```ts
+```ts showLineNumbers copy
 import { prefix, get, JSONLinesResponse, type VovkRequest } from 'vovk';
 import StreamService, { type Token } from './StreamService';
 
@@ -171,6 +171,6 @@ export default class StreamController {
 
 The `JSONLinesResponse` class also provides a `throw` method that safely closes the stream and causes the client to rethrow the received error.
 
-```ts
+```ts showLineNumbers copy
 await resp.throw(new Error('Stream error'));
 ```

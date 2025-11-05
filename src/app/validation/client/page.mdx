@@ -4,7 +4,7 @@ import { Tabs } from 'nextra/components';
 
 The [schema](/schema) emitted by the server-side code is primarily used to generate RPC modules. As a side effect of this implementation, it can also power client-side validation. Client-side validation is enabled by wiring a library into the RPC module template via the [validateOnClient](/imports#validateonclient) import.
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   outputConfig: {
@@ -19,7 +19,7 @@ export default config;
 
 This configuration makes the generated RPC modules import the specified client-side validation library.
 
-```ts filename="./node_modules/.vovk-client/index.mjs"
+```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.mjs"
 // ...existing code...
 export const UserRPC = createRPC(
   schema, '', 'UserRPC', import('vovk'),
@@ -32,11 +32,11 @@ export const UserRPC = createRPC(
 
 [vovk-ajv](https://www.npmjs.com/package/vovk-ajv) is the primary library for client-side validation, built on top of [Ajv](https://www.npmjs.com/package/ajv). It’s installed and configured automatically when you run `npx vovk-init`. **vovk-ajv** supports additional configuration under `config.libs.ajv` in [vovk.config](/config), including Ajv options, localization, and the target JSON Schema draft.
 
-```bash npm2yarn
+```bash npm2yarn copy
 npm install vovk-ajv@draft
 ```
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   outputConfig: {
@@ -67,7 +67,7 @@ When using [class-validator](/validation/dto) on the server, you can reuse the s
 
 You can implement a custom `validateOnClient` using `createValidateOnClient`, which accepts a `validate` option. The `validate` function receives the input data, the validation schema, and request metadata (`meta`) such as `type`, `endpoint`, and more. It should return validated data, or throw an error on failure. Optionally, throw an `HttpException` with status `0` (`HttpStatus.NULL`) to follow the default behavior for failed client-side validation.
 
-```ts
+```ts showLineNumbers copy
 import { createValidateOnClient, HttpException, HttpStatus } from 'vovk';
 
 export const validateOnClient = createValidateOnClient({
@@ -103,7 +103,7 @@ Zod 4 includes a `.file()` schema that is converted to a valid [OAS schema](http
 
 If you’re using an unlisted library and can’t produce a proper OAS file schema, the simplest workaround is to set `disableClientValidation` in the generated RPC call:
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 const respData = await UserRPC.updateUser({

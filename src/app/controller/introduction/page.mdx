@@ -17,7 +17,7 @@ Methods decorated with an HTTP decorator (like `@get()` or `@post()`) become req
 
 By default, the `NextRequest` type doesn't provide any information about the request body or query parameters, so the body is cast as `any` and query parameters are cast as `string | null`.
 
-```ts
+```ts showLineNumbers copy
 import type { NextRequest } from 'next';
 import { prefix, put } from 'vovk';
 
@@ -36,7 +36,7 @@ export default class UserController {
 
 To add the required body and query types, replace `NextRequest` with `VovkRequest` and define the types as generics.
 
-```ts filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { prefix, put, type VovkRequest } from 'vovk';
 import type { User } from '../../types';
 
@@ -59,7 +59,7 @@ export default class UserController {
 <Callout type="info" emoji="ℹ️">
   Hint: To ensure that the class is never instantiated, you can make it abstract.
 
-```ts
+```ts showLineNumbers copy
 export default abstract class UserController {
   /* ... */
 }
@@ -73,7 +73,7 @@ As you can see, we only changed the type of `req`, but now `data` is `Partial<Us
 
 To validate the request body, query parameters, and headers, you can use [validation libraries](/validation). In this case, you don't need to use `VovkRequest` manually, as the validation library will define the request type itself.
 
-```ts filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { z } from 'zod';
 import { withZod } from 'vovk-zod';
 import { prefix, post, operation, type VovkOutput } from 'vovk';
@@ -124,7 +124,7 @@ Note that to enable safe self‑inference in [service modules](/controller/servi
 
 Once the controller is defined, it needs to be initialized in a [segment route](/segment) by adding it to the `controllers` object. The key of this object defines the name of the resulting RPC module variable exported from `"vovk-client"` or the [segmented client](/segmented).
 
-```ts filename="src/app/api/[[...vovk]]/route.ts"
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
 import UserController from '../../../modules/user/UserController';
 
@@ -139,7 +139,7 @@ export const { GET, POST, PUT, DELETE } = initSegment({ controllers });
 
 This will "compile" the `UserController` into `UserRPC`, which performs `fetch` requests to the `/api/users` subpath.
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 // performs PUT /api/users/69?notify=push
@@ -154,7 +154,7 @@ const updatedUser = await UserRPC.updateUser({
 
 All HTTP decorators provide an `.auto` method that generates the endpoint name from the method name, making the handler definition more RPC‑like.
 
-```ts filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { prefix, put } from 'vovk';
 
 @prefix('users')
@@ -173,7 +173,7 @@ export default class UserController {
 
 The HTTP-decorated static methods of controllers can return several types of objects. For example, a regular object literal.
 
-```ts
+```ts showLineNumbers copy
 // ...
 export default class HelloController {
   @get()
@@ -185,7 +185,7 @@ export default class HelloController {
 
 Another example: if the controller method returns a Prisma ORM invocation, the type will be recognized accordingly.
 
-```ts
+```ts showLineNumbers copy
 // ...
 export default class UserController {
   @get()
@@ -205,7 +205,7 @@ In this case, the returned value of the client method `UserRPC.updateUser` gets 
 
 HTTP handlers can also return a regular `Response` object, including `NextResponse`.
 
-```ts
+```ts showLineNumbers copy
 // ...
 export default class HelloController {
   @get()
@@ -219,7 +219,7 @@ export default class HelloController {
 
 When `NextResponse.json(...)` is returned from the controller method, the client library will recognize the return type as expected.
 
-```ts
+```ts showLineNumbers copy
 import { NextResponse } from 'next/server';
 // ...
 export default class HelloController {

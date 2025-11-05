@@ -120,7 +120,7 @@ After [setting up a Vovk.ts](/getting-started) app, the simplest approach is to 
 
 First, create the API segments for each tenant. Each segment handles requests to its root API endpoint.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk new segment # create the root segment at src/app/api/[[...vovk]]/route.ts
 npx vovk new segment admin # create "admin" segment at src/app/api/admin/[[...vovk]]/route.ts
 npx vovk new segment customer # create "customer" segment at src/app/api/customer/[[...vovk]]/route.ts
@@ -131,13 +131,13 @@ Read more about Vovk.ts [segments](/segments).
 
 Next, create controllers for each segment. For example, to create `ProductService` and `ProductController` for the root segment in `src/modules/product/`:
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk new controller service product
 ```
 
 Create `UserService` and `UserController` for the admin segment in `src/modules/admin/user/`:
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk new controller service admin/user
 ```
 
@@ -161,7 +161,7 @@ This also lets higher‑order segments (such as “admin”) import lower‑orde
 
 Disable the composed client and enable the segmented client in your [config file](/config):
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 // @ts-check
 /** @type {import('vovk').VovkConfig} */
 const config = {
@@ -179,7 +179,7 @@ By default, the segmented client is generated in `./src/client`. You can change 
 
 Once enabled, import the client in your frontend code:
 
-```ts
+```ts showLineNumbers copy
 import { ProductRPC } from '@/client/product';
 
 await ProductRPC.getProducts();
@@ -232,7 +232,7 @@ The generated client’s file structure looks like this (truncated for brevity�
 
 Specify `segmentNameOverride` for every non‑root segment in the [config file](/config). This overrides the default segment name used in the URL path (for example, `"customer/pro"` becomes `""`).
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 // @ts-check
 /** @type {import('vovk').VovkConfig} */
 const config = {
@@ -271,7 +271,7 @@ Parameters:
 
 For wildcard subdomains, use square‑bracket patterns (such as `[customer_name]`) to define the [Dynamic Segment](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes). The value is passed via `params`.
 
-```ts filename="src/middleware.ts"
+```ts showLineNumbers copy filename="src/middleware.ts"
 import { NextRequest, NextResponse } from 'next/server';
 import { multitenant } from 'vovk';
 

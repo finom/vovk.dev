@@ -34,7 +34,7 @@ The standard Web Workers are awesome but they require to implement additional lo
 
 Vovk Worker class is created from a [shared service class](/shared-service) by applying `@worker()` class decorator that defines `onmessage` handler in the Web Worker scope.
 
-```ts filename="src/modules/hello/HelloWorker.ts"
+```ts showLineNumbers copy filename="src/modules/hello/HelloWorker.ts"
 import { worker } from 'vovk';
 
 @worker()
@@ -52,7 +52,7 @@ In a non-worker scope `@worker()` does nothing. You can import the class safely 
 
 To compile the worker library, you need to pass them to `initSegment` as `workers` object option and export the type of this object as `Workers`.
 
-```ts filename="src/app/api/[[...vovk]]/route.ts"
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
 import HelloController from '../../modules/hello/HelloController';
 import HelloWorker from '../../modules/hello/HelloWorker';
@@ -72,7 +72,7 @@ export const { GET, POST, PUT, DELETE } = initSegment({ controllers, workers });
 
 Once this is done, [vovk-client](vovk-client) is going to export the WPC library that provides interface to invoke heavy calculations but doesn't initialise the Web Worker itself. To initialise the Web Worker at the main-thread interface it needs to be instantiated normally and passed as an argument of `employ` static method.
 
-```ts
+```ts showLineNumbers copy
 import { HelloWPC } from 'vovk-client';
 
 HelloWPC.employ(new Worker(new URL('./path/to/HelloWorker.ts', import.meta.url)));
@@ -80,13 +80,13 @@ HelloWPC.employ(new Worker(new URL('./path/to/HelloWorker.ts', import.meta.url))
 
 This syntax is required to invoke the Webpack 5+ loader used by Next.js internally. After it's done the static methods of the mapped class type return `Promise` to delegate heavy calculations to the parallel thread.
 
-```ts
+```ts showLineNumbers copy
 const result = await HelloWPC.heavyCalculation(1e9);
 ```
 
 Note that `Worker` class does not exist in Next.js SSR environment and in case if the code is exposed to non-client-side environment (for example outside of `useEffect`) it's recommended to check if `Worker` exists at the global scope.
 
-```ts
+```ts showLineNumbers copy
 import { HelloWPC } from 'vovk-client';
 
 if (typeof Worker !== 'undefined') {
@@ -97,7 +97,7 @@ if (typeof Worker !== 'undefined') {
 
 `employ` method returns the WPC interface itself. As potentially nicer solution you can use ternary operator to make the Worker library to be nullish.
 
-```ts
+```ts showLineNumbers copy
 import { HelloWPC } from 'vovk-client';
 
 const MyWorker =
@@ -112,7 +112,7 @@ await MyWorker?.heavyCalculation(1e9);
 
 WPC classes support generators and async generators to implement continious event streaming.
 
-```ts filename="src/modules/hello/HelloWorker.ts"
+```ts showLineNumbers copy filename="src/modules/hello/HelloWorker.ts"
 import { worker } from 'vovk';
 
 @worker()
@@ -134,7 +134,7 @@ export default class HelloWorker {
 
 Vovk.ts turns them both into async generators when they're imported from **vovk-client**.
 
-```ts
+```ts showLineNumbers copy
 import { HelloWPC } from 'vovk-client';
 
 // ... plug in the Web Worker with "use" method ...
@@ -152,7 +152,7 @@ for await (const number of HelloWPC.asyncGenerator()) {
 
 A WPS is capable to fetch server-side data as expected.
 
-```ts filename="src/modules/hello/HelloController.ts"
+```ts showLineNumbers copy filename="src/modules/hello/HelloController.ts"
 import { get } from 'vovk';
 
 export class HelloController {
@@ -163,7 +163,7 @@ export class HelloController {
 }
 ```
 
-```ts filename="src/modules/hello/HelloWorker.ts"
+```ts showLineNumbers copy filename="src/modules/hello/HelloWorker.ts"
 import { HelloRPC } from 'vovk-client';
 
 @worker()
@@ -179,7 +179,7 @@ export default class HelloWorker {
 
 Workers can use other workers. The syntax remains the same and you don't need to check for `Worker` variable to exist.
 
-```ts
+```ts showLineNumbers copy
 import { AnotherWPC } from 'vovk-client';
 
 AnotherWPC.employ(new Worker(new URL('./path/to/AnotherWorker.ts', import.meta.url)));
@@ -196,7 +196,7 @@ export default class HelloWorker {
 
 To fork the worker and create as many parallel processes as needed you can use `fork` method instead of `employ`.
 
-```ts
+```ts showLineNumbers copy
 import { HelloWorker } from 'vovk-client';
 
 function getFork() {
@@ -218,6 +218,6 @@ const [result1, result2, result3] = await Promise.all([
 
 The employed Web Worker can be terminated with built-in `terminate` method.
 
-```ts
+```ts showLineNumbers copy
 HelloWPC.terminate();
 ```

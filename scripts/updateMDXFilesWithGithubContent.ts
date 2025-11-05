@@ -1,6 +1,6 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { getGithubFile } from "vovk-examples";
+import { getGithubFile } from "./getGithubFiles";
 
 /*
 PROMPT:
@@ -89,12 +89,12 @@ async function updateGithubMDXCodeBlocks(mdxContent: string) {
 			continue;
 		}
 
-		let fetched = code;
+		let fetched = code
 		let replaced = false;
 		try {
 			const remote = await getGithubFile(filename, { owner, repo, ref: 'main' });
 			if (typeof remote === "string" && remote !== code) {
-				fetched = remote;
+				fetched = remote.trim();
 				replaced = true;
 			}
 		} catch {

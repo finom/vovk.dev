@@ -2,7 +2,7 @@
 
 Vovk.ts automatically generates an OpenAPI specification from controller methods, using validation models to populate operation objects with `parameters`, `requestBody`, and `responses`. The `@operation` decorator lets you enrich operation objects with metadata such as `summary`, `description`, `tags`, and more. It accepts a `VovkOperationObject`, which extends the standard OpenAPI `OperationObject` type from [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts) and supports `x-tool-*` properties related to AI capabilities, as described in the [Function Calling](/function-calling) documentation.
 
-```ts filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { put, prefix, operation } from "vovk";
 import { z } from "zod";
 import { withZod } from "vovk-zod";
@@ -39,11 +39,11 @@ The [validation](/validation) models are converted to OpenAPI operation objects 
 
 The generated RPC client exports an `openapi` object that contains the full back-end specification for the [composed client](/composed). When using the [segmented client](/segmented), each [segment](/segment) also exports its own specification.
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC, openapi } from 'vovk-client'; // composed client
 ```
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC, openapi } from '@/client/admin/index.ts'; // segmented client
 ```
 
@@ -53,15 +53,15 @@ This object is a fully compliant OpenAPI 3.x specification and works with any to
 
 You can use the specification directly as a variable or expose it via a [static segment](/segment/static) with a simple [controller](/controller) that serves it as a JSON endpoint.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk new segment --static static
 ```
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk new controller static/openApi --empty
 ```
 
-```ts filename="src/modules/static/openapi/OpenApiController.ts"
+```ts showLineNumbers copy filename="src/modules/static/openapi/OpenApiController.ts"
 import { get, operation } from "vovk";
 import { openapi } from "vovk-client/openapi";
 
@@ -77,7 +77,7 @@ export default class OpenApiController {
 
 On the client side, you can use any OpenAPI documentation generator. We recommend [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react) because Vovk.ts generates code snippets that integrate directly into your codebase.
 
-```tsx
+```ts showLineNumbers copyx
 import { ApiReferenceReact } from "@scalar/api-reference-react";
 import "@scalar/api-reference-react/style.css";
 

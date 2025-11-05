@@ -31,7 +31,7 @@ Options:
 
 The TypeScript RPC library can be bundled and published to NPM with pre-filled `package.json` and `README.md` files using the `bundle` command:
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk bundle
 ```
 
@@ -44,7 +44,7 @@ Internally, the bundling is performed by executing the following steps:
 
 After bundling, the package can be published to NPM:
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm publish dist
 ```
 
@@ -52,7 +52,7 @@ npm publish dist
 
 The bundling can be configured by adding the `bundle` object in the [config](/config) file:
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   bundle: {
@@ -117,7 +117,7 @@ RollupError: tmp_prebundle/index.ts(17,14): error TS2742: The inferred type of '
 
 It is recommended to create a separate `tsconfig.bundle.json` file for tsdown, optionally extending the root `tsconfig.json`:
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   bundle: {
@@ -131,7 +131,7 @@ export default config;
 
 Setting `moduleResolution` to `bundler` fixes the first error, and setting `paths` to the `vovk/*` module fixes the second error:
 
-```ts filename="tsconfig.bundle.json" {3,6}
+```ts showLineNumbers copy filename="tsconfig.bundle.json" {3,6}
 {
   "compilerOptions": {
     "moduleResolution": "bundler",

@@ -1,5 +1,4 @@
 import { FileTree, Tabs } from 'nextra/components';
-import GithubFiles from '@/components/GithubFiles';
 
 # Rust RPC Client (Experimental)
 
@@ -7,7 +6,7 @@ The Rust client can be generated with `vovk generate` using the [rs](/templates#
 
 Generate a Rust package with the [CLI](/cli):
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk generate --from rs --out ./rust_package
 ```
 
@@ -34,7 +33,7 @@ cargo publish --manifest-path rust_package/Cargo.toml
 
 If you prefer generating source files to embed in another Rust project, use the [rsSrc](/templates#rssrc) template:
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk generate --from rsSrc --out ./rust_src
 ```
 
@@ -53,7 +52,7 @@ This generates:
 
 You can [configure](/config) generation so the client is produced automatically by the default [generate](/generate) command (no flags) and during [vovk dev](/dev), which performs “hot generation” whenever the schema changes. Add the `rs` template to the [composed client](/composed) config:
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   composedClient: {
@@ -65,7 +64,7 @@ export default config;
 
 The [rs](/templates#rs) template (and others) has a default `outDir` (`./dist_rust`) for composed clients. Override it via [template definitions](/templates#defs):
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   // ...
@@ -89,7 +88,109 @@ The snippets below are adapted from a real example described on the [Hello World
 
 A [controller](/controller) like this:
 
-<GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts']} repo="vovk-hello-world" />
+<Tabs items={['UserController.ts', 'UserService.ts']}>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/vovk-hello-world"
+import { z } from "zod";
+import { prefix, post, operation } from "vovk";
+import { withZod } from "vovk-zod";
+import UserService from "./UserService";
+
+@prefix("users")
+export default class UserController {
+  @operation({
+    summary: "Update user",
+    description: "Update user by ID",
+  })
+  @post("{id}")
+  static updateUser = withZod({
+    body: z
+      .object({
+        email: z.email().meta({
+          description: "User email",
+          examples: ["john@example.com", "jane@example.com"],
+        }),
+        profile: z
+          .object({
+            name: z.string().meta({
+              description: "User full name",
+              examples: ["John Doe", "Jane Smith"],
+            }),
+            age: z
+              .int()
+              .min(16)
+              .max(120)
+              .meta({ description: "User age", examples: [25, 30] }),
+          })
+          .meta({ description: "User profile object" }),
+      })
+      .meta({ description: "User data object" }),
+    params: z
+      .object({
+        id: z.uuid().meta({
+          description: "User ID",
+          examples: ["123e4567-e89b-12d3-a456-426614174000"],
+        }),
+      })
+      .meta({
+        description: "Path parameters",
+      }),
+    query: z
+      .object({
+        notify: z
+          .enum(["email", "push", "none"])
+          .meta({ description: "Notification type" }),
+      })
+      .meta({
+        description: "Query parameters",
+      }),
+    output: z
+      .object({
+        success: z.boolean().meta({ description: "Success status" }),
+        id: z.uuid().meta({ description: "User ID" }),
+        notify: z.enum(["email", "push", "none"]).meta({
+          description: "Notification type",
+        }),
+      })
+      .meta({ description: "Response object" }),
+    async handle(req, { id }) {
+      const body = await req.json();
+      const notify = req.nextUrl.searchParams.get("notify");
+
+      return UserService.updateUser(id, body, notify);
+    },
+  });
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserController.ts)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/user/UserService.ts" repository="finom/vovk-hello-world"
+import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from "vovk";
+import type UserController from "./UserController";
+
+export default class UserService {
+  static updateUser = (
+    id: VovkParams<typeof UserController.updateUser>["id"],
+    body: VovkBody<typeof UserController.updateUser>,
+    notify: VovkQuery<typeof UserController.updateUser>["notify"],
+  ) => {
+    console.log(
+      id satisfies string,
+      body satisfies { email: string; profile: { name: string; age: number } },
+      notify satisfies "email" | "push" | "none",
+    );
+    return {
+      id,
+      notify,
+      success: true,
+    } satisfies VovkOutput<typeof UserController.updateUser>;
+  };
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserService.ts)*
+</Tabs.Tab>
+</Tabs>
 
 ...emits a [Vovk.ts schema](/schema), which is then used to generate the Rust client following Rust conventions, adding comments from the schema `description`, and choosing suitable types. For example, `age` is generated as `u8` due to `min`/`max` constraints.
 
@@ -268,7 +369,59 @@ For continuous streaming with [JSON Lines](/controller/jsonlines) endpoints, the
 
 A controller like this:
 
-<GithubFiles paths={['src/modules/stream/StreamController.ts', 'src/modules/stream/StreamService.ts']} repo="vovk-hello-world" />
+<Tabs items={['StreamController.ts', 'StreamService.ts']}>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/stream/StreamController.ts" repository="finom/vovk-hello-world"
+import { prefix, get, operation } from "vovk";
+import { withZod } from "vovk-zod";
+import { z } from "zod";
+import StreamService from "./StreamService";
+
+@prefix("streams")
+export default class StreamController {
+  @operation({
+    summary: "Stream tokens",
+    description: "Stream tokens to the client",
+  })
+  @get("tokens")
+  static streamTokens = withZod({
+    iteration: z
+      .object({
+        message: z.string().meta({ description: "Message from the token" }),
+      })
+      .meta({
+        description: "Streamed token object",
+      }),
+    async *handle() {
+      yield* StreamService.streamTokens();
+    },
+  });
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts" repository="finom/vovk-hello-world"
+import type { VovkIteration } from "vovk";
+import type StreamController from "./StreamController";
+
+export default class StreamService {
+  static async *streamTokens() {
+    const tokens: VovkIteration<typeof StreamController.streamTokens>[] =
+      "Vovk.ts is a RESTful back-end meta-framework with RPC built on top of Next.js App router, and this text is a JSONLines stream demo."
+        .match(/[^\s.-]+|\s+|\.|-/g)
+        ?.map((message) => ({ message })) || [];
+
+    for (const token of tokens) {
+      yield token;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamService.ts)*
+</Tabs.Tab>
+</Tabs>
 
 Compiles to:
 

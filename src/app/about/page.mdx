@@ -48,7 +48,7 @@ Vovk.ts is a RESTful API back-end framework that embraces widely used patterns. 
 
 On the client side, back-end endpoints can be invoked using the `fetch` API or any other HTTP client:
 
-```ts
+```ts showLineNumbers copy
 // Update user with ID 12345
 const resp = await fetch('/api/users/12345?notify=push', {
   method: 'PUT',
@@ -63,7 +63,7 @@ const result = (await resp.json()) as UserType; // some user type
 
 For RESTful API requests, Vovk.ts also implements the [RPC](https://en.wikipedia.org/wiki/Remote_procedure_call) (Remote Procedure Call) paradigm, allowing you to call back-end functions as if they were local, while making a standard `fetch` request under the hood.
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 const result = await UserRPC.updateUser({
@@ -91,7 +91,7 @@ A controller can be split into the controller itself and one or more services th
 
 <Tabs items={['Controller', 'Service', 'Segment Route']}>
 <Tabs.Tab>
-```ts filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { put, prefix } from 'vovk';
 import UserService from './UserService';
 
@@ -105,7 +105,7 @@ export default class UserController {
 ```
 </Tabs.Tab>
 <Tabs.Tab>
-```ts filename="src/modules/user/UserService.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserService.ts"
 import type { VovkBody, VovkQuery, VovkParams, VovkOutput } from 'vovk';
 import type UserController from './UserController';
 
@@ -123,7 +123,7 @@ export default class UserService {
 ```
 </Tabs.Tab>
 <Tabs.Tab>
-```ts filename="src/app/api/[[...vovk]]/route.ts"
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
 import UserController from '@/modules/user/UserController';
 
@@ -154,7 +154,7 @@ export const { GET, POST, PUT, DELETE } = initSegment({
 
 A controller module initialized in `route.ts` with `initSegment` is rendered as an **RPC module** with the same list of methods and mapped argument signatures. While the controller method accepts a request object, the RPC method is mapped to accept input and additional parameters such as headers or custom options, implemented by a custom [fetcher](/imports#fetcher) function.
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 const result = await UserRPC.updateUser({
@@ -364,7 +364,7 @@ Vovk.ts supports any validation library that implements [Standard Schema](https:
 
 Methods that require validation are implemented with a `with[LIBRARY]` function that accepts validation models and a `handle` function that receives the request and parameters. The types of the request and parameters are inferred from the validation models automatically, allowing you to use them in the `handle` function without additional type annotations.
 
-```ts
+```ts showLineNumbers copy
 import { z } from 'zod';
 import { prefix, post, operation, type VovkOutput } from 'vovk';
 import { withZod } from 'vovk-zod';
@@ -431,7 +431,7 @@ Vovk.ts includes first-class support for the [JSON Lines](https://jsonlines.org/
 
 JSON Lines is another output type that uses the `iteration` validation field and produces the `application/jsonl` content type if the client includes the `Accept: application/jsonl` header. If the `Accept` header doesn’t include `application/jsonl`, the output is returned as `text/plain` so the endpoint can be viewed directly in a browser.
 
-```ts
+```ts showLineNumbers copy
 import { z } from 'zod';
 import { prefix, post, type VovkIteration } from 'vovk';
 import { withZod } from 'vovk-zod';
@@ -464,7 +464,7 @@ export default class StreamController {
 
 On the client side, the JSON Lines output can be consumed via [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterators](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator), allowing you to process each line as it arrives:
 
-```ts
+```ts showLineNumbers copy
 import { StreamRPC } from 'vovk-client';
 
 using stream = await StreamRPC.getJSONLines();
@@ -483,7 +483,7 @@ for await (const { message } of stream) {
 
 Vovk.ts is a thin wrapper around Next.js API routes, so handlers can return any instance of the `Response` class, including `NextResponse` or `NextResponse.json()`, allowing you to use all available Next.js features and any library built for Next.js.
 
-```ts
+```ts showLineNumbers copy
 import { NextResponse, headers } from 'next/server';
 import { prefix, get } from 'vovk';
 
@@ -505,7 +505,7 @@ export default class UsersController {
 
 Vovk.ts distinguishes between JSON and `FormData` bodies using the `isForm` flag passed as a validation library option. This option changes the input body type to a `FormData` instance, adds the `x-isForm` custom property to the body schema to distinguish it from regular JSON requests, and updates the OpenAPI specification accordingly.
 
-```ts {8}
+```ts showLineNumbers copy {8}
 export default class UserController {
   @post('create')
   static createUser = withZod({
@@ -524,7 +524,7 @@ export default class UserController {
 
 On the client side, the `createUser` RPC method accepts a `FormData` instance as body input:
 
-```ts {8}
+```ts showLineNumbers copy {8}
 import { UserRPC } from 'vovk-client';
 
 const formData = new FormData();
@@ -549,7 +549,7 @@ Vovk.ts solves the problem of **what to call** by providing a framework that tur
 
 The functions can be executed on the server side (using [controllers](/controller/fn)) or on the client side (using RPC modules that call the functions over HTTP), including the ability to use remote APIs with [OpenAPI Mixins](/codegen).
 
-```ts
+```ts showLineNumbers copy
 import { createLLMTools } from 'vovk';
 import ProductController from '@/modules/product/ProductController';
 import { UserRPC, GithubIssuesAPI } from 'vovk-client';
@@ -589,7 +589,7 @@ console.log(tools); // [{ name, description, parameters, execute }, ...]
 
 Vovk.ts generates OpenAPI 3.1 documentation from the back-end schema out of the box. Once you’ve defined your controllers with validation and used the `@operation` decorator to provide `summary` and `description`, the OpenAPI documentation is generated automatically and can be accessed via the `openapi` variable.
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC, openapi } from 'vovk-client';
 
 console.log(openapi);
@@ -597,7 +597,7 @@ console.log(openapi);
 
 The OpenAPI feature includes first-class support for [Scalar](https://github.com/scalar/scalar), generating copy-pastable code snippets with documentation for input and output represented in comments. Here is an example automatically generated for the ["Hello World" example](/hello-world), which you can also view [here](https://hello-world.vovk.dev/openapi):
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 const response = await UserRPC.updateUser({
@@ -642,7 +642,7 @@ console.log(response);
 
 The Vovk.ts schema and OpenAPI 3.x schema differ but are convertible. This lets you mix Vovk.ts RPC modules with ones generated from OpenAPI schema files, implementing the same calling signature with triple input: `params`, `query`, `body`, and other options available for all RPC modules, such as `init` for custom headers, `apiRoot` to override the API root, etc.
 
-```ts
+```ts showLineNumbers copy
 import { GithubIssuesAPI } from 'vovk-client';
 
 const issues = await GithubIssuesAPI.list({
@@ -675,19 +675,19 @@ Because Vovk.ts is powered by code generation and supports OpenAPI documents, it
 
 The Vovk.ts CLI provides commands to build distributable RPC libraries. To create a TypeScript package with .d.ts files for npm, use the `bundle` command, which bundles the client into a single package using [tsdown](https://tsdown.dev) (or any other bundler).
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk bundle --out dist
 ```
 
 This command bundles the RPC modules of all (or selected) segments into a single package in the `dist` directory, complete with a `package.json` and a `README.md` containing auto-generated documentation for the shipped RPC modules. The package name, description, and version are taken from the root `package.json` or configured in [vovk.config](/config). You can then publish the package to npm or another registry.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm publish dist
 ```
 
 A similar approach can be used to build packages for Python or Rust, allowing you to ship back-end functionality to other languages and platforms.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk generate --from py --out dist_py
 ```
 

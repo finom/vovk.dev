@@ -14,7 +14,7 @@ For illustration, let’s define a simple authorization decorator that ensures a
 
 The `identifyUserAndCheckPermissions` function is a placeholder for your logic to identify the user from the request (e.g., from a JWT token or session) and check whether they have the required permission.
 
-```ts filename="src/decorators/authGuard.ts"
+```ts showLineNumbers copy filename="src/decorators/authGuard.ts"
 import { createDecorator, HttpException, HttpStatus, type VovkRequest } from 'vovk';
 import type { User } from '@/types';
 
@@ -58,7 +58,7 @@ export default authGuard;
 
 Import the `authGuard` decorator and related members, then apply it to controller methods after the `@get`, `@post`, etc., decorators.
 
-```ts filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { get, prefix, operation } from 'vovk';
 import authGuard, { Permission, type AuthMeta } from '../decorators/authGuard';
 
@@ -84,7 +84,7 @@ export default class UserController {
 
 [Vercel Cron Jobs](https://vercel.com/docs/cron-jobs) require simple authorization via an environment variable. You can implement this by creating a [decorator](/controller/decorator) that checks the `Authorization` header against a secret.
 
-```ts filename="src/decorators/cronGuard.ts"
+```ts showLineNumbers copy filename="src/decorators/cronGuard.ts"
 import { HttpException, HttpStatus, createDecorator } from 'vovk';
 
 const cronGuard = createDecorator(async (req, next) => {
@@ -100,7 +100,7 @@ export default cronGuard;
 
 Apply the `cronGuard` decorator to the controller method that should be protected by the cron job authorization.
 
-```ts filename="src/modules/cron/CronController.ts"
+```ts showLineNumbers copy filename="src/modules/cron/CronController.ts"
 import { get, prefix } from 'vovk';
 import cronGuard from '../decorators/cronGuard';
 

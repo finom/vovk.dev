@@ -25,7 +25,7 @@ Each `modules` entry is either an RPC module or a controller. Controllers are fu
 
 `createLLMTools` distinguishes RPC module methods from controller methods by the `isRPC` property. If `isRPC: true` is present, the method is treated as an RPC method. Otherwise, it is treated as a controller method that exposes `fn` (see [callable controller methods](/controller/fn)), mirroring the RPC function signature to allow direct invocation without HTTP.
 
-```ts
+```ts showLineNumbers copy
 import { createLLMTools } from 'vovk';
 import { PostRPC } from 'vovk-client';
 import UserController from '../user/UserController';
@@ -50,7 +50,7 @@ In this example, `PostRPC` is an RPC module whose methods issue HTTP requests, w
 
 To include only certain methods from a module, use the `pick`/`omit` pattern from `lodash` or a similar utility.
 
-```ts
+```ts showLineNumbers copy
 import { createLLMTools } from 'vovk';
 import { PostRPC } from 'vovk-client';
 import { pick, omit } from 'lodash';
@@ -70,7 +70,7 @@ The resulting `tools` include `createPost` and `getPost` from `PostRPC`, and all
 
 To add authorization, pass a module as a tuple: the `module` itself and an `options` object with an `init` extending `RequestInit`. This lets you add headers such as auth tokens.
 
-```ts
+```ts showLineNumbers copy
 import { createLLMTools } from 'vovk';
 import { PostRPC } from 'vovk-client';
 
@@ -92,7 +92,7 @@ const { tools } = createLLMTools({
 
 You can combine pick/omit with the `init` tuple to authorize and select methods at the same time:
 
-```ts
+```ts showLineNumbers copy
 import { createLLMTools } from 'vovk';
 import { PostRPC } from 'vovk-client';
 import { pick } from 'lodash';
@@ -118,7 +118,7 @@ const { tools } = createLLMTools({
 
 You can add custom attributes with the `x-tool-*` syntax to the OpenAPI operation in the `@operation` decorator, enabling AI-specific tooling metadata.
 
-```ts filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { prefix, get, operation } from 'vovk';
 
 @prefix('user')
@@ -163,7 +163,7 @@ Overrides the generated function description (normally derived from `summary` + 
 
 Vovk.ts can generate RPC modules from third-party OpenAPI specs, letting you combine your back-end with external APIs in a single agent. See the [Codegen guide](/codegen).
 
-```ts
+```ts showLineNumbers copy
 import { createLLMTools } from 'vovk';
 import { GithubIssuesAPI, TaskRPC } from 'vovk-client';
 const { tools } = createLLMTools({
@@ -184,13 +184,13 @@ You can implement function calling using raw AI APIs with [JSON Lines](/controll
 
 Create a controller and pass your RPC modules or controllers to `createLLMTools` as shown above.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk new controller aiSdk --empty
 ```
 
 Paste the following into `src/modules/ai-sdk/AiSdkController.ts`, adjusting imports as needed:
 
-```ts filename="src/modules/ai-sdk/AiSdkController.ts" {18}
+```ts showLineNumbers copy filename="src/modules/ai-sdk/AiSdkController.ts" {18}
 import { createLLMTools, HttpException, HttpStatus, post, prefix, operation, type KnownAny, type VovkRequest } from 'vovk';
 import { jsonSchema, streamText, tool, convertToModelMessages, type ModelMessage, type UIMessage } from 'ai';
 import { openai } from '@ai-sdk/openai';
@@ -249,7 +249,7 @@ Here, the `tools` are mapped to Vercel AI SDK `tool` instances using `jsonSchema
 
 On the front end, create a component using the [useChat](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat) hook:
 
-```tsx filename="src/app/page.tsx"
+```ts showLineNumbers copyx filename="src/app/page.tsx"
 'use client';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';

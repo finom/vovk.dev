@@ -1,5 +1,5 @@
-import GithubFiles from '@/components/GithubFiles';
 import { Tabs } from 'nextra/components';
+import GithubFiles from '@/components/GithubFiles';
 import IFrame from './IFrame';
 
 # "Hello World" showcase
@@ -39,7 +39,109 @@ For deminstrational purposes, the `body` input model implements nested validatio
 
 The service `updateUser` method infers the input type from the controller method that in its turn returns the result of the service's `updateUser` method call, demonstrating lack of self-reference errors (implicit "any"). In other words, the controller's input type is being a source of truth for the service's input arguments, and the service's return type is inferred from the controller's output type.
 
-<GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts']} repo="vovk-hello-world" />
+<Tabs items={['UserController.ts', 'UserService.ts']}>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/vovk-hello-world"
+import { z } from "zod";
+import { prefix, post, operation } from "vovk";
+import { withZod } from "vovk-zod";
+import UserService from "./UserService";
+
+@prefix("users")
+export default class UserController {
+  @operation({
+    summary: "Update user",
+    description: "Update user by ID",
+  })
+  @post("{id}")
+  static updateUser = withZod({
+    body: z
+      .object({
+        email: z.email().meta({
+          description: "User email",
+          examples: ["john@example.com", "jane@example.com"],
+        }),
+        profile: z
+          .object({
+            name: z.string().meta({
+              description: "User full name",
+              examples: ["John Doe", "Jane Smith"],
+            }),
+            age: z
+              .int()
+              .min(16)
+              .max(120)
+              .meta({ description: "User age", examples: [25, 30] }),
+          })
+          .meta({ description: "User profile object" }),
+      })
+      .meta({ description: "User data object" }),
+    params: z
+      .object({
+        id: z.uuid().meta({
+          description: "User ID",
+          examples: ["123e4567-e89b-12d3-a456-426614174000"],
+        }),
+      })
+      .meta({
+        description: "Path parameters",
+      }),
+    query: z
+      .object({
+        notify: z
+          .enum(["email", "push", "none"])
+          .meta({ description: "Notification type" }),
+      })
+      .meta({
+        description: "Query parameters",
+      }),
+    output: z
+      .object({
+        success: z.boolean().meta({ description: "Success status" }),
+        id: z.uuid().meta({ description: "User ID" }),
+        notify: z.enum(["email", "push", "none"]).meta({
+          description: "Notification type",
+        }),
+      })
+      .meta({ description: "Response object" }),
+    async handle(req, { id }) {
+      const body = await req.json();
+      const notify = req.nextUrl.searchParams.get("notify");
+
+      return UserService.updateUser(id, body, notify);
+    },
+  });
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserController.ts)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/user/UserService.ts" repository="finom/vovk-hello-world"
+import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from "vovk";
+import type UserController from "./UserController";
+
+export default class UserService {
+  static updateUser = (
+    id: VovkParams<typeof UserController.updateUser>["id"],
+    body: VovkBody<typeof UserController.updateUser>,
+    notify: VovkQuery<typeof UserController.updateUser>["notify"],
+  ) => {
+    console.log(
+      id satisfies string,
+      body satisfies { email: string; profile: { name: string; age: number } },
+      notify satisfies "email" | "push" | "none",
+    );
+    return {
+      id,
+      notify,
+      success: true,
+    } satisfies VovkOutput<typeof UserController.updateUser>;
+  };
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserService.ts)*
+</Tabs.Tab>
+</Tabs>
 
 ## `StreamController` and `StreamService`
 
@@ -47,13 +149,254 @@ The `/api/streams/tokens` endpoint is implemented by the `StreamController` and 
 
 The controller `streamTokens` method is implemented with `@get` decorator that maps the method to the `GET` HTTP verb, and `withZod` function that validates iterations of [JSONLines](/controller/jsonlines) responses. It delegates iterable execution with `yield*` syntax to the service's `streamTokens` method, which is a generator function that yields tokens one by one. It uses `setTimeout` to simulate a delay between token emissions, demonstrating how to handle streaming responses in Vovk.ts.
 
-<GithubFiles paths={['src/modules/stream/StreamController.ts', 'src/modules/stream/StreamService.ts']} repo="vovk-hello-world" />
+<Tabs items={['StreamController.ts', 'StreamService.ts']}>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/stream/StreamController.ts" repository="finom/vovk-hello-world"
+import { prefix, get, operation } from "vovk";
+import { withZod } from "vovk-zod";
+import { z } from "zod";
+import StreamService from "./StreamService";
+
+@prefix("streams")
+export default class StreamController {
+  @operation({
+    summary: "Stream tokens",
+    description: "Stream tokens to the client",
+  })
+  @get("tokens")
+  static streamTokens = withZod({
+    iteration: z
+      .object({
+        message: z.string().meta({ description: "Message from the token" }),
+      })
+      .meta({
+        description: "Streamed token object",
+      }),
+    async *handle() {
+      yield* StreamService.streamTokens();
+    },
+  });
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts" repository="finom/vovk-hello-world"
+import type { VovkIteration } from "vovk";
+import type StreamController from "./StreamController";
+
+export default class StreamService {
+  static async *streamTokens() {
+    const tokens: VovkIteration<typeof StreamController.streamTokens>[] =
+      "Vovk.ts is a RESTful back-end meta-framework with RPC built on top of Next.js App router, and this text is a JSONLines stream demo."
+        .match(/[^\s.-]+|\s+|\.|-/g)
+        ?.map((message) => ({ message })) || [];
+
+    for (const token of tokens) {
+      yield token;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamService.ts)*
+</Tabs.Tab>
+</Tabs>
 
 ## React Components
 
 The components in the demo use [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query) for data fetching.
 
-<GithubFiles paths={['src/components/Demo/index.tsx', 'src/components/Demo/UserFormDemo.tsx', 'src/components/Demo/StreamDemo.tsx']} repo="vovk-hello-world" />
+<Tabs items={['index.tsx', 'UserFormDemo.tsx', 'StreamDemo.tsx']}>
+<Tabs.Tab>
+```ts showLineNumbers copyx showLineNumbers copy filename="src/components/Demo/index.tsx" repository="finom/vovk-hello-world"
+"use client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import StreamDemo from "./StreamDemo";
+import UserFormDemo from "./UserFormDemo";
+
+const queryClient = new QueryClient();
+
+const Demo = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <StreamDemo />
+      <h2 className="text-lg font-bold mb-1 text-center">
+        &quot;Update user&quot; demo
+      </h2>
+      <p className="text-xs mb-4 text-center">
+        <strong>*</strong> form validation isn&apos;t enabled for demo purposes
+      </p>
+      <UserFormDemo />
+    </QueryClientProvider>
+  );
+};
+
+export default Demo;
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/Demo/index.tsx)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copyx showLineNumbers copy filename="src/components/Demo/UserFormDemo.tsx" repository="finom/vovk-hello-world"
+"use client";
+import React, { useState } from "react";
+import { type VovkQuery } from "vovk";
+import { UserRPC } from "../../client/root"; // segmented client
+import { useMutation } from "@tanstack/react-query";
+
+const UserFormDemo = () => {
+  const [disableClientValidation, setDisableClientValidation] = useState(false);
+  const [name, setName] = useState("John Doe");
+  const [age, setAge] = useState(35);
+  const [email, setEmail] = useState("john@example.com");
+  const [id, setId] = useState("a937629d-e8f6-4b1e-a819-7669358650a0");
+  const updateUserMutation = useMutation({
+    mutationFn: UserRPC.updateUser,
+  });
+  const [notify, setNotify] = useState<
+    VovkQuery<typeof UserRPC.updateUser>["notify"]
+  >(
+    "sms" as "email", // set error value by default
+  );
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    updateUserMutation.mutate({
+      body: {
+        email,
+        profile: {
+          name,
+          age,
+        },
+      },
+      query: { notify },
+      params: { id },
+      disableClientValidation,
+    });
+  };
+  return (
+    <form onSubmit={handleSubmit}>
+      <h3>Body</h3>
+      <div>
+        <label>User email</label>
+        <input
+          name="email"
+          placeholder="john@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+      <div>
+        <label>User full name</label>
+        <input
+          name="name"
+          type="text"
+          placeholder="John Doe"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+      <div>
+        <label>User age</label>
+        <input
+          name="age"
+          type="number"
+          placeholder="35"
+          value={age}
+          onChange={(e) => setAge(Number(e.target.value))}
+        />
+      </div>
+
+      <h3>Params</h3>
+      <div>
+        <label>User ID</label>
+        <input
+          name="id"
+          type="text"
+          placeholder="123e4567-e89b-12d3-a456-426614174000"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+        />
+      </div>
+      <h3>Query</h3>
+      <div>
+        <label>Notification type</label>
+        <select
+          name="notify"
+          value={notify}
+          onChange={(e) =>
+            setNotify(e.target.value as "email" | "push" | "none")
+          }
+        >
+          <option value="none">None</option>
+          <option value="email">Email</option>
+          <option value="push">Push</option>
+          <option value="sms">SMS (error)</option>
+        </select>
+      </div>
+      <br />
+      <label>
+        <input
+          type="checkbox"
+          onChange={({ target }) => setDisableClientValidation(target.checked)}
+          checked={disableClientValidation}
+        />{" "}
+        Disable client-side input validation
+      </label>
+      <button type="submit">Submit</button>
+      {(updateUserMutation.data || updateUserMutation.error) && (
+        <output>
+          <strong>Response:</strong>{" "}
+          {updateUserMutation.error ? (
+            <div className="text-red-500">
+              {updateUserMutation.error.message}
+            </div>
+          ) : (
+            <div className="text-green-500">
+              {JSON.stringify(updateUserMutation.data)}
+            </div>
+          )}
+        </output>
+      )}
+    </form>
+  );
+};
+
+export default UserFormDemo;
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/Demo/UserFormDemo.tsx)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copyx showLineNumbers copy filename="src/components/Demo/StreamDemo.tsx" repository="finom/vovk-hello-world"
+"use client";
+import {
+  useQuery,
+  experimental_streamedQuery as streamedQuery,
+} from "@tanstack/react-query";
+import { StreamRPC } from "../../client/root"; // segmented client
+
+const StreamDemo = () => {
+  const { data } = useQuery({
+    queryKey: StreamRPC.streamTokens.queryKey(),
+    queryFn: streamedQuery({
+      streamFn: () => StreamRPC.streamTokens(),
+    }),
+  });
+
+  return (
+    <div className="h-20">
+      {data?.map((token, index) => (
+        <span key={index}>{token.message}</span>
+      ))}
+    </div>
+  );
+};
+export default StreamDemo;
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/Demo/StreamDemo.tsx)*
+</Tabs.Tab>
+</Tabs>
 
 ## Config
 
@@ -66,17 +409,88 @@ The app is [configured](/config) to:
 
 If you use default config settings, you can generate the client for other languages with:
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk generate --from rs --from py --origin https://hello-world.vovk.dev
 ```
 
 And the bundle with:
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk bundle --origin https://hello-world.vovk.dev
 ```
 
-<GithubFiles paths={['vovk.config.js']} repo="vovk-hello-world" />
+```ts showLineNumbers copy filename="vovk.config.js" repository="finom/vovk-hello-world"
+// @ts-check
+
+const PROD_ORIGIN = "https://hello-world.vovk.dev";
+// Commented lines indicate default values
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  logLevel: "debug",
+  outputConfig: {
+    origin: process.env.NODE_ENV === "production"
+      ? PROD_ORIGIN
+      : `http://localhost:${process.env.PORT ?? 3000}`,
+    imports: {
+      validateOnClient: "vovk-ajv",
+    },
+    openAPIObject: {
+      info: {
+        title: '"Hello World" app API',
+        description:
+          'API for "Hello World" app hosted at https://hello-world.vovk.dev/. Source code is available on Github https://github.com/finom/vovk-hello-world.',
+        license: {
+          name: "MIT",
+          url: "https://opensource.org/licenses/MIT",
+        },
+        version: "1.0.0",
+      },
+    }
+  },
+  composedClient: {
+    fromTemplates: ["mjs", "cjs", "py", "rs"],
+    // enabled: true,
+    // outDir: "./node_modules/.vovk-client",
+  },
+  segmentedClient: {
+    // fromTemplates: ["ts"],
+    enabled: true,
+    // outDir: "./src/client",
+  },
+  bundle: {
+    outputConfig: { origin: PROD_ORIGIN },
+    keepPrebundleDir: true,
+    build: async ({ entry, outDir }) => {
+      const { build } = await import('tsdown');
+      await build({
+        entry,
+        dts: true,
+        format: ['cjs', 'esm'],
+        hash: false,
+        fixedExtension: true,
+        clean: true,
+        outDir,
+        tsconfig: './tsconfig.bundle.json',
+      });
+    },
+  },
+  clientTemplateDefs: {
+    py: {
+      extends: "py",
+      outputConfig: { origin: PROD_ORIGIN },
+      // composedClient: { outDir: "./dist_python" },
+    },
+    rs: {
+      extends: "rs",
+      outputConfig: { origin: PROD_ORIGIN },
+      // composedClient: { outDir: "./dist_rust" },
+    },
+  }
+};
+
+module.exports = config;
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/vovk.config.js)*
 
 <a name="bundle" />
 ## Building and Packaging
@@ -130,13 +544,43 @@ The `demo` scripts are self-explanatory and can be found in the `package.json` f
 }
 ```
 
-<GithubFiles paths={['demo_node/index.mts', 'demo_python.py', 'demo_rust/src/main.rs']} repo="vovk-hello-world" />
+<Tabs items={['index.mts', 'demo_python.py', 'main.rs']}>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="demo_node/index.mts"
+// TODO
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="demo_python.py"
+// TODO
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="demo_rust/src/main.rs"
+// TODO
+```
+</Tabs.Tab>
+</Tabs>
 
 ## OpenAPI specification
 
 [OpenAPI specification](https://hello-world.vovk.dev/api/static/openapi/spec.json) requires creating another `GET` endpoint that uses `vovkSchemaToOpenAPI` function to generate the OpenAPI spec from the Vovk.ts [schema](/schema).
 
-<GithubFiles paths={['src/modules/static/openapi/OpenApiController.ts']} repo="vovk-hello-world" />
+
+```ts showLineNumbers copy filename="src/modules/static/openapi/OpenApiController.ts" repository="finom/vovk-hello-world"
+import { get, operation } from "vovk";
+import { openapi } from "vovk-client/openapi";
+
+export default class OpenApiController {
+  @operation({
+    summary: "OpenAPI spec",
+    description: 'Get the OpenAPI spec for the "Hello World" app API',
+  })
+  @get("openapi.json", { cors: true })
+  static getSpec = () => openapi;
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/static/openapi/OpenApiController.ts)*
 
 The generated specification also includes the [Scalar](https://scalar.com/) compatible examples that can be copied and pasted to your project stright away.
 

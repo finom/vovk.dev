@@ -1,3 +1,4 @@
+import { Tabs } from 'nextra/components';
 import GithubFiles from '@/components/GithubFiles';
 import { PollExample } from '../../components/vovk-examples';
 
@@ -29,12 +30,119 @@ While we could poll the main Postgres database for changes, that approach is ine
 
 Because we use [Prisma](https://www.prisma.io/) as our ORM, we rely on [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. This is where the `DatabaseService` mentioned in the [previous article](/realtime-ui) comes into play.
 
-<GithubFiles paths={['src/modules/database/DatabaseService.ts']} repo="vovk-kanban-demo" cutLines={[3, [7, 13]]} highlightLines={[19, 95]} />
+```ts showLineNumbers copy filename="src/modules/database/DatabaseService.ts" repository="finom/vovk-kanban-demo" {20, 96}
+import { PrismaClient } from "../../../prisma/generated/client";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import DatabaseEventsService, { type DBChange } from "./DatabaseEventsService";
+import type { BaseEntity } from "@/types";
+import './neon-local'; // Setup Neon for local development
+
+export default class DatabaseService {
+  static get prisma() {
+    return (this.#prisma ??= this.getClient());
+  }
+  static #prisma: ReturnType<typeof DatabaseService.getClient> | null = null;
+
+  private static getClient() {
+    const prisma = new PrismaClient({
+      adapter: new PrismaNeon({
+        connectionString: `${process.env.DATABASE_URL}`,
+      }),
+    });
+
+    DatabaseEventsService.beginEmitting();
+
+    return prisma.$extends({
+      name: "events",
+      query: {
+        $allModels: {
+          async $allOperations({ model, operation, args, query }) {
+            const allowedOperations = [
+              "create",
+              "update",
+              "delete",
+              "findMany",
+              "findUnique",
+              "findFirst",
+              "count",
+            ] as const;
+            type AllowedOperation = (typeof allowedOperations)[number];
+            if (!allowedOperations.includes(operation as AllowedOperation)) {
+              throw new Error(
+                `Unsupported database operation "${operation}" on model "${model}"`,
+              );
+            }
+            const result = (await query(args)) as BaseEntity | BaseEntity[];
+
+            const now = new Date().toISOString();
+            let change: DBChange | null = null;
+
+            const makeChange = (
+              entity: BaseEntity,
+              type: DBChange["type"],
+            ) => ({
+              id: entity.id,
+              entityType: entity.entityType,
+              date:
+                type === "delete"
+                  ? now
+                  : entity.updatedAt
+                    ? new Date(entity.updatedAt).toISOString()
+                    : now,
+              type,
+            });
+
+            switch (operation as AllowedOperation) {
+              case "create":
+                if ("entityType" in result)
+                  change = makeChange(result, "create");
+                break;
+
+              case "update":
+                if ("entityType" in result)
+                  change = makeChange(result, "update");
+                break;
+
+              case "delete":
+                if ("entityType" in result) {
+                  change = makeChange(result, "delete");
+                  // Automatically add __isDeleted flag to deletion results
+                  Object.assign(result, { __isDeleted: true });
+                }
+                break;
+
+              case "findMany":
+              case "findUnique":
+              case "findFirst":
+              case "count":
+                // no events
+                break;
+
+              default:
+                console.warn(
+                  `Unhandled Prisma operation: ${operation} for model: ${model}`,
+                );
+                break;
+            }
+
+            if (change) {
+              await DatabaseEventsService.createChanges([change]);
+            }
+
+            return result;
+          },
+        },
+      },
+    });
+  }
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/database/DatabaseService.ts)*
 
 - The `getClient` method calls `DatabaseEventsService.beginEmitting(){:ts}` to start emitting events. `beginEmitting` runs a `setInterval` that connects to Redis and periodically checks for new events. When a new event is found, it emits it via [mitt](https://npmjs.com/package/mitt).
 - `prisma.$extends` hooks into all Prisma model operations, determines whether an operation modifies data, and if so calls `await DatabaseEventsService.createChanges([change]){:ts}` to persist a change entry in Redis. The change captures creates, updates, and deletions:
 
-```ts
+```ts showLineNumbers copy
 export type DBChange = {
   id: string;
   entityType: EntityType;
@@ -54,13 +162,201 @@ Operations like `find...` and `count` do not trigger changes and are passed thro
 
 In addition to `beginEmitting` and `createChanges`, `DatabaseEventsService` provides a `connect` method and an `emitter` (a `mitt` instance). These are used by the polling service (`DatabasePollService`, discussed next) to be notified about new events.
 
-<GithubFiles paths={['src/modules/database/DatabaseEventsService.ts']} repo="vovk-kanban-demo" />
+```ts showLineNumbers copy filename="src/modules/database/DatabaseEventsService.ts" repository="finom/vovk-kanban-demo"
+import { EntityType } from "../../../prisma/generated/client";
+import mitt from "mitt";
+import { createClient } from "redis";
+
+export type DBChange = {
+  id: string;
+  entityType: EntityType;
+  date: string;
+  type: "create" | "update" | "delete";
+};
+
+export default class DatabaseEventsService {
+  public static readonly DB_KEY = "db_updates";
+
+  private static readonly INTERVAL = 1_000;
+  private static lastTimestamp = Date.now();
+
+  private static redisClient = createClient({
+    url: process.env.REDIS_URL,
+  });
+
+  public static emitter = mitt<{
+    [DatabaseEventsService.DB_KEY]: DBChange[];
+  }>();
+
+  // ensure Redis is connected
+  private static async connect() {
+    if (!this.redisClient.isOpen) {
+      await this.redisClient.connect();
+      this.redisClient.on("error", (err) => {
+        console.error("Redis Client Error", err);
+      });
+    }
+  }
+
+  // push one update into our ZSET, with score = timestamp
+  public static async createChanges(changes: DBChange[]) {
+    if (changes.length === 0) return;
+
+    await this.connect();
+
+    // build array of { score, value } objects
+    const entries = changes.map(({ id, entityType, type, date }) => ({
+      score: Date.now(),
+      value: JSON.stringify({ id, entityType, date, type }),
+    }));
+
+    // one multi(): batch ZADD + EXPIRE
+    await this.redisClient
+      .multi()
+      .zAdd(this.DB_KEY, entries)
+      .expire(this.DB_KEY, (this.INTERVAL * 60) / 1000)
+      .exec();
+  }
+
+  public static beginEmitting() {
+    setInterval(async () => {
+      await this.connect();
+
+      const now = Date.now();
+
+      // get everything with score ∈ (lastTimestamp, now]
+      const raw = await this.redisClient.zRangeByScore(
+        this.DB_KEY,
+        this.lastTimestamp + 1,
+        now,
+      );
+
+      this.lastTimestamp = now;
+
+      if (raw.length > 0) {
+        const updates = raw.map((s) => JSON.parse(s) as DBChange);
+        this.emitter.emit(this.DB_KEY, updates);
+      }
+    }, this.INTERVAL);
+  }
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/database/DatabaseEventsService.ts)*
 
 ## Polling controller and service
 
 With Redis change entries and the change emitter in place, we can implement a polling endpoint that streams updates to clients in real time. The `DatabasePollController` exposes a single [JSONLines](/controller/jsonlines) endpoint, and `DatabasePollService` uses a [JSONLinesResponse](/controller/jsonlines#jsonlinesresponse) instance (received from the controller) to send data to clients. The service closes the connection safely after 30 seconds, so clients should reconnect.
 
-<GithubFiles paths={['src/modules/database/DatabasePollService.ts', 'src/modules/database/DatabasePollController.ts']} repo="vovk-kanban-demo"  />
+<Tabs items={['DatabasePollService.ts', 'DatabasePollController.ts']}>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/database/DatabasePollService.ts" repository="finom/vovk-kanban-demo"
+import { JSONLinesResponse, type VovkIteration } from "vovk";
+import { forEach, groupBy } from "lodash";
+import type DatabasePollController from "./DatabasePollController";
+import DatabaseEventsService, { type DBChange } from "./DatabaseEventsService";
+import DatabaseService from "./DatabaseService";
+
+export default class PollService {
+  static poll(
+    resp: JSONLinesResponse<VovkIteration<typeof DatabasePollController.poll>>,
+  ) {
+    setTimeout(resp.close, 30_000);
+
+    let asOldAs = new Date();
+    // 10 minutes ago; TODO: use latest update date from registry
+    asOldAs.setMinutes(asOldAs.getMinutes() - 10);
+
+    DatabaseEventsService.emitter.on(
+      DatabaseEventsService.DB_KEY,
+      (changes) => {
+        const deleted = changes.filter((change) => change.type === "delete");
+        const createdOrUpdated = changes.filter(
+          (change) => change.type === "create" || change.type === "update",
+        );
+
+        for (const deletedEntity of deleted) {
+          resp.send({
+            id: deletedEntity.id,
+            entityType: deletedEntity.entityType,
+            __isDeleted: true,
+          });
+        }
+        // group by entityType and date, so the date is maximum date for the given entity: { entityType: string, date: string }[]
+        forEach(groupBy(createdOrUpdated, "entityType"), (changes) => {
+          const maxDateItem = changes.reduce(
+            (max, change) => {
+              const changeDate = new Date(change.date);
+              return changeDate.getTime() > new Date(max.date).getTime()
+                ? change
+                : max;
+            },
+            { date: new Date(0) } as unknown as DBChange,
+          );
+
+          if (new Date(maxDateItem.date).getTime() > asOldAs.getTime()) {
+            void DatabaseService.prisma[maxDateItem.entityType as "user"]
+              .findMany({
+                where: {
+                  updatedAt: {
+                    gt: asOldAs,
+                  },
+                },
+              })
+              .then((entities) => {
+                for (const entity of entities) {
+                  resp.send(entity);
+                }
+              });
+            asOldAs = new Date(maxDateItem.date);
+          }
+        });
+      },
+    );
+  }
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/database/DatabasePollService.ts)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/database/DatabasePollController.ts" repository="finom/vovk-kanban-demo"
+import { EntityType } from "../../../prisma/generated/client";
+import { get, JSONLinesResponse, prefix, type VovkIteration } from "vovk";
+import { z } from "zod";
+import DatabasePollService from "./DatabasePollService";
+import { TaskSchema, UserSchema } from "../../../prisma/generated/schemas";
+import { withZod } from "@/lib/withZod";
+import { sessionGuard } from "@/decorators/sessionGuard";
+
+@prefix("poll")
+export default class DatabasePollController {
+  @get()
+  @sessionGuard()
+  static poll = withZod({
+    preferTransformed: false,
+    iteration: z.union([
+      z.object({
+        id: z.uuid(),
+        entityType: z.enum(EntityType),
+        __isDeleted: z.boolean().optional(),
+      }),
+      UserSchema,
+      TaskSchema,
+    ]),
+    async handle(req) {
+      const response = new JSONLinesResponse<
+        VovkIteration<typeof DatabasePollController.poll>
+      >(req);
+
+      void DatabasePollService.poll(response);
+
+      return response;
+    },
+  });
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/database/DatabasePollController.ts)*
+</Tabs.Tab>
+</Tabs>
 
 - When a `delete` DB change is emitted via `DatabaseEventsService.emitter`, the service sends an event with `id`, `entityType`, and `__isDeleted: true`. The front end uses `__isDeleted` to hide the entity by making it non-enumerable in the registry.
 - When an `update` or `create` change is emitted, the service fetches the full entity from Postgres (since Redis stores only metadata) and sends it to clients.
@@ -71,7 +367,7 @@ On the client side (for example, in a React component), call `DatabasePollRPC.po
 
 Front-end code, besides the polling logic, also includes on/off toggle state saved to `localStorage`, so the user can enable or disable polling as needed.
 
-```tsx
+```ts showLineNumbers copyx
 const [isPollingEnabled, setIsPollingEnabled] = useState(false);
 const pollingAbortControllerRef = useRef<AbortController | null>(null);
 
@@ -121,7 +417,7 @@ useEffect(() => {
 
 As an example of a third-party source of database changes, see the [TelegramService](https://github.com/vovk-kanban-demo/src/modules/telegram/TelegramService.ts) and the accompanying [TelegramController](https://github.com/vovk-kanban-demo/src/modules/telegram/TelegramController.ts). It accepts text or voice messages, performs voice-to-text transcription if needed using the OpenAI Whisper API, and uses the same `createLLMTools` function on the server:
 
-```ts
+```ts showLineNumbers copy
 const { tools } = createLLMTools({
   modules: {
     UserController,
@@ -132,7 +428,7 @@ const { tools } = createLLMTools({
 
 The Telegram API library is implemented with [OpenAPI Mixins](/codegen) and used as a `TelegramAPI` module to call Telegram API methods.
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 // @ts-check
 /** @type {import('vovk').VovkConfig} */
 const config = {
@@ -160,7 +456,7 @@ export default config;
 
 The `TelegramService` class handles interaction with the Telegram API and generates AI responses using the Vercel AI SDK.
 
-```ts filename="src/modules/telegram/TelegramService.ts"
+```ts showLineNumbers copy filename="src/modules/telegram/TelegramService.ts"
 import OpenAI from "openai";
 import { TelegramAPI } from "vovk-client";
 

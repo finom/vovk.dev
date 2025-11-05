@@ -4,7 +4,7 @@
 
 Request headers can be retrieved using the built‑in Next.js `headers` function.
 
-```ts
+```ts showLineNumbers copy
 import { headers } from 'next/headers';
 
 const reqHeaders = headers();
@@ -13,7 +13,7 @@ const userAgent = reqHeaders.get('user-agent');
 
 Alternatively, use `req.headers` from the [Web Request API](https://developer.mozilla.org/en-US/docs/Web/API/Request/headers).
 
-```ts
+```ts showLineNumbers copy
 import { prefix, get } from 'vovk';
 import { withZod } from 'vovk-zod';
 
@@ -35,7 +35,7 @@ export default class UserController {
 
 To work with cookies, use the [cookies](https://nextjs.org/docs/app/api-reference/functions/cookies) function exported by the Next.js headers module.
 
-```ts
+```ts showLineNumbers copy
 import { cookies } from 'next/headers';
 
 export default class UserController {
@@ -52,7 +52,7 @@ export default class UserController {
 
 All HTTP decorators support custom response headers via the second argument.
 
-```ts
+```ts showLineNumbers copy
 // ...
 export default class UserController {
   @put('do-something', { headers: { 'x-hello': 'world' } })
@@ -64,7 +64,7 @@ export default class UserController {
 
 Enable CORS headers with the `cors: true` option.
 
-```ts
+```ts showLineNumbers copy
 // ...
 export default class UserController {
   @put('do-something', { cors: true })
@@ -76,7 +76,7 @@ export default class UserController {
 
 For auto‑generated endpoints, `cors` and `headers` are specified as the single argument.
 
-```ts
+```ts showLineNumbers copy
 // ...
 export default class UserController {
   @put.auto({ cors: true, headers: { 'x-hello': 'world' } })
@@ -90,7 +90,7 @@ export default class UserController {
 
 Set dynamic response headers with the `NextResponse` object from Next.js.
 
-```ts
+```ts showLineNumbers copy
 import { NextResponse } from 'next/server';
 
 // ...

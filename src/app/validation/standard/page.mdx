@@ -8,7 +8,7 @@ Vovk.ts provides a simple `createStandardValidation` function to build a custom 
 
 Create `withArk` somewhere in your codebase:
 
-```ts filename="src/lib/withArk.ts"
+```ts showLineNumbers copy filename="src/lib/withArk.ts"
 import { createStandardValidation } from 'vovk';
 import { type } from 'arktype';
 
@@ -27,7 +27,7 @@ export const withArk = createStandardValidation({
 
 Then use it in your controller:
 
-```ts filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { prefix, post, operation } from 'vovk';
 import { type } from 'arktype';
 import { withArk } from '@/lib/withArk';
@@ -75,7 +75,7 @@ export default class UserController {
 
 Create `withValibot` somewhere in your codebase:
 
-```ts filename="src/lib/withValibot.ts"
+```ts showLineNumbers copy filename="src/lib/withValibot.ts"
 import { createStandardValidation } from 'vovk';
 import { toJsonSchema } from '@valibot/to-json-schema';
 
@@ -92,7 +92,7 @@ export const withValibot = createStandardValidation({
 
 Then use it in your controller:
 
-```ts filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { prefix, post, operation } from 'vovk';
 import * as v from 'valibot';
 import { withValibot } from '@/lib/withValibot';

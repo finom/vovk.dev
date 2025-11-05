@@ -4,7 +4,7 @@ Every controller method created with the [withValidationLibrary](/validation/int
 
 Let's say you have the following controller class:
 
-```ts filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { z } from 'zod';
 import { prefix, post, operation } from 'vovk';
 import { withZod } from 'vovk-zod';
@@ -51,7 +51,7 @@ export default class UserController {
 
 When it's compiled to an RPC module, the HTTP request can be performed like this:
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 const response = await UserRPC.updateUser({
@@ -73,7 +73,7 @@ console.log('Response:', response);
 
 But the `fn` method allows you to call the controller method directly, in the current evaluation context, without performing an HTTP request:
 
-```ts
+```ts showLineNumbers copy
 import UserController from '@/modules/user/UserController';
 
 const response = await UserController.updateUser.fn({
@@ -99,7 +99,7 @@ There are several core use cases for callable handlers:
 
 **For SSR, SSG, PPR, etc.**: You can use the method as a server-side function, allowing you to call it from server-side code without performing an HTTP request.
 
-```tsx filename="src/app/page.tsx"
+```ts showLineNumbers copyx filename="src/app/page.tsx"
 import UserController from '@/modules/user/UserController';
 
 export default async function Page() {
@@ -128,7 +128,7 @@ export default async function Page() {
 
 **For LLM [function calling](/function-calling)**: Each controller can be used as a "module" for LLM function calling, implemented with the `createLLMTools` utility to call controller methods in the current context without performing HTTP requests.
 
-```ts
+```ts showLineNumbers copy
 import { createLLMTools } from 'vovk';
 
 const { tools } = createLLMTools({
@@ -144,7 +144,7 @@ console.log(tools); // [{ name, description, parameters, execute }, ...]
 
 To ensure that the implemented HTTP handler can also be called with `fn`, you can use object destructuring when defining the handler to use only the `vovk` property:
 
-```ts {16}
+```ts showLineNumbers copy {16}
 export default class UserController {
   @post('{id}')
   static updateUser = withZod({
@@ -173,7 +173,7 @@ export default class UserController {
 
 Another thing to keep in mind is that the callable handler is [decorated](./decorator) with the same decorators as the HTTP handler. If you create a decorator to wrap an HTTP handler for use with `fn`, avoid using `NextRequest`‑specific properties like `req.url`, `req.headers`, or `req.nextUrl`.
 
-```ts {4}
+```ts showLineNumbers copy {4}
 import { createDecorator } from 'vovk';
 
 const myDecorator = createDecorator(({ vovk }, next) => {
@@ -185,7 +185,7 @@ const myDecorator = createDecorator(({ vovk }, next) => {
 
 You can detect the callable context by checking `req.url`, which is `undefined` when called via `fn`:
 
-```ts {4}
+```ts showLineNumbers copy {4}
 import { createDecorator } from 'vovk';
 
 const myDecorator = createDecorator((req, next) => {
@@ -201,7 +201,7 @@ const myDecorator = createDecorator((req, next) => {
 
 Even though `req` is not a `Request`, you can still use Next.js features like `headers` or `cookies` from `next/headers` in the callable context:
 
-```ts {5}
+```ts showLineNumbers copy {5}
 import { createDecorator } from 'vovk';
 import { headers } from 'next/headers';
 
@@ -216,7 +216,7 @@ const myDecorator = createDecorator(async ({ vovk }, next) => {
 
 An HTTP decorator such as `@get`, `@post`, etc., is not required for a callable handler to work. The only requirement is to use the `withValidationLibrary` function (via `withZod`, for example) to create the handler.
 
-```ts filename="src/modules/user/UserHandlers.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserHandlers.ts"
 import { z } from 'zod';
 import { withZod } from 'vovk-zod';
 
@@ -236,7 +236,7 @@ UserHandlers.updateUser.fn({
 
 When a static class is implemented this way, it behaves like a "validated [service](./service)", which can be attached to the controller later or used as a standalone collection of validated functions.
 
-```ts filename="src/modules/user/UserController.ts" {7}
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts" {7}
 import { prefix, post } from 'vovk';
 import UserHandlers from './UserHandlers';
 

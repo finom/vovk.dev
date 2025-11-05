@@ -6,11 +6,11 @@
 
 Validation with Yup is provided by the `vovk-yup` package, which exposes a `withYup` function for building validated handlers.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm install vovk-yup@draft
 ```
 
-```ts filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import * as yup from 'yup';
 import { prefix, post, operation } from 'vovk';
 import { withYup } from 'vovk-yup';

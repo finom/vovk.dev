@@ -1,6 +1,6 @@
 # Zod Validation
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm install vovk-zod@draft
 ```
 
@@ -8,7 +8,7 @@ npm install vovk-zod@draft
 
 Validation with [Zod 4](https://www.npmjs.com/package/zod) uses the [vovk-zod](https://www.npmjs.com/package/vovk-zod) package by importing the `withZod` function.
 
-```ts
+```ts showLineNumbers copy
 import { z } from 'zod';
 import { withZod } from 'vovk-zod';
 import { prefix, post, operation } from 'vovk';
@@ -61,7 +61,7 @@ This is built using Vovk.ts’s [`createStandardValidation`](./standard) functio
 
 Zod 3 uses [zod-to-json-schema](https://www.npmjs.com/package/zod-to-json-schema) to convert models to JSON Schema. Import `withZod` from `vovk-zod/v3` and `z` from `zod/v3` to use it. The syntax is identical to Zod 4:
 
-```ts
+```ts showLineNumbers copy
 import { z } from 'zod/v3';
 import { withZod } from 'vovk-zod/v3';
 import { prefix, post, operation } from 'vovk';
@@ -73,7 +73,7 @@ import { prefix, post, operation } from 'vovk';
 
 The `withZod` implementation uses default options for `toJSONSchema`:
 
-```ts filename="vovk-zod/src/index.ts"
+```ts showLineNumbers copy filename="vovk-zod/src/index.ts"
 import { z } from 'zod';
 import { createStandardValidation } from 'vovk';
 
@@ -84,7 +84,7 @@ export const withZod = createStandardValidation({
 
 By default, Zod targets Draft 2020-12, which many current [function calling](/function-calling) APIs don’t support and may cause errors. If you need to override options, create a local `withZod` with custom `toJSONSchema` settings as shown in the [Standard Schema](/validation/standard) section:
 
-```ts filename="src/lib/withZod.ts" {5}
+```ts showLineNumbers copy filename="src/lib/withZod.ts" {5}
 import { z } from 'zod';
 import { createStandardValidation } from 'vovk';
 

@@ -4,7 +4,7 @@
 
 You can create a proxy endpoint by fetching data from another server with `fetch`. It returns a `Response`, which Next.js handles automatically. To ensure correct client-side inference, force a different return type.
 
-```ts
+```ts showLineNumbers copy
 import { get } from 'vovk';
 
 export default class ProxyController {
@@ -19,7 +19,7 @@ export default class ProxyController {
 
 On the client, the return type is inferred as expected.
 
-```ts
+```ts showLineNumbers copy
 import { ProxyRPC } from 'vovk-client';
 
 // ...
@@ -28,7 +28,7 @@ const { greeting } = await ProxyRPC.getHello();
 
 Alternatively, you can define the response type at the client method and keep the server return type as `Response`.
 
-```ts
+```ts showLineNumbers copy
 import { ProxyRPC } from 'vovk-client';
 
 // ...
@@ -39,7 +39,7 @@ const { greeting } = await ProxyRPC.getHello<{ greeting: string }>();
 
 When you keep the original `Response` type, the client resolves the result as a `Response` object. This is useful for files or binary data.
 
-```ts
+```ts showLineNumbers copy
 import { get } from 'vovk';
 
 export default class ProxyController {
@@ -50,7 +50,7 @@ export default class ProxyController {
 }
 ```
 
-```ts
+```ts showLineNumbers copy
 import { ProxyRPC } from 'vovk-client';
 
 // ...

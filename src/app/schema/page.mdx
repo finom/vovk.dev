@@ -81,7 +81,7 @@ Emitted files mirror the segment tree. For example, a `foo/bar/baz` segment emit
 
 When the Vovk CLI reads these files, it builds a single object with `segments` and `meta`. `segments` is flat, keyed by segment name, and `meta` contains the `_meta.json` content. This object powers client-side RPC generation and OpenAPI output, and is also available on both the client and server as the `schema` export.
 
-```ts
+```ts showLineNumbers copy
 {
   "segments": {
     "": { ... }, // root segment schema from root.json
@@ -93,7 +93,7 @@ When the Vovk CLI reads these files, it builds a single object with `segments` a
 }
 ```
 
-```ts
+```ts showLineNumbers copy
 import { schema } from 'vovk-client';
 // or
 import { schema } from 'vovk-client/schema'; // exports only the schema object (no RPC modules)
@@ -106,7 +106,7 @@ console.log(schema.segments.admin satisfies VovkSegmentSchema); // admin segment
 
 The `schema` is also available in the [segmented client](/composed-and-segmented), containing exactly one segment:
 
-```ts
+```ts showLineNumbers copy
 {
   "segments": {
     "": { ... } // root segment schema from root.json
@@ -115,7 +115,7 @@ The `schema` is also available in the [segmented client](/composed-and-segmented
 }
 ```
 
-```ts
+```ts showLineNumbers copy
 import { schema } from '@client/root';
 // or
 import { schema } from '@client/root/schema';

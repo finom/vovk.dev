@@ -6,7 +6,7 @@ import { Steps, Tabs, Callout } from 'nextra/components';
 
 ## Create a Next.js project with App Router and TypeScript
 
-```bash npm2yarn
+```bash npm2yarn copy
 npx create-next-app my-app --ts --app --src-dir
 ```
 ```bash
@@ -17,7 +17,7 @@ The `src` directory is optional but recommended, as it keeps the root directory 
 
 ## Install "vovk" and "vovk-client"
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm i vovk vovk-client
 ```
 
@@ -25,7 +25,7 @@ npm i vovk vovk-client
 
 Create **vovk.config.mjs** at the root of the project with the following content:
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 // @ts-check
 /** @type {import('vovk').VovkConfig} */
 const vovkConfig = {};
@@ -37,13 +37,13 @@ export default vovkConfig;
 
 For Zod validation on the server side and Ajv on the client side, install the following packages:
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm i zod vovk-zod vovk-ajv
 ```
 
 Modify the `validateOnClient` import in your config file to enable client-side validation:
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 // @ts-check
 /** @type {import('vovk').VovkConfig} */
 const vovkConfig = {
@@ -68,7 +68,7 @@ The `prebuild` script will run `vovk generate` before `next build` to generate t
 <Tabs items={['Explicit', 'Implicit']} >
   <Tabs.Tab>
     Install concurrently:
-```sh npm2yarn
+```sh npm2yarn copy
 npm i -D concurrently
 ```
 
@@ -113,7 +113,7 @@ In your **tsconfig.json**, set `"experimentalDecorators"` to `true`.
 
 Create **HelloController.ts** at **/src/modules/hello/** with a same-named static class.
 
-```ts filename="src/modules/hello/HelloController.ts"
+```ts showLineNumbers copy filename="src/modules/hello/HelloController.ts"
 import { get, prefix } from 'vovk';
 
 @prefix('greetings') // prefix is optional
@@ -131,7 +131,7 @@ Create the root [segment](/segment) **/src/app/api/[[...vovk]]/route.ts**, where
 
 In the code below, `HelloRPC` indicates the name of the generated RPC module, and `HelloController` is the controller module created above.
 
-```ts filename="src/app/api/[[...vovk]]/route.ts"
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
 import HelloController from '../modules/hello/HelloController';
 
@@ -148,7 +148,7 @@ export const { GET, POST, PUT, DELETE } = initSegment({ controllers });
 
 Run `npm run dev` to start Vovk.ts and Next.js concurrently.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm run dev
 ```
 
@@ -158,7 +158,7 @@ Navigate to [http://localhost:3000/api/greetings/greeting](http://localhost:3000
 
 Now that the client is generated, you can safely import your client library from **vovk-client**.
 
-```tsx filename="src/app/page.tsx"
+```ts showLineNumbers copyx filename="src/app/page.tsx"
 'use client';
 import { useState } from 'react';
 import { HelloRPC } from 'vovk-client';

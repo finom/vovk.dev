@@ -34,13 +34,13 @@ The `vovk new` command creates [segments](/segment) and modules (such as [contro
 
 ### Root Segment
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk new segment
 ```
 
 If you run `vovk new segment` without an argument, it creates a root segment at **/src/app/api/[[...vovk]]/route.ts** (formatted with [Prettier](https://www.npmjs.com/package/prettier)). The `segmentName` option of `initSegment` is an empty string and can be omitted. The generated file contains:
 
-```ts
+```ts showLineNumbers copy
 import { initSegment } from 'vovk';
 
 const controllers = {};
@@ -61,13 +61,13 @@ Root segments can be used alongside nested segments of any depth.
 
 ### Nested Segment
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk new segment foo
 ```
 
 Running `vovk new segment foo` creates **/src/app/api/foo/[[...vovk]]/route.ts** (formatted with Prettier). The generated file includes:
 
-```ts
+```ts showLineNumbers copy
 // ...
 export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
   segmentName: 'foo',
@@ -88,7 +88,7 @@ The segment exposes an API at **/api/foo/...**.
 
 <Image src={newModuleSvg} alt="vovk new module" className="dark:invert" />
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk new controller service foo/user
 ```
 
@@ -99,7 +99,7 @@ Command structure:
 - Components — the module types to create (`controller`, `service`, or a custom module).
 - Module name (singular) with optional segment prefix: `foo/user` creates a module in **/src/modules/foo/user/** and updates the `foo` segment. Omit the segment to target the root:
 
-```sh npm2yarn
+```sh npm2yarn copy
 npx vovk new controller service user
 ```
 

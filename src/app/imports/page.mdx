@@ -4,7 +4,7 @@ You can customize the generated TypeScript client by replacing imports of lower-
 
 By default (when [vovk-ajv](/validation/client) is used for client-side validation), an `index.mjs` file generating the `UserRPC` module might look like:
 
-```ts filename="./node_modules/.vovk-client/index.mjs"
+```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.mjs"
 import { createRPC } from 'vovk';
 import { schema } from './schema.cjs';
 
@@ -16,7 +16,7 @@ export const UserRPC = createRPC(schema, '', 'UserRPC', import('vovk'), {
 
 When `outputConfig.imports` is modified:
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   outputConfig: {
@@ -32,7 +32,7 @@ export default config;
 
 The generated `index.mjs` uses these imports and resolves relative paths:
 
-```ts filename="./node_modules/.vovk-client/index.mjs"
+```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.mjs"
 import { createRPC } from '../../src/lib/createRPC';
 
 export const UserRPC = createRPC(schema, '', 'UserRPC', import('../../src/lib/fetcher'), {
@@ -43,7 +43,7 @@ export const UserRPC = createRPC(schema, '', 'UserRPC', import('../../src/lib/fe
 
 `fetcher` and `validateOnClient` can also be set per [segment](/segment). This enables different options or auth mechanisms per segment (including [OpenAPI Mixins](/codegen)) and different validation libraries where needed.
 
-```ts
+```ts showLineNumbers copy
 /** @type {import('vovk').VovkConfig} */
 const config = {
   outputConfig: {
@@ -74,7 +74,7 @@ The `fetcher` prepares handlers, performs client-side validation, issues HTTP re
 
 It can also process custom per-call options passed to RPC methods.
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 const user = await UserRPC.updateUser({
@@ -88,7 +88,7 @@ const user = await UserRPC.updateUser({
 
 The file at `imports.fetcher` must export a `fetcher` variable. To simplify creating a custom fetcher, use `createFetcher` from `vovk`.
 
-```ts filename="./src/lib/fetcher.ts"
+```ts showLineNumbers copy filename="./src/lib/fetcher.ts"
 import { createFetcher } from 'vovk';
 
 export const fetcher = createFetcher<{
@@ -125,7 +125,7 @@ export const fetcher = createFetcher<{
 
 With this setup, all RPC modules accept the desired options:
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 await UserRPC.updateUser({
@@ -160,7 +160,7 @@ Called on success. Use it for success messages, logging, or post-processing.
 
 `validateOnClient` defines how client-side validation is performed for RPC method input (`params`, `query`, `body`). Create it via `createValidateOnClient` from `vovk`. It accepts a `validate` function that receives the input data, the validation schema, and metadata, and returns validated data or throws on failure. Validation runs only when both input and schema are provided.
 
-```ts filename="./src/lib/validateOnClient.ts"
+```ts showLineNumbers copy filename="./src/lib/validateOnClient.ts"
 import { validateData } from 'validation-library';
 import { createValidateOnClient, HttpException, HttpStatus } from 'vovk';
 

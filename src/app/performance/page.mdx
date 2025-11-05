@@ -20,13 +20,13 @@ cd vovk-perf-test
 
 Install dependencies via:
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm i
 ```
 
 Run performance tests via:
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm run perf-test
 ```
 
@@ -34,7 +34,7 @@ npm run perf-test
 
 Vovk.ts sits on top of Next.js API routes and generates handlers via decorators applied to controller methods:
 
-```ts filename="src/app/api/[[...vovk]]/route.ts"
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 export const { GET, POST } = initSegment({ controllers });
 ```
 
@@ -78,7 +78,7 @@ For N ∈ \{1, 10, 100, 1,000, 10,000\} measure:
 
 Example no‑op decorators:
 
-```ts
+```ts showLineNumbers copy
 function noopDecorator() {
   return function (..._args: any[]) {};
 }

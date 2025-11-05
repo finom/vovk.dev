@@ -6,7 +6,7 @@ Every validation library integrates through an internal `withValidationLibrary` 
 
 ## Options
 
-```ts
+```ts showLineNumbers copy
 import { z } from 'zod';
 import { withZod } from 'vovk-zod';
 import { prefix, post } from 'vovk';
@@ -75,7 +75,7 @@ Handlers created with `withValidationLibrary` gain extra capabilities.
 
 The `fn` property lets you call the handler directly without making an HTTP request. It mirrors the generated RPC handler signature and accepts the same parameters.
 
-```ts
+```ts showLineNumbers copy
 const result = await UserController.updateUser.fn({
     body: { /* ... */ },
     query: { /* ... */ },
@@ -98,7 +98,7 @@ See [callable handlers](/controller/fn) for details. Also review the [meta docum
 
 ### `schema`
 
-```ts
+```ts showLineNumbers copy
 const schema = UserController.updateUser.schema;
 
 // same as UserRPC.updateUser.schema
@@ -108,7 +108,7 @@ The `schema` property exposes the method schema, mirroring the RPC method schema
 
 ### `models`
 
-```ts
+```ts showLineNumbers copy
 const bodyModel = UserController.updateUser.models.body;
 ```
 

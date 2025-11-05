@@ -1,5 +1,5 @@
+import { Tabs } from 'nextra/components';
 import AppAlike from './AppAlike';
-import GithubFiles from '@/components/GithubFiles';
 import Image from 'next/image';
 
 # Realtime UI
@@ -65,7 +65,7 @@ Let's say we have an more or less complex application with multiple components t
 
 The most straightforward way to do this is to have a global state that stores the user profile as an object and update it once the data is changed, or pass the object as a prop from a parent component.
 
-```tsx
+```ts showLineNumbers copyx
 export const UserProfile = ({ userProfile }: { userProfile: User }) => {
     return <div>{userProfile.fullName}</div>
 }
@@ -77,7 +77,7 @@ A more efficient way to handle this is to have a normalized state that stores th
 
 This way, once the data is requested from the server, and processed thru a middleware function that updates the entity state, we can easily retrieve the entity object with and ID and all the components that use this entity will be re-rendered automatically. Let's call it **"entity registry"**.
 
-```tsx
+```ts showLineNumbers copyx
 export const UserProfile = ({ userId }: { userId: User['id'] }) => {
     const userProfile = useRegistry(state => state.user[userId]);
     return <div>{userProfile.fullName}</div>
@@ -101,7 +101,7 @@ The authentication is made by oversimplifying a solution provided at the officia
 
 The DAL file, in its turn, exports `verifySession` function that is invoked at [page.tsx](https://github.com/finom/vovk-kanban-demo/blob/main/src/app/page.tsx) and redirects the user to the login page if the session is invalid.
 
-```tsx filename="src/app/page.tsx"
+```ts showLineNumbers copyx filename="src/app/page.tsx"
 import { verifySession } from "@/lib/dal";
 
 export default async function Home() {
@@ -111,7 +111,18 @@ export default async function Home() {
 
 but also exports `isLoggedIn` function that is created for `sessionGuard` decorator to check if the user is logged in when invoking controller methods.
 
-<GithubFiles paths={['src/decorators/sessionGuard.ts']} repo="vovk-kanban-demo" />
+```ts showLineNumbers copy filename="src/decorators/sessionGuard.ts" repository="finom/vovk-kanban-demo"
+import { createDecorator, HttpException, HttpStatus } from "vovk";
+import { isLoggedIn } from "@/lib/dal";
+
+export const sessionGuard = createDecorator(async (req, next) => {
+  if (typeof req.url !== 'undefined' && !(await isLoggedIn())) {
+    throw new HttpException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+  }
+  return next();
+});
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/decorators/sessionGuard.ts)*
 
 The `sessionGuard` decorator applied to all controller methods. `typeof req.url !== 'undefined'{:ts}` check is required to distinguish between HTTP requests and [`fn`](/controller/fn) invocations.
 
@@ -122,7 +133,81 @@ The only requirement that we've got to perform is to make server return entities
 
 We're also going to use [prisma-zod-generator](https://www.npmjs.com/package/prisma-zod-generator?activeTab=readme) to generate Zod schemas from our Prisma models. This will help us to define Zod models automatically and make our code much shorter.
 
-<GithubFiles paths={['prisma/schema.prisma']} repo="vovk-kanban-demo" />
+```ts showLineNumbers copy filename="prisma/schema.prisma" repository="finom/vovk-kanban-demo"
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+generator zod {
+  provider      = "prisma-zod-generator"
+  config   = "./zod-generator.config.json"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model User {
+  /// @zod.brand<'user'>()
+  id         String     @id @default(uuid())
+  /// @zod.custom.use(z.literal('user'))
+  entityType EntityType @default(user)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @default(now()) @updatedAt
+
+  /// @zod.meta({ examples: ["John Doe"], description: "Full name of the user" })
+  fullName   String
+  /// @zod.meta({ examples: ["john.doe@example.com"], description: "Email address of the user" })
+  email      String    @unique
+  /// @zod.meta({ examples: ["https://example.com/image.jpg"], description: "Profile image URL of the user" })
+  imageUrl   String?
+
+  tasks      Task[]
+
+  embedding Unsupported("vector(1536)")?
+}
+
+model Task {
+  /// @zod.brand<'task'>()
+  id         String     @id @default(uuid())
+  /// @zod.custom.use(z.literal('task'))
+  entityType EntityType @default(task)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @default(now()) @updatedAt
+
+  /// @zod.meta({ examples: ["Implement authentication"], description: "Title of the task" })
+  title      String
+  /// @zod.meta({ examples: ["Implement user authentication using JWT"], description: "Description of the task" })
+  description String
+  /// @zod.meta({ examples: ["TODO"], description: "Status of the task" })
+  status     TaskStatus @default(TODO)
+  /// @zod.brand<'user'>().meta({ examples: ["a3bb189e-8bf9-3888-9912-ace4e6543002"], description: "ID of the user who owns the task" })
+  userId     String
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  embedding Unsupported("vector(1536)")?
+}
+
+enum EntityType {
+  user
+  task
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/prisma/schema.prisma)*
 
 Notice the triple slashes comments. As React components and other app logic is going to work with entity IDs, we need to distinguish between IDs of different entity types implemented as [branded](https://zod.dev/api?id=branded-types) types. We're also using literal types for `entityType` columns and define `examples` and `descriptions` for better OpenAPI documentation generation and for LLM function calling.
 
@@ -132,7 +217,7 @@ That's it. Each time when you invoke `npx prisma generate`, the Zod schemas are 
 
 As we're going to use [function calling](/function-calling) we're going to apply a workaround decribed at [Zod / Trobleshooting](/validation/zod#troubleshooting) that allows to generate JSON schemas from Zod using draft-07 version by creating `withZod` helper function with `createStandardValidation` that creates a validation library with [Standard Schema](/validation/standard).
 
-```ts filename="src/lib/withZod.ts"
+```ts showLineNumbers copy filename="src/lib/withZod.ts"
 import { z } from 'zod';
 import { createStandardValidation } from 'vovk';
 
@@ -145,7 +230,7 @@ export const withZod = createStandardValidation({
 For additional type safety, let's create a `BaseEntity` interface that describes the base fields of all entities in the database for additional type checking.
 
 
-```ts filename="src/types.ts"
+```ts showLineNumbers copy filename="src/types.ts"
 import { EntityType } from "@prisma/client";
 
 export interface BaseEntity {
@@ -158,7 +243,7 @@ export interface BaseEntity {
 
 For the sake of shorter code, we also need to create a reusable constant `BASE_FIELDS` that is going to be used to omit `id`, `entityType`, `createdAt` and `updatedAt` fields from the Zod models, but also `BASE_KEYS` array that contains the keys of these fields to use with `lodash.omit`. This will help us to build proper create/update Zod models and omit these fields from entity objects when we need to create input objects.
 
-```ts filename="src/constants.ts"
+```ts showLineNumbers copy filename="src/constants.ts"
 import type { BaseEntity } from "./types";
 
 export const BASE_FIELDS = {
@@ -173,7 +258,7 @@ export const BASE_KEYS = Object.keys(BASE_FIELDS) as (keyof BaseEntity)[];
 
 For example, here's how the `UpdateUserSchema` can be created by omitting the base fields from the generated `UserSchema`:
 
-```ts
+```ts showLineNumbers copy
 import { UserSchema } from "../../../prisma/generated/schemas";
 import { BASE_FIELDS } from "../../../constants";
 const UpdateUserSchema = UserSchema.omit(BASE_FIELDS);
@@ -189,13 +274,318 @@ The controllers and services are quite self-explanatory: we decorate each method
 
 Here is the code for `UserController`, `UserService`, `TaskController`, and `TaskService` directly fetched from the project repository:
 
-<GithubFiles paths={['src/modules/user/UserController.ts', 'src/modules/user/UserService.ts', 'src/modules/task/TaskController.ts', 'src/modules/task/TaskService.ts']} repo="vovk-kanban-demo" />
+
+<Tabs items={['UserController.ts', 'UserService.ts', 'TaskController.ts', 'TaskService.ts']}>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/vovk-kanban-demo"
+import { prefix, get, put, post, del, operation } from "vovk";
+import UserService from "./UserService";
+import { z } from "zod";
+import { BASE_FIELDS } from "@/constants";
+import { UserSchema } from "../../../prisma/generated/schemas";
+import { withZod } from "@/lib/withZod";
+import { sessionGuard } from "@/decorators/sessionGuard";
+
+@prefix("users")
+export default class UserController {
+  @operation({
+    summary: "Get all users",
+    description: "Retrieves a list of all users.",
+    "x-tool-disable": true, // Make it to be used as an endpoint only, excluding from the list of available tools
+  })
+  @get()
+  @sessionGuard()
+  static getUsers = withZod({ handle: UserService.getUsers });
+
+  @operation({
+    summary: "Find users by ID, full name, or email",
+    description:
+      "Retrieves users that match the provided ID, full name, or email. Used to search the users when they need to be updated or deleted.",
+    "x-tool-successMessage": "Users found successfully",
+  })
+  @get("search")
+  @sessionGuard()
+  static findUsers = withZod({
+    query: z.object({
+      search: z.string().meta({
+        description: "Search term for users",
+        examples: ["john.doe", "Jane"],
+      }),
+    }),
+    handle: ({ vovk }) => UserService.findUsers(vovk.query().search),
+  });
+
+  @operation({
+    summary: "Create user",
+    description: "Creates a new user with the provided details.",
+    "x-tool-successMessage": "User created successfully",
+  })
+  @post()
+  @sessionGuard()
+  static createUser = withZod({
+    body: UserSchema.omit(BASE_FIELDS),
+    handle: async ({ vovk }) => UserService.createUser(await vovk.body()),
+  });
+
+  @operation({
+    summary: "Update user",
+    description:
+      "Updates an existing user with the provided details, such as their email or name.",
+    "x-tool-successMessage": "User updated successfully",
+  })
+  @put("{id}")
+  @sessionGuard()
+  static updateUser = withZod({
+    body: UserSchema.omit(BASE_FIELDS).partial(),
+    params: UserSchema.pick({ id: true }),
+    handle: async ({ vovk }) =>
+      UserService.updateUser(vovk.params().id, await vovk.body()),
+  });
+
+  @operation({
+    summary: "Delete user",
+    description: "Deletes a user by ID.",
+    "x-tool-successMessage": "User deleted successfully",
+  })
+  @del("{id}")
+  @sessionGuard()
+  static deleteUser = withZod({
+    params: UserSchema.pick({ id: true }),
+    handle: async ({ vovk }) => UserService.deleteUser(vovk.params().id),
+  });
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/user/UserController.ts)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/user/UserService.ts" repository="finom/vovk-kanban-demo"
+import type { VovkBody, VovkParams } from "vovk";
+import type UserController from "./UserController";
+import DatabaseService from "../database/DatabaseService";
+import EmbeddingService from "../embedding/EmbeddingService";
+import { UserType } from "../../../prisma/generated/schemas/models/User.schema";
+import { EntityType } from "../../../prisma/generated/client";
+import TaskService from "../task/TaskService";
+import { TaskType } from "../../../prisma/generated/schemas/models/Task.schema";
+
+export default class UserService {
+  static getUsers = () => DatabaseService.prisma.user.findMany();
+
+  static findUsers = (search: string) =>
+    EmbeddingService.vectorSearch<UserType>(EntityType.user, search);
+
+  static createUser = async (
+    data: VovkBody<typeof UserController.createUser>,
+  ) => {
+    const user = await DatabaseService.prisma.user.create({
+      data: {
+        ...data,
+        imageUrl: `https://i.pravatar.cc/300?u=${data.email}`,
+      },
+    });
+
+    await EmbeddingService.generateEntityEmbedding(
+      user.entityType,
+      user.id as UserType["id"],
+    );
+    return user;
+  };
+
+  static updateUser = async (
+    id: VovkParams<typeof UserController.updateUser>["id"],
+    data: VovkBody<typeof UserController.updateUser>,
+  ) => {
+    const user = await DatabaseService.prisma.user.update({
+      where: { id },
+      data,
+    });
+
+    await EmbeddingService.generateEntityEmbedding(user.entityType, id);
+
+    return user;
+  };
+
+  static deleteUser = async (
+    id: VovkParams<typeof UserController.updateUser>["id"],
+  ) => {
+    // even though we have `ON DELETE CASCADE`, we need to delete tasks explicitly to trigger DB events
+    const tasksToDelete = await DatabaseService.prisma.task.findMany({
+      where: { userId: id },
+      select: { id: true },
+    });
+    for (const task of tasksToDelete) {
+      await TaskService.deleteTask(task.id as TaskType["id"]);
+    }
+    return DatabaseService.prisma.user.delete({
+      where: { id },
+      select: { id: true, entityType: true },
+    });
+  };
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/user/UserService.ts)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/task/TaskController.ts" repository="finom/vovk-kanban-demo"
+import { prefix, get, put, post, del, operation } from "vovk";
+import TaskService from "./TaskService";
+import { z } from "zod";
+import { BASE_FIELDS } from "@/constants";
+import { TaskSchema, UserSchema } from "../../../prisma/generated/schemas";
+import { withZod } from "@/lib/withZod";
+import { sessionGuard } from "@/decorators/sessionGuard";
+
+@prefix("tasks")
+export default class TaskController {
+  @operation({
+    summary: "Get all tasks",
+    description: "Retrieves a list of all tasks.",
+    "x-tool-disable": true, // Make it to be used as an endpoint only, excluding from the list of available tools
+  })
+  @get()
+  @sessionGuard()
+  static getTasks = withZod({ handle: TaskService.getTasks });
+
+  @operation({
+    summary: "Find tasks by ID, title or description",
+    description:
+      "Retrieves tasks that match the provided ID, title, or description. Used to search the tasks when they need to be updated or deleted.",
+    "x-tool-successMessage": "Tasks found successfully",
+  })
+  @get("search")
+  @sessionGuard()
+  static findTasks = withZod({
+    query: z.object({
+      search: z.string().meta({
+        description: "Search term for tasks",
+        examples: ["bug", "feature"],
+      }),
+    }),
+    handle: async ({ vovk }) => TaskService.findTasks(vovk.query().search),
+  });
+
+  @operation({
+    summary: "Get tasks assigned to a specific user",
+    description: "Retrieves all tasks associated with a specific user ID.",
+    "x-tool-successMessage": "Tasks retrieved successfully",
+  })
+  @get("by-user/{userId}")
+  @sessionGuard()
+  static getTasksByUserId = withZod({
+    params: z.object({ userId: UserSchema.shape.id }),
+    handle: async ({ vovk }) =>
+      TaskService.getTasksByUserId(vovk.params().userId),
+  });
+
+  @operation({
+    summary: "Create a new task",
+    description:
+      "Creates a new task with the provided details, such as its title and description.",
+    "x-tool-successMessage": "Task created successfully",
+  })
+  @post()
+  @sessionGuard()
+  static createTask = withZod({
+    body: TaskSchema.omit(BASE_FIELDS),
+    handle: async ({ vovk }) => TaskService.createTask(await vovk.body()),
+  });
+
+  @operation({
+    summary: "Update task",
+    description:
+      "Updates an existing task with the provided details, such as its title or description.",
+    "x-tool-successMessage": "Task updated successfully",
+  })
+  @put("{id}")
+  @sessionGuard()
+  static updateTask = withZod({
+    body: TaskSchema.omit(BASE_FIELDS).partial(),
+    params: TaskSchema.pick({ id: true }),
+    handle: async ({ vovk }) =>
+      TaskService.updateTask(vovk.params().id, await vovk.body()),
+  });
+
+  @operation({
+    summary: "Delete task",
+    description: "Deletes a task by ID.",
+    "x-tool-successMessage": "Task deleted successfully",
+  })
+  @del("{id}")
+  @sessionGuard()
+  static deleteTask = withZod({
+    params: TaskSchema.pick({ id: true }),
+    handle: async ({ vovk }) => TaskService.deleteTask(vovk.params().id),
+  });
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/task/TaskController.ts)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/task/TaskService.ts" repository="finom/vovk-kanban-demo"
+import type { VovkBody, VovkParams } from "vovk";
+import type TaskController from "./TaskController";
+import DatabaseService from "../database/DatabaseService";
+import EmbeddingService from "../embedding/EmbeddingService";
+import { TaskType } from "../../../prisma/generated/schemas/models/Task.schema";
+import { EntityType } from "../../../prisma/generated/client";
+import { UserType } from "../../../prisma/generated/schemas/models/User.schema";
+
+export default class TaskService {
+  static getTasks = () => DatabaseService.prisma.task.findMany();
+
+  static findTasks = (search: string) =>
+    EmbeddingService.vectorSearch<TaskType>(EntityType.task, search);
+
+  static getTasksByUserId = (userId: UserType["id"]) =>
+    DatabaseService.prisma.task.findMany({
+      where: { userId },
+    });
+
+  static createTask = async (
+    data: VovkBody<typeof TaskController.createTask>,
+  ) => {
+    const task = await DatabaseService.prisma.task.create({ data });
+
+    await EmbeddingService.generateEntityEmbedding(
+      task.entityType,
+      task.id as TaskType["id"],
+    );
+
+    return task;
+  };
+
+  static updateTask = async (
+    id: VovkParams<typeof TaskController.updateTask>["id"],
+    data: VovkBody<typeof TaskController.updateTask>,
+  ) => {
+    const task = await DatabaseService.prisma.task.update({
+      where: { id },
+      data,
+    });
+
+    await EmbeddingService.generateEntityEmbedding(task.entityType, id);
+
+    return task;
+  };
+
+  static deleteTask = (
+    id: VovkParams<typeof TaskController.deleteTask>["id"],
+  ) =>
+    DatabaseService.prisma.task.delete({
+      where: { id },
+      select: { id: true, entityType: true },
+    });
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/task/TaskService.ts)*
+</Tabs.Tab>
+</Tabs>
 
 ## Setting up the Entity Registry
 
 As we've discussed above, the application state is going to be normalized and store entities in a dictionary by their IDs. The registry is going to have a `parse` method that accepts any data and extracts entities from it, storing them in the registry. The method is going to be used to process all incoming data from the server, so that all components that use this data are going to be updated automatically.
 
-```ts filename="src/registry.ts"
+```ts showLineNumbers copy filename="src/registry.ts"
 import { EntityType } from "@prisma/client";
 import { create } from "zustand";
 import fastDeepEqual from "fast-deep-equal";
@@ -297,7 +687,7 @@ The code is small but quite complicated, so let's break it down:
 
 The function is going to walk thru the entire object and extract all entities, turning the object into a preliminary format and **not** modifying the original database objects:
 
-```ts
+```ts showLineNumbers copy
 {
   "task": [
     { "id": "task-1", "title": "Task 1", "entityType": "task", "user": { /* stays the same */ } },
@@ -327,7 +717,7 @@ The next piece of the puzzle is to create a `fetcher` function (mentioned above 
 
 The fetcher is going to implement `transformResponse` function that is going to process all incoming data, passing it to the `parse` method of the registry. The function is also going to handle both regular JSON data and async iterables (if you use [JSONLines](/controller/jsonlines) responses).
 
-```ts filename="src/lib/fetcher.ts"
+```ts showLineNumbers copy filename="src/lib/fetcher.ts"
 import { useRegistry } from "@/registry";
 import { createFetcher } from "vovk";
 
@@ -354,7 +744,7 @@ export const fetcher = createFetcher({
 
 Declare the fetcher in the [config](/config). It will replace the default `fetcher` imported by the generated [client](/typescript).
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 // @ts-check
 /** @type {import('vovk').VovkConfig} */
 const config = {
@@ -372,7 +762,7 @@ export default config;
 That's it. From now on, each request is going to be processed by the registry `parse` method, and manual response handling is not required anymore. Here is a rough example:
 
 
-```tsx
+```ts showLineNumbers copyx
 import { useShallow } from "zustand/shallow";
 import { useQuery } from "@tanstack/react-query";
 import { UserRPC } from "vovk-client";
@@ -411,7 +801,7 @@ As you can see `useQuery` invocation doesn't require to read `data` property any
 
 In order to be sure that the UI doesn't display deleted entities, even if the `userIds` array contains them, you can add additional filtering in the components, for example:
 
-```tsx
+```ts showLineNumbers copyx
 const users = useRegistry(
   useShallow(({ user: { ...user } }) => userIds.filter((id) => id in user).map((id) => user[id])),
 );
@@ -423,7 +813,7 @@ const users = useRegistry(
 
 As Cameron King provided a solid framework for Next.js + OpenAI Realtime API + Function Calling, the only thing left is to extend or replace existing tools with `createLLMTools` function from Vovk.ts, that turns RPC modules into tools that can be used by any LLM setup.
 
-```ts filename="src/components/RealTimeDemo.tsx" {10-12, 26, 43-45}
+```ts showLineNumbers copy filename="src/components/RealTimeDemo.tsx" {10-12, 26, 43-45}
 "use client";
 import { useToolsFunctions } from "@/hooks/use-tools";
 import useWebRTCAudioSession from "@/hooks/use-webrtc";

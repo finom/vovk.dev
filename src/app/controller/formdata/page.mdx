@@ -2,7 +2,7 @@
 
 To accept form data requests, set the `isForm` option to `true` in the [validation library](/validation) wrapper.
 
-```ts {8}
+```ts showLineNumbers copy {8}
 import { withZod } from 'vovk-zod';
 import { z } from 'zod';
 import { post, prefix } from 'vovk';
@@ -24,7 +24,7 @@ export default class UserController {
 
 This makes `req` typed as `VovkRequest<FormData, ...>`, and the RPC method’s `body` type is inferred as `FormData`.
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 const formData = new FormData();
@@ -40,7 +40,7 @@ await UserRPC.createUser({
 
 Access form data using the built‑in `req.formData()` method.
 
-```ts {8}
+```ts showLineNumbers copy {8}
 //...
 export default class UserController {
   @post()
@@ -57,7 +57,7 @@ export default class UserController {
 
 You can also use `req.vovk.form()`, which serializes the form data into a plain object.
 
-```ts {11}
+```ts showLineNumbers copy {11}
 // ...
 export default class UserController {
   @post()
@@ -79,7 +79,7 @@ export default class UserController {
 
 If the form data can contain one or more values for the same key, use a union schema of the value type and an array of the value type, because `FormData` doesn’t distinguish between single and multiple values.
 
-```ts {10}
+```ts showLineNumbers copy {10}
 import { withZod } from 'vovk-zod';
 import { z } from 'zod';
 import { post, prefix } from 'vovk';
@@ -100,7 +100,7 @@ export default class UserController {
 
 One value:
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 const formData = new FormData();
@@ -113,7 +113,7 @@ await UserRPC.createUser({
 
 Multiple values:
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 const formData = new FormData();
@@ -127,7 +127,7 @@ await UserRPC.createUser({
 
 The same recommendation applies to files:
 
-```ts {10}
+```ts showLineNumbers copy {10}
 import { withZod } from 'vovk-zod';
 import { z } from 'zod';
 import { post, prefix } from 'vovk';

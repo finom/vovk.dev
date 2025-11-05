@@ -1,4 +1,4 @@
-import GithubFiles from '@/components/GithubFiles';
+import { Tabs } from 'nextra/components';
 
 # MCP Server
 
@@ -6,7 +6,7 @@ Now that we’ve covered [Function Calling](/function-calling), [Realtime UI](/r
 
 The `createLLMTools` function accepts a `resultFormatter` option to format a tool’s execution result before it’s returned to the LLM. It also accepts the special string value `mcp`, which formats the result to meet MCP server expectations. That’s all you need to produce MCP‑compatible tool output in the following shape:
 
-```ts
+```ts showLineNumbers copy
 {
     content: [
       {
@@ -17,7 +17,7 @@ The `createLLMTools` function accepts a `resultFormatter` option to format a too
 }
 ```
 
-```ts {10}
+```ts showLineNumbers copy {10}
 import { createLLMTools } from "vovk";
 import UserController from "@/modules/user/UserController";
 import TaskController from "@/modules/task/TaskController";
@@ -33,7 +33,7 @@ const { tools } = createLLMTools({
 
 This is where custom operation properties such as `x-tool-successMessage` and `x-tool-errorMessage` become especially useful for making outputs more LLM‑friendly.
 
-```ts {14-15}
+```ts showLineNumbers copy {14-15}
 import { prefix, get, put, post, del, operation } from "vovk";
 import UserService from "./UserService";
 import { z } from "zod";
@@ -64,7 +64,7 @@ export default class UserController {
 
 This sets the `text` field to “User updated successfully” or “Failed to update user,” and appends the serialized result or error message.
 
-```ts
+```ts showLineNumbers copy
 {
     content: [
       {
@@ -79,11 +79,53 @@ Now create the route file following your chosen MCP library’s documentation.
 
 We’ll use `UserController` and `TaskController` as the source of MCP tools. Controller methods run in the same context (rather than over HTTP) because they follow [callable handler](/controller/fn) rules.
 
-<GithubFiles paths={['src/app/api/mcp/route.ts']} repo="vovk-kanban-demo" highlightLines={[30]} />
+
+```ts showLineNumbers copy filename="src/app/api/mcp/route.ts" repository="finom/vovk-kanban-demo" {30}
+import { createMcpHandler } from "mcp-handler";
+import { createLLMTools } from "vovk";
+import UserController from "@/modules/user/UserController";
+import TaskController from "@/modules/task/TaskController";
+import { convertJsonSchemaToZod } from "zod-from-json-schema";
+import { mapValues } from "lodash";
+
+const { tools } = createLLMTools({
+  modules: {
+    UserController,
+    TaskController,
+  },
+  resultFormatter: "mcp",
+  onExecute: (result, { moduleName, handlerName, body, query, params }) =>
+    console.log(`${moduleName}.${handlerName} executed`, {
+      body,
+      query,
+      params,
+      result,
+    }),
+  onError: (e) => console.error("Error", e),
+});
+
+const handler = createMcpHandler(
+  (server) => {
+    tools.forEach(({ name, execute, description, parameters }) => {
+      server.tool(
+        name,
+        description,
+        mapValues(parameters?.properties ?? {}, convertJsonSchemaToZod),
+        execute,
+      );
+    });
+  },
+  {},
+  { basePath: "/api" },
+);
+
+export { handler as GET, handler as POST };
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/app/api/mcp/route.ts)*
 
 Because the `server.tool` parameters argument expects Zod schemas, convert each tool’s JSON Schema parameters to Zod using [zod-from-json-schema](https://www.npmjs.com/package/zod-from-json-schema). This approach works with all supported [validation libraries](/validation). If you already use Zod to validate incoming requests, you can instead access Zod schemas directly via a tool’s `models` property, as shown below:
 
-```ts
+```ts showLineNumbers copy
 // ...
 const handler = createMcpHandler(
   (server) => {
@@ -106,7 +148,7 @@ Note that the `models` property is available only for [callable handlers](/contr
 
 You can also bring in third‑party [OpenAPI Mixins](/codegen) to extend your MCP server with additional tools.
 
-```ts
+```ts showLineNumbers copy
 import { GithubIssuesAPI } from "vovk-client";
 // ...
 const githubOptions = {

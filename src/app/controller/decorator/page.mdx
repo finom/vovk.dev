@@ -10,7 +10,7 @@ Controller decorators extend the functionality of controller methods. Use them t
 
 The second argument to `createDecorator` is an optional init handler. It runs each time the decorator is initialized and can populate **.vovk-schema/*.json** with validation or custom data. It may return an object with optional keys `"validation"`, `"operationObject"`, and `"misc"` to merge into the handler schema, or a function returning that object and receiving the existing handler schema for proper merging.
 
-```ts
+```ts showLineNumbers copy
 import { createDecorator, get, HttpException, HttpStatus } from 'vovk';
 
 interface ReqMeta {

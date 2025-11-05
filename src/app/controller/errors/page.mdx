@@ -2,7 +2,7 @@
 
 You can gracefully throw HTTP exceptions using syntax inspired by NestJS. The `HttpException` class accepts three arguments: an HTTP code from `HttpStatus`, a message, and an optional `cause` object. This object is JSON‑stringified and sent to the client.
 
-```ts
+```ts showLineNumbers copy
 import { HttpException, HttpStatus } from 'vovk';
 
 // ...
@@ -14,7 +14,7 @@ static async updateUser(/* ... */) {
 
 Errors are rethrown on the client side with the same interface.
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 import { HttpException } from 'vovk';
 
@@ -30,7 +30,7 @@ try {
 
 Regular errors such as `Error` are equivalent to `HttpException` with code `500`.
 
-```ts
+```ts showLineNumbers copy
 import { HttpException, HttpStatus } from 'vovk';
 
 // ...
@@ -42,13 +42,13 @@ static async updateUser(/* ... */) {
 
 You can also throw custom objects that are rethrown on the client side as is.
 
-```ts
+```ts showLineNumbers copy
 throw { hello: 'World' };
 ```
 
 You can provide a `cause` as the third argument to `HttpException` to supply additional context.
 
-```ts
+```ts showLineNumbers copy
 throw new HttpException(HttpStatus.BAD_REQUEST, 'Something went wrong', { hello: 'World' });
 ```
 
@@ -56,7 +56,7 @@ throw new HttpException(HttpStatus.BAD_REQUEST, 'Something went wrong', { hello:
 
 Here are the values of the `HttpStatus` enum for quick reference.
 
-```ts
+```ts showLineNumbers copy
 export enum HttpStatus {
   NULL = 0, // for client-side errors, such as client-side validation
   CONTINUE = 100,

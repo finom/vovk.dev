@@ -181,7 +181,7 @@ By default, the segmented client is generated in the `./src/client` folder (or `
 
 When you import an RPC module from one of the `.ts` files, the import tree includes only the schema and RPC modules for that segment. For example, importing `UserRPC` from the `customer` segment pulls in `.vovk-schema/customer.json` only; `.vovk-schema/admin.json` and other segment files are not included.
 
-```ts filename="src/client/customer/index.ts"
+```ts showLineNumbers copy filename="src/client/customer/index.ts"
 import { UserRPC } from '@/client/customer'; // import tree will contain customer.json
 
 await UserRPC.getUser({ id: '123' });
@@ -191,7 +191,7 @@ The segmented client also applies to [Rust](/rust) and [Python](/python) templat
 
 To enable the segmented client, set `segmentedClient.enabled` to `true` in `vovk.config.mjs`, and optionally disable the composed client by setting `composedClient.enabled` to `false`.
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   segmentedClient: {
@@ -208,7 +208,7 @@ In this case, the **vovk-client** package is no longer needed.
 
 The settings are the same as the settings for the [composed client](/composed).
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   segmentedClient: {

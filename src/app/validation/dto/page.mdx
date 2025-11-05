@@ -4,14 +4,14 @@ import { Tabs } from 'nextra/components';
 
 Since Vovk.ts was heavily inspired by [NestJS](https://nestjs.com/), it also supports the [class-validator](https://www.npmjs.com/package/class-validator) library for both server-side and client-side validation.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm install vovk-dto@draft
 ```
 
 <Tabs items={['UserController.ts', 'UserDto.ts']}>
   <Tabs.Tab>
   
-```ts filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { prefix, post, operation } from 'vovk';
 import { withDto } from 'vovk-dto';
 import { UpdateUserBodyDto, UpdateUserParamsDto, UpdateUserQueryDto, UpdateUserResponseDto } from './UserDto';
@@ -43,7 +43,7 @@ export default class UserController {
   </Tabs.Tab>
   <Tabs.Tab>
   
-```ts filename="src/modules/user/UserDto.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserDto.ts"
 import { IsString, IsNumber, Min, IsEmail, IsUUID, IsIn, IsBoolean } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
@@ -102,7 +102,7 @@ Because [class-validator-jsonschema](https://www.npmjs.com/package/class-validat
 
 For the most robust approach, use the **vovk-dto/validateOnClient** module. It exports a `validateOnClient` function you can reference in the [vovk.config](/config) [import](/imports#validateonclient):
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   outputConfig: {
@@ -117,7 +117,7 @@ export default config;
 
 Client-side validation requires transforming input data into the corresponding DTO class using [class-transformer](https://www.npmjs.com/package/class-transformer). If the input is a plain object or `FormData`, it will not be validated.
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 import { plainToInstance } from 'class-transformer';
 import { UpdateUserBodyDto, UpdateUserResponseDto } from '@/modules/user/UserDto';
@@ -135,7 +135,7 @@ const respData = await UserRPC.updateUser({
 
 In rare cases where the data is neither a DTO instance, a plain object, nor `FormData`, you can skip validation with `disableClientValidation`.
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 await UserRPC.updateUser({
@@ -148,7 +148,7 @@ await UserRPC.updateUser({
 
 To apply pick, omit, partial, and intersection patterns to DTOs, use [dto-mapped-types](https://www.npmjs.com/package/dto-mapped-types)—a fork of [@nestjs/mapped-types](https://www.npmjs.com/package/@nestjs/mapped-types) without extra dependencies. It provides the same features as the original package without requiring **@nestjs/common**.
 
-```ts filename="src/modules/user/UserDto.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserDto.ts"
 import { IsString, IsEmail, MinLength, MaxLength, IsUUID } from 'class-validator';
 import { OmitType } from 'dto-mapped-types';
 
@@ -181,7 +181,7 @@ export class CreateUserDto extends OmitType(UserDto, ['id']) {
 
 To emit a proper JSON Schema for files when using `isForm: true` in the validation handler, provide an OAS-compatible schema for file fields via `@JSONSchema`:
 
-```ts {6}
+```ts showLineNumbers copy {6}
 import { JSONSchema } from 'class-validator-jsonschema';
 
 export class UploadFileDto {

@@ -6,7 +6,7 @@ LLM completions can be streamed in the [JSON Lines](https://jsonlines.org/) form
 
 Learn more about the [JSONLines Response](/controller/jsonlines).
 
-```ts filename="src/modules/llm/LlmController.ts"
+```ts showLineNumbers copy filename="src/modules/llm/LlmController.ts"
 import { post, prefix, operation, type VovkRequest } from 'vovk';
 import OpenAI from 'openai';
 
@@ -33,7 +33,7 @@ export default class OpenAiController {
 
 On the client, you can consume the stream with a [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator):
 
-```ts
+```ts showLineNumbers copy
 // ...
 using completion = await OpenAiRPC.createChatCompletion({
   body: { messages: [...messages, userMessage] },
@@ -52,7 +52,7 @@ for await (const part of completion) {
 
 Vovk.ts supports all built‑in Next.js features and therefore works seamlessly with the Vercel AI SDK. Simply return the `Response` produced by the stream helper (for example, `toUIMessageStreamResponse`)—no additional wiring required.
 
-```ts filename="src/modules/ai-sdk/AiSdkController.ts"
+```ts showLineNumbers copy filename="src/modules/ai-sdk/AiSdkController.ts"
 import { post, prefix, operation, type VovkRequest } from 'vovk';
 import { streamText, convertToModelMessages, type UIMessage } from 'ai';
 import { openai } from '@ai-sdk/openai';
@@ -77,7 +77,7 @@ export default class AiSdkController {
 
 On the client, use the [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) package to call the endpoint and build a chat interface following the SDK’s recommended patterns.
 
-```tsx
+```ts showLineNumbers copyx
 'use client';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';

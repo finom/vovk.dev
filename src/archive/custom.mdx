@@ -8,7 +8,7 @@ The simplest example of the validation would be equality validation. It does not
 
 At the example below `validateEquality` decorator is created with `createDecorator` that accepts 2 arguments: server validation function and init function that populates `clientValidators` object to define how validation information should be stored at **.vovk.json** file.
 
-```ts filename="src/decorators/validateEquality.ts"
+```ts showLineNumbers copy filename="src/decorators/validateEquality.ts"
 import { isEqual } from 'lodash';
 import { HttpException, HttpStatus, createDecorator, type VovkRequest, type VovkClientOptions } from 'vovk';
 
@@ -51,7 +51,7 @@ export default validateEquality;
 
 Then create a file that defines client-side validation function as default export.
 
-```ts filename="src/decorators/validateEqualityOnClient.ts"
+```ts showLineNumbers copy filename="src/decorators/validateEqualityOnClient.ts"
 import { type VovkClientOptions, HttpException, HttpStatus } from 'vovk';
 import { isEqual } from 'lodash';
 
@@ -76,7 +76,7 @@ At this example `validateEquality` is used as a controller decorator and `valida
 
 Here is how the newly created decorator is used at the controller.
 
-```ts filename="src/modules/hello/HelloController.ts"
+```ts showLineNumbers copy filename="src/modules/hello/HelloController.ts"
 import type { VovkRequest } from 'vovk';
 import validateEquality from '../decorators/validateEquality';
 
@@ -113,7 +113,7 @@ module.exports = vovkConfig;
 
 Resulting client code is going to look like that:
 
-```ts
+```ts showLineNumbers copy
 import { HelloController } from 'vovk-client';
 
 // ...

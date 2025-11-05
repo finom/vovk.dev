@@ -4,11 +4,11 @@ NestJS provides built‑in OpenAPI support via [@nestjs/swagger](https://docs.ne
 
 ## Install Dependencies
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm i vovk-client
 ```
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm i vovk-cli@draft -D
 ```
 
@@ -16,7 +16,7 @@ npm i vovk-cli@draft -D
 
 In this example, the spec is exposed at `/api-ref`, with Swagger UI available at `/docs`.
 
-```ts filename="src/main.ts" {18-20}
+```ts showLineNumbers copy filename="src/main.ts" {18-20}
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -52,7 +52,7 @@ bootstrap()
 
 Follow the [official documentation](https://docs.nestjs.com/openapi/decorators) to decorate controllers and DTOs with OpenAPI decorators.
 
-```ts
+```ts showLineNumbers copy
 import { 
   Controller, 
   Post, 
@@ -130,7 +130,7 @@ The `nestjs-operation-id` strategy assumes `operationId` values like `XxxControl
 
 Run the generate script in a separate terminal:
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm run generate
 ```
 
@@ -149,7 +149,7 @@ You can run `start:dev` and `generate` in parallel with [concurrently](https://w
 
 The `dev` script runs both commands in parallel, waiting 5 seconds before `generate` to let NestJS start.
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm run dev
 ```
 
@@ -159,7 +159,7 @@ For more flexibility, create a [config](/config) file as shown below.
 
 Import the generated client from any `fetch`‑enabled environment:
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 const user = await UserRPC.createUser({
@@ -181,7 +181,7 @@ const user = await UserRPC.createUser({
 
 If the CLI flags are too long or you want more features, create a [config](/config) file in the project root:
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk-cli').VovkConfig} */
 const config = {
   outputConfig: {
@@ -218,7 +218,7 @@ In this case, the generate script simplifies to:
 
 To configure authorization headers, add custom options to the generated client, or transform the response, create a custom [`fetcher`](/imports#fetcher) (requires a config file).
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
 await UserRPC.updateUser({
@@ -238,11 +238,11 @@ Client‑side validation isn’t enabled by default. For a NestJS app, choose on
 
 ### vovk-ajv
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm i vovk-ajv@draft
 ```
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   outputConfig: {
@@ -258,11 +258,11 @@ See the [vovk-ajv](/validation/client#vovk-ajv) section for details.
 
 ### vovk-dto/validateOnClient
 
-```sh npm2yarn
+```sh npm2yarn copy
 npm i vovk-dto@draft
 ```
 
-```ts filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
 const config = {
   outputConfig: {
@@ -276,7 +276,7 @@ export default config;
 
 In this setup, generated client methods validate inputs with DTOs using [class-validator](https://www.npmjs.com/package/class-validator) before sending requests. Transform plain objects to class instances with [class-transformer](https://www.npmjs.com/package/class-transformer):
 
-```ts
+```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 import { plainToInstance } from 'class-transformer';
 import { UpdateUserBodyDto, UpdateUserResponseDto } from '@/modules/user/UserDto';

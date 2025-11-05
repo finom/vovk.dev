@@ -10,7 +10,7 @@ A key benefit of service methods is that their types can be inferred from the co
 
 Let's say you have the following controller class:
 
-```ts filename="src/modules/user/UserController.ts" {38}
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts" {38}
 import { z } from 'zod';
 import { prefix, post, operation } from 'vovk';
 import { withZod } from 'vovk-zod';
@@ -56,7 +56,7 @@ export default class UserController {
 
 As you can see, the `handle` method returns the result of `UserService.updateUser`. That method, in turn, infers its types from the controller method, making the validation models (Zod schemas in this case) the single source of truth for input and output types, with no need to define separate types.
 
-```ts filename="src/modules/user/UserService.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserService.ts"
 import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from 'vovk';
 import type UserController from './UserController';
 
