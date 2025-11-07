@@ -1,7 +1,5 @@
 import { FileTree } from 'nextra/components';
 
-TODO: build function, review --openapi flag description
-
 # TypeScript Bundle (Experimental)
 
 ```sh filename="Quick CLI Ref"
@@ -12,33 +10,38 @@ Usage: vovk bundle|b [options]
 Generate TypeScript RPC and bundle it
 
 Options:
-  --out, --out-dir <path>                              path to output directory for bundle
-  --include, --include-segments <segments...>          include segments
-  --exclude, --exclude-segments <segments...>          exclude segments
-  --prebundle-out-dir, --prebundle-out <path>          path to output directory for prebundle
-  --keep-prebundle-dir                                 do not delete prebundle directory after bundling
-  --config <config>                                    path to config file
-  --schema <path>                                      path to schema folder (default: .vovk-schema)
-  --origin <url>                                       set the origin URL for the generated client
-  --openapi, --openapi-spec <openapi_path_or_urls...>  use OpenAPI schema instead of Vovk schema
-  --openapi-get-module-name <names...>                 module names corresponding to the index of --openapi option
-  --openapi-get-method-name <names...>                 method names corresponding to the index of --openapi option
-  --openapi-root-url <urls...>                         root URLs corresponding to the index of --openapi option
-  -h, --help                                           display help for command
+  --out, --out-dir <path>                                      path to output directory for bundle
+  --include, --include-segments <segments...>                  include segments
+  --exclude, --exclude-segments <segments...>                  exclude segments
+  --prebundle-out-dir, --prebundle-out <path>                  path to output directory for prebundle
+  --keep-prebundle-dir                                         do not delete prebundle directory after bundling
+  --schema, --schema-path <path>                               path to schema folder (default: .vovk-schema)
+  --config, --config-path <config>                             path to config file
+  --origin <url>                                               set the origin URL for the generated client
+  --openapi, --openapi-spec <openapi_path_or_urls...>          use OpenAPI mixins for client generation
+  --openapi-module-name, --openapi-get-module-name <names...>  module name strategies corresponding to the index of --openapi option
+  --openapi-method-name, --openapi-get-method-name <names...>  method name strategies corresponding to the index of --openapi option
+  --openapi-root-url <urls...>                                 root URLs corresponding to the index of --openapi option
+  --openapi-mixin-name <names...>                              mixin names corresponding to the index of --openapi option
+  --openapi-fallback <paths...>                                save OpenAPI spec corresponding to the index of --openapi option to a local file and use it as a fallback if URL is not available
+  --log-level <level>                                          set the log level
+  -h, --help                                                   display help for command
 ```
 
 -----
 
-The TypeScript RPC library can be bundled and published to NPM with pre-filled `package.json` and `README.md` files using the `bundle` command:
+The [composed](/composed) [TypeScript RPC](/typescript) library can be bundled and published to NPM with pre-filled `package.json` and `README.md` files using the `bundle` command after setting up `bundle.build` function in the [config](/config) file.
 
 ```sh npm2yarn copy
 npx vovk bundle
 ```
 
+The feature is library-agnostic, allowing you to plug in your preferred bundler of your choice, including one that's invoked via `child_process` module. By the time being, [tsdown](https://tsdown.dev/) is the only bundler that has been tested with Vovk.ts. If you're using a different bundler, please share your experience on [GitHub Discussions](https://github.com/finom/vovk/discussions).
+
 Internally, the bundling is performed by executing the following steps:
 
 1. It generates a client into the `tmp_prebundle` directory (configured with `bundle.prebundleOutDir: string{:ts}`) using the [ts](/templates#ts) template.
-2. Uses the [tsdown API](https://tsdown.dev/) to bundle the generated client into a few compiled files in the `dist` directory.
+2. Calls `bundle.build` function to bundle the generated client to the `dist` directory (configured with `bundle.outDir: string{:ts}`).
 3. Generates `package.json` and `README.md` files from the [packageJson](/templates#packagejson) and [readme](/templates#readme) templates.
 4. Deletes the `tmp_prebundle` directory (configured with `bundle.keepPrebundleDir: boolean{:ts}`).
 
@@ -56,11 +59,12 @@ The bundling can be configured by adding the `bundle` object in the [config](/co
 /** @type {import('vovk').VovkConfig} */
 const config = {
   bundle: {
+    build: async ({ entry, outDir, prebundleDir }) => {
+      // plug in the bundler of your choice here
+    },
     prebundleOutDir: 'tmp_prebundle', // default
     keepPrebundleDir: false, // default
-    tsdownBuildOptions: {
-      outDir: 'dist', // default
-    },
+    outDir: 'dist', // default
     outputConfig: {
       origin: 'https://example.com',
       requires: {
@@ -84,6 +88,10 @@ const config = {
 export default config;
 ```
 
+### `build` function (required)
+
+The `build` function is an asynchronous function that takes an object with `entry` (index.ts file), `outDir`, and `prebundleDir`, resolved as absolute paths.
+
 ### `prebundleOutDir` or `--prebundle-out` flag
 
 The `prebundleOutDir` is the directory where the TypeScript client will be generated before bundling. It defaults to `tmp_prebundle`.
@@ -92,15 +100,45 @@ The `prebundleOutDir` is the directory where the TypeScript client will be gener
 
 If set to `true`, the `prebundleOutDir` will not be deleted after bundling. This can be useful for debugging or other purposes. Defaults to `false`.
 
-### `tsdownBuildOptions`
-
-Any options that can be passed to the [tsdown](https://tsdown.dev/) `build` function. The options are outlined in the [tsdown documentation](https://tsdown.ru/reference/config-options).
-
 ### `outputConfig`
 
 The `outputConfig` object accepts and overrides the same options as the [outputConfig](/config#generatorconfig) at the root of the [config](/config) file.
 
-## Troubleshooting
+## Using tsdown
+
+Install `tsdown` as a development dependency:
+
+```sh npm2yarn copy
+npm install --save-dev tsdown
+```
+
+Add the following `build` function to the `bundle` object in the [config](/config) file:
+
+```ts showLineNumbers copy filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  bundle: {
+    build: async ({ entry, outDir }) => {
+      const { build } = await import('tsdown');
+      await build({
+        entry,
+        outDir,
+        dts: true,
+        format: ['cjs', 'esm'],
+        hash: false,
+        fixedExtension: true,
+        clean: true,
+        tsconfig: './tsconfig.bundle.json', // see Troubleshooting section
+    },
+    // ...
+  },
+};
+export default config;
+```
+
+*Thanks to `tsdown` team for fixing JSON import bugs [tsdown/#528](https://github.com/rolldown/tsdown/issues/528)*
+
+### Troubleshooting
 
 In some TypeScript module configuration cases, you might encounter the following errors:
 
@@ -117,13 +155,18 @@ RollupError: tmp_prebundle/index.ts(17,14): error TS2742: The inferred type of '
 
 It is recommended to create a separate `tsconfig.bundle.json` file for tsdown, optionally extending the root `tsconfig.json`:
 
-```ts showLineNumbers copy filename="vovk.config.mjs"
+```ts showLineNumbers copy filename="vovk.config.mjs" {8}
 /** @type {import('vovk').VovkConfig} */
 const config = {
   bundle: {
-    tsdownBuildOptions: {
-      tsconfig: './tsconfig.bundle.json',
+    build: async ({ entry, outDir }) => {
+      const { build } = await import('tsdown');
+      await build({
+        // ...
+        tsconfig: './tsconfig.bundle.json',
+      });
     },
+    // ...
   },
 };
 export default config;
@@ -131,12 +174,11 @@ export default config;
 
 Setting `moduleResolution` to `bundler` fixes the first error, and setting `paths` to the `vovk/*` module fixes the second error:
 
-```ts showLineNumbers copy filename="tsconfig.bundle.json" {3,6}
+```ts showLineNumbers copy filename="tsconfig.bundle.json" {3,5}
 {
   "compilerOptions": {
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["./src/*"],
       "vovk/*": ["./node_modules/vovk/*"],
     },
   }

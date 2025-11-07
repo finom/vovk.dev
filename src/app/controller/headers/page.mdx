@@ -101,3 +101,25 @@ export default class UserController {
   }
 }
 ```
+
+### File Downloads
+
+For attachments use `Response` from the Web API with appropriate headers.
+
+```ts showLineNumbers copy
+// ...
+export default class DownloadController {
+  @get('csv-report')
+  static async downloadCSV() {
+    return new Response(
+      csvText,
+      {
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename=report.csv`,
+        },
+      }
+    );
+  }
+}
+```

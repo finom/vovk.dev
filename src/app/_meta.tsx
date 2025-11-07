@@ -47,7 +47,7 @@ const meta = {
   cli: 'CLI',
   bundle: (
     <>
-      <code className="nextra-code">vovk bundle 🧪 🚧</code>
+      <code className="nextra-code">vovk bundle 🧪</code>
     </>
   ),
   dev: <code className="nextra-code">vovk dev</code>,

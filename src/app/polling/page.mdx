@@ -17,12 +17,14 @@ In the [previous article](/realtime-ui), we covered how to use the OpenAPI Realt
 
 On this page, we explain how to use database polling to receive updates triggered by other users or third-party services (such as [MCP](/mcp)), keeping the UI in sync with the database. To ensure the app can be deployed to any hosting provider, we avoid non-HTTP protocols such as WebSockets and instead use HTTP polling powered by [JSONLines](/controller/jsonlines).
 
-The component below demonstrates a simple polling example that receives incremental updates from the server every second (see "Network" tab at dev tools). After 10 updates, the server closes the connection, and the client reconnects automatically. We can use the same approach to receive database updates in real time, by having the server send updates whenever the database changes.
+The component below demonstrates a simple polling example that receives incremental updates from the server every second. After 10 updates, the server closes the connection, and the client reconnects automatically. We can use the same approach to receive database updates in real time, by having the server send updates whenever the database changes.
 
 <div className="example">
 <PollExample />
 [View on examples.vovk.dev »](https://examples.vovk.dev/polling)
 </div>
+
+A small delay (up to a half of a second) is expected due to the CORS preflight. See the Network tab in dev tools for details.
 
 ## Redis DB as event bus
 
@@ -35,7 +37,7 @@ import { PrismaClient } from "../../../prisma/generated/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import DatabaseEventsService, { type DBChange } from "./DatabaseEventsService";
 import type { BaseEntity } from "@/types";
-import './neon-local'; // Setup Neon for local development
+import "./neon-local"; // Setup Neon for local development
 
 export default class DatabaseService {
   static get prisma() {
@@ -501,10 +503,10 @@ export default class TelegramService {
         ...Object.fromEntries(
           tools.map(({ name, execute, description, parameters }) => [
             name,
-            tool<KnownAny, KnownAny>({
+            tool({
               execute,
               description,
-              inputSchema: jsonSchema(parameters as KnownAny),
+              inputSchema: jsonSchema(parameters as JSONSchema7),
             }),
           ]),
         ),

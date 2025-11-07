@@ -192,7 +192,7 @@ Paste the following into `src/modules/ai-sdk/AiSdkController.ts`, adjusting impo
 
 ```ts showLineNumbers copy filename="src/modules/ai-sdk/AiSdkController.ts" {18}
 import { createLLMTools, HttpException, HttpStatus, post, prefix, operation, type KnownAny, type VovkRequest } from 'vovk';
-import { jsonSchema, streamText, tool, convertToModelMessages, type ModelMessage, type UIMessage } from 'ai';
+import { jsonSchema, streamText, tool, convertToModelMessages, type ModelMessage, type UIMessage, type JSONSchema7 } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { PostRPC } from 'vovk-client';
 import UserController from '@/modules/user/UserController';
@@ -216,12 +216,12 @@ export default class AiSdkController {
     const tools = Object.fromEntries(
       llmTools.map(({ name, execute, description, parameters }) => [
         name,
-        tool<KnownAny, KnownAny>({
+        tool({
           execute: async (args, { toolCallId }) => {
             return execute(args, { toolCallId });
           },
           description,
-          inputSchema: jsonSchema(parameters as KnownAny),
+          inputSchema: jsonSchema(parameters as JSONSchema7),
         }),
       ])
     );

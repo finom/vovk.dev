@@ -4,11 +4,36 @@ import IFrame from './IFrame';
 
 # "Hello World" showcase
 
-The "Hello World" app is a Next.js/Vovk.ts project example that showcases some of the core features of Vovk.ts by implementing an HTML form with some extra features. It implements `UserController` with an `updateUser` method served as `POST` to `/api/users/{id}` endpoint, `StreamController` with a JSONLines handler `streamTokens` served as `GET` to `/api/streams/tokens` endpoint, but also `OpenApiController` with `getSpec` method served as `GET` to `/api/static/openapi/spec.json` endpoint that provides an OpenAPI specification for the API from a static segment. The OpenAPI documentation can be viewed at [`/openapi` page](https://hello-world.vovk.dev/openapi).
+The "Hello World" app is a Next.js/Vovk.ts project example that showcases some of the core features of Vovk.ts by implementing the following:
 
-The project can be explored at the [GitHub repository](https://github.com/finom/vovk-hello-world) and viewed live at [hello-world.vovk.dev](https://hello-world.vovk.dev/). Bundled and generated files are available in the Git index as [dist](https://github.com/finom/vovk-hello-world/tree/main/dist), [dist_rust](https://github.com/finom/vovk-hello-world/tree/main/dist_rust) and [dist_python](https://github.com/finom/vovk-hello-world/tree/main/dist_python), so you can explore (usually they should be `.gitignore`'d). 
+- Back-end:
+  - `UserController` with an `updateUser` method served as `POST` to `/api/users/{id}` endpoint.
+  - `StreamController` with a JSONLines handler `streamTokens` served as `GET` to `/api/streams/tokens` endpoint.
+  - `OpenApiController` with `getSpec` method served as `GET` to `/api/static/openapi/spec.json` endpoint that provides an OpenAPI specification for the API from a static segment. The OpenAPI documentation can be viewed at [`/openapi` page](https://hello-world.vovk.dev/openapi).
+- Front-end:
+  - A form component with JSONLines streaming demo above it.
+- Configuration file that enables client-side validation, generation of Rust and Python clients that are ready to be published, segmented TypeScript client generation, bundling of the TypeScript client as an NPM package, and OpenAPI spec information with info and servers sections.
+
+The project can be explored at the [GitHub repository](https://github.com/finom/vovk-hello-world) and viewed live at [hello-world.vovk.dev](https://hello-world.vovk.dev/). All generated files are available in the Git index as [dist](https://github.com/finom/vovk-hello-world/tree/main/dist), [tmp_prebundle](https://github.com/finom/vovk-hello-world/tree/main/tmp_prebundle), [dist_rust](https://github.com/finom/vovk-hello-world/tree/main/dist_rust) and [dist_python](https://github.com/finom/vovk-hello-world/tree/main/dist_python), so you can explore (in a real project they should be `.gitignore`'d).
 
 All code snippets on this page directly pulled from the source code on Github and HTML pages are served within an iframe.
+
+## Running the example locally
+
+To run the example locally, clone the repository and install dependencies:
+
+```sh copy
+git clone https://github.com/finom/vovk-hello-world.git
+cd vovk-hello-world
+npm i
+```
+
+Then, start the development server with:
+```sh copy
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the app.
 
 ## Topics/concepts covered 
 
@@ -18,14 +43,14 @@ All code snippets on this page directly pulled from the source code on Github an
 - [JSONLines](/controller/jsonlines) streaming.
 - [Type inference](/inference) in a [service](/controller/service), while [controller](/controller) method returns service's method result.
 - `useQuery` and `useMutation` usage with [queryKey](/typescript#react-query) method.
-- [Generation](/codegen) of [Rust](/rust) and [Python](/python) clients with README, published on [Crates.io](https://crates.io/crates/vovk_hello_world) and [PyPI](https://pypi.org/project/vovk-hello-world/).
 - TypeScript client [bundle](/bundle) with README, published on [NPM](https://www.npmjs.com/package/vovk-hello-world).
+- [Generation](/codegen) of [Rust](/rust) and [Python](/python) clients with README, published on [Crates.io](https://crates.io/crates/vovk_hello_world) and [PyPI](https://pypi.org/project/vovk-hello-world/).
 - [OpenAPI spec](/openapi) with code samples served from [static](/segment/static) [segment](/segment/introduction) using [Scalar](https://scalar.com/).
 
 
 ## Live Demo
 
-The demo below implements a simple form without validation attributes with "Disable client-side input validation" checkbox that represents [disableClientValidation](/typescript#disableclientvalidation) option.
+The demo below implements a simple form without validation attributes with "Disable client-side input validation" checkbox that represents [disableClientValidation](/typescript#disableclientvalidation) option. "Notification type" is intentionally set to an invalid value to demonstrate server-side and client-side validation error handling. 
 
 <IFrame src="https://hello-world.vovk.dev" width="100%" height="780px"></IFrame>
 
@@ -33,11 +58,11 @@ The demo below implements a simple form without validation attributes with "Disa
 
 The `/api/users/{id}` endpoint is implemented by the `UserController` and `UserService` classes that provide `updateUser` method. 
 
-The controller's `updateUser` method is implemented with `@post` decorator that maps the method to the `POST` HTTP verb, and `withZod` function that applies [Zod validation](/validation/zod) to the request input (`body`, `params`, and `query`). The input Zod models use `meta` method to provide additional metadata for the OpenAPI specification. 
+The controller's `updateUser` method is implemented with `@post` decorator that maps the method to the `POST` HTTP verb, and `withZod` function that applies [Zod validation](/validation/zod) to the request input (`body`, `params`, and `query`). The input Zod models use [meta](https://zod.dev/metadata?id=meta) method to provide additional information for the OpenAPI specifications such as `description` and `examples`.
 
 For deminstrational purposes, the `body` input model implements nested validation of `email` and `profile` fields, where `profile` is an object with `name` and `age` properties.
 
-The service `updateUser` method infers the input type from the controller method that in its turn returns the result of the service's `updateUser` method call, demonstrating lack of self-reference errors (implicit "any"). In other words, the controller's input type is being a source of truth for the service's input arguments, and the service's return type is inferred from the controller's output type.
+The service `updateUser` method infers the input type from the controller method that in its turn returns the result of the service's `updateUser` method call, demonstrating lack of self-reference errors (implicit "any").
 
 <Tabs items={['UserController.ts', 'UserService.ts']}>
 <Tabs.Tab>
@@ -63,10 +88,13 @@ export default class UserController {
         }),
         profile: z
           .object({
-            name: z.string().meta({
-              description: "User full name",
-              examples: ["John Doe", "Jane Smith"],
-            }),
+            name: z
+              .string()
+              .min(2)
+              .meta({
+                description: "User full name",
+                examples: ["John Doe", "Jane Smith"],
+              }),
             age: z
               .int()
               .min(16)
@@ -147,7 +175,7 @@ export default class UserService {
 
 The `/api/streams/tokens` endpoint is implemented by the `StreamController` and `StreamService` classes that provide `streamTokens` method.
 
-The controller `streamTokens` method is implemented with `@get` decorator that maps the method to the `GET` HTTP verb, and `withZod` function that validates iterations of [JSONLines](/controller/jsonlines) responses. It delegates iterable execution with `yield*` syntax to the service's `streamTokens` method, which is a generator function that yields tokens one by one. It uses `setTimeout` to simulate a delay between token emissions, demonstrating how to handle streaming responses in Vovk.ts.
+The controller `streamTokens` method is implemented with `@get` decorator that maps the method to the `GET` HTTP verb, and `withZod` function that validates iterations of [JSONLines](/controller/jsonlines) responses. It delegates iterable execution with `yield*` syntax to the service's `streamTokens` method, which is a generator function that yields tokens one by one. It uses `setTimeout` to simulate a delay between token emissions.
 
 <Tabs items={['StreamController.ts', 'StreamService.ts']}>
 <Tabs.Tab>
@@ -188,13 +216,13 @@ import type StreamController from "./StreamController";
 export default class StreamService {
   static async *streamTokens() {
     const tokens: VovkIteration<typeof StreamController.streamTokens>[] =
-      "Vovk.ts is a RESTful back-end meta-framework with RPC built on top of Next.js App router, and this text is a JSONLines stream demo."
-        .match(/[^\s.-]+|\s+|\.|-/g)
+      "Vovk.ts is a RESTful back-end meta-framework with RPC, built on top of the Next.js App Router. This text is a JSONLines stream demo."
+        .match(/[^\s-]+-?(?:\s+)?/g)
         ?.map((message) => ({ message })) || [];
 
     for (const token of tokens) {
       yield token;
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 200));
     }
   }
 }
@@ -237,7 +265,7 @@ export default Demo;
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/Demo/index.tsx)*
 </Tabs.Tab>
 <Tabs.Tab>
-```ts showLineNumbers copyx showLineNumbers copy filename="src/components/Demo/UserFormDemo.tsx" repository="finom/vovk-hello-world"
+```tsx showLineNumbers copyx showLineNumbers copy filename="src/components/Demo/UserFormDemo.tsx" repository="finom/vovk-hello-world"
 "use client";
 import React, { useState } from "react";
 import { type VovkQuery } from "vovk";
@@ -250,14 +278,15 @@ const UserFormDemo = () => {
   const [age, setAge] = useState(35);
   const [email, setEmail] = useState("john@example.com");
   const [id, setId] = useState("a937629d-e8f6-4b1e-a819-7669358650a0");
-  const updateUserMutation = useMutation({
-    mutationFn: UserRPC.updateUser,
-  });
   const [notify, setNotify] = useState<
     VovkQuery<typeof UserRPC.updateUser>["notify"]
   >(
-    "sms" as "email", // set error value by default
+    "sms" as "email", // intentionally use an invalid value
   );
+
+  const updateUserMutation = useMutation({
+    mutationFn: UserRPC.updateUser,
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -368,7 +397,7 @@ export default UserFormDemo;
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/Demo/UserFormDemo.tsx)*
 </Tabs.Tab>
 <Tabs.Tab>
-```ts showLineNumbers copyx showLineNumbers copy filename="src/components/Demo/StreamDemo.tsx" repository="finom/vovk-hello-world"
+```tsx showLineNumbers copyx showLineNumbers copy filename="src/components/Demo/StreamDemo.tsx" repository="finom/vovk-hello-world"
 "use client";
 import {
   useQuery,
@@ -377,7 +406,7 @@ import {
 import { StreamRPC } from "../../client/root"; // segmented client
 
 const StreamDemo = () => {
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: StreamRPC.streamTokens.queryKey(),
     queryFn: streamedQuery({
       streamFn: () => StreamRPC.streamTokens(),
@@ -385,7 +414,7 @@ const StreamDemo = () => {
   });
 
   return (
-    <div className="h-20">
+    <div className="h-20 cursor-pointer" onClick={() => refetch()}>
       {data?.map((token, index) => (
         <span key={index}>{token.message}</span>
       ))}
@@ -404,21 +433,15 @@ The app is [configured](/config) to:
 
 - Handle client-side validation with [Ajv](/validation/client).
 - Generate [Rust](/rust) and [Python](/python) code automatically when [vovk dev](/dev) command is run.
-- Demonstrate [segmented client](/segmented), so the RPC modules are generated in separate files for each [segment](/segment).
-- Bundle with a proper `origin`.
-
-If you use default config settings, you can generate the client for other languages with:
-
-```sh npm2yarn copy
-npx vovk generate --from rs --from py --origin https://hello-world.vovk.dev
-```
-
-And the bundle with:
-
-```sh npm2yarn copy
-npx vovk bundle --origin https://hello-world.vovk.dev
-```
-
+- Demonstrate [segmented client](/segmented), so the RPC modules are also generated in separate files for each [segment](/segment).
+- Generate and bundle with a proper `origin` set explicitly:
+  - Python and Rust clients: always use `https://hello-world.vovk.dev` origin.
+  - Bundle with `https://hello-world.vovk.dev` origin.
+  - Composed client output config (applied to composed TypeScript client only as it's overridden for all other composed cases):
+    - Use `http://localhost:PORT` origin in development in order to be able to call the methods locally from Node.js environment using `vovk-client` module.
+    - Use empty origin when the app is deployed to production. The requests are going to be performed relative to the current origin.
+  - For segmented client, no origin is set, so the requests are performed relative to the current origin.
+  
 ```ts showLineNumbers copy filename="vovk.config.js" repository="finom/vovk-hello-world"
 // @ts-check
 
@@ -428,9 +451,6 @@ const PROD_ORIGIN = "https://hello-world.vovk.dev";
 const config = {
   logLevel: "debug",
   outputConfig: {
-    origin: process.env.NODE_ENV === "production"
-      ? PROD_ORIGIN
-      : `http://localhost:${process.env.PORT ?? 3000}`,
     imports: {
       validateOnClient: "vovk-ajv",
     },
@@ -445,32 +465,49 @@ const config = {
         },
         version: "1.0.0",
       },
-    }
+      servers: [
+        {
+          url: "https://hello-world.vovk.dev",
+          description: "Production",
+        },
+        {
+          url: "http://localhost:3000",
+          description: "Localhost",
+        },
+      ],
+    },
   },
   composedClient: {
     fromTemplates: ["mjs", "cjs", "py", "rs"],
     // enabled: true,
     // outDir: "./node_modules/.vovk-client",
+    outputConfig: {
+      origin:
+        process.env.NODE_ENV === "production"
+          ? null
+          : `http://localhost:${process.env.PORT ?? 3000}`,
+    },
   },
   segmentedClient: {
     // fromTemplates: ["ts"],
     enabled: true,
     // outDir: "./src/client",
+    // outputConfig: { origin: '' },
   },
   bundle: {
     outputConfig: { origin: PROD_ORIGIN },
     keepPrebundleDir: true,
     build: async ({ entry, outDir }) => {
-      const { build } = await import('tsdown');
+      const { build } = await import("tsdown");
       await build({
         entry,
         dts: true,
-        format: ['cjs', 'esm'],
+        format: ["cjs", "esm"],
         hash: false,
         fixedExtension: true,
         clean: true,
         outDir,
-        tsconfig: './tsconfig.bundle.json',
+        tsconfig: "./tsconfig.bundle.json",
       });
     },
   },
@@ -485,86 +522,17 @@ const config = {
       outputConfig: { origin: PROD_ORIGIN },
       // composedClient: { outDir: "./dist_rust" },
     },
-  }
+  },
 };
 
 module.exports = config;
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/vovk.config.js)*
 
-<a name="bundle" />
-## Building and Packaging
-
-The example also demonstrates the ability to quickly create a distributable package, published on [npm](https://www.npmjs.com/package/vovk-hello-world), [PyPI](https://pypi.org/project/vovk-hello-world/) and [crates.io](https://crates.io/crates/vovk_hello_world). The [templates](/templates) offered in the framework compile a ready-to-use packages with corresponding files for each language, such as [package.json](https://github.com/finom/vovk-hello-world/blob/main/dist/package.json), [Cargo.toml](https://github.com/finom/vovk-hello-world/blob/main/dist_rust/Cargo.toml), and [pyproject.toml](https://github.com/finom/vovk-hello-world/blob/main/dist_python/pyproject.toml), but also the `README.md` files that follow the idea of documenting the API as RPC method calls with comments as method descriptions and examples at the same time.
-
-On the root of the "hello world" project in the `package.json` file, you can find the `scripts` section with the following self-explanatory commands:
-
-```json
-"scripts": {
-    // ...
-    "postversion:ts": "npm run bundle && npm publish ./dist",
-    "postversion:rs": "cargo publish --manifest-path dist_rust/Cargo.toml --allow-dirty",
-    "postversion:py": "python3 -m build ./dist_python --wheel --sdist && python3 -m twine upload ./dist_python/dist/*",
-    "postversion": "vovk generate && npm run postversion:ts && npm run postversion:rs && npm run postversion:py && git push && git push --tags",
-    "patch": "npm version patch"
-}
-```
-
-And once you run `npm version patch`, it will automatically generate packages for TypeScript, Rust, and Python, and publish the packages to npm, crates.io, and PyPI. The `README.md` files are also updated with the latest examples and descriptions.
-
-The examples below are rendered from the READMEs on Github Pages.
-
-<Tabs items={['TypeScript', 'Rust', 'Python']}>
-<Tabs.Tab>
-<IFrame src="https://finom.github.io/vovk-hello-world/dist/" width="100%" height="1000px"></IFrame>
-</Tabs.Tab>
-<Tabs.Tab>
-<IFrame src="https://finom.github.io/vovk-hello-world/dist_rust/" width="100%" height="1000px"></IFrame>
-</Tabs.Tab>
-<Tabs.Tab>
-<IFrame src="https://finom.github.io/vovk-hello-world/dist_python/" width="100%" height="1000px"></IFrame>
-</Tabs.Tab>
-</Tabs>
-
-## Node.js, Rust and Python Demo
-
-The app also includes a demo of how the RPC methods can be run in Node.js, Rust, and Python. Each demo showcases how to use the generated client to call the `updateUser`, `streamTokens`, `getSpec` (for static OpenAPI RPC) but also call the `getSpec` method of the published API.
-
-The demo can be seen by running `npm run dev` in one terminal instance and `npm run demo` in another terminal instance.
-
-The `demo` scripts are self-explanatory and can be found in the `package.json` file:
-
-```json
-"scripts": {
-    // ...
-    "demo": "npm run demo:ts && npm run demo:rs && npm run demo:py",
-    "demo:ts": "node --experimental-strip-types demo_node/index.mts",
-    "demo:rs": "cargo run --manifest-path ./demo_rust/Cargo.toml --quiet",
-    "demo:py": "python3 -m pip install --upgrade vovk_hello_world --quiet && python3 demo_python.py",
-}
-```
-
-<Tabs items={['index.mts', 'demo_python.py', 'main.rs']}>
-<Tabs.Tab>
-```ts showLineNumbers copy filename="demo_node/index.mts"
-// TODO
-```
-</Tabs.Tab>
-<Tabs.Tab>
-```ts showLineNumbers copy filename="demo_python.py"
-// TODO
-```
-</Tabs.Tab>
-<Tabs.Tab>
-```ts showLineNumbers copy filename="demo_rust/src/main.rs"
-// TODO
-```
-</Tabs.Tab>
-</Tabs>
 
 ## OpenAPI specification
 
-[OpenAPI specification](https://hello-world.vovk.dev/api/static/openapi/spec.json) requires creating another `GET` endpoint that uses `vovkSchemaToOpenAPI` function to generate the OpenAPI spec from the Vovk.ts [schema](/schema).
+[OpenAPI specification](https://hello-world.vovk.dev/api/static/openapi/spec.json) requires creating another `GET` endpoint that uses `openapi` object imported from `vovk-client` or `vovk-client/openapi` to expose the generated OpenAPI specification as a JSON response.
 
 
 ```ts showLineNumbers copy filename="src/modules/static/openapi/OpenApiController.ts" repository="finom/vovk-hello-world"
@@ -584,14 +552,259 @@ export default class OpenApiController {
 
 The generated specification also includes the [Scalar](https://scalar.com/) compatible examples that can be copied and pasted to your project stright away.
 
-<IFrame src="https://hello-world.vovk.dev/openapi" width="100%" height="1000px"></IFrame>
+<IFrame src="https://hello-world.vovk.dev/openapi" width="100%" height="1200px"></IFrame>
+
+<a name="bundle" />
+## Building and Packaging
+
+The example also demonstrates the ability to quickly create a distributable package, published on [npm](https://www.npmjs.com/package/vovk-hello-world), [PyPI](https://pypi.org/project/vovk-hello-world/) and [crates.io](https://crates.io/crates/vovk_hello_world). The [templates](/templates) offered in the framework compile a ready-to-use packages with corresponding files for each language, such as [package.json](https://github.com/finom/vovk-hello-world/blob/main/dist/package.json), [Cargo.toml](https://github.com/finom/vovk-hello-world/blob/main/dist_rust/Cargo.toml), and [pyproject.toml](https://github.com/finom/vovk-hello-world/blob/main/dist_python/pyproject.toml), but also the `README.md` files that follow the idea of documenting the API as RPC method calls with comments as method descriptions and examples at the same time.
+
+On the root of the "hello world" project in the `package.json` file, you can find the `scripts` section with the publishing commands. Once `npm run patch` is run, it checks for uncommitted changes, bumps the patch version, and then runs the `postversion` script that generates the clients, bundles the TypeScript client, and publishes all three packages to their respective package registries. Finally, it creates a git commit and tag for the new version.
+
+```json
+"scripts": {
+    // ...
+    "publish:node": "npm publish ./dist",
+    "publish:rust": "cargo publish --manifest-path dist_rust/Cargo.toml --allow-dirty",
+    "publish:python": "python3 -m build ./dist_python --wheel --sdist && python3 -m twine upload ./dist_python/dist/*",
+    "git-tag": "git add . && git commit -m \"chore: release v$(node -p \"require('./package.json').version\")\" && git tag v$(node -p \"require('./package.json').version\")",
+    "check-uncommitted": "git diff --quiet && git diff --cached --quiet || (echo '❌ Uncommitted changes!' && exit 1)",
+    "postversion": "vovk generate && vovk bundle && npm run publish:node && npm run publish:rust && npm run publish:python && npm run git-tag",
+    "patch": "npm run check-uncommitted && npm version patch --no-git-tag-version"
+}
+```
+
+The `README.md` files are also updated with the latest examples and descriptions. IFrames below are rendered from the READMEs by Github Pages.
+
+<Tabs items={['TypeScript', 'Rust', 'Python']}>
+<Tabs.Tab>
+<IFrame src="https://finom.github.io/vovk-hello-world/dist/" width="100%" height="1200px"></IFrame>
+</Tabs.Tab>
+<Tabs.Tab>
+<IFrame src="https://finom.github.io/vovk-hello-world/dist_rust/" width="100%" height="1200px"></IFrame>
+</Tabs.Tab>
+<Tabs.Tab>
+<IFrame src="https://finom.github.io/vovk-hello-world/dist_python/" width="100%" height="1200px"></IFrame>
+</Tabs.Tab> 
+</Tabs>
+
+
+
+## Node.js, Rust and Python CLI Demo
+
+The repository also includes a demo of how the RPC methods can be run via CLI in Node.js, Rust, and Python. For each language there are two demos:
+- `local` demo that uses the locally generated client
+  - For Rust and Python they use `https://hello-world.vovk.dev` origin to call the methods (localhost demo would require to create more folders, let's not overcomplicate this example as it's already complicated; you can play with origin at `clientTemplateDefs`).
+  - For Node.js it uses `http://localhost:PORT` origin to call the methods imported from `vovk-client` package. You should run the Next.js app locally with `npm run dev` in another terminal session in order to have the server running on localhost.
+- `packaged` demo that uses the published package from npm, crates.io, or PyPI to call the methods on `https://hello-world.vovk.dev` origin.
+  - If you have Rust and Python environments set up, you can install all dependencies via `npm run install:all` command. If not, `npm install` will install only Node.js dependencies.
+
+
+Each demo showcases how to use the generated client to call the `updateUser`, `streamTokens`, `getSpec` (for static OpenAPI RPC) but also call the `getSpec` method.
+
+The `demo` scripts are self-explanatory and can be found in the `package.json` file:
+
+```json
+"scripts": {
+    // ...
+    "demo:node:local": "node --experimental-strip-types demo/node/local.mts",
+    "demo:node:packaged": "node --experimental-strip-types demo/node/packaged.mts",
+    "demo:rust:local": "cargo run --manifest-path ./demo/rust/local/Cargo.toml --quiet",
+    "demo:rust:packaged": "cargo run --manifest-path ./demo/rust/packaged/Cargo.toml --quiet",
+    "demo:python:local": "python3 demo/python/local.py",
+    "demo:python:packaged": "python3 demo/python/packaged.py",
+    "demo:local": "npm run demo:node:local && npm run demo:rust:local && npm run demo:python:local",
+    "demo:packaged": "npm run demo:node:packaged && npm run demo:rust:packaged && npm run demo:python:packaged",
+    "demo:all": "npm run demo:local && npm run demo:packaged",
+}
+```
+
+<Tabs items={['Node.js', 'Python', 'Rust']}>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="demo/node/packaged.mts" repository="finom/vovk-hello-world"
+import { UserRPC, OpenApiRPC, StreamRPC } from "vovk-hello-world";
+
+async function main() {
+  console.log("\n--- Node.js Demo (Packaged) ---");
+  const updateUserResponse = await UserRPC.updateUser({
+    params: {
+      id: "123e4567-e89b-12d3-a456-426614174000",
+    },
+    body: {
+      email: "john@example.com",
+      profile: {
+        name: "John Doe",
+        age: 25,
+      },
+    },
+    query: {
+      notify: "email",
+    },
+  });
+
+  console.log("UserRPC.updateUser:", updateUserResponse);
+
+  const openapiResponse = await OpenApiRPC.getSpec();
+  console.log(
+    `OpenApiRPC.getSpec response: ${openapiResponse.info.title} ${openapiResponse.info.version}`,
+  );
+
+  const streamResponse = await StreamRPC.streamTokens();
+  console.log(`streamTokens:`);
+  for await (const item of streamResponse) {
+    process.stdout.write(item.message);
+  }
+  process.stdout.write("\n");
+}
+main().catch(console.error);
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/demo/node/packaged.mts)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="demo/python/packaged.py" repository="finom/vovk-hello-world"
+from vovk_hello_world import UserRPC, OpenApiRPC, StreamRPC
+
+def main() -> None:
+    print("\n--- Python Demo (Packaged) ---")
+
+    body: UserRPC.UpdateUserBody = {
+        "email": "john@example.com",
+        "profile": {
+            "name": "John Doe",
+            "age": 25
+        }
+    }
+    query: UserRPC.UpdateUserQuery = {"notify": "email"}
+    params: UserRPC.UpdateUserParams = {"id": "123e4567-e89b-12d3-a456-426614174000"}
+    # Update user using local module
+    update_user_response = UserRPC.update_user(
+        params=params,
+        body=body,
+        query=query
+    )
+    print('UserRPC.update_user:', update_user_response)
+    
+    # Get OpenAPI spec from local module
+    openapi_response = OpenApiRPC.get_spec()
+    print(f"OpenApiRPC.get_spec from the local module: {openapi_response['info']['title']} {openapi_response['info']['version']}")
+    
+    # Stream tokens from local module
+    stream_response = StreamRPC.stream_tokens()
+    print("streamTokens:")
+    for item in stream_response:
+        print(item['message'], end='', flush=True)
+    print()  # Add newline after streaming
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        print(f"Error: {e}")
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/demo/python/packaged.py)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="demo/rust/packaged/src/main.rs" repository="finom/vovk-hello-world"
+use std::io::Write;
+use vovk_hello_world::{
+  user_rpc, 
+  open_api_rpc, 
+  stream_rpc 
+};
+pub fn main() {
+  println!("\n--- Rust Demo (Packaged) ---");
+  use user_rpc::update_user_::{
+    body as Body, 
+    body_::profile as Profile,
+    query as Query,
+    query_::notify as Notify,
+    params as Params,
+  };
+
+  let update_user_response = user_rpc::update_user(
+    Body {
+      email: String::from("john@example.com"),
+      profile: Profile {
+        name: String::from("John Doe"),
+        age: 25
+      }
+    },
+    Query {
+      notify: Notify::email
+    },
+    Params {
+      id: String::from("123e4567-e89b-12d3-a456-426614174000")
+    },
+    None,
+    None,
+    false,
+  );
+
+  match update_user_response {
+    Ok(response) => println!("user_rpc.update_user: {:?}", response),
+    Err(e) => println!("update_user error: {:?}", e),
+  }
+
+  let openapi_response = open_api_rpc::get_spec(
+    (),
+    (),
+    (),
+    None,
+    None,
+    false,
+  );
+
+  match openapi_response {
+    Ok(spec) => {
+      if let (Some(title), Some(version)) = (
+        spec["info"]["title"].as_str(),
+        spec["info"]["version"].as_str()
+      ) {
+        println!("open_api_rpc.get_spec from the local module: {} {}", title, version);
+      } else {
+        println!("Could not extract title or version from OpenAPI spec");
+      }
+    },
+    Err(e) => println!("Error fetching OpenAPI spec: {:?}", e),
+  }
+
+  let stream_response = stream_rpc::stream_tokens(
+      (),
+      (),
+      (),
+      None,
+      None,
+      false,
+  );
+  
+  match stream_response {
+    Ok(stream) => {
+      print!("streamTokens:\n");
+      for (_i, item) in stream.enumerate() {
+        print!("{}", item.message.as_str());
+        std::io::stdout().flush().unwrap();
+      }
+      println!();
+    },
+    Err(e) => println!("Error initiating stream: {:?}", e),
+  }
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/demo/rust/packaged/src/main.rs)*
+</Tabs.Tab>
+</Tabs>
+
+The local demos are similar: 
+- For Node.js, the only difference is the import path of the client.
+- For Python there are some workarounds to resolve local imports.
+- For Rust, the only difference is the dependency path in `Cargo.toml` file.
 
 ## Conclusion
 
-Besides being a back-end framework for Next.js, Vovk.ts offers extra features that ususally require extra skills and time to implement, such as:
+While we have implemented only 3 endpoints (update user, stream tokens, and get OpenAPI spec) in this "Hello World" example, Vovk.ts provides extra features available out of the box with minimal configuration, such as:
 
+- TypeScript Bundle and Generation of other language clients that ready to be published with proper README and package data.
 - Beautifully documented OpenAPI specification powered by [Scalar](https://scalar.com/).
-- RPC library that has the same shape as controllers, inferring types from the controller methods.
-- Client-side validation with [Ajv](/validation/client) for immediate feedback.
-- JSON streaming implementation with [JSONLines](/controller/jsonlines).
-- Code generation and bundling to quickly publish the documented RESTful API library.
+- Text streaming and client-side validation for all supported languages.
+
+There are many topics that aren't covered in this example, such as [Function Calling](/function-calling) framework that converts controller/RPC methods into LLM tools, generation of source files only (without bundling/publishing files), custom [decorators](/decorators), [imports](/imports) configuration to customize TypeScript client options, and more. Feel free to explore the documentation to learn more about Vovk.ts features and capabilities.
