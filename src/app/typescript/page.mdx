@@ -331,31 +331,32 @@ const MyComponent = () => {
 
 ## `openapi` and `schema`
 
-The generated client also exposes `openapi` and `schema` exports for accessing the OpenAPI spec and the Vovk Schema, respectively.
-
-```ts showLineNumbers copy
-import { openapi, schema } from 'vovk-client';
-```
-
-You can also import them from module paths that exclude RPC modules:
+The generated client also exposes `openapi` and `schema` exports in corresponding modules for accessing the OpenAPI spec and the Vovk Schema, respectively.
 
 ```ts showLineNumbers copy
 import { openapi } from 'vovk-client/openapi';
 import { schema } from 'vovk-client/schema';
 ```
 
+The `schema` object can also be exported from the main module.
+
+```ts showLineNumbers copy
+import { schema } from 'vovk-client';
+```
+
 This also works with the [segmented client](/segmented); in that case, both `openapi` and `schema` include data only for the selected segment:
 
 ```ts showLineNumbers copy
-import { openapi } from '@/client/admin/openapi';
-import { schema } from '@/client/admin/schema';
+import { openapi } from '@/client/admin/openapi.ts';
+import { schema } from '@/client/admin/schema.ts';
+import { schema } from '@/client/admin/index.ts';
 ```
 
 ## Used Templates
 
 The TypeScript RPC client is generated from the following templates:
-- [cjs](/templates#cjs), [mjs](/templates#mjs) (`requires` [schemaCjs](/templates#schemacjs) and [openapiCjs](/templates#openapicjs)) - compiled CJS and ESM modules with TypeScript definitions; used by default in the [composed client](/composed);
-- [ts](/templates#ts) (`requires` [schemaTs](/templates#schemats) and [openapiTs](/templates#openapits)) - uncompiled TypeScript module with type definitions; used by default in the [segmented client](/segmented);
+- [cjs](/templates#cjs), [mjs](/templates#mjs) - compiled CJS and ESM modules with TypeScript definitions; used by default in the [composed client](/composed);
+- [ts](/templates#ts) - uncompiled TypeScript module with type definitions; used by default in the [segmented client](/segmented);
 - [mixins](/templates#mixins) - `.d.ts` types and `.json` files generated when [OpenAPI Mixins](/codegen) are used;
 - [readme](/templates#readme), [packageJson](/templates#packagejson) - `README.md` with RPC documentation and `package.json` suitable for publishing the generated library as an NPM package.
 

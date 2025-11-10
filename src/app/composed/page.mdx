@@ -88,9 +88,9 @@ Overrides the root [`outputConfig` options](/config#outputconfig).
 
 ### vovk-client and pnpm
 
-If you are using `pnpm` as your package manager, you might encounter issues with the `vovk-client` package not being hoisted correctly. This can lead to module resolution errors when importing the client in your application.
+If you are using `pnpm` as your package manager, you might encounter issues with the **vovk-client** package not being hoisted correctly. This can lead to module resolution errors when importing the client in your application.
 
-To resolve this issue, it's recommended to compile the composed client into a local directory within your project instead of the default `node_modules/.vovk-client` and updating `fromTemplates` to use [`ts`](/templates#ts) template. At this case `vovk-client` package is not needed anymore since the client can be imported directly from the local directory.
+To resolve this issue, it's recommended to compile the composed client into a local directory within your project instead of the default `node_modules/.vovk-client` and updating `fromTemplates` to use [`ts`](/templates#ts) template. At this case **vovk-client** package is not needed anymore since the client can be imported directly from the local directory.
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */

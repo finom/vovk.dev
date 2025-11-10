@@ -37,17 +37,15 @@ The [validation](/validation) models are converted to OpenAPI operation objects 
 
 ## Utilizing the Generated OpenAPI Specification
 
-The generated RPC client exports an `openapi` object that contains the full back-end specification for the [composed client](/composed). When using the [segmented client](/segmented), each [segment](/segment) also exports its own specification.
+The generated RPC client exports an `openapi` object from `openapi` module that contains the full back-end specification for the [composed client](/composed). When using the [segmented client](/segmented), each [segment](/segment) also exports its own specification.
 
 ```ts showLineNumbers copy
-import { UserRPC, openapi } from 'vovk-client'; // composed client
+import { openapi } from 'vovk-client/openapi'; // composed client
 ```
 
 ```ts showLineNumbers copy
-import { UserRPC, openapi } from '@/client/admin/index.ts'; // segmented client
+import { openapi } from '@/client/admin/openapi.ts'; // segmented client
 ```
-
-You can alternatively import the `openapi` object from `vovk-client/openapi` or `@/client/admin/openapi` to access the specification independently of the RPC modules.
 
 This object is a fully compliant OpenAPI 3.x specification and works with any tool that supports OpenAPI 3 or later.
 

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "npm run lint && tsc --noEmit",
-    "dev": "rm -rf .next && vovk dev --next-dev",
+    "predev": "npm run update-mdx-github-codeblocks",
+    "dev": "vovk dev --next-dev",
     "dev-exit": "vovk dev --next-dev --exit",
     "build": "next build",
     "prebuild": "vovk generate",

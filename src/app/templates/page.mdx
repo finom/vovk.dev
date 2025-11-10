@@ -125,22 +125,40 @@ Renders the Python client package that includes both source code and setup files
 
 Used as the default template for the [segmented client](/segmented). Renders TypeScript code.
 
-- `templatePath` is `vovk-cli/client-templates/ts/`.
-- `requires` [schemaTs](#schemats), [openapiTs](#openapits), and [mixins](#mixins) (the last one is used conditionally if [OpenAPI Mixins](/codegen) are used).
+- `requires` [tsBase](#tsbase), [openapiTs](#openapits).
 
 ### `cjs`
 
 Used as one of the default templates (the other one is [mjs](#mjs)) for the [composed client](/composed). Renders CommonJS code.
 
-- `templatePath` is `vovk-cli/client-templates/cjs/`.
-- `requires` [schemaCjs](#schemacjs), [openapiCjs](#openapicjs), and [mixins](#mixins) (the last one is used conditionally if OpenAPI Mixins are used).
+- `requires` [cjsBase](#cjsbase), [openapiCjs](#openapicjs).
 
 ### `mjs`
 
 Used as one of the default templates (the other one is [cjs](#cjs)) for the [composed client](/composed). Renders ES Module code.
 
-- `templatePath` is `vovk-cli/client-templates/mjs/`.
-- `requires` [schemaCjs](#schemacjs), [openapiCjs](#openapicjs), and [mixins](#mixins) (the last one is used conditionally if OpenAPI Mixins are used).
+- `requires` [mjsBase](#mjsbase), [openapiCjs](#openapicjs).
+
+### `tsBase`
+
+Used as the default template for the [bundle](/bundle) as it doesn't include `openapi` object. Renders TypeScript code.
+
+- `templatePath` is `vovk-cli/client-templates/tsBase/`.
+- `requires` [schemaTs](#schemats), [mixins](#mixins) (the last one is used conditionally if [OpenAPI Mixins](/codegen) are used).
+
+### `cjsBase`
+
+Renders CommonJS code.
+
+- `templatePath` is `vovk-cli/client-templates/cjsBase/`.
+- `requires` [schemaCjs](#schemacjs), [mixins](#mixins) (the last one is used conditionally if OpenAPI Mixins are used).
+
+### `mjsBase`
+
+Renders ES Module code.
+
+- `templatePath` is `vovk-cli/client-templates/mjsBase/`.
+- `requires` [schemaCjs](#schemacjs), [mixins](#mixins) (the last one is used conditionally if OpenAPI Mixins are used).
 
 ### `schemaTs`
 

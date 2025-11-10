@@ -71,7 +71,7 @@ import { prefix, post, operation } from 'vovk';
 
 ## Troubleshooting
 
-The `withZod` implementation uses default options for `toJSONSchema`:
+The `withZod` implementation from **vovk-zod** package uses default options for `toJSONSchema`:
 
 ```ts showLineNumbers copy filename="vovk-zod/src/index.ts"
 import { z } from 'zod';
@@ -93,3 +93,4 @@ export const withZod = createStandardValidation({
 });
 ```
 
+**vovk-zod** package can be uninstalled and controllers need to use the local `withZod` instead.

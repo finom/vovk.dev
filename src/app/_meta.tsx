@@ -24,7 +24,7 @@ const meta = {
   saas: 'Framework for SaaS Apps',
   performance: 'Overhead Performance',
   '#getting-started': separator('Getting Started'),
-  'quick-install': 'Quick Install 🚧',
+  'quick-install': 'Quick Start 🚧',
   'manual-install': 'Manual Install 🚧',
   'hello-world': '"Hello World!" Example 🚧',
   '#common': separator('Common'),
@@ -45,11 +45,7 @@ const meta = {
   '#cli': separator('Config & CLI'),
   config: 'Config',
   cli: 'CLI',
-  bundle: (
-    <>
-      <code className="nextra-code">vovk bundle 🧪</code>
-    </>
-  ),
+  bundle: <code className="nextra-code">vovk bundle 🧪</code>,
   dev: <code className="nextra-code">vovk dev</code>,
   generate: <code className="nextra-code">vovk generate</code>,
   init: <code className="nextra-code">vovk init</code>,

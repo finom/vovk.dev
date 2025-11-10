@@ -256,7 +256,7 @@ The JSON files follow the same recursive structure as the segments, where `root.
 
 ## "Composed" vs "Segmented" RPC
 
-By default, Vovk.ts emits a single RPC client that contains all RPC modules from all segments, importable from `vovk-client`. This approach is the **composed RPC client** and is useful for single-page applications where you want a single import entry for all RPC modules.
+By default, Vovk.ts emits a single RPC client that contains all RPC modules from all segments, importable from **vovk-client**. This approach is the **composed RPC client** and is useful for single-page applications where you want a single import entry for all RPC modules.
 
 However, in larger applications, exposing the schema for all segments in a single RPC client isn’t always desirable. With a simple configuration change, you can instruct Vovk.ts to generate separate RPC clients for each segment.
 
@@ -588,10 +588,10 @@ console.log(tools); // [{ name, description, parameters, execute }, ...]
 
 ## First-Class OpenAPI Support
 
-Vovk.ts generates OpenAPI 3.1 documentation from the back-end schema out of the box. Once you’ve defined your controllers with validation and used the `@operation` decorator to provide `summary` and `description`, the OpenAPI documentation is generated automatically and can be accessed via the `openapi` variable.
+Vovk.ts generates OpenAPI 3.1 documentation from the back-end schema out of the box. Once you’ve defined your controllers with validation and used the `@operation` decorator to provide `summary` and `description`, the OpenAPI documentation is generated automatically and can be accessed via the `openapi` module.
 
 ```ts showLineNumbers copy
-import { UserRPC, openapi } from 'vovk-client';
+import { openapi } from 'vovk-client/openapi';
 
 console.log(openapi);
 ```

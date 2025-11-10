@@ -112,7 +112,7 @@ export default class DownloadController {
   @get('csv-report')
   static async downloadCSV() {
     return new Response(
-      csvText,
+      csvString,
       {
         headers: {
           'Content-Type': 'text/csv',
