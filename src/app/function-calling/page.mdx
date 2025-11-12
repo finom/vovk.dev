@@ -1,4 +1,4 @@
-# Turn Your Back-End into an AI Agent
+# Function Calling
 
 Vovk.ts provides LLM function calling capabilities, turning route handlers into functions callable by AI. This enables more interactive user experiences, including interactions via a text chat interface, a [Realtime voice interface](/realtime-ui), or [MCP](/mcp).
 
@@ -7,7 +7,7 @@ While many AI libraries and APIs focus on how to use function calling, Vovk.ts f
 This feature is implemented by a zero-dependency function, `createLLMTools`, imported from `"vovk"`. It produces a `tools` array that can be mapped to function-calling inputs for any LLM library. Each tool, converted from a controller or RPC handler, implements the `VovkLLMTool` interface with the following properties:
 
 - `type`: the string literal `"function"`.
-- `name`: the function name in the form `${moduleName}_${handlerName}` (module name + underscore + method name).
+- `name`: the function name in the form `${moduleName}_${handlerName}` (module name + underscore + method name), or overridden by a custom `x-tool-name`.
 - `description`: a description derived from OpenAPI metadata, concatenating the `summary` and `description` fields, or overridden by a custom `x-tool-description`. If neither is provided, `createLLMTools` ignores the function. In other words, using the `@operation` decorator on [controller](/controller) methods is required for this feature.
 - `parameters`: a JSON Schema object describing `body`, `query`, and `params`, generated automatically by the [validation library](/validation).
 - `execute`: a JavaScript function to be called when the LLM invokes the tool.
@@ -127,12 +127,13 @@ export default class UserController {
     summary: 'Get user by ID',
     description: 'Retrieves a user by their unique ID.',
     'x-tool-disable': false,
+    'x-tool-name': 'get_user_by_id',
     'x-tool-description': 'Retrieves a user by their unique ID, including name and email. Also includes user roles and permissions that define what actions the user can perform within the system.',
     'x-tool-successMessage': 'User retrieved successfully.',
     'x-tool-errorMessage': 'Failed to retrieve user.',
     'x-tool-includeResponse': true,
   })
-  @get(':id')
+  @get('{id}')
   static getUser() {
     // ...
   }
@@ -142,6 +143,10 @@ export default class UserController {
 ### `x-tool-disable`
 
 Force-disables the function for LLM function calling, even if `summary`, `description`, or `x-tool-description` is present.
+
+### `x-tool-name`
+
+Overrides the generated function name (normally in the form `${moduleName}_${handlerName}`).
 
 ### `x-tool-description`
 
@@ -249,7 +254,7 @@ Here, the `tools` are mapped to Vercel AI SDK `tool` instances using `jsonSchema
 
 On the front end, create a component using the [useChat](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat) hook:
 
-```ts showLineNumbers copyx filename="src/app/page.tsx"
+```ts showLineNumbers copy filename="src/app/page.tsx"
 'use client';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';

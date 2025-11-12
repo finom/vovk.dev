@@ -1,6 +1,6 @@
 import { FileTree } from 'nextra/components';
 
-# TypeScript Bundle (Experimental)
+# TypeScript Bundle
 
 ```sh filename="Quick CLI Ref"
 $ npx vovk bundle@draft --help
@@ -74,10 +74,13 @@ const config = {
       },
       excludeSegments: [],
       includeSegments: [],
-      package: {}, // modifies package.json content
+      package: {
+        // modifies package.json content
+        // by default uses values from the root package.json
+        name: 'my-api-bundle',
+      }, 
       readme: {}, // modifies README.md content
       samples: {}, // modifies README.md samples content
-      openAPIObject: {}, // modifies resulting OpenAPIObject
       imports: {
         fetcher: './src/my-fetcher',
       },
@@ -104,7 +107,7 @@ If set to `true`, the `prebundleOutDir` will not be deleted after bundling. This
 
 The `outputConfig` object accepts and overrides the same options as the [outputConfig](/config#generatorconfig) at the root of the [config](/config) file.
 
-## Using tsdown
+## Bundling with tsdown
 
 Install `tsdown` as a development dependency:
 
@@ -136,9 +139,22 @@ const config = {
 export default config;
 ```
 
+The resulting bundled package will have the following structure:
+
+<FileTree> 
+  <FileTree.Folder name="dist" defaultOpen>
+    <FileTree.File name="package.json" />
+    <FileTree.File name="README.md" />
+    <FileTree.File name="index.cjs" />
+    <FileTree.File name="index.d.cts" />
+    <FileTree.File name="index.mjs" />
+    <FileTree.File name="index.d.mts" />
+  </FileTree.Folder>
+</FileTree>
+
 ### Troubleshooting
 
-In some TypeScript module configuration cases, you might encounter the following errors:
+In some TypeScript module configuration cases, you might encounter the following errors when `vovk bundle` is executed:
 
 ```
 [UNLOADABLE_DEPENDENCY] Error: Could not load lib/internal/methods/object.ts - No such file or directory (os error 2).
@@ -181,6 +197,50 @@ Setting `moduleResolution` to `bundler` fixes the first error, and setting `path
     },
   }
 }
+```
+
+## Using the Bundled Package
+
+After publishing the bundled package to NPM, it can be installed and used in other projects like any other NPM package:
+
+```sh npm2yarn copy
+npm install my-api-bundle
+```
+
+And imported in your TypeScript code:
+
+```ts showLineNumbers copy
+import { UserRPC } from 'my-api-bundle';
+
+await UserRPC.getUser({ 
+  params: { id: '123' } 
+});
+```
+
+All features described in the [TypeScript](/typescript) article are available to the bundled method, including client-side validation, [custom options](/imports#fetcher), `queryKey` method and more.
+
+[Schema](/schema) is available under `schema` import as well as a property for every method individually:
+
+```ts showLineNumbers copy
+import { schema, UserRPC } from 'my-api-bundle';
+
+console.log(schema.segments[''].controllers.UserRPC.handlers.getUser.validation.params);
+console.log(UserRPC.getUser.schema.validation.params);
+```
+
+Note that the `openapi` object that's usually available in the **vovk-client/openapi** isn't bundled as it will bloat the package size. The `schema` module usually available in **vovk-client/schema** also isn't present in order to keep the bundle flow simple by using only a single entry point.
+
+---
+
+The bundle methods can be used as [LLM tools](/function-calling) that will invoke corresponding HTTP endpoints when called.
+
+```ts showLineNumbers copy
+import { UserRPC } from 'my-api-bundle';
+import { createLLMTools } from 'vovk';
+
+const { tools } = createLLMTools({
+  modules: { UserRPC },
+});
 ```
 
 ## Roadmap

@@ -70,7 +70,7 @@ The `getUser` controller method, as well as [decorators](./decorator), can acces
 import { get, type VovkRequest } from 'vovk';
 
 export default class UserController {
-  @get(':id')
+  @get('{id}')
   static async getUser(req: VovkRequest) {
     const meta = req.vovk.meta<{ xMetaHeader: { hello: string } }>();
     console.log(meta.xMetaHeader); // { hello: 'world' }

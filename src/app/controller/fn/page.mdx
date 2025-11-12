@@ -99,7 +99,7 @@ There are several core use cases for callable handlers:
 
 **For SSR, SSG, PPR, etc.**: You can use the method as a server-side function, allowing you to call it from server-side code without performing an HTTP request.
 
-```ts showLineNumbers copyx filename="src/app/page.tsx"
+```ts showLineNumbers copy filename="src/app/page.tsx"
 import UserController from '@/modules/user/UserController';
 
 export default async function Page() {

@@ -125,19 +125,97 @@ import { schema } from '@client/root/schema';
 
 Example of a segment schema file:
 
-```json filename=".vovk-schema/segments/foo.json"
+```js filename=".vovk-schema/segments/foo.json"
 {
   // Segment schema version
   "$schema": "https://vovk.dev/api/spec/v3/segment.json",
-  // initSegment option controlling whether this segment emits a schema
+  // vovkInit function option that defines is the schema going to be emitted for this segment
   "emitSchema": true,
-  // Segment name; the root segment uses an empty string
+  // Segment name, for the root segment it's an empty string
   "segmentName": "foo",
-  // Controllers as key-value pairs for fast access:
-  // Key: exported RPC module name from "vovk-client"
-  // Value: controller information
+  // List of controllers as key-value pairs for fast access
+  // Key is a name of the variable that's going to be exported from "vovk-client"
+  // Value is controller information
   "controllers": {
     "HelloRPC": {
-      // RPC module name used on the client
+      // RPC name that's going to be used in the client
       "rpcModuleName": "HelloRPC",
-      // Original controller class name (used to resolve segment
+      // Original name of the controller class, used to determine segment name when the controller is changed on "vovk dev"
+      "originalControllerName": "HelloController",
+      // An argument of @prefix class decorator
+      "prefix": "hello",
+      // List of handlers as key-value pairs for fast access
+      // Key is a static method name
+      // Value is a handler information
+      "handlers": {
+        "getHello": {
+          // Endpoint that's concatenated with the prefix
+          "path": "greeting",
+          // HTTP method
+          "httpMethod": "POST",
+          // Validation for "body", "query", "params", "output" and "iteration"
+          // Can contain any custom data, at this case it's JSON schema emitted by "vovk-zod"
+          "validation": {
+            "body": {
+              "type": "object",
+              "properties": {
+                "foo": {
+                  "type": "string"
+                }
+              },
+              "required": ["foo"],
+              "additionalProperties": false,
+              "x-isForm": true, // A vovk-specific field that indicates that the body is a FormData
+              "$schema": "https://json-schema.org/draft/2020-12/schema"
+            },
+            "query": {
+              "type": "object",
+              "properties": {
+                "bar": {
+                  "type": "string"
+                }
+              },
+              "required": ["bar"],
+              "additionalProperties": false,
+              "$schema": "https://json-schema.org/draft/2020-12/schema"
+            },
+            "params": {
+              "type": "object",
+              "properties": {
+                "baz": {
+                  "type": "string"
+                }
+              },
+              "required": ["baz"],
+              "additionalProperties": false,
+              "$schema": "https://json-schema.org/draft/2020-12/schema"
+            },
+            "output": {
+              // or "iteration" for JSONLines response
+              "type": "object",
+              "properties": {
+                "hello": {
+                  "type": "string"
+                }
+              },
+              "required": ["hello"],
+              "additionalProperties": false,
+              "$schema": "https://json-schema.org/draft/2020-12/schema"
+            }
+          },
+          // OpenAPI object that can be used to generate OpenAPI documentation, LLM tools, MCP etc.
+          "operationObject": {
+            "summary": "Hello world",
+            "description": "Hello world",
+            "x-tool-description": "Hello world" // custom description for an LLM tool
+          },
+          // Custom data that can be defined by a custom decorator
+          "misc": {
+            "hello": "World"
+          }
+        }
+      }
+    }
+  }
+}
+```

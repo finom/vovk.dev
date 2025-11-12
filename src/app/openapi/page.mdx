@@ -35,6 +35,65 @@ The [validation](/validation) models are converted to OpenAPI operation objects 
 - `output` → `responses` with status `200` and `application/json` content type
 - `iteration` → `responses` with status `200` and `application/jsonl` content type
 
+## Configuring the OpenAPI Specification
+
+The OpenAPI specification can be configured in the [vovk.config](/config) file under the [`outputConfig.openAPIObject` option](/config#openapiobject). This object is merged with the generated specification, allowing you to set global properties such as `info`, `servers`, and more.
+
+```ts showLineNumbers copy filename="vovk.config.js"
+// @ts-check
+
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  outputConfig: {
+    openAPIObject: {
+      info: {
+        title: 'My app API',
+        description: 'API for My App hosted at https://myapp.example.com/.',
+        license: {
+          name: "MIT",
+          url: "https://opensource.org/licenses/MIT",
+        },
+        version: "1.0.0",
+      },
+      servers: [
+        {
+          url: "https://myapp.example.com",
+          description: "Production",
+        },
+        {
+          url: "http://localhost:3000",
+          description: "Localhost",
+        },
+      ],
+    },
+  },
+};
+
+module.exports = config;
+```
+
+The `openAPIObject` can also be configured individually for each [segment](/segment) using `outputConfig.segments.[segmentName].openAPIObject`. This is useful for [segmented client](/segment) where each segment has its own API specification.
+
+```ts showLineNumbers copy filename="vovk.config.js"
+// @ts-check
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  outputConfig: {
+    segments: {
+      admin: {
+        openAPIObject: {
+          info: {
+            title: 'Admin API',
+            description: 'API for Admin segment.',
+            version: "1.0.0",
+          },
+        },
+      },
+    },
+  },
+};
+```
+
 ## Utilizing the Generated OpenAPI Specification
 
 The generated RPC client exports an `openapi` object from `openapi` module that contains the full back-end specification for the [composed client](/composed). When using the [segmented client](/segmented), each [segment](/segment) also exports its own specification.
@@ -73,9 +132,9 @@ export default class OpenApiController {
 }
 ```
 
-On the client side, you can use any OpenAPI documentation generator. We recommend [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react) because Vovk.ts generates code snippets that integrate directly into your codebase.
+On the client side, you can use any OpenAPI documentation generator, but [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react) is the best choice as Vovk.ts generates code snippets that integrate directly into your codebase.
 
-```ts showLineNumbers copyx
+```ts showLineNumbers copy
 import { ApiReferenceReact } from "@scalar/api-reference-react";
 import "@scalar/api-reference-react/style.css";
 
@@ -83,17 +142,7 @@ async function App() {
   return (
     <ApiReferenceReact
       configuration={{
-        url: "/api/static/openapi.json",
-        servers: [
-          {
-            url: "http://localhost:3000",
-            description: "Localhost",
-          },
-          {
-            url: "https://example.com",
-            description: "Production",
-          },
-        ],
+        url: "/api/static/openapi.json"
       }}
     />
   );
@@ -102,4 +151,4 @@ async function App() {
 export default App;
 ```
 
-For a live demonstration, see the ["Hello World" application](https://hello-world.vovk.dev/openapi). Additional details are available on the ["Hello World"](/hello-world) page.
+For a live demonstration, see the ["Hello World" application spec](https://hello-world.vovk.dev/openapi). Additional details are available on the ["Hello World"](/hello-world) page.

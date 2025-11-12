@@ -251,7 +251,7 @@ This design also allows you to create [LLM tools](/function-calling) that can us
 
 Every RPC method exposes a `queryKey` utility that returns a globally unique key for use with [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/react-query). It is an array: `[segmentName, controllerPrefix, rpcModuleName, decoratorPath, httpMethod, ...key]{:ts}`, where `...key` is an optional array of extra values you provide to differentiate similar queries.
 
-```ts showLineNumbers copyx
+```ts showLineNumbers copy
 import { useQuery } from '@tanstack/react-query';
 import { UserRPC } from 'vovk-client';
 
@@ -280,7 +280,7 @@ queryClient.invalidateQueries({
 
 Streamed responses can utilize [`streamedQuery`](https://tanstack.com/query/latest/docs/reference/streamedQuery), which lets you consume [JSON Lines](/controller/jsonlines) as an array.
 
-```ts showLineNumbers copyx
+```ts showLineNumbers copy
 import { useQuery, experimental_streamedQuery as streamedQuery } from '@tanstack/react-query';
 import { JSONLinesRPC } from 'vovk-client';
 
@@ -302,7 +302,7 @@ const JSONLinesComponent = () => {
 
 Mutations work with RPC module methods as expected.
 
-```ts showLineNumbers copyx
+```ts showLineNumbers copy
 import { useMutation } from '@tanstack/react-query';
 import { UserRPC } from 'vovk-client';
 
