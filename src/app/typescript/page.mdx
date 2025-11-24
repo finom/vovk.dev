@@ -246,6 +246,30 @@ console.log(UserRPC.updateUser.fullSchema.meta.config.libs.ajv); // get config o
 
 This design also allows you to create [LLM tools](/function-calling) that can use the schema to define the tool parameters.
 
+## `getURL` method
+
+Every RPC method exposes a type-safe `getURL` utility that returns the URL for the method, including serialized `params` and `query`.
+
+```ts showLineNumbers copy
+import { UserRPC } from 'vovk-client';
+
+const url = UserRPC.updateUser.getURL({
+  params: { id: '69' },
+  query: { notify: 'push' },
+  apiRoot: 'https://api.example.com/v1', // optional
+});
+console.log(url); // "https://api.example.com/v1/api/users/69?notify=push"
+```
+
+It can be used to call `fetch` directly if needed.
+
+```ts showLineNumbers copy
+const response = await fetch(UserRPC.updateUser.getURL({ /* ... */ }), {
+  method: 'POST',
+  // ... other fetch options
+});
+```
+ 
 <a id="react-query" />
 ## React Query
 

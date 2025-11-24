@@ -2,14 +2,69 @@
 
 Authorization for HTTP requests can be implemented with [decorators](/controller/decorator) that verify whether a user is authorized using any applicable method (e.g., JWT tokens or session cookies) and pass useful context—such as the current user and their roles—to the controller handler via [metadata](/controller/meta), accessible through `req.vovk.meta<T>(){:ts}`.
 
-Authentication, in turn, can be implemented using standard Next.js methods described in the [Next.js authentication documentation](https://nextjs.org/docs/app/guides/authentication). It is briefly covered in the [Realtime UI](/realtime-ui#auth) article.
+Authentication, in turn, can be implemented using standard Next.js methods described in the [Next.js authentication documentation](https://nextjs.org/docs/app/guides/authentication). It is briefly covered in the [Realtime UI Setup](/realtime-ui/setup#auth) article.
 
-## Role-Based Access Control
+## Basic Authorization Decorator
 
-For illustration, let’s define a simple authorization decorator that ensures a user is authenticated and has the required permission to access a resource. The `authGuard` decorator below:
+Basic authentication is a simple HTTP protocol for user authentication where credentials (username and password) are sent in the Authorization header of a request after being encoded in Base64. While not the most secure method, it can be useful for legacy cross-service communication or simple applications.
+
+```ts showLineNumbers copy filename="src/decorators/basicAuthGuard.ts"
+import { HttpException, HttpStatus, createDecorator } from 'vovk';
+
+const basicAuthGuard = createDecorator((req, next) => {
+  const authorisation = req.headers.get('authorization');
+
+  if (!authorisation) {
+    throw new HttpException(HttpStatus.UNAUTHORIZED, 'No authorisation header');
+  }
+
+  const token = authorisation.split(' ')[1];
+
+  if (!token) {
+    throw new HttpException(HttpStatus.UNAUTHORIZED, 'No token provided');
+  }
+
+  let login, password;
+
+  try {
+    [login, password] = Buffer.from(token, 'base64').toString().split(':');
+  } catch (error) {
+    throw new HttpException(HttpStatus.UNAUTHORIZED, 'Unable to parse token. ' + String(error));
+  }
+
+  if (login !== process.env.BASIC_AUTH_LOGIN || password !== process.env.BASIC_AUTH_PASSWORD) {
+    throw new HttpException(HttpStatus.UNAUTHORIZED, 'Invalid login or password');
+  }
+  return next();
+});
+
+export default basicAuthGuard;
+```
+
+Import the `basicAuthGuard` decorator and apply it to controller methods after the `@get`, `@post`, etc., decorators.
+
+```ts showLineNumbers copy filename="src/modules/secure/SecureController.ts"
+import { get, prefix } from 'vovk';
+import basicAuthGuard from '../decorators/basicAuthGuard';
+
+@prefix('secure')
+export default class SecureController {
+  @get('data')
+  @basicAuthGuard()
+  static async getSecureData() {
+    // ...
+  }
+}
+```
+
+## RBAC Decorator
+
+> Role-based access control (RBAC) is a method of restricting system access for users based on their role within an organization, rather than assigning permissions individually.
+
+Let’s define a simple authorization decorator that ensures a user is authenticated and has the required permission to access a resource. The `authGuard` decorator below:
 
 - Verifies the user is authorized; otherwise returns an `Unauthorized` status.
-- Adds `currentUser` to request metadata, represented by the `AuthMeta` interface.
+- Adds `currentUser` to request metadata, represented by the `AuthMeta` TypeScript interface.
 - Implements role-based access control with the `Permission` enum.
 
 The `identifyUserAndCheckPermissions` function is a placeholder for your logic to identify the user from the request (e.g., from a JWT token or session) and check whether they have the required permission.
@@ -59,16 +114,12 @@ export default authGuard;
 Import the `authGuard` decorator and related members, then apply it to controller methods after the `@get`, `@post`, etc., decorators.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
-import { get, prefix, operation } from 'vovk';
+import { get, prefix } from 'vovk';
 import authGuard, { Permission, type AuthMeta } from '../decorators/authGuard';
 
 @prefix('users')
 export default class UserController {
   // ...
-  @operation({
-    summary: 'Get something',
-    description: 'Returns something',
-  })
   @get('something')
   @authGuard(Permission.CAN_DO_THIS)
   static async getSomething(req: VovkRequest) {
@@ -80,7 +131,7 @@ export default class UserController {
 }
 ```
 
-## Vercel Cron Jobs
+## Vercel Cron Jobs Authorization Decorator
 
 [Vercel Cron Jobs](https://vercel.com/docs/cron-jobs) require simple authorization via an environment variable. You can implement this by creating a [decorator](/controller/decorator) that checks the `Authorization` header against a secret.
 

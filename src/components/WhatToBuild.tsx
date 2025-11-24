@@ -5,12 +5,6 @@ import { Route } from 'next';
 
 const options = [
   {
-    title: 'SaaS',
-    description: 'Build SaaS apps with modern architecture and scalable design patterns.',
-    icon: '🚀',
-    href: '/saas',
-  },
-  {
     title: 'Public API',
     description: 'Generate APIs with OpenAPI docs and code scaffolding.',
     icon: '⚡',

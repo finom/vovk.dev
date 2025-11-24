@@ -80,13 +80,12 @@ Now create the route file following your chosen MCP library’s documentation.
 We’ll use `UserController` and `TaskController` as the source of MCP tools. Controller methods run in the same context (rather than over HTTP) because they follow [callable handler](/controller/fn) rules.
 
 
-```ts showLineNumbers copy filename="src/app/api/mcp/route.ts" repository="finom/vovk-kanban-demo" {30}
+```ts showLineNumbers copy filename="src/app/api/mcp/route.ts" repository="finom/realtime-kanban" {30}
 import { createMcpHandler } from "mcp-handler";
-import { createLLMTools } from "vovk";
+import { createLLMTools, KnownAny } from "vovk";
 import UserController from "@/modules/user/UserController";
 import TaskController from "@/modules/task/TaskController";
-import { convertJsonSchemaToZod } from "zod-from-json-schema";
-import { mapValues } from "lodash";
+import { jsonSchemaObjectToZodRawShape } from "zod-from-json-schema";
 
 const { tools } = createLLMTools({
   modules: {
@@ -110,7 +109,7 @@ const handler = createMcpHandler(
       server.tool(
         name,
         description,
-        mapValues(parameters?.properties ?? {}, convertJsonSchemaToZod),
+        jsonSchemaObjectToZodRawShape(parameters as KnownAny),
         execute,
       );
     });
@@ -119,9 +118,18 @@ const handler = createMcpHandler(
   { basePath: "/api" },
 );
 
-export { handler as GET, handler as POST };
+const authorizedHandler = (req: Request) => {
+  const { MCP_ACCESS_KEY } = process.env;
+  const accessKey = new URL(req.url).searchParams.get("mcp_access_key");
+  if (MCP_ACCESS_KEY && accessKey !== MCP_ACCESS_KEY) {
+    return new Response("mcp_access_key is invalid", { status: 401 });
+  }
+  return handler(req);
+};
+
+export { authorizedHandler as GET, authorizedHandler as POST };
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/app/api/mcp/route.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/app/api/mcp/route.ts)*
 
 Because the `server.tool` parameters argument expects Zod schemas, convert each tool’s JSON Schema parameters to Zod using [zod-from-json-schema](https://www.npmjs.com/package/zod-from-json-schema). This approach works with all supported [validation libraries](/validation). If you already use Zod to validate incoming requests, you can instead access Zod schemas directly via a tool’s `models` property, as shown below:
 

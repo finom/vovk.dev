@@ -225,10 +225,10 @@ Read more about it on [Standard Schema](/validation/standard) page.
 
 ### `multitenant`
 
-A [Next.js middleware](https://nextjs.org/docs/app/api-reference/file-conventions/middleware) utility that routes subdomains to specific [segments](/segment). 
+A [Next.js proxy](https://nextjs.org/docs/app/api-reference/file-conventions/proxy) utility that routes subdomains to specific [segments](/segment). 
 
-```ts showLineNumbers copy
-// ... middleware ...
+```ts showLineNumbers copy filename="src/proxy.ts"
+// ... proxy ...
 const { action, destination, message, subdomains } = multitenant({
   requestUrl: request.url,
   requestHost: request.headers.get('host') ?? '',
@@ -539,7 +539,7 @@ The shape of error responses.
 
 An internal type used by the [withValidationLibrary](#withvalidationlibrary) function that adds required types to the controller method for further inference.
 
-### `VovkBasicJSONSchema`
+### `VovkJSONSchemaBase`
 
 A basic JSON Schema object used internally with `type`, `properties`, and all other JSON Schema keywords.
 
@@ -574,7 +574,7 @@ An internal type that represents the config file with all default values applied
 
 ### `VovkOutputConfig`
 
-The configuration options for the generator that can be defined as root-level `outputConfig`, `outputConfig.segments[segmentName]`, `bundle.outputConfig`, or `templateDef.outputConfig` in the [config](/config) file. The actual values are resolved by the [resolveGeneratorConfigValues](#resolvegeneratorconfigvalues) function.
+The configuration options for the generator that can be defined as root-level `outputConfig`, `outputConfig.segments[segmentName]`, `bundle.outputConfig`, or `templateDef.outputConfig` in the [config](/config) file. The actual values are resolved by the [resolveGeneratorConfigValues](#resolveoutputconfigvalues) function.
 
 ### `VovkReadmeConfig`
 

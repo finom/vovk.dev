@@ -4,15 +4,13 @@ const separator = (title: string) => ({ type: 'separator', title });
 
 const meta = {
   setup: 'Part 1: Frontend & Backend',
-  text: 'Part 2: Text Chat Interface',
-  voice: 'Part 3: Voice Interface',
-  polling: 'Part 4: Database Polling',
+  ai: 'Part 2: Text & Voice AI',
+  polling: 'Part 3: Database Polling',
 } satisfies MetaRecord;
 
 export const icons: Omit<Record<keyof typeof meta, string>, `#${string}`> = {
   setup: '🛠️',
-  text: '💬',
-  voice: '🎙️',
+  ai: '🤖',
   polling: '🔄',
 };
 

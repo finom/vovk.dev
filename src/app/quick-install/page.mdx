@@ -1,81 +1,127 @@
 import { Steps } from 'nextra/components'
+import Asciinema from '../../components/AsciinemaPlayer';
+import NoSSR from '../../components/NoSSR';
 
 # Quick Start
+
+<div className='mt-4'>
+<NoSSR>
+<Asciinema src="/asciinema/install.cast" />
+</NoSSR>
+</div>
  
 <Steps>
-### Set up a Next.js project with App Router and TypeScript
+### Create a Next.js project (App Router + TypeScript)
  
 ```bash npm2yarn copy
-npx create-next-app my-app --ts --app --src-dir
+npx create-next-app@latest my-app --ts --app --src-dir
 ```
 ```bash
 cd my-app
 ```
 
-The `src` directory is optional but recommended, as it keeps the root directory clean.
+The `src` directory is optional but recommended because it keeps the project root clean.
 
-### Initialize Vovk.ts and follow the prompts
+### Initialize Vovk.ts
 
-You will be asked to choose your preferred validation library and answer a few other questions. This command also creates **vovk.config.mjs** or **vovk.config.cjs**, depending on the `type` field in your `package.json`.
+You will be prompted to choose a validation library and answer a few additional questions. The CLI will install the selected dependencies, update npm scripts, enable `experimentalDecorators` in **tsconfig.json**, and create the framework [config](/config) file.
 
 ```bash npm2yarn copy
-npx vovk-init@draft --channel draft
+npx vovk-cli@latest init
 ```
 
-### Create a new segment
+**More info:**
 
-The following command will create a root [segment](/segment) at **./src/app/api/[[...vovk]]/route.ts**.
+- [vovk init](/init)
+
+### Create a segment
+
+Run the following to create the root segment at **./src/app/api/[[...vovk]]/route.ts**:
 
 ```bash npm2yarn copy
 npx vovk new segment
 ```
 
-### Create a new controller and a service
+**More info:**
 
-The following command will create an example controller and service from built-in templates (which can be [customized](/new)) for users at **./src/modules/user/** and update the **route.ts** file.
+- [Segment](/segment)
+
+### Generate a controller and a service
+
+This command scaffolds **UserController.ts** and **UserService.ts** from built-in (customizable) templates under **./src/modules/user/** and updates the segment’s **route.ts**:
 
 ```bash npm2yarn copy
 npx vovk new controller service user
 ```
 
-### Start the server and navigate to an example endpoint
+**More info:**
+- [vovk new](/new)
+- [Controller](/controller)
+- [Service](/controller/service)
 
-The `dev` script runs the Next.js dev server and Vovk.ts watcher in parallel. Once the command is running, Vovk.ts will generate schema files at **.vovk-schema/** (which need to be committed) and the client library at **node_modules/.vovk-client**.
+### Start the server and inspect an endpoint
+
+The `dev` script runs the Next.js dev server and the Vovk.ts watcher in parallel. While running, Vovk.ts generates schema files in **.vovk-schema/** (commit these) and the client library in **node_modules/.vovk-client**.
 
 ```bash npm2yarn copy
 npm run dev
 ```
 
-Then open http://localhost:3000/api/users, where you'll see a placeholder response from the generated `UserController.getUsers` method.
+Then open: http://localhost:3000/api/users/123  
+You’ll see a placeholder response from `UserController.getSingleUser`: `{"message":"TODO: get single user","id":"123"}{:json}`
 
-### Create a React component to display the data
+**More info:**
+- [vovk dev](/dev)
+- [Schema](/schema)
+- [Composed Client](/composed)
+- [Segmented Client](/segmented)
 
-Import the generated client library and use it to fetch data.
+### Create a React component to display data
 
-```ts showLineNumbers copy
+Import the generated client library and call the RPC method:
+
+```tsx showLineNumbers copy filename="src/app/page.tsx"
+"use client";
+import { useEffect, useState } from 'react';
+import type { VovkReturnType } from 'vovk';
 import { UserRPC } from 'vovk-client';
-// ...
-const result = await UserRPC.getUsers();
+
+export default function Home() {
+  const [resp, setResp] = useState<VovkReturnType<typeof UserRPC.getSingleUser> | null>(null);
+
+  useEffect(() => {
+    void UserRPC.getSingleUser({ params: { id: '123' } }).then(setResp);
+  }, []);
+  return (
+    <pre>Response: {JSON.stringify(resp, null, 2)}</pre>
+  );
+}
 ```
 
-You can also use [React Query](https://react-query.tanstack.com/) to fetch data.
+You can alternatively use [React Query](https://react-query.tanstack.com/) for request state management:
 
 ```ts showLineNumbers copy
 import { useQuery } from '@tanstack/react-query';
 import { UserRPC } from 'vovk-client';
 // ...
 const { data, error, isLoading } = useQuery({
-  queryKey: UserRPC.getUsers.queryKey(),
-  queryFn: () => UserRPC.getUsers(),
+  queryKey: UserRPC.getSingleUser.queryKey(),
+  queryFn: () => UserRPC.getSingleUser({ params: { id: '123' }}),
 });
 ```
 
+**More info:**
+
+- [TypeScript RPC](/typescript)
+
 ### Deploy
 
-The `vovk init` command automatically modifies the `package.json` file to run `vovk generate` before `next build` via the `prebuild` script. This ensures that the client library is generated before building the Next.js app. If you chose to modify the scripts manually, you can use the following command to generate the client library:
+The `vovk init` command adds a `prebuild` script so `vovk generate` runs automatically before `next build`. If you adjust scripts manually, run:
 
 ```bash npm2yarn copy
 npx vovk generate
 ```
 
+**More info:**
+- [vovk generate](/generate)
 </Steps>

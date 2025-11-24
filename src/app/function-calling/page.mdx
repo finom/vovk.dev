@@ -1,6 +1,6 @@
 # Function Calling
 
-Vovk.ts provides LLM function calling capabilities, turning route handlers into functions callable by AI. This enables more interactive user experiences, including interactions via a text chat interface, a [Realtime voice interface](/realtime-ui), or [MCP](/mcp).
+Vovk.ts provides LLM function calling capabilities, turning route handlers into functions callable by AI. This enables more interactive user experiences, including interactions via a [text chat interface, a Realtime voice interface](/realtime-ui/ai), or [MCP](/mcp).
 
 While many AI libraries and APIs focus on how to use function calling, Vovk.ts focuses on what should be callable.
 
@@ -114,6 +114,7 @@ const { tools } = createLLMTools({
 });
 ```
 
+<a id="x-tool" />
 ## Custom Operation Attributes
 
 You can add custom attributes with the `x-tool-*` syntax to the OpenAPI operation in the `@operation` decorator, enabling AI-specific tooling metadata.

@@ -125,9 +125,90 @@ export default config;
 
 ### Built-in Templates
 
-**vovk-cli** ships example templates for controllers and services in its `module-templates` folder. Some [validation](/validation) libraries also provide example controller templates in their respective packages.
+The built-in templates cover standard CRUD operations for controllers and services, including methods like `get`, `list`, `create`, `update`, and `delete`.
 
-[vovk init](/init) sets up a Vovk.ts project with the corresponding templates defined in the [config](/config).
+[vovk init](/init) sets up a Vovk.ts project with the corresponding templates defined in the [config](/config). More specifically:
+
+- Zod controller template: [vovk-zod/module-templates/controller.ts.ejs](https://github.com/finom/vovk/blob/main/packages/vovk-zod/module-templates/controller.ts.ejs)
+- class-validator controller template: [vovk-dto/module-templates/controller.ts.ejs](https://github.com/finom/vovk/blob/main/packages/vovk-dto/module-templates/controller.ts.ejs)
+- Arktype controller template: [vovk-cli/module-templates/arktype/controller.ts.ejs](https://github.com/finom/vovk/blob/main/packages/vovk-cli/module-templates/arktype/controller.ts.ejs)
+- Valibot controller template: [vovk-cli/module-templates/valibot/controller.ts.ejs](https://github.com/finom/vovk/tree/main/packages/vovk-cli/module-templates/valibot/controller.ts.ejs)
+- When no library is selected, it uses the validation-agnostic template [vovk-cli/module-templates/type/controller.ts.ejs](https://github.com/finom/vovk/blob/main/packages/vovk-cli/module-templates/type/controller.ts.ejs).
+- Service template is used regardless of the validation library: [vovk-cli/module-templates/type/service.ts.ejs](https://github.com/finom/vovk/blob/main/packages/vovk-cli/module-templates/type/service.ts.ejs).
+
+For an illustration, there is what's generated when `vovk-cli/module-templates/arktype/controller.ts.ejs` is used as a controller template, creating **UserController.ts** with `npx vovk new controller user`:
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+import { prefix, get, put, post, del, operation } from 'vovk';
+import { type } from 'arktype';
+import withArk from '../../lib/withArk';
+
+@prefix('users')
+export default class UserController {
+  @operation({
+    summary: 'Get users',
+  })
+  @get()
+  static getUsers = withArk({
+    handle() {
+      return { message: 'TODO: get users' };
+    },
+  });
+
+  @operation({
+    summary: 'Get single user',
+  })
+  @get('{id}')
+  static getSingleUser = withArk({
+    params: type({ id: type('string') }),
+    handle(_req, { id }) {
+      return { message: 'TODO: get single user', id };
+    },
+  });
+
+  @operation({
+    summary: 'Update user',
+  })
+  @put('{id}')
+  static updateUser = withArk({
+    body: type({ todo: type('true') }),
+    params: type({ id: type('string') }),
+    async handle(req, { id }) {
+      const body = await req.json();
+
+      return { message: `TODO: update user`, id, body };
+    },
+  });
+
+  @operation({
+    summary: 'Create user',
+  })
+  @post()
+  static createUser = withArk({
+    body: type({ todo: type('true') }),
+    async handle(req) {
+      const body = await req.json();
+
+      return { message: `TODO: create user`, body };
+    },
+  });
+
+  @operation({
+    summary: 'Delete user',
+  })
+  @del('{id}')
+  static deleteUser = withArk({
+    params: type({ id: type('string') }),
+    handle(_req, params) {
+      const { id } = params;
+
+      return { message: `TODO: delete user`, id };
+    },
+  });
+}
+```
+
+When controllers are created along with services, the controller template includes service imports and method calls.
 
 ### Shortcuts
 

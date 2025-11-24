@@ -1,6 +1,8 @@
 import { Tabs } from 'nextra/components';
 import GithubFiles from '@/components/GithubFiles';
 import IFrame from './IFrame';
+import Asciinema from '../../components/AsciinemaPlayer';
+import NoSSR from '../../components/NoSSR';
 
 # "Hello World" Example
 
@@ -556,6 +558,12 @@ The spec includes Scalar‑compatible samples you can reuse immediately.
 <a name="bundle" />
 ## Building and Packaging
 
+<div className='mt-4'>
+<NoSSR>
+<Asciinema src="/asciinema/hello-world-patch.cast" />
+</NoSSR>
+</div>
+
 This example also demonstrates how to quickly produce distributable packages published on [npm](https://www.npmjs.com/package/vovk-hello-world), [PyPI](https://pypi.org/project/vovk-hello-world/), and [crates.io](https://crates.io/crates/vovk_hello_world). The provided [templates](/templates) compile ready-to-use packages with language-specific files such as [package.json](https://github.com/finom/vovk-hello-world/blob/main/dist/package.json), [Cargo.toml](https://github.com/finom/vovk-hello-world/blob/main/dist_rust/Cargo.toml), and [pyproject.toml](https://github.com/finom/vovk-hello-world/blob/main/dist_python/pyproject.toml), as well as README files that use code samples served as API/client documentation.
 
 `npm run patch`:
@@ -592,6 +600,14 @@ The `README.md` files are also updated with the latest examples and descriptions
 
 
 ## Node.js, Rust, and Python CLI Demo
+
+
+<div className='mt-4'>
+<NoSSR>
+<Asciinema src="/asciinema/hello-world-demo.cast" />
+</NoSSR>
+</div>
+
 
 The repository includes CLI demos for invoking RPC methods from Node.js, Rust, and Python. Each language has two variants:
 

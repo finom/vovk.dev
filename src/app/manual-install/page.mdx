@@ -4,7 +4,7 @@ import { Steps, Tabs, Callout } from 'nextra/components';
 
 <Steps>
 
-## Create a Next.js project with App Router and TypeScript
+## Create a Next.js project (App Router + TypeScript)
 
 ```bash npm2yarn copy
 npx create-next-app my-app --ts --app --src-dir
@@ -13,17 +13,20 @@ npx create-next-app my-app --ts --app --src-dir
 cd my-app
 ```
 
-The `src` directory is optional but recommended, as it keeps the root directory clean.
+The `src` directory is optional but recommended because it keeps the project root clean.
 
-## Install "vovk" and "vovk-client"
+## Install vovk and vovk-client
 
 ```sh npm2yarn copy
 npm i vovk vovk-client
 ```
 
-## Create an empty config file (optional)
+**More info:**
+- [Vovk.ts Packages](/packages)
 
-Create **vovk.config.mjs** at the root of the project with the following content:
+## Create the config file
+
+Create **vovk.config.mjs** at the project root with the following content:
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
 // @ts-check
@@ -33,15 +36,18 @@ const vovkConfig = {};
 export default vovkConfig;
 ```
 
+**More info:**
+- [Config](/config)
+
 ## Install a validation library and enable client-side validation
 
-For Zod validation on the server side and Ajv on the client side, install the following packages:
+For Zod validation on the server and Ajv on the client, install:
 
 ```sh npm2yarn copy
 npm i zod vovk-zod vovk-ajv
 ```
 
-Modify the `validateOnClient` import in your config file to enable client-side validation:
+Configure `validateOnClient` in your config file to enable client-side validation:
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
 // @ts-check
@@ -57,13 +63,15 @@ const vovkConfig = {
 export default vovkConfig;
 ```
 
-[Read more about validation](/validation).
+**More info:**
+- [Validation](/validation/introduction)
+- [Client-side Validation](/validation/client)
 
-## Update the "dev" script and create a "prebuild" NPM script
+## Update the dev script and add a prebuild script
 
-There are two ways to run Vovk.ts and the Next.js server concurrently: explicitly and implicitly. The explicit way is to install the `concurrently` package and run both scripts with it, which requires the `PORT` variable to be set. The implicit way is to have the Vovk.ts CLI run the Next.js server itself. In this case, **vovk-cli** will assign the port automatically.
+There are two ways to run Vovk.ts and the Next.js server together: explicitly and implicitly. The explicit option uses the `concurrently` package to run both processes (you must set `PORT`). The implicit option lets the Vovk.ts CLI start Next.js for you; in that case, **vovk-cli** assigns the port automatically.
 
-The `prebuild` script will run `vovk generate` before `next build` to generate the client library before building the Next.js app.
+The `prebuild` script runs `vovk generate` before `next build` so the client library is generated ahead of the Next.js build.
 
 <Tabs items={['Explicit', 'Implicit']} >
   <Tabs.Tab>
@@ -88,13 +96,18 @@ npm i -D concurrently
 
     ```json
     "scripts": {
+        "build": "next build",
         "dev": "npx vovk dev --next-dev",
-        "build": "npx vovk generate && next build"
+        "prebuild": "vovk generate"
     }
     ```
 
   </Tabs.Tab>
 </Tabs>
+
+**More info:**
+- [vovk dev](/dev)
+- [vovk generate](/generate)
 
 ## Enable decorators
 
@@ -111,7 +124,7 @@ In your **tsconfig.json**, set `"experimentalDecorators"` to `true`.
 
 ## Create a controller
 
-Create **HelloController.ts** at **/src/modules/hello/** with a same-named static class.
+Create **HelloController.ts** in **/src/modules/hello/** with a class of the same name.
 
 ```ts showLineNumbers copy filename="src/modules/hello/HelloController.ts"
 import { get, prefix } from 'vovk';
@@ -125,15 +138,19 @@ export default class HelloController {
 }
 ```
 
+**More info:**
+- [Controller](/controller)
+- [Service](/controller/service)
+
 ## Create a root segment
 
-Create the root [segment](/segment) **/src/app/api/[[...vovk]]/route.ts**, where **[[...vovk]]** is a folder name indicating what the Next.js documentation calls an ["Optional Catch-all Segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) (the slug can be any valid slug, such as <nobr>**[[...mySlug]]**</nobr>).
+Create the root [segment](/segment) **/src/app/api/[[...vovk]]/route.ts**, where **[[...vovk]]** is an ["Optional Catch-all Segment"](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes#optional-catch-all-segments). The slug can be any valid name, such as <nobr>**[[...mySlug]]**</nobr>.
 
-In the code below, `HelloRPC` indicates the name of the generated RPC module, and `HelloController` is the controller module created above.
+In the code below, `HelloRPC` is the name of the generated RPC module, and `HelloController` is the controller created above.
 
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
-import HelloController from '../modules/hello/HelloController';
+import HelloController from '../../../modules/hello/HelloController';
 
 const controllers = { HelloRPC: HelloController };
 
@@ -144,7 +161,10 @@ export type Controllers = typeof controllers;
 export const { GET, POST, PUT, DELETE } = initSegment({ controllers });
 ```
 
-## Run "vovk dev"
+**More info:**
+- [Segment](/segment)
+
+## Run the dev server
 
 Run `npm run dev` to start Vovk.ts and Next.js concurrently.
 
@@ -156,7 +176,7 @@ Navigate to [http://localhost:3000/api/greetings/greeting](http://localhost:3000
 
 ## Create a React component
 
-Now that the client is generated, you can safely import your client library from **vovk-client**.
+Once the client is generated, you can import it from **vovk-client**.
 
 ```ts showLineNumbers copy filename="src/app/page.tsx"
 'use client';
@@ -165,13 +185,13 @@ import { HelloRPC } from 'vovk-client';
 import type { VovkReturnType } from 'vovk';
 
 export default function MyComponent() {
-  const [serverResponse, setServerResponse] = useState<VovkReturnType<typeof HelloController.getHello>>();
+  const [serverResponse, setServerResponse] = useState<VovkReturnType<typeof HelloRPC.getHello>>();
 
   return (
     <>
       <button
         onClick={async () => {
-          const response = await HelloController.getHello();
+          const response = await HelloRPC.getHello();
           setServerResponse(response);
         }}
       >
@@ -186,10 +206,15 @@ export default function MyComponent() {
 Open [http://localhost:3000](http://localhost:3000) to see the result.
 
 <Callout type="info" emoji="ℹ️">
-  Note that if you're using VSCode, you'll probably need to [restart the TS
-  server](https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server) each time you add a new
-  controller class to your app. Changing the `controller` list is the only case when you may need to restart the TS server
-  manually; other changes, such as adding new methods or changing [validation](/validation), will be picked up automatically.
+  If you're using VSCode, you may need to
+  <a href="https://stackoverflow.com/questions/64454845/where-is-vscodes-restart-ts-server">restart the TS server</a>
+  when you add a new controller class. This is the only time a manual restart is typically required; other changes—like
+  adding methods or updating validation—are picked up automatically.
 </Callout>
+
+**More info:**
+- [TypeScript RPC](/typescript)
+- [Composed Client](/composed)
+- [Segmented Client](/segmented)
 
 </Steps>

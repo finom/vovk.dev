@@ -8,17 +8,17 @@ const Hero = () => {
   const words = ['with RPC', 'with Codegen', 'for SPA', 'for SaaS', 'for MCP'];
 
   return (
-    <div className="relative min-h-[calc(100vh_-_64px)] flex items-center justify-center overflow-hidden bg-background">
-      <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-      <div hidden className="absolute inset-0 bg-gradient-to-br from-background via-background to-muted/20"></div>
+    <div className="relative min-h-[calc(100vh-64px)] flex items-center justify-center overflow-hidden bg-background">
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[24px_24px]"></div>
+      <div hidden className="absolute inset-0 bg-linear-to-br from-background via-background to-muted/20"></div>
 
-      <div className="bg-gradient-to-b from-[#ffffff30] to-[#ffffffff] dark:from-background/30 dark:to-background bottom-0 left-0 right-0 h-1/6 absolute " />
+      <div className="bg-linear-to-b from-[#ffffff30] to-[#ffffffff] dark:from-background/30 dark:to-background bottom-0 left-0 right-0 h-1/6 absolute " />
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-8">
         <div className="md:space-y-6 space-y-4">
           <div className="inline-flex items-center rounded-full bg-background/50 px-3 font-semibold text-2xl md:text-4xl opacity-60">
-            Back-end for Next.js (WIP)
+            Back-end for Next.js (beta)
           </div>
           <div className="inline-flex items-center rounded-full border border-border bg-background/50 px-3 text-sm" hidden>
             <span className="text-muted-foreground">Introducing</span>
@@ -34,7 +34,7 @@ const Hero = () => {
             </span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed" hidden>
-            Back-end for Next.js
+            Back-end for Next.js (beta)
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-4">

@@ -10,6 +10,11 @@ const options = [
     href: '/about',
   },
   {
+    title: 'Why Vovk.ts?',
+    icon: '❓',
+    href: '/why',
+  },
+  {
     title: 'Quick Install',
     icon: '🚀',
     href: '/quick-install',
@@ -58,11 +63,6 @@ const options = [
     title: 'Codegen',
     icon: '⚙️',
     href: '/codegen',
-  },
-  {
-    title: 'Framework for SaaS',
-    icon: '☁️',
-    href: '/saas',
   },
   {
     title: 'RESTful API with OpenAPI',

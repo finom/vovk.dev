@@ -13,9 +13,7 @@ const config = {
   ...nextra,
   output: 'export',
   images: { unoptimized: true },
-  experimental: {
-    typedRoutes: true,
-  },
+  typedRoutes: true,
 };
 
 // output: 'export' does not work with rewrites

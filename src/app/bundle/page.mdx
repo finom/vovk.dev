@@ -105,7 +105,7 @@ If set to `true`, the `prebundleOutDir` will not be deleted after bundling. This
 
 ### `outputConfig`
 
-The `outputConfig` object accepts and overrides the same options as the [outputConfig](/config#generatorconfig) at the root of the [config](/config) file.
+The `outputConfig` object accepts and overrides the same options as the [outputConfig](/config#outputconfig) at the root of the [config](/config) file.
 
 ## Bundling with tsdown
 
@@ -217,7 +217,7 @@ await UserRPC.getUser({
 });
 ```
 
-All features described in the [TypeScript](/typescript) article are available to the bundled method, including client-side validation, [custom options](/imports#fetcher), `queryKey` method and more.
+All features described in the [TypeScript](/typescript) article are available to the bundled RPC modules, including client-side validation, [custom options](/imports#fetcher), `queryKey` method and more.
 
 [Schema](/schema) is available under `schema` import as well as a property for every method individually:
 

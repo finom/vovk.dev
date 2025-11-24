@@ -29,12 +29,6 @@ Options:
 
 The `init` command sets up Vovk.ts in an existing Next.js project. It applies the required configuration and installs the necessary dependencies.
 
-You can also use an alias for `init`, available as a [separate package](/packages#vovk-init).
-
-```sh npm2yarn copy
-npx vovk-init@draft
-```
-
 This is equivalent to:
 
 ```sh npm2yarn copy
@@ -75,10 +69,16 @@ Selects a validation library: "zod", "class-validator", "valibot", "arktype", or
 If not set to "none", the command updates the [config](/config) to include the matching `validateOnClient`.
 
 ### `--channel <channel>`
-Specifies the package channel (default: "latest"). Use "draft" or "beta" to access newer features. In that case, use the corresponding suffix when running the command:
+Specifies the package channel (default: "latest").
+
+- `latest` for stable releases.
+- `beta` for beta releases (tested but might introduce breaking changes without notice).
+- `draft` for draft releases (unstable, may contain experimental features).
+
+In that case, use the corresponding version suffix when running the command:
 
 ```sh npm2yarn copy
-npx vovk-init@beta --channel beta
+npx vovk-cli@draft init --channel draft
 ```
 
 ### `--dry-run`

@@ -22,7 +22,7 @@ The configuration extends the `VovkConfig` type from the `vovk` package and expo
 <a name="exposeConfigKeys" />
 ### `exposeConfigKeys: boolean | string[]`
 
-Controls whether to emit config options to [.vovk-schema/_meta.json](/schema). If `true`, emits all options. If set to an array of strings, emits only the listed options. Default: <nobr>`["libs"]`</nobr>.
+Controls whether to emit config options to [.vovk-schema/_meta.json](/schema). If `true`, emits all options. If set to an array of strings, emits only the listed options. Default: <nobr>`["libs", "rootEntry"]`</nobr>.
 
 <a name="clienttemplatedefs" />
 ### `clientTemplateDefs: object`
@@ -150,7 +150,7 @@ console.log(schema.meta.config.libs.ajv.options.strict); // false
 console.log(UserRPC.updateUser.fullSchema.meta.config.libs.ajv.localize); // 'de'
 ```
 
-<a name="generatorconfig" />
+<a name="outputconfig" />
 ### `outputConfig`
 
 The `outputConfig` object customizes the generated client code by changing [imports](/imports), `origin`, or adding [OpenAPI Mixins](/codegen).

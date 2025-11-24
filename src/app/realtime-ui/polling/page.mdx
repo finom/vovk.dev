@@ -2,20 +2,14 @@ import { Tabs } from 'nextra/components';
 import GithubFiles from '@/components/GithubFiles';
 import { PollExample } from '@/components/vovk-examples';
 
+
 TODO: deletions need to be explicit
 
-# Realtime polling (experimental)
+# Realtime Database Polling
 
-## The goal
+In the previous articles, we've covered how to make UI automatically, when the front-end receives updated database entities while the user interacts with the app but also when the app is interacted by text or voice AI interfaces. In this article, we explain how to keep the UI in sync with database changes triggered by other users or third-party services (such as [MCP](/mcp) or Telegram bot described at this article), using only HTTP protocol (no WebSockets) to ensure compatibility with any hosting provider.
 
-- Make the UI update automatically when the data is changed by other users or third-party services
-- Use only HTTP protocol (no WebSockets, no SSE) to ensure compatibility with any hosting provider
-
-##  Introduction
-
-In the [previous article](/realtime-ui), we covered how to use the OpenAPI Realtime API to deliver instant UI updates while the user interacts with the app. The LLM functions created with `createLLMTools` ran in the browser, where the AI performed HTTP requests to the server using RPC modules.
-
-On this page, we explain how to use database polling to receive updates triggered by other users or third-party services (such as [MCP](/mcp)), keeping the UI in sync with the database. To ensure the app can be deployed to any hosting provider, we avoid non-HTTP protocols such as WebSockets and instead use HTTP polling powered by [JSONLines](/controller/jsonlines).
+The way we achieve this is by implementing database polling powered by [JSONLines](/controller/jsonlines). The server sends updates to clients whenever the database changes, and the client reconnects automatically when the connection is closed.
 
 The component below demonstrates a simple polling example that receives incremental updates from the server every second. After 10 updates, the server closes the connection, and the client reconnects automatically. We can use the same approach to receive database updates in real time, by having the server send updates whenever the database changes.
 
@@ -28,11 +22,11 @@ A small delay (up to a half of a second) is expected due to the CORS preflight. 
 
 ## Redis DB as event bus
 
-While we could poll the main Postgres database for changes, that approach is inefficient. Instead, we use Redis as an event bus. Whenever the main database changes, we write a small event to Redis. Our polling service reads these events every second and relays them to clients with the app open.
+While we could poll the main Postgres database for changes, that approach is inefficient. Instead, we use Redis as an event bus: whenever the main database changes, we write a small event to Redis Database. Our polling service reads these events every second and sends them to clients with the app open.
 
-Because we use [Prisma](https://www.prisma.io/) as our ORM, we rely on [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. This is where the `DatabaseService` mentioned in the [previous article](/realtime-ui) comes into play.
+Because we use [Prisma](https://www.prisma.io/) as our ORM, we can use [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. This is where the `DatabaseService` mentioned in the [previous article](/realtime-ui) comes into play.
 
-```ts showLineNumbers copy filename="src/modules/database/DatabaseService.ts" repository="finom/vovk-kanban-demo" {20, 96}
+```ts showLineNumbers copy filename="src/modules/database/DatabaseService.ts" repository="finom/realtime-kanban" {20, 96}
 import { PrismaClient } from "../../../prisma/generated/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import DatabaseEventsService, { type DBChange } from "./DatabaseEventsService";
@@ -139,10 +133,10 @@ export default class DatabaseService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/database/DatabaseService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseService.ts)*
 
-- The `getClient` method calls `DatabaseEventsService.beginEmitting(){:ts}` to start emitting events. `beginEmitting` runs a `setInterval` that connects to Redis and periodically checks for new events. When a new event is found, it emits it via [mitt](https://npmjs.com/package/mitt).
-- `prisma.$extends` hooks into all Prisma model operations, determines whether an operation modifies data, and if so calls `await DatabaseEventsService.createChanges([change]){:ts}` to persist a change entry in Redis. The change captures creates, updates, and deletions:
+- The `getClient` method calls `DatabaseEventsService.beginEmitting(){:ts}` to start emitting events. The `beginEmitting` function runs a `setInterval` that connects to Redis and periodically checks for new events. When a new event is found, it emits it via [mitt](https://npmjs.com/package/mitt).
+- `prisma.$extends` hooks into some of the Prisma model operations, determines whether an operation modifies data, and if so calls `await DatabaseEventsService.createChanges([change]){:ts}` to persist a change entry in Redis. The change captures creates, updates, and deletions:
 
 ```ts showLineNumbers copy
 export type DBChange = {
@@ -155,16 +149,16 @@ export type DBChange = {
 
 The `date` field indicates when the change occurred.
 
-- For `create` and `update` operations, it uses the `updatedAt` DB field (Important: all write operations must set this field).
+- For `create` and `update` operations, it uses the `updatedAt` DB field (important: all write operations must select this field).
 - For `delete` operations, it uses the current time.
 
-The `delete` operation also adds an `__isDeleted` property. The front end checks this property to hide the deleted entity by setting `enumerable: false` on the entity registry item (see the [previous article](/realtime-ui)).
+The `delete` operation also adds an `__isDeleted` property. The front end checks this property to hide the deleted entity by setting `enumerable: false` on the entity registry item (see the [Setup article](/realtime-ui/setup)).
 
 Operations like `find...` and `count` do not trigger changes and are passed through as-is.
 
 In addition to `beginEmitting` and `createChanges`, `DatabaseEventsService` provides a `connect` method and an `emitter` (a `mitt` instance). These are used by the polling service (`DatabasePollService`, discussed next) to be notified about new events.
 
-```ts showLineNumbers copy filename="src/modules/database/DatabaseEventsService.ts" repository="finom/vovk-kanban-demo"
+```ts showLineNumbers copy filename="src/modules/database/DatabaseEventsService.ts" repository="finom/realtime-kanban"
 import { EntityType } from "../../../prisma/generated/client";
 import mitt from "mitt";
 import { createClient } from "redis";
@@ -243,7 +237,7 @@ export default class DatabaseEventsService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/database/DatabaseEventsService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseEventsService.ts)*
 
 ## Polling controller and service
 
@@ -251,7 +245,7 @@ With Redis change entries and the change emitter in place, we can implement a po
 
 <Tabs items={['DatabasePollService.ts', 'DatabasePollController.ts']}>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/database/DatabasePollService.ts" repository="finom/vovk-kanban-demo"
+```ts showLineNumbers copy filename="src/modules/database/DatabasePollService.ts" repository="finom/realtime-kanban"
 import { JSONLinesResponse, type VovkIteration } from "vovk";
 import { forEach, groupBy } from "lodash";
 import type DatabasePollController from "./DatabasePollController";
@@ -317,10 +311,10 @@ export default class PollService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/database/DatabasePollService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollService.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/database/DatabasePollController.ts" repository="finom/vovk-kanban-demo"
+```ts showLineNumbers copy filename="src/modules/database/DatabasePollController.ts" repository="finom/realtime-kanban"
 import { EntityType } from "../../../prisma/generated/client";
 import { get, JSONLinesResponse, prefix, type VovkIteration } from "vovk";
 import { z } from "zod";
@@ -356,7 +350,7 @@ export default class DatabasePollController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-kanban-demo/blob/main/src/modules/database/DatabasePollController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollController.ts)*
 </Tabs.Tab>
 </Tabs>
 
@@ -365,59 +359,84 @@ export default class DatabasePollController {
 
 ## Client-side logic
 
-On the client side (for example, in a React component), call `DatabasePollRPC.poll()` to receive a stream of database events. As with any [JSONLines](/controller/jsonlines) RPC method, it returns an async iterable that you can consume in a `for await` loop. Because the server may close the connection or a network error may occur, wrap the logic in a retry loop and avoid reconnecting on `AbortError`. Since the [fetcher](/imports#fetcher) is already [configured](/realtime-ui#fetcher), the loop body can be empty—you do not need to handle data manually.
+On the client side (for example, in a React component), call `DatabasePollRPC.poll()` to receive a stream of database events. As with any [JSONLines](/controller/jsonlines) RPC method, it returns an async iterable that you can consume in a `for await` loop. Because the server may close the connection or a network error may occur, wrap the logic in a retry loop and avoid reconnecting on `AbortError` thrown when the user disables polling or navigates away. Since the [fetcher](/imports#fetcher) is already [configured](/realtime-ui#fetcher), the loop body can be empty—you do not need to handle data manually.
 
 Front-end code, besides the polling logic, also includes on/off toggle state saved to `localStorage`, so the user can enable or disable polling as needed.
 
-```ts showLineNumbers copy
-const [isPollingEnabled, setIsPollingEnabled] = useState(false);
-const pollingAbortControllerRef = useRef<AbortController | null>(null);
+Here's the `useDatabasePolling` hook that implements the described logic, returning the `[isPollingEnabled, setIsPollingEnabled]` state tuple:
 
-useEffect(() => {
-  const isEnabled = localStorage.getItem("isPollingEnabled");
-  setIsPollingEnabled(isEnabled === "true");
-}, []);
+```ts showLineNumbers copy filename="src/hooks/useDatabasePolling.ts" repository="finom/realtime-kanban"
+import { useEffect, useRef, useState } from "react";
+import { DatabasePollRPC } from "vovk-client";
 
-useEffect(() => {
-  localStorage.setItem("isPollingEnabled", isPollingEnabled.toString());
-  async function poll(retries = 0) {
-    if (!isPollingEnabled) {
-      pollingAbortControllerRef.current?.abort();
-      return;
-    }
-    try {
-      while (true) {
-        console.log("START POLLING");
-        const iterable = await DatabasePollRPC.poll();
-        pollingAbortControllerRef.current = iterable.abortController;
+/**
+ * Hook to manage database polling state.
+ * @example const [isPollingEnabled, setIsPollingEnabled] = useDatabasePolling(false);
+ */
+export default function useDatabasePolling(initialValue = false) {
+  const MAX_RETRIES = 5;
+  const [isPollingEnabled, setIsPollingEnabled] = useState(initialValue);
+  const pollingAbortControllerRef = useRef<AbortController | null>(null);
 
-        for await (const iteration of iterable) {
-          console.log("New DB update:", iteration);
+  useEffect(() => {
+    const isEnabled = localStorage.getItem("isPollingEnabled");
+    setIsPollingEnabled(isEnabled === "true");
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("isPollingEnabled", isPollingEnabled.toString());
+    async function poll(retries = 0) {
+      if (!isPollingEnabled) {
+        pollingAbortControllerRef.current?.abort();
+        return;
+      }
+      try {
+        while (true) {
+          console.log("START POLLING");
+          const iterable = await DatabasePollRPC.poll();
+          pollingAbortControllerRef.current = iterable.abortController;
+
+          for await (const iteration of iterable) {
+            console.log("New DB update:", iteration);
+          }
+        }
+      } catch (error) {
+        if (
+          retries < MAX_RETRIES &&
+          (error as Error & { cause?: Error }).cause?.name !== "AbortError"
+        ) {
+          console.error("Polling failed, retrying...", error);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          return poll(retries + 1);
         }
       }
-    } catch (error) {
-      if (
-        retries < 5 &&
-        (error as Error & { cause?: Error }).cause?.name !== "AbortError"
-      ) {
-        console.error("Polling failed, retrying...", error);
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        return poll(retries + 1);
-      }
     }
-  }
 
-  void poll();
+    void poll();
 
-  return () => {
-    pollingAbortControllerRef.current?.abort();
-  };
-}, [isPollingEnabled]);
+    return () => {
+      pollingAbortControllerRef.current?.abort();
+    };
+  }, [isPollingEnabled]);
+
+  return [isPollingEnabled, setIsPollingEnabled] as const;
+}
 ```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useDatabasePolling.ts)*
+
+Usage:
+
+```tsx copy
+const [isPollingEnabled, setIsPollingEnabled] = useDatabasePolling(false);
+```
+
+## Setting up MCP server
+
+Coming soon.
 
 ## Bonus: Telegram bot (unstable)
 
-As an example of a third-party source of database changes, see the [TelegramService](https://github.com/vovk-kanban-demo/src/modules/telegram/TelegramService.ts) and the accompanying [TelegramController](https://github.com/vovk-kanban-demo/src/modules/telegram/TelegramController.ts). It accepts text or voice messages, performs voice-to-text transcription if needed using the OpenAI Whisper API, and uses the same `createLLMTools` function on the server:
+As an example of a third-party source of database changes, see the [TelegramService](https://github.com/realtime-kanban/src/modules/telegram/TelegramService.ts) and the accompanying [TelegramController](https://github.com/realtime-kanban/src/modules/telegram/TelegramController.ts). It accepts text or voice messages, performs voice-to-text transcription if needed using the OpenAI Whisper API, and uses the same `createLLMTools` function on the server:
 
 ```ts showLineNumbers copy
 const { tools } = createLLMTools({
