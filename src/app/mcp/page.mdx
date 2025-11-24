@@ -2,7 +2,7 @@ import { Tabs } from 'nextra/components';
 
 # MCP Server
 
-Now that we’ve covered [Function Calling](/function-calling), [Realtime UI](/realtime-ui), and [Realtime Database Polling](/polling), let’s add the final piece and demonstrate that [your API is an MCP](https://www.youtube.com/watch?v=eeOANluSqAE) when built with Vovk.ts. We’ll use the [mcp-handler](https://www.npmjs.com/package/mcp-handler) package, which makes it straightforward to create MCP servers on Next.js.
+Now that we’ve covered [Function Calling](/function-calling), [Realtime UI](/realtime-ui), and [Realtime Database Polling](/realtime-ui/polling), let’s add the final piece and demonstrate that [your API is an MCP](https://www.youtube.com/watch?v=eeOANluSqAE) when built with Vovk.ts. We’ll use the [mcp-handler](https://www.npmjs.com/package/mcp-handler) package, which makes it straightforward to create MCP servers on Next.js.
 
 The `createLLMTools` function accepts a `resultFormatter` option to format a tool’s execution result before it’s returned to the LLM. It also accepts the special string value `mcp`, which formats the result to meet MCP server expectations. That’s all you need to produce MCP‑compatible tool output in the following shape:
 

@@ -36,9 +36,9 @@ void Promise.all([
 
 The full implementation of the service module looks like this:
 
-```ts showLineNumbers copy
+```ts showLineNumbers copy filename="src/modules/progressive/ProgressiveService.ts" repository="finom/vovk-examples"
 import { JSONLinesResponse, type VovkIteration } from 'vovk';
-import type ProgressiveController from './ProgressiveController';
+import type ProgressiveController from './ProgressiveController.ts';
 
 export default class ProgressiveService {
   static async getUsers() {
@@ -66,7 +66,7 @@ export default class ProgressiveService {
   static streamProgressiveResponse(
     resp: JSONLinesResponse<VovkIteration<typeof ProgressiveController.streamProgressiveResponse>>
   ) {
-    void Promise.all([
+    Promise.all([
       this.getUsers().then((users) => resp.send({ users })),
       this.getTasks().then((tasks) => resp.send({ tasks })),
     ])
@@ -75,6 +75,7 @@ export default class ProgressiveService {
   }
 }
 ```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-examples/blob/main/src/modules/progressive/ProgressiveService.ts)*
 
 On the controller side, instantiate `JSONLinesResponse`, pass it to the service method, and return it as the response.
 
@@ -88,15 +89,15 @@ return response;
 
 The full controller implementation with typing and validation looks like this:
 
-```ts showLineNumbers copy
+```ts showLineNumbers copy filename="src/modules/progressive/ProgressiveController.ts" repository="finom/vovk-examples"
 import { get, JSONLinesResponse, prefix, type VovkIteration } from 'vovk';
 import { withZod } from 'vovk-zod';
 import { z } from 'zod';
-import ProgressiveService from './ProgressiveService';
+import ProgressiveService from './ProgressiveService.ts';
 
 @prefix('progressive')
 export default class ProgressiveController {
-  @get()
+  @get('', { cors: true })
   static streamProgressiveResponse = withZod({
     validateEachIteration: true,
     iteration: z.union([
@@ -130,6 +131,7 @@ export default class ProgressiveController {
   });
 }
 ```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-examples/blob/main/src/modules/progressive/ProgressiveController.ts)*
 
 The server-side code is ready. Now we can implement the client-side code to consume this progressive response. For this, we will use the `progressive` function from the `vovk` package, which creates a promise for each property of the resulting object. It accepts the RPC method to call (e.g., `ProgressiveRPC.streamProgressiveResponse`) and optional input parameters. The function returns an object with promises per property, which can be awaited separately.
 

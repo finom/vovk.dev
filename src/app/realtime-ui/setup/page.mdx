@@ -76,7 +76,7 @@ Add `OPENAI_API_KEY` at the project environment variables. Other variables such 
 
 At this article I'm going to describe an efficient way to synchronise application state with the back-end data, that can be applied to any application even if it isn't using Vovk.ts at all. This idea is state-library-agnostic and database-agnostic, so you can implement it with any tools you prefer. 
 
-I'm going to use [Postgres](https://www.postgresql.org/) as a database, [Prisma](https://www.prisma.io/) as an ORM, [Zustand](https://zustand-demo.pmnd.rs/) as a state management library and, of course Vovk.ts as a back-end framework. The demo also uses [Redis](https://redis.io/) as database event bus, in order to implement DB polling functionality, it will be described in the [next article](/polling).
+I'm going to use [Postgres](https://www.postgresql.org/) as a database, [Prisma](https://www.prisma.io/) as an ORM, [Zustand](https://zustand-demo.pmnd.rs/) as a state management library and, of course Vovk.ts as a back-end framework. The demo also uses [Redis](https://redis.io/) as database event bus, in order to implement DB polling functionality, it will be described in the [next article](./polling).
 
 Let's say we have an more or less complex application with multiple components that use the same data that's incoming from the server. As the most simple example imaginable, we have a user profile component that displays displays user's full name at multiple components. Once the data is updated we want to update all the components that use this data.
 
@@ -250,7 +250,7 @@ The controllers and services are quite self-explanatory: we decorate each method
 - The "get all" endpoints use `x-tool-disable` operation option to disable the endpoint from being used as a tool by default, so that AI cannot access it and will use search instead in order to simulate more realistic scenarios.
 - Database requests are invoked using `DatabaseService.prisma` where the `prisma` property is a normal Prisma client instance with [extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions). One of the features relevant to this article is that it adds `__isDeleted` property to the deleted entities when `prisma.xxx.delete` methods are invoked, this will be explained below.
 - Creations and updates are followed by `EmbeddingService.generateEntityEmbedding` calls and the search endpoints use `EmbeddingService.vectorSearch` function. The `EmbeddingService` itself wouldn't be described here as it's out of the scope of this article (it's already too big), but you can check the full code at the [GitHub repository](https://github.com/finom/realtime-kanban/blob/main/src/modules/embedding/EmbeddingService.ts). In short, it uses [OpenAI embeddings](https://platform.openai.com/docs/guides/embeddings) and [pgvector](https://github.com/pgvector/pgvector) to store and search embeddings in the database.
-- Rest of the features will be described at [polling](/polling) article.
+- Rest of the features will be described at [polling](./polling) article.
 
 Here is the code for `UserController`, `UserService`, `TaskController`, and `TaskService` directly fetched from the project repository:
 

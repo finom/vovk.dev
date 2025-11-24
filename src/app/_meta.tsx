@@ -20,7 +20,7 @@ const meta = {
     display: 'hidden',
   },
   '#about': separator('About'),
-  about: 'About Vovk.ts 🚧',
+  about: 'About Vovk.ts',
   why: 'Why Vovk.ts?',
   performance: 'Overhead Performance',
   '#getting-started': separator('Getting Started'),
@@ -66,7 +66,7 @@ const meta = {
   authorization: 'Authorization with Decorators',
   proxy: 'Proxy Endpoints',
   nestjs: 'RPC for NestJS',
-  'other-scenarios': 'Other Usage Scenarios 🚧',
+  'other-scenarios': 'Other Usage Scenarios',
 } satisfies MetaRecord;
 
 export default meta;

@@ -118,7 +118,7 @@ export default class UserService {
   ) {
     // handle the request
     console.log({ body, notify, id }); // { body: { name: 'John Doe' }, notify: 'push', id: '12345' }
-    return { body, notify, id, success: true } satisfies VovkOutput<typeof UserController.updateUser>;
+    return { body, notify, id, success: true };
   }
 }
 ```
@@ -140,10 +140,6 @@ export const { GET, POST, PUT, DELETE } = initSegment({
 ```
 </Tabs.Tab>
 </Tabs>
-
-> [!IMPORTANT]
->
-> This feature may require an additional check of the return type or manual type annotation because the `handle` function isn’t intrinsically tied to its output type and can return `any`. Use `x satisfies VovkOutput<typeof f>{:ts}` or annotate the return type manually. While not required for proper type inference in RPC modules, this can be useful when the handler needs the strictest possible type checking.
 
 **More info**
 
@@ -235,7 +231,7 @@ Each segment emits its back-end schema into an **individual JSON file** used to 
   </FileTree.Folder>
 </FileTree>
 
-the resulting schema files are located in the `.vovk-schema/` directory:
+the resulting schema files are located in the `.vovk-schema/` directory as follows:
 
 <FileTree>
   <FileTree.Folder name=".vovk-schema" defaultOpen>
@@ -249,7 +245,7 @@ the resulting schema files are located in the `.vovk-schema/` directory:
   </FileTree.Folder>
 </FileTree>
 
-The JSON files follow the same recursive structure as the segments, where `root.json` is a special name for the root segment with an empty string name `""`. The `_meta.json` file contains additional metadata, such as explicitly emitted fields from the [vovk.config](/config) file.
+The JSON files follow the same recursive structure as the segments, where `root.json` is a special name for the root segment with an empty string name `""`. The `_meta.json` file contains additional metadata, such as explicitly emitted fields from the [vovk.config](/config) file for additional client-side configuration.
 
 **More info**
 - [Schema](/schema)
@@ -428,9 +424,7 @@ Thanks to JSON Schema emission and access to back-end data that was previously u
 
 ## JSON Lines
 
-Vovk.ts includes first-class support for the [JSON Lines](https://jsonlines.org/) format—a convenient way to implement “one request, many responses.” It’s ideal for LLM completions and enables new patterns such as [progressive responses](/controller/progressive) and [polling](/polling). 
-
-JSON Lines is another output type that uses the `iteration` validation field and produces the `application/jsonl` content type if the client includes the `Accept: application/jsonl` header. If the `Accept` header doesn’t include `application/jsonl`, the output is returned as `text/plain` so the endpoint can be viewed directly in a browser.
+Vovk.ts includes first-class support for the [JSON Lines](https://jsonlines.org/) format—a convenient way to implement “one request, many responses.”. JSON Lines is another output type that uses the `iteration` validation field and produces the `application/jsonl` content type if the client includes the `Accept: application/jsonl` header. If the `Accept` header doesn’t include `application/jsonl`, the output is returned as `text/plain` so the endpoint can be viewed directly in a browser or used by clients that don’t support JSON Lines.
 
 ```ts showLineNumbers copy
 import { z } from 'zod';
@@ -582,9 +576,8 @@ console.log(tools); // [{ name, description, parameters, execute }, ...]
 
 **More info**
 - [Function Calling](/function-calling)
-- [Realtime UI](/realtime-ui)
-- [Polling](/polling)
 - [MCP Server](/mcp)
+- [Realtime UI](/realtime-ui)
 
 ## First-Class OpenAPI Support
 
@@ -596,7 +589,7 @@ import { openapi } from 'vovk-client/openapi';
 console.log(openapi);
 ```
 
-The OpenAPI feature includes first-class support for [Scalar](https://github.com/scalar/scalar), generating copy-pastable code snippets with documentation for input and output represented in comments. Here is an example automatically generated for the ["Hello World" example](/hello-world), which you can also view [here](https://hello-world.vovk.dev/openapi):
+The OpenAPI feature includes first-class support for [Scalar](https://github.com/scalar/scalar), generating copy-pastable code snippets with documentation for input and output represented in comments. Here is a snippet automatically generated for the ["Hello World" example](/hello-world), which you can also view [here](https://hello-world.vovk.dev/openapi):
 
 ```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';

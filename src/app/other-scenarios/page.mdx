@@ -4,7 +4,7 @@
 
 The minimalistic design of Vovk.ts makes it easy to create complex back-end logic with AI generators, requiring minimal input context and reducing cognitive load for AI agents. This helps minimize hallucinations and improves the reliability of generated RESTful APIs.
 
-Compared to NestJS, Vovk.ts requires fewer imports and decorators, does not require wiring controllers and services into a “module”, does not use dependency injection ([services](/controller/service) are just namespaced functions with no decorators), supports inline input/output models (so AI does not need to create “DTO” classes in separate files), and works with virtually any modern [validation library](/validation).
+Compared to NestJS, Vovk.ts requires fewer imports and decorators, does not require wiring controllers and services into a “module”, does not use dependency injection ([services](/controller/service) are just namespaced functions with no decorators), supports inline input/output models (so AI does not need to create “DTO” classes in separate files), and works with any modern [validation library](/validation).
 
 With modern tooling such as [Prisma ORM](https://www.prisma.io/), even small LLMs can reliably generate high-quality, functional code.
 
@@ -13,12 +13,12 @@ Here are the features of Vovk.ts that make it suitable for AI-generated back end
 - Almost zero boilerplate—just a [config](/config) file.
 - The most minimal syntax for defining API routes among back-end frameworks with OAS support.
 - A single Next.js project, so AI does not struggle with a monorepo.
-- Clear syntax for RPC modules that can be used on the front end.
+- Clear and concise syntax for RPC modules that can be used on the front end.
 - Clear type inference for input/output models; see the [inference documentation](/inference).
 
 Bonus capabilities available out of the box:
 
-- [Multitenancy](/multitenant) with proxy.ts.
+- [Multitenancy](/multitenant) with **proxy.ts**.
 - [OpenAPI documentation](/openapi) with code samples.
 - A [function calling framework](/function-calling) that turns controllers (server-side tools) and RPC modules (client-side tools) into powerful agents, including [MCP servers](/mcp).
 - [OpenAPI Mixins](/codegen) to integrate third-party APIs into an AI-generated project.
@@ -38,4 +38,4 @@ If you have an Angular, Vue.js, or other front-end project that needs a RESTful 
 
 -----
 
-If you prefer not to use a monorepo, you can split the front end and back end into separate repositories. The back end can [bundle](/bundle) the client library and publish it as a private NPM package that the front end consumes.
+If you prefer not to use a monorepo, you can split the front end and back end into separate repositories. The back end can [bundle](/bundle) the client library and publish it as a private NPM package that is going to be consumed by the front end.
