@@ -9,9 +9,9 @@ declare module "asciinema-player" {
     poster?: string | null;
     rows?: number;
     cols?: number;
-    fit?: "width" | "height" | "both" | "none";
+    fit?: "width" | "height" | "both" | "none" | boolean;
     controls?: boolean;
-    fontSize?: string;
+    terminalFontSize?: string;
   }
 
   export interface AsciinemaPlayer {

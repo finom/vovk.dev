@@ -2,7 +2,7 @@
 
 In the previous article, we set up the back-end and front-end to automatically synchronize state of the components with the back-end data, independent of the data fetching method. Now it's time to make the UI to be AI-powered, allowing users to interact with the application using natural language, both via text and voice.
 
-The approach is simple: we're going to set up normal text chat and Realtime Voice AI interfaces, and adjust them by adding function calling capabilities, where already implemented controller methods and generated RPC module methods are converted into tools via `createLLMTools` function from Vovk.ts.
+The approach is simple: we're going to set up normal LLM text chat via AI SDK and Realtime Voice AI interfaces, and adjust them by adding function calling capabilities, where already implemented controller methods and generated RPC module methods are converted into tools via `createLLMTools` function from Vovk.ts.
 
 ## Text Chat Interface
 
@@ -138,7 +138,7 @@ export function ExpandableChatDemo() {
 
 The key part of the code is the `useParseSDKToolCallOutputs` hook that extracts the tool call outputs from the assistant messages and passes them to the registry's `parse` method, which processes the results and updates the UI accordingly. It also ensures that each tool call output is parsed only once by keeping track of the parsed tool call IDs using a `Set`.
 
-```ts showLineNumbers copy filename="src/hooks/useParseSDKToolCallOutputs.ts" repository="finom/realtime-kanban" {27}
+```ts showLineNumbers copy filename="src/hooks/useParseSDKToolCallOutputs.ts" repository="finom/realtime-kanban" {26}
 import { useRegistry } from "@/registry";
 import { ToolUIPart, UIMessage } from "ai";
 import { useEffect, useRef } from "react";
@@ -242,7 +242,7 @@ export default class RealtimeController {
 
 ### Front-end Setup
 
-For the front-end, let's create the client-side tools first. The tools array is going to include all the HTTP tools from the `TaskRPC` and `UserRPC` modules, as well as two custom tools: `getCurrentTime` and `partyMode`, borrowed from [this repository](https://github.com/cameronking4/openai-realtime-api-nextjs) to demonstrate custom tool creation. The list can be extended with any other tools as needed, including user navigation, or other UI-related tools.
+For the front-end, let's create the client-side tools first. The tools array is going to include all the HTTP tools from the `TaskRPC` and `UserRPC` modules, as well as two custom tools: `getCurrentTime` and `partyMode`, borrowed from [this repository](https://github.com/cameronking4/openai-realtime-api-nextjs) to demonstrate custom tool creation. The list can be extended with other UI-related tools.
 
 ```ts showLineNumbers copy filename="src/lib/tools/index.ts" repository="finom/realtime-kanban" {7-9}
 import { createLLMTools, type VovkLLMTool } from "vovk";

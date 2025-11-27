@@ -2,11 +2,38 @@ import { Tabs } from 'nextra/components';
 import AppAlike from './AppAlike';
 import Image from 'next/image';
 
-# DRAFT
-
 # Realtime UI Part 1: Frontend & Backend
 
 ## Introduction
+
+The goal of this series of articles is to combine entity-driven state normalization (part 1, this article), function calling (part 2), and database polling (part 3), into an reproducible full-stack framework.
+- 
+
+## Introduction (DRAFT1)
+
+Realtime UI is an idea of building user interfaces that combines well-known patterns from modern web development with function calling framework, offered by Vovk.ts.
+
+- Entity-driven normalization (similar to [Redux](https://redux.js.org/usage/structuring-reducers/normalizing-state-shape)) powered by Zustand - to keep the front-end state in sync with the back-end data efficiently and reduce development overhead.
+- Database polling events powered by Redis and served as JSONLines streaming endpoints - to implement real-time updates without manual refreshes.
+- Agentic function calling made from existing controller methods - to allow AI agents to interact with the DB and UI autonomously and safely.
+  - For server-side executions use [`fn` pattern](/controller/fn) that allows to call controller methods directly from the back-end as normal functions.
+  - For client-side executions use methods of generated RPC modules that call the back-end endpoints via HTTP.
+
+Implementing an endpoint that returns a DB entity and a UI component that retrieves data from the normalized entity registry, you get the following set of features for free:
+
+- AI availability: AI agents can call the pre-implemented handler methods that automatically update the client-side UI components via entity registry.
+  - Via LLM text chat interface (the functions are executed on the back-end).
+  - Via Realtime API voice interface (the functions are executed on the front-end, performing pre-authorized HTTP requests).
+  - Via MCPs (the functions are executed on the back-end).
+  - Via other sources, including REST clients, CLI tools, etc.
+- Collaborative updates: multiple users can work with the same data simultaneously, and see each other's changes in real-time.
+- OpenAPI documentation with self-documented code snipets.
+
+Database polling with Redis as event bus to keep the front-end state in sync with the back-end data in real-time.
+
+is a normalized, entity-driven state architecture where all UI state is derived from a shared registry updated whenever the backend returns data in response to user interactions, API calls, or AI function executions, adding minimal development overhead.
+
+## Introduction (DRAFT2)
 
 AI agents are a powerful technology that can autonomously analyze information, make decisions, and take actions to accomplish complex tasks with minimal human intervention. Unlike traditional software, which follows rigid, predefined rules, AI agents can adapt to new situations, learn from data, and collaborate with other agents or humans to achieve goals more efficiently. As these systems become more capable, they are transforming industries ranging from customer service and healthcare to finance, education, and creative work.
 
@@ -17,9 +44,8 @@ The goal of this series of articles is to introduce a clear and predictable fram
 The articles are structured as follows:
 
 - **Part 1 (this article): Frontend & Backend** - setting up the back-end controllers and front-end entity registry for efficient state management. The goal is to make the front-end state easily synchronizable with the back-end data, independent of the data fetching method: wether it's a one big fetch, smaller incremental updates, or tool invocations from AI agents. The article doesn't cover any AI-specific logic, focusing solely on the data flow between front-end and back-end.
-- [Part 2: Text Chat Interface](./text) - building a text-based chat interface that allows users to interact with the application using natural language.
-- [Part 3: Voice Interface ](./voice) - extending the text chat interface with voice recognition and synthesis capabilities for hands-free interaction.
-- [Part 4: Database Polling](./polling) - implementing a polling mechanism to keep the front-end state in sync with the back-end data in real-time, enabling dynamic updates without manual refreshes, wether the changes are made by other users, MCPs, or bots.
+- [Part 2: Text & Voice AI Interface](./ai) - building a text-based chat interface that allows users to interact with the application using natural language, but also WebRTC voice interface for hands-free operation for JARVIS-like experience powered by OpeenAI Realtime API.
+- [Part 3: Database Polling](./polling) - implementing a polling mechanism to keep the front-end state in sync with the back-end data in real-time, enabling dynamic updates without manual refreshes, wether the changes are made by other users, MCPs, or bots.
 
 This is a safe alternative to the "AI browsers" as the AI cannot execute arbitrary code in the browser, but only invoke pre-defined functions that already exist on the back-end for normal CRUD operations.
 
@@ -57,9 +83,9 @@ docker-compose up -d && npm run dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The UI should be self-explanatory. The users and tasks can be created with the UI interface (click "+ Add Team Member" etc), or by clicking on one of the available AI buttons: text or voice.
 
 <a id="deploy" />
-#### Deploying to Vercel
+### Deploying to Vercel
 
-As this is just a demo, I've used free proprietary tools and services to make it work for easy deployment. Vovk.ts isn't affiliated with any of them, and you can replace them with any other tools you prefer (switching out from Neon would require minor changes to [DatabaseService.ts](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseService.ts) to remove Neon-specific code).
+As this is just a demo, I've used free proprietary tools and services to make it work for easy deployment. Vovk.ts isn't affiliated with any of them, and you can replace them with any other tools you prefer.
 
 - [OpenAI API](https://openai.com/api/) for natural language processing
 - [Vercel](https://vercel.com/) for hosting and serverless functions
@@ -76,7 +102,7 @@ Add `OPENAI_API_KEY` at the project environment variables. Other variables such 
 
 At this article I'm going to describe an efficient way to synchronise application state with the back-end data, that can be applied to any application even if it isn't using Vovk.ts at all. This idea is state-library-agnostic and database-agnostic, so you can implement it with any tools you prefer. 
 
-I'm going to use [Postgres](https://www.postgresql.org/) as a database, [Prisma](https://www.prisma.io/) as an ORM, [Zustand](https://zustand-demo.pmnd.rs/) as a state management library and, of course Vovk.ts as a back-end framework. The demo also uses [Redis](https://redis.io/) as database event bus, in order to implement DB polling functionality, it will be described in the [next article](./polling).
+I'm going to use [Postgres](https://www.postgresql.org/) as a database, [Prisma](https://www.prisma.io/) as an ORM, [Zustand](https://zustand-demo.pmnd.rs/) as a state management library and, of course Vovk.ts as a back-end framework. The demo also uses [Redis](https://redis.io/) as database event bus, in order to implement DB polling functionality, it will be described in the [Database Polling article](./polling).
 
 Let's say we have an more or less complex application with multiple components that use the same data that's incoming from the server. As the most simple example imaginable, we have a user profile component that displays displays user's full name at multiple components. Once the data is updated we want to update all the components that use this data.
 
@@ -195,6 +221,8 @@ That's it. Each time when you invoke `npx prisma generate`, the Zod schemas are 
 
 ## Setting up the back-end
 
+### Preparations
+
 As we're going to use [function calling](/function-calling) we're going to apply a workaround decribed at [Zod / Trobleshooting](/validation/zod#troubleshooting) that allows to generate JSON schemas from Zod using draft-07 version by creating `withZod` helper function with `createStandardValidation` that creates a validation library with [Standard Schema](/validation/standard).
 
 ```ts showLineNumbers copy filename="src/lib/withZod.ts"
@@ -243,6 +271,8 @@ import { UserSchema } from "../../../prisma/generated/schemas";
 import { BASE_FIELDS } from "../../../constants";
 const UpdateUserSchema = UserSchema.omit(BASE_FIELDS);
 ```
+
+### Implementing controllers and services
 
 The controllers and services are quite self-explanatory: we decorate each method with [@operation](/openapi) decorator, and create handlers with `withZod` function. They have some additional features that will be described later:
 
@@ -795,7 +825,7 @@ export default UsersExample;
 
 As you can see `useQuery` invocation doesn't require to read `data` property anymore, as the response is processed by the registry automatically. The invocation of `UserRPC.getUsers()` or any other RPC method (with `useQuery` or without) can be placed anywhere in the app, and all components that use user data are going to be updated automatically.
 
-In order to be sure that the UI doesn't display deleted entities, even if the `userIds` array contains them, you can add additional filtering in the components, for example:
+**Tip:** In order to be sure that the UI doesn't display deleted entities, even if the `userIds` array contains them, you can add additional filtering in the components, for example:
 
 ```ts showLineNumbers copy
 const users = useRegistry(

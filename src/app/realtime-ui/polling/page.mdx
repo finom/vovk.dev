@@ -2,9 +2,6 @@ import { Tabs } from 'nextra/components';
 import GithubFiles from '@/components/GithubFiles';
 import { PollExample } from '@/components/vovk-examples';
 
-
-TODO: deletions need to be explicit
-
 # Realtime Database Polling
 
 In the previous articles, we've covered how to make UI automatically, when the front-end receives updated database entities while the user interacts with the app but also when the app is interacted by text or voice AI interfaces. In this article, we explain how to keep the UI in sync with database changes triggered by other users or third-party services (such as [MCP](/mcp) or Telegram bot described at this article), using only HTTP protocol (no WebSockets) to ensure compatibility with any hosting provider.
@@ -354,7 +351,7 @@ export default class DatabasePollController {
 </Tabs.Tab>
 </Tabs>
 
-- When a `delete` DB change is emitted via `DatabaseEventsService.emitter`, the service sends an event with `id`, `entityType`, and `__isDeleted: true`. The front end uses `__isDeleted` to hide the entity by making it non-enumerable in the registry.
+- When a `delete` DB change is emitted via `DatabaseEventsService.emitter`, the service sends an event with `id`, `entityType`, and `__isDeleted: true`. The front end uses `__isDeleted` to hide the entity by making it non-enumerable in the registry. That's why deletions need to be explicit, even if cascade deletions are handled automatically by the database. See [`UserController.deleteUser`](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserService.ts) method.
 - When an `update` or `create` change is emitted, the service fetches the full entity from Postgres (since Redis stores only metadata) and sends it to clients.
 
 ## Client-side logic
@@ -436,16 +433,7 @@ Coming soon.
 
 ## Bonus: Telegram bot (unstable)
 
-As an example of a third-party source of database changes, see the [TelegramService](https://github.com/realtime-kanban/src/modules/telegram/TelegramService.ts) and the accompanying [TelegramController](https://github.com/realtime-kanban/src/modules/telegram/TelegramController.ts). It accepts text or voice messages, performs voice-to-text transcription if needed using the OpenAI Whisper API, and uses the same `createLLMTools` function on the server:
-
-```ts showLineNumbers copy
-const { tools } = createLLMTools({
-  modules: {
-    UserController,
-    TaskController,
-  },
-});
-```
+As an example of a third-party source of database changes, see the [TelegramService](https://github.com/realtime-kanban/src/modules/telegram/TelegramService.ts) and the accompanying [TelegramController](https://github.com/realtime-kanban/src/modules/telegram/TelegramController.ts). It accepts text or voice messages, performs voice-to-text transcription if needed using the OpenAI Whisper API, and uses the same `createLLMTools` function on the server.
 
 The Telegram API library is implemented with [OpenAPI Mixins](/codegen) and used as a `TelegramAPI` module to call Telegram API methods.
 

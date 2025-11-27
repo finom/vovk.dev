@@ -511,7 +511,7 @@ An object that represents the options for the fetcher function.
 
 ### `VovkStreamAsyncIterable`
 
-The iterable object returned by an RPC method for [JSON Lines](/controller/jsonlines) responses. Besides `Symbol.asyncIterator`, `Symbol.dispose`, and `Symbol.asyncDispose` methods, it also contains a `status` property with the HTTP status code, an `asPromise` method that resolves all data as a single promise, an `onIterate` method that accepts a callback function and calls it on each iteration, and a `abortController: AbortController{:ts}` that aborts the request with the `abortController.abort(){:ts}` method.
+The iterable object returned by an RPC method for [JSON Lines](/controller/jsonlines) responses. Besides `Symbol.asyncIterator`, `Symbol.dispose`, and `Symbol.asyncDispose` methods, it also contains a `status` property with the HTTP status code, an `asPromise` method that resolves all data as a single promise, an `onIterate` method that accepts a callback function and calls it on each iteration, `abortController: AbortController{:ts}` and `abortWithoutError(reason?: KnownAny): void{:ts}`.
 
 ```ts showLineNumbers copy
 const response = await StreamRPC.streamLines();

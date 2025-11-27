@@ -9,7 +9,14 @@ export default function Asciinema({ src, options = {} }: { src: string; options?
 
   useEffect(() => {
     if (containerRef.current && !isRenderedRef.current) {
-      AsciinemaPlayer.create(src, containerRef.current, options);
+      AsciinemaPlayer.create(src, containerRef.current, {
+        idleTimeLimit: 2,
+        preload: true,
+        fit: false,
+        terminalFontSize: "12px",
+        rows: 36,
+        ...options
+      });
       isRenderedRef.current = true;
     }
 
@@ -17,3 +24,20 @@ export default function Asciinema({ src, options = {} }: { src: string; options?
 
   return <div ref={containerRef} />;
 }
+
+/*
+npx create-next-app@latest my-app --ts --app --src-dir
+cd my-app
+npx vovk-cli@latest init
+bat vovk.config.js
+npx vovk new segment
+bat src/app/api/\[\[...vovk\]\]/route.ts
+npx vovk new controller service user
+bat src/app/api/\[\[...vovk\]\]/route.ts
+bat src/modules/user/UserController.ts
+bat src/modules/user/UserService.ts
+npm run dev &
+curl http://localhost:3000/api/users/12345
+
+ctrl+d
+*/
