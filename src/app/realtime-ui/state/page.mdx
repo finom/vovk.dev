@@ -1,0 +1,167 @@
+
+### Entity Registry Overview
+
+At this article I'm going to describe an efficient way to synchronise application state with the back-end data, that can be applied to any application even if it isn't using Vovk.ts at all. This idea is state-library-agnostic and database-agnostic, so you can implement it with any tools you prefer.
+
+I'm going to use [Postgres](https://www.postgresql.org/) as a database, [Prisma](https://www.prisma.io/) as an ORM, [Zustand](https://zustand-demo.pmnd.rs/) as a state management library and, of course Vovk.ts as a back-end framework. The demo also uses [Redis](https://redis.io/) as database event bus, in order to implement DB polling functionality, it will be described in the [Database Polling article](./polling).
+
+Let's say we have an more or less complex application with multiple components that use the same data that's incoming from the server. As the most simple example imaginable, we have a user profile component that displays displays user's full name at multiple components. Once the data is updated we want to update all the components that use this data.
+
+<AppAlike />
+
+The most straightforward way to do this is to have a global state that stores the user profile as an object and update it once the data is changed, or pass the object as a prop from a parent component.
+
+```ts showLineNumbers copy
+export const UserProfile = ({ userProfile }: { userProfile: User }) => {
+    return <div>{userProfile.fullName}</div>
+}
+```
+
+This works perfectly fine for up to a certain complexity of the application, but as the application grows and more database entries are added, it becomes harder to manage the state and keep it in sync with the server.
+
+A more efficient way to handle this is to have a normalized state that stores the database data as a dictionary of entities, where the key is the ID of the entity. In every component that uses this the database row, we request the related entity from the state by its ID, avoiding passing the entire entity object as a prop or storing it in a global state explicitly.
+
+This way, once the data is requested from the server, and processed thru a middleware function that updates the entity state, we can easily retrieve the entity object with and ID and all the components that use this entity will be re-rendered automatically. Let's call it **"entity registry"**.
+
+```ts showLineNumbers copy
+export const UserProfile = ({ userId }: { userId: User['id'] }) => {
+    const userProfile = useRegistry(state => state.user[userId]);
+    return <div>{userProfile.fullName}</div>
+}
+```
+
+If all components that use database data are using this approach, we can request the data from the server in any desired way, wether its a one big initial fetch or smaller incremental updates. The UI will be updated automatically as long as the incoming data is processed thru the registry parser.
+
+## Setting up the Entity Registry
+
+As we've discussed above, the application state is going to be normalized and store entities in a dictionary by their IDs. The registry is going to have a `parse` method that accepts any data and extracts entities from it, storing them in the registry. The method is going to be used to process all incoming data from the server, so that all components that use this data are going to be updated automatically.
+
+```ts showLineNumbers copy filename="src/registry.ts" repository="finom/realtime-kanban"
+import type { UserType } from "@schemas/models/User.schema";
+import type { TaskType } from "@schemas/models/Task.schema";
+import type { BaseEntity } from "./types";
+import { EntityType } from "@prisma/client";
+import { create } from "zustand";
+import fastDeepEqual from "fast-deep-equal";
+
+interface Registry {
+  [EntityType.user]: Record<UserType["id"], UserType>;
+  [EntityType.task]: Record<TaskType["id"], TaskType>;
+  parse: (data: unknown) => void;
+}
+
+export function getEntitiesFromData(
+  data: unknown,
+  entities: Partial<{
+    [key in EntityType]: Record<BaseEntity["id"], BaseEntity>;
+  }> = {},
+) {
+  if (Array.isArray(data)) {
+    data.forEach((item) => getEntitiesFromData(item, entities));
+  } else if (typeof data === "object" && data !== null) {
+    Object.values(data).forEach((value) =>
+      getEntitiesFromData(value, entities),
+    );
+    if ("entityType" in data && "id" in data) {
+      const entityType = data.entityType as EntityType;
+      const id = (data as BaseEntity).id;
+      entities[entityType] ??= {};
+      entities[entityType][id] = data as BaseEntity;
+    }
+  }
+  return entities as Partial<Omit<Registry, "parse">>;
+}
+
+export const useRegistry = create<Registry>((set, get) => ({
+  [EntityType.user]: {},
+  [EntityType.task]: {},
+  parse: (data) => {
+    const entities = getEntitiesFromData(data);
+    set((state) => {
+      const newState: Record<string, unknown> = {};
+      let isChanged = false;
+      Object.entries(entities).forEach(([entityType, entityMap]) => {
+        const type = entityType as EntityType;
+        const descriptors = Object.getOwnPropertyDescriptors(state[type] ?? {});
+        let areDescriptorsChanged = false;
+        Object.values(entityMap).forEach((entity) => {
+          const descriptorValue = descriptors[entity.id]?.value;
+          const value = { ...descriptorValue, ...entity };
+          const isCurrentChanged = !fastDeepEqual(descriptorValue, value);
+          descriptors[entity.id] = isCurrentChanged
+            ? ({
+                value,
+                configurable: true,
+                writable: false,
+                enumerable: !("__isDeleted" in entity),
+              } satisfies PropertyDescriptor)
+            : descriptors[entity.id];
+          areDescriptorsChanged ||= isCurrentChanged;
+        });
+        newState[type] = areDescriptorsChanged ? Object.defineProperties({}, descriptors) : state[type];
+        isChanged ||= areDescriptorsChanged;
+      });
+      return isChanged ? { ...state, ...newState } : state;
+    });
+  },
+}));
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/registry.ts)*
+
+_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/registry.ts)_
+
+The code is small but quite complicated, so let's break it down:
+
+`getEntitiesFromData` is a recursive function that extracts entities from any data structure based on the presence of `entityType` and `id` properties. It returns, for each discovered `entityType`, a record (object) whose keys are entity IDs and whose values are the entity objects themselves (not arrays). Let's say the server returns the following response:
+
+```json {6,10,16,20}
+{
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Task 1",
+      "entityType": "task",
+      "user": {
+        "id": "user-1",
+        "fullName": "John Doe",
+        "entityType": "user"
+      }
+    },
+    {
+      "id": "task-2",
+      "title": "Task 2",
+      "entityType": "task",
+      "user": {
+        "id": "user-2",
+        "fullName": "Jane Doe",
+        "entityType": "user"
+      }
+    }
+  ]
+}
+```
+
+The function walks through the entire structure and produces a normalized intermediate shape (without mutating the original objects):
+
+```ts showLineNumbers copy
+{
+  "task": {
+    "task-1": { "id": "task-1", "title": "Task 1", "entityType": "task", "user": { /* unchanged */ } },
+    "task-2": { "id": "task-2", "title": "Task 2", "entityType": "task", "user": { /* unchanged */ } }
+  },
+  "user": {
+    "user-1": { "id": "user-1", "fullName": "John Doe", "entityType": "user" },
+    "user-2": { "id": "user-2", "fullName": "Jane Doe", "entityType": "user" }
+  }
+}
+```
+
+Now let's take our thinking hat on and break down the `useRegistry` store created by `create` function from Zustand.
+
+First two bits such as `[EntityType.user]: {}{:ts}` and `[EntityType.task]: {}{:ts}` are the objects where the entities are going to be stored, with entity IDs as keys, represented by `Record<UserType["id"], UserType>{:ts}` and `Record<TaskType["id"], TaskType>{:ts}` types.
+
+The third bit is the `parse` method that accepts any data, extracts entities from it and stores them in the registry. That's where the magic happens. Instead of simply extending the state with new entities, we're using `Object.getOwnPropertyDescriptors` to get the property descriptors of the existing entities. This way we can check if the entity already exists in the state and if it does, we can compare it with the new entity using `fast-deep-equal` library. If the entities are equal, we don't update the state, otherwise we create a new property descriptor with the updated entity. This way we can avoid unnecessary re-renders of the components that use this entity.
+
+The `__isDeleted` property is used to mark entities as deleted without actually removing them from the state, avoiding errors in components that might still reference them. Once `__isDeleted` is received as part of the entity, the property descriptor is marked as non-enumerable, so it won't be included in `Object.values` or `Object.keys` calls, making the entity effectively invisible to the components.
+
+That's it. Each time when the data is received from the server, it needs to go thru the `parse` method of the registry, and all components that use the data are going to be updated automatically. Now we need a way to pass all incoming data from the server thru this method automatically with `fetcher`.

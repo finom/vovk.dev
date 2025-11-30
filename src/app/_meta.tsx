@@ -46,7 +46,7 @@ const meta = {
   llm: 'LLM Completions',
   'function-calling': 'Function Calling',
   mcp: 'MCP Server 🚧',
-  'realtime-ui': 'Realtime UI 🚧',
+  'realtime-ui': { title: 'Realtime UI (DRAFTS) 🚧', theme: { collapsed: true, copyPage: true } },
   '#cli': separator('Config & CLI'),
   config: 'Config',
   cli: 'CLI',

@@ -1,0 +1,145 @@
+
+## Bonus: Telegram bot (unstable)
+
+As an example of a third-party source of database changes, see the [TelegramService](https://github.com/realtime-kanban/src/modules/telegram/TelegramService.ts) and the accompanying [TelegramController](https://github.com/realtime-kanban/src/modules/telegram/TelegramController.ts). It accepts text or voice messages, performs voice-to-text transcription if needed using the OpenAI Whisper API, and uses the same `createLLMTools` function on the server.
+
+The Telegram API library is implemented with [OpenAPI Mixins](/codegen) and used as a `TelegramAPI` module to call Telegram API methods.
+
+```ts showLineNumbers copy filename="vovk.config.mjs"
+// @ts-check
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  // ...
+  outputConfig: {
+    // ...
+    segments: {
+      telegram: {
+        openAPIMixin: {
+          source: {
+            url: 'https://raw.githubusercontent.com/sys-001/telegram-bot-api-versions/refs/heads/main/files/openapi/yaml/v183.yaml',
+            fallback: '.openapi-cache/telegram.yaml',
+          },
+          getModuleName: 'TelegramAPI',
+          getMethodName: ({ path }) => path.replace(/^\//, ''),
+          errorMessageKey: 'description',
+        },
+      },
+    },
+  },
+};
+
+export default config;
+```
+
+The `TelegramService` class handles interaction with the Telegram API and generates AI responses using the Vercel AI SDK.
+
+```ts showLineNumbers copy filename="src/modules/telegram/TelegramService.ts"
+import OpenAI from 'openai';
+import { TelegramAPI } from 'vovk-client';
+
+const openai = new OpenAI();
+
+export default class TelegramService {
+  static get apiRoot() {
+    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+    if (!TELEGRAM_BOT_TOKEN) {
+      throw new Error('Missing TELEGRAM_BOT_TOKEN environment variable');
+    }
+    return `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
+  }
+
+  // ...
+
+  private static async generateAIResponse(
+    chatId: number,
+    userMessage: string,
+    systemPrompt: string
+  ): Promise<{ botResponse: string; messages: ModelMessage[] }> {
+    // Get chat history
+    const history = await this.getChatHistory(chatId);
+    const messages = [...this.formatHistoryForVercelAI(history), { role: 'user', content: userMessage } as const];
+    const { tools } = createLLMTools({
+      modules: {
+        UserController,
+        TaskController,
+      },
+    });
+
+    // Generate a response using Vercel AI SDK
+    const { text } = await generateText({
+      model: vercelOpenAI('gpt-5'),
+      system: systemPrompt,
+      messages,
+      stopWhen: stepCountIs(16),
+      tools: {
+        ...Object.fromEntries(
+          tools.map(({ name, execute, description, parameters }) => [
+            name,
+            tool({
+              execute,
+              description,
+              inputSchema: jsonSchema(parameters as JSONSchema7),
+            }),
+          ])
+        ),
+      },
+    });
+
+    const botResponse = text || "I couldn't generate a response.";
+
+    // Add user message to history
+    await this.addToHistory(chatId, 'user', userMessage);
+    // Add assistant response to history
+    await this.addToHistory(chatId, 'assistant', botResponse);
+
+    messages.push({
+      role: 'assistant',
+      content: botResponse,
+    });
+
+    return { botResponse, messages };
+  }
+
+  private static async sendTextMessage(chatId: number, text: string): Promise<void> {
+    await TelegramAPI.sendMessage({
+      body: {
+        chat_id: chatId,
+        text: text,
+        parse_mode: 'html',
+      },
+      apiRoot: this.apiRoot,
+    });
+  }
+
+  private static async sendVoiceMessage(chatId: number, text: string): Promise<void> {
+    try {
+      // Generate speech from text using OpenAI TTS
+      const speechResponse = await openai.audio.speech.create({
+        model: 'tts-1',
+        voice: 'alloy',
+        input: text,
+        response_format: 'opus',
+      });
+
+      // Convert the response to a Buffer
+      const voiceBuffer = Buffer.from(await speechResponse.arrayBuffer());
+
+      const formData = new FormData();
+      formData.append('chat_id', String(chatId));
+      formData.append('voice', new Blob([voiceBuffer], { type: 'audio/ogg' }), 'voice.ogg');
+
+      // Send the voice message
+      await TelegramAPI.sendVoice({
+        body: formData,
+        apiRoot: this.apiRoot,
+      });
+    } catch (error) {
+      console.error('Error generating voice message:', error);
+      // Fallback to text message if voice generation fails
+      await this.sendTextMessage(chatId, text);
+    }
+  }
+
+  // ...
+}
+```

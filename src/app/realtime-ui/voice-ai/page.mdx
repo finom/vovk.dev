@@ -1,187 +1,3 @@
-# Realtime UI Part 2: Text & Voice AI Interface
-
-In the previous article, we set up the back-end and front-end to automatically synchronize state of the components with the back-end data, independent of the data fetching method. Now it's time to make the UI to be AI-powered, allowing users to interact with the application using natural language, both via text and voice.
-
-The approach is simple: we're going to set up normal LLM text chat via AI SDK and Realtime Voice AI interfaces, and adjust them by adding function calling capabilities, where already implemented controller methods and generated RPC module methods are converted into tools via `createLLMTools` function from Vovk.ts.
-
-## Text Chat Interface
-
-### Back-end Setup
-
-For the back-end setup, we need to create a handler powered by AI SDK as described in the [LLM Completions](/llm#ai-sdk) article by adding `tools` and `stopWhen` options to the `streamText` function. The tools are created by passing the controller modules that follow the [rules of callable handlers](/controller/fn) and decorated with [custom `x-tool-*` OpenAPI operation properties](/function-calling#x-tool) to the `createLLMTools` function.
-
-```ts showLineNumbers copy filename="src/modules/ai/AiSdkController.ts" repository="finom/realtime-kanban"  {33-38,44-54}
-import {
-  createLLMTools,
-  post,
-  prefix,
-  operation,
-  type VovkRequest,
-} from "vovk";
-import {
-  convertToModelMessages,
-  jsonSchema,
-  stepCountIs,
-  streamText,
-  tool,
-  type JSONSchema7,
-  type UIMessage,
-} from "ai";
-import { openai } from "@ai-sdk/openai";
-import UserController from "../user/UserController";
-import TaskController from "../task/TaskController";
-import { sessionGuard } from "@/decorators/sessionGuard";
-
-@prefix("ai-sdk")
-export default class AiSdkController {
-  @operation({
-    summary: "Function Calling",
-    description:
-      "Uses [@ai-sdk/openai](https://www.npmjs.com/package/@ai-sdk/openai) and ai packages to call UserController and TaskController functions based on the provided messages.",
-  })
-  @post("function-calling")
-  @sessionGuard()
-  static async functionCalling(req: VovkRequest<{ messages: UIMessage[] }>) {
-    const { messages } = await req.json();
-    const { tools } = createLLMTools({
-      modules: {
-        UserController,
-        TaskController,
-      },
-    });
-
-    return streamText({
-      model: openai("gpt-5"),
-      system: "You execute functions sequentially, one by one.",
-      messages: convertToModelMessages(messages),
-      tools: Object.fromEntries(
-        tools.map(({ name, execute, description, parameters }) => [
-          name,
-          tool({
-            execute,
-            description,
-            inputSchema: jsonSchema(parameters),
-          }),
-        ]),
-      ),
-      stopWhen: stepCountIs(16),
-      onError: (e) => console.error("streamText error", e),
-      onFinish: ({ finishReason, toolCalls }) => {
-        if (finishReason === "tool-calls") {
-          console.log("Tool calls finished", toolCalls);
-        }
-      },
-    }).toUIMessageStreamResponse();
-  }
-}
-```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/ai/AiSdkController.ts)*
-
-The endpoint is served at `/api/ai-sdk/function-calling` and will be used on the client-side with [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) package.
-
-### Front-end Setup
-
-On the front-end we're going to use AI SDK, represented by [ai](https://www.npmjs.com/package/ai), [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) packages but also [AI Elements](https://ai-sdk.dev/elements/) library that provides pre-built React components for building AI-powered user interfaces, built on top of [shadcn/ui](https://ui.shadcn.com/).
-
-We're going to extend the example described at [LLM Completions](/llm#ai-sdk) with two things:
-
-1. Using AI Elements instead of raw divs in order to not only have better UI but also to see the flow of the executed functions and their results.
-2. Parse the function calling results by using `.parse()` method described at the [previous article](./setup).
-
-```tsx copy filename="src/components/ExpandableChatDemo.tsx"  {32}
-"use client";
-// ...
-import { useChat } from "@ai-sdk/react";
-import { useState } from "react";
-import { useRegistry } from "@/registry";
-import { DefaultChatTransport } from "ai";
-import {
-  Conversation,
-  ConversationContent,
-  ConversationEmptyState,
-} from "@/components/ai-elements/conversation";
-
-import { AiSdkRPC } from "vovk-client";
-import useParseSDKToolCallOutputs from "@/hooks/useParseSDKToolCallOutputs";
-
-export function ExpandableChatDemo() {
-  const [input, setInput] = useState("");
-
-  const { messages, sendMessage, status } = useChat({
-    transport: new DefaultChatTransport({
-      api: AiSdkRPC.functionCalling.getURL(), // or "/api/ai-sdk/function-calling",
-    }),
-    onToolCall: (toolCall) => {
-      console.log("Tool call initiated:", toolCall);
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    // ...
-  };
-
-  useParseSDKToolCallOutputs(messages);
-
-  return (
-   // ...
-          <Conversation>
-            <ConversationContent>
-               {/* ... */}
-            </ConversationContent>
-          </Conversation>
-        // ...
-  );
-}
-```
-
-[Check the full code for the component here](https://github.com/finom/realtime-kanban/blob/main/src/components/ExpandableChatDemo.tsx)*
-
-The key part of the code is the `useParseSDKToolCallOutputs` hook that extracts the tool call outputs from the assistant messages and passes them to the registry's `parse` method, which processes the results and updates the UI accordingly. It also ensures that each tool call output is parsed only once by keeping track of the parsed tool call IDs using a `Set`.
-
-```ts showLineNumbers copy filename="src/hooks/useParseSDKToolCallOutputs.ts" repository="finom/realtime-kanban" {26}
-import { useRegistry } from "@/registry";
-import { ToolUIPart, UIMessage } from "ai";
-import { useEffect, useRef } from "react";
-
-export default function useParseSDKToolCallOutputs(messages: UIMessage[]) {
-  const parsedToolCallIdsSetRef = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    const partsToParse = messages.flatMap((msg) =>
-      msg.parts.filter((part) => {
-        return (
-          msg.role === "assistant" &&
-          part.type.startsWith("tool-") &&
-          (part as ToolUIPart).state === "output-available" &&
-          "toolCallId" in part &&
-          !parsedToolCallIdsSetRef.current.has(part.toolCallId)
-        );
-      }),
-    ) as ToolUIPart[];
-
-    partsToParse.forEach((part) =>
-      parsedToolCallIdsSetRef.current.add(part.toolCallId),
-    );
-
-    if (partsToParse.length) {
-      useRegistry.getState().parse(partsToParse.map((part) => part.output));
-    }
-  }, [messages]);
-}
-```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useParseSDKToolCallOutputs.ts)*
-
-Without optimizations, the code can be reduced to this small snippet:
-
-```ts showLineNumbers copy 
-// ...
-useEffect(() => {
-  useRegistry.getState().parse(messages);
-}, [messages]);
-// ...
-```
-
-That's it, now you have a fully functional AI text chat interface that can call your back-end functions and update the UI in based on the results, as the controller methods return the updated data that includes `id` and `entityType` fields.
 
 ## WebRTC-based Realtime Voice AI
 
@@ -206,6 +22,7 @@ export default class RealtimeController {
       voice: z.enum(["ash", "ballad", "coral", "sage", "verse"]),
     }),
     body: z.object({ sdp: z.string() }),
+    output: z.object({ sdp: z.string() }),
     async handle(req) {
       const sessionConfig = JSON.stringify({
         type: "realtime",
@@ -240,6 +57,8 @@ export default class RealtimeController {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/realtime/RealtimeController.ts)*
 
+_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/realtime/RealtimeController.ts)_
+
 ### Front-end Setup
 
 For the front-end, let's create the client-side tools first. The tools array is going to include all the HTTP tools from the `TaskRPC` and `UserRPC` modules, as well as two custom tools: `getCurrentTime` and `partyMode`, borrowed from [this repository](https://github.com/cameronking4/openai-realtime-api-nextjs) to demonstrate custom tool creation. The list can be extended with other UI-related tools.
@@ -273,6 +92,8 @@ const tools: VovkLLMTool[] = [
 export default tools;
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/lib/tools/index.ts)*
+
+_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/lib/tools/index.ts)_
 
 Next, we're going to create a custom hook `useWebRTCAudioSession` that manages the WebRTC session, including starting and stopping the session, handling audio streams, and managing the data channel for function calling.
 
@@ -438,7 +259,7 @@ export default function useWebRTCAudioSession(
       startSession();
     }
   }, [isActive, startSession, stopSession]);
-  
+
   // Cleanup on unmount
   useEffect(() => {
     return () => stopSession();
@@ -454,6 +275,8 @@ export default function useWebRTCAudioSession(
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useWebRTCAudioSession.ts)*
+
+_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useWebRTCAudioSession.ts)_
 
 Finally, we can create a simple component that uses the `useWebRTCAudioSession` hook and displays a floating button to start and stop the session, as well as indicate whether the model is currently talking.
 
@@ -482,9 +305,8 @@ export default RealTimeDemo;
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/components/RealTimeDemo.tsx)*
 
+_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/components/RealTimeDemo.tsx)_
+
 The code for the `Floaty` component is not shown here for brevity, but you can find it [in the repository](https://github.com/finom/realtime-kanban/blob/main/src/components/Floaty.tsx).
 
 With that, you now have a fully functional Realtime Voice AI interface that can interact with your application using natural language, both via text and voice, powered by OpenAI's Realtime API and Vovk.ts function calling capabilities!
-
-
-

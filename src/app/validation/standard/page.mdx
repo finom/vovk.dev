@@ -13,15 +13,19 @@ import { createStandardValidation } from 'vovk';
 import { type } from 'arktype';
 
 export const withArk = createStandardValidation({
-  toJSONSchema: (model: type) => model.toJsonSchema({
-    fallback: { 
-      proto: (ctx) => ctx.proto === File ? {
-        type: "string",
-        format: "binary",
-      } : ctx.base,
-      default: (ctx) => ctx.base
-    }
-  })
+  toJSONSchema: (model: type) =>
+    model.toJsonSchema({
+      fallback: {
+        proto: (ctx) =>
+          ctx.proto === File
+            ? {
+                type: 'string',
+                format: 'binary',
+              }
+            : ctx.base,
+        default: (ctx) => ctx.base,
+      },
+    }),
 });
 ```
 
@@ -70,7 +74,6 @@ export default class UserController {
 
 [View live example on examples.vovk.dev »](https://examples.vovk.dev/arktype)
 
-
 ## Valibot Example
 
 Create `withValibot` somewhere in your codebase:
@@ -80,13 +83,14 @@ import { createStandardValidation } from 'vovk';
 import { toJsonSchema } from '@valibot/to-json-schema';
 
 export const withValibot = createStandardValidation({
-  toJSONSchema: (model) => toJsonSchema(model, {
-    overrideSchema(context) {
-      if (context.valibotSchema.type === 'file') {
-        return { type: 'string', format: 'binary' };
-      }
-    },
-  }),
+  toJSONSchema: (model) =>
+    toJsonSchema(model, {
+      overrideSchema(context) {
+        if (context.valibotSchema.type === 'file') {
+          return { type: 'string', format: 'binary' };
+        }
+      },
+    }),
 });
 ```
 

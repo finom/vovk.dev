@@ -9,6 +9,7 @@ import { Steps, Tabs, Callout } from 'nextra/components';
 ```bash npm2yarn copy
 npx create-next-app my-app --ts --app --src-dir
 ```
+
 ```bash
 cd my-app
 ```
@@ -22,6 +23,7 @@ npm i vovk vovk-client
 ```
 
 **More info:**
+
 - [Vovk.ts Packages](/packages)
 
 ## Create the config file
@@ -37,6 +39,7 @@ export default vovkConfig;
 ```
 
 **More info:**
+
 - [Config](/config)
 
 ## Install a validation library and enable client-side validation
@@ -64,6 +67,7 @@ export default vovkConfig;
 ```
 
 **More info:**
+
 - [Validation](/validation/introduction)
 - [Client-side Validation](/validation/client)
 
@@ -84,7 +88,7 @@ npm i -D concurrently
 
     ```json
     "scripts": {
-        "build": "next build",    
+        "build": "next build",
         "dev": "PORT=3000 concurrently 'vovk dev' 'next dev' --kill-others",
         "prebuild": "vovk generate"
     }
@@ -106,6 +110,7 @@ npm i -D concurrently
 </Tabs>
 
 **More info:**
+
 - [vovk dev](/dev)
 - [vovk generate](/generate)
 
@@ -139,6 +144,7 @@ export default class HelloController {
 ```
 
 **More info:**
+
 - [Controller](/controller)
 - [Service](/controller/service)
 
@@ -162,6 +168,7 @@ export const { GET, POST, PUT, DELETE } = initSegment({ controllers });
 ```
 
 **More info:**
+
 - [Segment](/segment)
 
 ## Run the dev server
@@ -213,6 +220,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the result.
 </Callout>
 
 **More info:**
+
 - [TypeScript RPC](/typescript)
 - [Composed Client](/composed)
 - [Segmented Client](/segmented)

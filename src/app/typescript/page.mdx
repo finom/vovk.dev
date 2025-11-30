@@ -233,6 +233,7 @@ for await (const { message } of stream) {
 ## Access to Schema
 
 Every RPC method exposes the emitted JSON schema through the following properties:
+
 - `schema` - the schema for this method of type `VovkHandlerSchema`;
 - `controllerSchema` - the schema object of the method's controller of type `VovkControllerSchema`;
 - `segmentSchema` - the schema object of the segment of type `VovkSegmentSchema`;
@@ -264,12 +265,17 @@ console.log(url); // "https://api.example.com/v1/api/users/69?notify=push"
 It can be used to call `fetch` directly if needed.
 
 ```ts showLineNumbers copy
-const response = await fetch(UserRPC.updateUser.getURL({ /* ... */ }), {
-  method: 'POST',
-  // ... other fetch options
-});
+const response = await fetch(
+  UserRPC.updateUser.getURL({
+    /* ... */
+  }),
+  {
+    method: 'POST',
+    // ... other fetch options
+  }
+);
 ```
- 
+
 <a id="react-query" />
 ## React Query
 
@@ -379,6 +385,7 @@ import { schema } from '@/client/admin/index.ts';
 ## Used Templates
 
 The TypeScript RPC client is generated from the following templates:
+
 - [cjs](/templates#cjs), [mjs](/templates#mjs) - compiled CJS and ESM modules with TypeScript definitions; used by default in the [composed client](/composed);
 - [ts](/templates#ts) - uncompiled TypeScript module with type definitions; used by default in the [segmented client](/segmented);
 - [mixins](/templates#mixins) - `.d.ts` types and `.json` files generated when [OpenAPI Mixins](/codegen) are used;

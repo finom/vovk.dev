@@ -15,10 +15,18 @@ import { prefix, post } from 'vovk';
 export default class UserController {
   @post('{id}')
   static updateUser = withZod({
-    body: z.object({ /* ... */ }),
-    params: z.object({ /* ... */ }),
-    query: z.object({ /* ... */ }),
-    output: z.object({ /* ... */ }), // for JSON response
+    body: z.object({
+      /* ... */
+    }),
+    params: z.object({
+      /* ... */
+    }),
+    query: z.object({
+      /* ... */
+    }),
+    output: z.object({
+      /* ... */
+    }), // for JSON response
     // iteration: z.object({ /* ... */ }), // for JSON Lines response
     // validateEachIteration: true, // for JSON Lines response only
     disableServerSideValidation: ['body', 'query'], // disable server-side validation for body and query
@@ -77,20 +85,36 @@ The `fn` property lets you call the handler directly without making an HTTP requ
 
 ```ts showLineNumbers copy
 const result = await UserController.updateUser.fn({
-    body: { /* ... */ },
-    query: { /* ... */ },
-    params: { /* ... */ },
-    meta: { /* ... */ },
-    disableClientValidation: false, // default
+  body: {
+    /* ... */
+  },
+  query: {
+    /* ... */
+  },
+  params: {
+    /* ... */
+  },
+  meta: {
+    /* ... */
+  },
+  disableClientValidation: false, // default
 });
 
 // same as
 const result = await UserRPC.updateUser({
-    body: { /* ... */ },
-    query: { /* ... */ },
-    params: { /* ... */ },
-    meta: { /* ... */ },
-    disableClientValidation: false, // default
+  body: {
+    /* ... */
+  },
+  query: {
+    /* ... */
+  },
+  params: {
+    /* ... */
+  },
+  meta: {
+    /* ... */
+  },
+  disableClientValidation: false, // default
 });
 ```
 

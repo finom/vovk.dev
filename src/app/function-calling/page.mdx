@@ -129,7 +129,8 @@ export default class UserController {
     description: 'Retrieves a user by their unique ID.',
     'x-tool-disable': false,
     'x-tool-name': 'get_user_by_id',
-    'x-tool-description': 'Retrieves a user by their unique ID, including name and email. Also includes user roles and permissions that define what actions the user can perform within the system.',
+    'x-tool-description':
+      'Retrieves a user by their unique ID, including name and email. Also includes user roles and permissions that define what actions the user can perform within the system.',
     'x-tool-successMessage': 'User retrieved successfully.',
     'x-tool-errorMessage': 'Failed to retrieve user.',
     'x-tool-includeResponse': true,
@@ -197,8 +198,25 @@ npx vovk new controller aiSdk --empty
 Paste the following into `src/modules/ai-sdk/AiSdkController.ts`, adjusting imports as needed:
 
 ```ts showLineNumbers copy filename="src/modules/ai-sdk/AiSdkController.ts" {18}
-import { createLLMTools, HttpException, HttpStatus, post, prefix, operation, type KnownAny, type VovkRequest } from 'vovk';
-import { jsonSchema, streamText, tool, convertToModelMessages, type ModelMessage, type UIMessage, type JSONSchema7 } from 'ai';
+import {
+  createLLMTools,
+  HttpException,
+  HttpStatus,
+  post,
+  prefix,
+  operation,
+  type KnownAny,
+  type VovkRequest,
+} from 'vovk';
+import {
+  jsonSchema,
+  streamText,
+  tool,
+  convertToModelMessages,
+  type ModelMessage,
+  type UIMessage,
+  type JSONSchema7,
+} from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { PostRPC } from 'vovk-client';
 import UserController from '@/modules/user/UserController';

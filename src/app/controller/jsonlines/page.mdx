@@ -4,8 +4,8 @@ import { Suspense } from 'react';
 # JSON Lines Streaming
 
 <div className="example">
-<JSONLinesExample />
-[View on examples.vovk.dev »](https://examples.vovk.dev/jsonlines)
+  <JSONLinesExample />
+  [View on examples.vovk.dev »](https://examples.vovk.dev/jsonlines)
 </div>
 
 Vovk.ts includes first‑class support for the [JSON Lines](https://jsonlines.org/) format, a convenient way to implement “one request—many responses.” JSON Lines is another output type that uses the `iteration` validation field and produces the `application/jsonl` content type if the client sends an `Accept: application/jsonl` header. If the `Accept` header doesn’t include `application/jsonl`, the output is returned as `text/plain` so it’s viewable when the endpoint URL is opened directly in a browser.
@@ -115,7 +115,7 @@ console.log('Response status:', stream.status);
 stream.onIterate((item) => {
   console.log('Iterated item:', item);
 });
-if(someCondition) {
+if (someCondition) {
   stream.abortWithoutError();
 }
 console.log('All messages:', await stream.asPromise());

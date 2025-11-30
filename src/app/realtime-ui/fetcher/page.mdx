@@ -1,0 +1,104 @@
+
+## Setting up the `fetcher`
+
+The next piece of the puzzle is to create a `fetcher` function (mentioned above as a "middleware") that is going to be used by the application to request data from the server. You can find more details about it at [imports](/imports#fetcher) article.
+
+The fetcher is going to implement `transformResponse` function that is going to process all incoming data, passing it to the `parse` method of the registry. The function is also going to handle both regular JSON data and async iterables (if you use [JSONLines](/controller/jsonlines) responses).
+
+```ts showLineNumbers copy filename="src/lib/fetcher.ts" repository="finom/realtime-kanban"
+import { useRegistry } from "@/registry";
+import { createFetcher, HttpStatus } from "vovk";
+
+export const fetcher = createFetcher({
+  transformResponse: async (data) => {
+    const state = useRegistry.getState();
+    if (
+      data &&
+      typeof data === "object" &&
+      Symbol.asyncIterator in data &&
+      "onIterate" in data &&
+      typeof data.onIterate === "function"
+    ) {
+      data.onIterate(state.parse); // handle each item in the async iterable
+      return data;
+    }
+
+    state.parse(data); // parse regular JSON data
+    return data;
+  },
+  onError: (error) => {
+    if (error.statusCode === HttpStatus.UNAUTHORIZED) {
+      document.location.href = "/login";
+    }
+  },
+});
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/lib/fetcher.ts)*
+
+_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/lib/fetcher.ts)_
+
+Declare the fetcher in the [config](/config). It will replace the default `fetcher` imported by the generated [client](/typescript).
+
+```ts showLineNumbers copy filename="vovk.config.mjs"
+// @ts-check
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  outputConfig: {
+    imports: {
+      // ...
+      fetcher: './src/lib/fetcher.ts',
+    },
+  },
+};
+
+export default config;
+```
+
+That's it. From now on, each request is going to be processed by the registry `parse` method, and manual response handling is not required anymore. Here is a rough example:
+
+```ts showLineNumbers copy
+import { useShallow } from "zustand/shallow";
+import { useQuery } from "@tanstack/react-query";
+import { UserRPC } from "vovk-client";
+import { useRegistry } from "@/registry";
+import { UserType } from "../../prisma/generated/schemas/models/User.schema";
+
+interface Props {
+  userIds: UserType["id"][]; // an array of branded user IDs
+}
+
+const UsersExample = ({ userIds }: Props) => {
+  // request the data somewhere in the app
+  useQuery({
+    queryKey: UserRPC.getUsers.queryKey(),
+    queryFn: () => UserRPC.getUsers(),
+  });
+
+  // retrieve users from the registry
+  const users = useRegistry(
+    useShallow((state) => userIds.map((id) => state.user[id])),
+  );
+
+  return <div>
+    <ul>
+      {users.map((user) => (
+        <li key={user.id}>{user.fullName}</li>
+      ))}
+    </ul>
+  </div>;
+};
+
+export default UsersExample;
+```
+
+As you can see `useQuery` invocation doesn't require to read `data` property anymore, as the response is processed by the registry automatically. The invocation of `UserRPC.getUsers()` or any other RPC method (with `useQuery` or without) can be placed anywhere in the app, and all components that use user data are going to be updated automatically.
+
+**Tip:** In order to be sure that the UI doesn't display deleted entities, even if the `userIds` array contains them, you can add additional filtering in the components, for example:
+
+```ts showLineNumbers copy
+const users = useRegistry(
+  useShallow(({ user: { ...userReg } }) => userIds.filter((id) => id in userReg).map((id) => userReg[id]))
+);
+```
+
+The destructuring will make sure that non-enumerable properties are not included in the resulting object.

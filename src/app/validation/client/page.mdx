@@ -11,7 +11,7 @@ const config = {
     imports: {
       validateOnClient: 'my-client-validation-library',
     },
-  }
+  },
 };
 
 export default config;
@@ -21,10 +21,9 @@ This configuration makes the generated RPC modules import the specified client-s
 
 ```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.mjs"
 // ...existing code...
-export const UserRPC = createRPC(
-  schema, '', 'UserRPC', import('vovk'),
-  { validateOnClient: import('my-client-validation-library') }
-);
+export const UserRPC = createRPC(schema, '', 'UserRPC', import('vovk'), {
+  validateOnClient: import('my-client-validation-library'),
+});
 // ...existing code...
 ```
 
@@ -107,9 +106,12 @@ If you’re using an unlisted library and can’t produce a proper OAS file sche
 import { UserRPC } from 'vovk-client';
 
 const respData = await UserRPC.updateUser({
-  body: { /* ... */ },
-  params: { /* ... */ },
+  body: {
+    /* ... */
+  },
+  params: {
+    /* ... */
+  },
   disableClientValidation: true, // disable client-side validation
 });
 ```
-

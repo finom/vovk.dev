@@ -111,15 +111,12 @@ For attachments use `Response` from the Web API with appropriate headers.
 export default class DownloadController {
   @get('csv-report')
   static async downloadCSV() {
-    return new Response(
-      csvString,
-      {
-        headers: {
-          'Content-Type': 'text/csv',
-          'Content-Disposition': `attachment; filename=report.csv`,
-        },
-      }
-    );
+    return new Response(csvString, {
+      headers: {
+        'Content-Type': 'text/csv',
+        'Content-Disposition': `attachment; filename=report.csv`,
+      },
+    });
   }
 }
 ```

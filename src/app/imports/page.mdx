@@ -25,7 +25,7 @@ const config = {
       validateOnClient: './src/lib/validateOnClient',
       createRPC: './src/lib/createRPC',
     },
-  }
+  },
 };
 export default config;
 ```
@@ -47,19 +47,21 @@ export const UserRPC = createRPC(schema, '', 'UserRPC', import('../../src/lib/fe
 /** @type {import('vovk').VovkConfig} */
 const config = {
   outputConfig: {
-    imports: { // applied to all segments
+    imports: {
+      // applied to all segments
       fetcher: './src/lib/fetcher',
       validateOnClient: './src/lib/validateOnClient',
     },
     segments: {
       admin: {
-        imports: { // applied only to "admin" segment
+        imports: {
+          // applied only to "admin" segment
           fetcher: './src/lib/adminFetcher',
           validateOnClient: './src/lib/adminValidateOnClient',
         },
       },
-    }
-  }
+    },
+  },
 };
 export default config;
 ```

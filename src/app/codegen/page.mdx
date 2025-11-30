@@ -120,9 +120,9 @@ use user_api::update_user_::{
 
 ### Bundle
 
-The [TypeScript](/typescript) artifacts can be bundled into an npm package using the `bundle` command. It also creates `package.json` and `README.md` files, where the README outlines each method with self-documenting code samples. See the ["Hello World" example](/hello-world#bundle) for details.
+The [TypeScript](/typescript) artifacts can be bundled into an npm package using the `bundle` command after configuring `bundle.build` function (see [bundle page](/bundle)). It also creates `package.json` and `README.md` files, where the README outlines each method with self-documenting code samples. See the ["Hello World" example](/hello-world#bundle) for details.
 
-To create a [bundle](/bundle), ensure `package.json` and `tsconfig.json` are present at the project root.
+To create a bundle, ensure `package.json` and `tsconfig.json` are present at the project root.
 
 ## Getting Started
 
@@ -202,7 +202,7 @@ const config = {
           apiRoot: 'https://petstore3.swagger.io/api/v3',
         },
       },
-    }
+    },
   },
 };
 export default config;
@@ -293,10 +293,12 @@ const config = {
     // ...
     segments: {
       petstore: {
-        openAPIMixin: { /* ... */ },
+        openAPIMixin: {
+          /* ... */
+        },
         imports: { fetcher: './src/lib/petstoreFetcher' },
       },
-    }
+    },
   },
 };
 export default config;
@@ -315,7 +317,7 @@ await PetstoreAPI.getPets({ query: { limit: 10 } });
 await GithubIssuesAPI.listForOrg({ params: { org: 'finom' } });
 ```
 
-The `Mixins` namespace contains types generated from `components/schemas` across all mixed OpenAPI specifications, providing an alternative to component-agnostic inference.
+The `Mixins` namespace contains types generated from `components/schemas` across all mixed OpenAPI specifications, providing an alternative to the inference.
 
 ```ts showLineNumbers copy
 import { PetstoreAPI, type Mixins } from 'vovk-client';
@@ -369,12 +371,10 @@ import { GithubIssuesAPI, type Mixins as GithubMixins } from '@/lib/client/githu
 // ...
 ```
 
+This approach also generates an alternative OAS document that includes [Scalar](https://scalar.com/)-compatible code samples.
+
 ```ts showLineNumbers copy
 import { openapi as petstoreOpenAPI } from '@/lib/client/petstore/openapi';
 import { openapi as githubOpenAPI } from '@/lib/client/github/openapi';
 console.log(petstoreOpenAPI, githubOpenAPI);
 ```
-
-As a bonus, this approach also generates an alternative OAS document that includes [Scalar](https://scalar.com/)-compatible code samples.
-
-

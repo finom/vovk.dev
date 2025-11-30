@@ -1,0 +1,83 @@
+import { Tabs } from 'nextra/components';
+import AppAlike from './AppAlike';
+import Image from 'next/image';
+import RealtimeNavigation from '../RealtimeNavigation';
+
+- Running locally
+- Deploying to Vercel
+- Designing DB (createdAt is always ISO)
+- Setting up back-end
+- Entity registry
+- Fetcher
+- Authentication
+- Embeddings
+- Text AI
+- Voice AI
+- Redis and Prisma extensions
+- Polling back-end and front-end
+- MCP
+- Telegram Bot
+
+- P1 Overview (Introduction and overview, deployment)
+- P2 State normalization (Frontend: entity registry, fetcher)
+- P3 Database and Back-end (Backend: DB (ISO dates), controllers, services, embeddings, auth)
+- P4 Text AI interface
+- P5 Voice AI interface
+- P6 Database Polling (Polling with Redis and Prisma extensions)
+- P7 Third party integrations (MCP, Telegram bot)
+
+# THIS IS A DRAFT!
+
+<RealtimeNavigation thisArticle="overview" />
+
+# Realtime UI Part 1: Frontend & Backend
+
+## Introduction
+
+The goal of this series of articles is to combine entity-driven state normalization (part 1, this article), function calling (part 2), and database polling (part 3), into an reproducible full-stack framework that:
+
+## Introduction (DRAFT1)
+
+Realtime UI is an idea of building user interfaces that combines well-known patterns from modern web development with function calling framework, offered by Vovk.ts.
+
+- Entity-driven normalization (similar to [Redux](https://redux.js.org/usage/structuring-reducers/normalizing-state-shape)) powered by Zustand - to keep the front-end state in sync with the back-end data efficiently and reduce development overhead.
+- Database polling events powered by Redis and served as JSONLines streaming endpoints - to implement real-time updates without manual refreshes.
+- Agentic function calling made from existing controller methods - to allow AI agents to interact with the DB and UI autonomously and safely.
+  - For server-side executions use [`fn` pattern](/controller/fn) that allows to call controller methods directly from the back-end as normal functions.
+  - For client-side executions use methods of generated RPC modules that call the back-end endpoints via HTTP.
+
+Implementing an endpoint that returns a DB entity and a UI component that retrieves data from the normalized entity registry, you get the following set of features for free:
+
+- AI availability: AI agents can call the pre-implemented handler methods that automatically update the client-side UI components via entity registry.
+  - Via LLM text chat interface (the functions are executed on the back-end).
+  - Via Realtime API voice interface (the functions are executed on the front-end, performing pre-authorized HTTP requests).
+  - Via MCPs (the functions are executed on the back-end).
+  - Via other sources, including REST clients, CLI tools, etc.
+- Collaborative updates: multiple users can work with the same data simultaneously, and see each other's changes in real-time.
+- OpenAPI documentation with self-documented code snipets.
+
+Database polling with Redis as event bus to keep the front-end state in sync with the back-end data in real-time.
+
+is a normalized, entity-driven state architecture where all UI state is derived from a shared registry updated whenever the backend returns data in response to user interactions, API calls, or AI function executions, adding minimal development overhead.
+
+## Introduction (DRAFT2)
+
+AI agents are a powerful technology that can autonomously analyze information, make decisions, and take actions to accomplish complex tasks with minimal human intervention. Unlike traditional software, which follows rigid, predefined rules, AI agents can adapt to new situations, learn from data, and collaborate with other agents or humans to achieve goals more efficiently. As these systems become more capable, they are transforming industries ranging from customer service and healthcare to finance, education, and creative work.
+
+However, allowing AI agents to interact with the UI automatically—without direct user input—introduces a new set of challenges. Systems must ensure that the agent’s behavior is predictable, that unintended or disruptive changes are avoided, and that users can clearly understand what actions the agent is taking on their behalf.
+
+The goal of this series of articles is to introduce a clear and predictable framework for enabling AI agents to update user interfaces autonomously, while maintaining safety and control. Using simple techniques such as setting up entity registry on front-end described in this article together with [function calling](/function-calling) that converts AI requests into authorized HTTP calls to the back-end, or invoking back-end controller methods directly via [callable handlers](/controller/fn), we can create applications where AI agents can modify the UI in a controlled manner.
+
+The articles are structured as follows:
+
+- **Part 1 (this article): Frontend & Backend** - setting up the back-end controllers and front-end entity registry for efficient state management. The goal is to make the front-end state easily synchronizable with the back-end data, independent of the data fetching method: wether it's a one big fetch, smaller incremental updates, or tool invocations from AI agents. The article doesn't cover any AI-specific logic, focusing solely on the data flow between front-end and back-end.
+- [Part 2: Text & Voice AI Interface](./ai) - building a text-based chat interface that allows users to interact with the application using natural language, but also WebRTC voice interface for hands-free operation for JARVIS-like experience powered by OpeenAI Realtime API.
+- [Part 3: Database Polling](./polling) - implementing a polling mechanism to keep the front-end state in sync with the back-end data in real-time, enabling dynamic updates without manual refreshes, wether the changes are made by other users, MCPs, or bots.
+
+This is a safe alternative to the "AI browsers" as the AI cannot execute arbitrary code in the browser, but only invoke pre-defined functions that already exist on the back-end for normal CRUD operations.
+
+This way we can build applications fully operated by LLM text or voice interfaces, adding a whole new level of interactivity and automation to user experiences. This would also allow to create assistive technologies that help users with disabilities to interact with complex applications more easily.
+
+### "Realtime Kanban"
+
+For a practical demonstration of these concepts, I've created an application that implements a kanban board that uses only two database tables: users and tasks, keeping it as simple as possible, while showcasing the core principles of building what I call a Realtime UI. This example can be used as a foundation for building more complex applications with additional tables and features as needed. Note that the described project is just a demo and might need additional optimizations and improvements to be used in production.

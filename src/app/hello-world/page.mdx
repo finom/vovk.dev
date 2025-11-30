@@ -144,6 +144,7 @@ export default class UserController {
   });
 }
 ```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserController.ts)*`
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
@@ -170,7 +171,10 @@ export default class UserService {
   };
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserService.ts)*`
+
+_[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserService.ts)_
+
 </Tabs.Tab>
 </Tabs>
 
@@ -207,6 +211,7 @@ export default class StreamController {
   });
 }
 ```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*`
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
@@ -228,7 +233,10 @@ export default class StreamService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamService.ts)*`
+
+_[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamService.ts)_
+
 </Tabs.Tab>
 </Tabs>
 
@@ -424,6 +432,7 @@ const StreamDemo = () => {
 };
 export default StreamDemo;
 ```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/Demo/StreamDemo.tsx)*`
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/Demo/StreamDemo.tsx)*
 </Tabs.Tab>
 </Tabs>
@@ -530,7 +539,9 @@ const config = {
 
 module.exports = config;
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/vovk.config.js)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/vovk.config.js)*`
+
+_[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/vovk.config.js)_
 
 ## OpenAPI Specification
 
@@ -551,6 +562,8 @@ export default class OpenApiController {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/static/openapi/OpenApiController.ts)*
 
+_[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/static/openapi/OpenApiController.ts)_
+
 The spec includes Scalar‑compatible samples you can reuse immediately.
 
 <IFrame src="https://hello-world.vovk.dev/openapi" width="100%" height="1200px"></IFrame>
@@ -558,15 +571,16 @@ The spec includes Scalar‑compatible samples you can reuse immediately.
 <a name="bundle" />
 ## Building and Packaging
 
-<div className='mt-4'>
-<NoSSR>
-<Asciinema src="/asciinema/hello-world-patch.cast" />
-</NoSSR>
+<div className="mt-4">
+  <NoSSR>
+    <Asciinema src="/asciinema/hello-world-patch.cast" />
+  </NoSSR>
 </div>
 
 This example also demonstrates how to quickly produce distributable packages published on [npm](https://www.npmjs.com/package/vovk-hello-world), [PyPI](https://pypi.org/project/vovk-hello-world/), and [crates.io](https://crates.io/crates/vovk_hello_world). The provided [templates](/templates) compile ready-to-use packages with language-specific files such as [package.json](https://github.com/finom/vovk-hello-world/blob/main/dist/package.json), [Cargo.toml](https://github.com/finom/vovk-hello-world/blob/main/dist_rust/Cargo.toml), and [pyproject.toml](https://github.com/finom/vovk-hello-world/blob/main/dist_python/pyproject.toml), as well as README files that use code samples served as API/client documentation.
 
 `npm run patch`:
+
 1. Verifies a clean working tree.
 2. Bumps the patch version.
 3. Triggers `postversion` to regenerate clients, bundle TypeScript, publish all packages, and create a commit + tag.
@@ -587,27 +601,24 @@ This example also demonstrates how to quickly produce distributable packages pub
 The `README.md` files are also updated with the latest examples and descriptions. IFrames below are rendered from the READMEs by Github Pages.
 
 <Tabs items={['TypeScript', 'Rust', 'Python']}>
-<Tabs.Tab>
-<IFrame src="https://finom.github.io/vovk-hello-world/dist/" width="100%" height="1200px"></IFrame>
-</Tabs.Tab>
-<Tabs.Tab>
-<IFrame src="https://finom.github.io/vovk-hello-world/dist_rust/" width="100%" height="1200px"></IFrame>
-</Tabs.Tab>
-<Tabs.Tab>
-<IFrame src="https://finom.github.io/vovk-hello-world/dist_python/" width="100%" height="1200px"></IFrame>
-</Tabs.Tab> 
+  <Tabs.Tab>
+    <IFrame src="https://finom.github.io/vovk-hello-world/dist/" width="100%" height="1200px"></IFrame>
+  </Tabs.Tab>
+  <Tabs.Tab>
+    <IFrame src="https://finom.github.io/vovk-hello-world/dist_rust/" width="100%" height="1200px"></IFrame>
+  </Tabs.Tab>
+  <Tabs.Tab>
+    <IFrame src="https://finom.github.io/vovk-hello-world/dist_python/" width="100%" height="1200px"></IFrame>
+  </Tabs.Tab>
 </Tabs>
-
 
 ## Node.js, Rust, and Python CLI Demo
 
-
-<div className='mt-4'>
-<NoSSR>
-<Asciinema src="/asciinema/hello-world-demo.cast" />
-</NoSSR>
+<div className="mt-4">
+  <NoSSR>
+    <Asciinema src="/asciinema/hello-world-demo.cast" />
+  </NoSSR>
 </div>
-
 
 The repository includes CLI demos for invoking RPC methods from Node.js, Rust, and Python. Each language has two variants:
 
@@ -657,6 +668,7 @@ async function main() {
 }
 main().catch(console.error);
 ```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/demo/node/packaged.mts)*`
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/demo/node/packaged.mts)*
 </Tabs.Tab>
 <Tabs.Tab>
@@ -697,7 +709,10 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}")
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/demo/python/packaged.py)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/demo/python/packaged.py)*`
+
+_[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/demo/python/packaged.py)_
+
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="demo/rust/packaged/src/main.rs" repository="finom/vovk-hello-world"
@@ -801,3 +816,4 @@ Even with only three endpoints (`updateUser`, `streamTokens`, `getSpec`), Vovk.t
 - Text streaming and unified client-side validation flows.
 
 Additional topics not shown here include [Function Calling](/function-calling) (LLM tool generation), source‑only [templates](/templates), custom [decorators](/decorators), advanced [imports](/imports) configuration, and more—explore the docs for deeper features.
+```

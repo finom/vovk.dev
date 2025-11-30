@@ -1,4 +1,4 @@
-import { Steps } from 'nextra/components'
+import { Steps } from 'nextra/components';
 import Asciinema from '../../components/AsciinemaPlayer';
 import NoSSR from '../../components/NoSSR';
 
@@ -55,6 +55,7 @@ npx vovk new controller service user
 ```
 
 **More info:**
+
 - [vovk new](/new)
 - [Controller](/controller)
 - [Service](/controller/service)
@@ -71,6 +72,7 @@ Then open: http://localhost:3000/api/users/123
 You’ll see a placeholder response from `UserController.getSingleUser`: `{"message":"TODO: get single user","id":"123"}{:json}`
 
 **More info:**
+
 - [vovk dev](/dev)
 - [Schema](/schema)
 - [Composed Client](/composed)
@@ -81,7 +83,7 @@ You’ll see a placeholder response from `UserController.getSingleUser`: `{"mess
 Import the generated client library and call the RPC method:
 
 ```tsx showLineNumbers copy filename="src/app/page.tsx"
-"use client";
+'use client';
 import { useEffect, useState } from 'react';
 import type { VovkReturnType } from 'vovk';
 import { UserRPC } from 'vovk-client';
@@ -92,9 +94,7 @@ export default function Home() {
   useEffect(() => {
     void UserRPC.getSingleUser({ params: { id: '123' } }).then(setResp);
   }, []);
-  return (
-    <pre>Response: {JSON.stringify(resp, null, 2)}</pre>
-  );
+  return <pre>Response: {JSON.stringify(resp, null, 2)}</pre>;
 }
 ```
 
@@ -106,7 +106,7 @@ import { UserRPC } from 'vovk-client';
 // ...
 const { data, error, isLoading } = useQuery({
   queryKey: UserRPC.getSingleUser.queryKey(),
-  queryFn: () => UserRPC.getSingleUser({ params: { id: '123' }}),
+  queryFn: () => UserRPC.getSingleUser({ params: { id: '123' } }),
 });
 ```
 
@@ -123,5 +123,7 @@ npx vovk generate
 ```
 
 **More info:**
+
 - [vovk generate](/generate)
+
 </Steps>

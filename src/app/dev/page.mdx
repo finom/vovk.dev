@@ -21,7 +21,7 @@ Options:
   -h, --help            display help for command
 ```
 
------
+---
 
 The `vovk dev` command runs a watcher that monitors controllers and updates the [schema](/schema) and [client](/typescript) as needed. It does this by issuing HTTP GET requests to `/api/<segment-name>/_schema_`, where `<segment-name>` is the relevant segment. If the schema has changed, the watcher updates the JSON files and regenerates the client modules.
 
@@ -100,4 +100,3 @@ For convenience, add a dedicated script in `package.json`:
   }
 }
 ```
-

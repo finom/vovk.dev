@@ -1,0 +1,19 @@
+### Deploying to Vercel
+
+As this is just a demo, I've used free proprietary tools and services to make it work for easy deployment. Vovk.ts isn't affiliated with any of them, and you can replace them with any other tools you prefer.
+
+- [OpenAI API](https://openai.com/api/) for natural language processing
+- [Vercel](https://vercel.com/) for hosting and serverless functions
+- [Neon](https://vercel.com/integrations/neon) Vercel integration for Postgres/PGVector database hosting
+- [Redis](https://vercel.com/integrations/redis) Vercel integration for Redis hosting
+
+In order to deploy the app, with the same setup, create a new project at Vercel, link it to the fork of the GitHub repository, and add the above mentioned integrations.
+
+<Image
+  src="/screenshots/vercel-ai-demo-integrations.png"
+  alt="Vercel integrations for AI demo"
+  width={2916 / 2}
+  height={1826 / 2}
+/>
+
+Add `OPENAI_API_KEY` at the project environment variables. Other variables such as `DATABASE_URL` and `REDIS_URL` are going to be created automatically by the integrations. In case of a problem, check the [.env.template](https://github.com/finom/realtime-kanban/blob/main/.env.template) file for reference.

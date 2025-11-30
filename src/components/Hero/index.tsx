@@ -20,7 +20,10 @@ const Hero = () => {
           <div className="inline-flex items-center rounded-full bg-background/50 px-3 font-semibold text-2xl md:text-4xl opacity-60">
             Back-end for Next.js (beta)
           </div>
-          <div className="inline-flex items-center rounded-full border border-border bg-background/50 px-3 text-sm" hidden>
+          <div
+            className="inline-flex items-center rounded-full border border-border bg-background/50 px-3 text-sm"
+            hidden
+          >
             <span className="text-muted-foreground">Introducing</span>
             <span className="mx-1 h-4"></span>
             <span className="font-medium">Vovk.ts</span>

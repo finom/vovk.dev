@@ -116,7 +116,9 @@ const Articles = () => {
     <div className="pt-18 md:pt-24 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-4 space-y-4">
-          <h2 className="text-xl md:text-xl font-semibold tracking-tight text-muted-foreground">Explore Vovk.ts Documentation</h2>
+          <h2 className="text-xl md:text-xl font-semibold tracking-tight text-muted-foreground">
+            Explore Vovk.ts Documentation
+          </h2>
         </div>
 
         <div>
@@ -126,11 +128,12 @@ const Articles = () => {
               key={option.title}
             >
               <Link key={option.title} href={option.href as Route} className="h-full">
-                  <CardTitle className="font-semibold">
-                    <div className="group-hover:scale-110 transition-transform duration-200 inline-block pr-2">
+                <CardTitle className="font-semibold">
+                  <div className="group-hover:scale-110 transition-transform duration-200 inline-block pr-2">
                     {option.icon}
                   </div>
-                    {option.title}</CardTitle>
+                  {option.title}
+                </CardTitle>
               </Link>
             </Card>
           ))}

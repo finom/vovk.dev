@@ -18,44 +18,42 @@ The `createLLMTools` function accepts a `resultFormatter` option to format a too
 ```
 
 ```ts showLineNumbers copy {10}
-import { createLLMTools } from "vovk";
-import UserController from "@/modules/user/UserController";
-import TaskController from "@/modules/task/TaskController";
+import { createLLMTools } from 'vovk';
+import UserController from '@/modules/user/UserController';
+import TaskController from '@/modules/task/TaskController';
 
 const { tools } = createLLMTools({
   modules: {
     UserController,
     TaskController,
   },
-  resultFormatter: "mcp",
+  resultFormatter: 'mcp',
 });
 ```
 
 This is where custom operation properties such as `x-tool-successMessage` and `x-tool-errorMessage` become especially useful for making outputs more LLM‑friendly.
 
 ```ts showLineNumbers copy {14-15}
-import { prefix, get, put, post, del, operation } from "vovk";
-import UserService from "./UserService";
-import { z } from "zod";
-import { BASE_FIELDS } from "@/constants";
-import { UserSchema } from "../../../prisma/generated/schemas";
-import { withZod } from "@/lib/withZod";
+import { prefix, get, put, post, del, operation } from 'vovk';
+import UserService from './UserService';
+import { z } from 'zod';
+import { BASE_FIELDS } from '@/constants';
+import { UserSchema } from '../../../prisma/generated/schemas';
+import { withZod } from '@/lib/withZod';
 
-@prefix("users")
+@prefix('users')
 export default class UserController {
   @operation({
-    summary: "Update user",
-    description:
-      "Updates an existing user with the provided details, such as their email or name.",
-    "x-tool-successMessage": "User updated successfully",
-    "x-tool-errorMessage": "Failed to update user",
+    summary: 'Update user',
+    description: 'Updates an existing user with the provided details, such as their email or name.',
+    'x-tool-successMessage': 'User updated successfully',
+    'x-tool-errorMessage': 'Failed to update user',
   })
-  @put("{id}")
+  @put('{id}')
   static updateUser = withZod({
     body: UserSchema.omit(BASE_FIELDS).partial(),
     params: UserSchema.pick({ id: true }),
-    handle: async ({ vovk }) =>
-      UserService.updateUser(vovk.params().id, await vovk.body()),
+    handle: async ({ vovk }) => UserService.updateUser(vovk.params().id, await vovk.body()),
   });
 
   // ...
@@ -79,13 +77,12 @@ Now create the route file following your chosen MCP library’s documentation.
 
 We’ll use `UserController` and `TaskController` as the source of MCP tools. Controller methods run in the same context (rather than over HTTP) because they follow [callable handler](/controller/fn) rules.
 
-
 ```ts showLineNumbers copy filename="src/app/api/mcp/route.ts" repository="finom/realtime-kanban" {30}
 import { createMcpHandler } from "mcp-handler";
 import { createLLMTools, KnownAny } from "vovk";
 import UserController from "@/modules/user/UserController";
 import TaskController from "@/modules/task/TaskController";
-import { jsonSchemaObjectToZodRawShape } from "zod-from-json-schema";
+import { jsonSchemaObjectToZodRawShape } from "zod-v3-via-v4-from-json-schema"; // TODO: Temporary fix
 
 const { tools } = createLLMTools({
   modules: {
@@ -106,10 +103,12 @@ const { tools } = createLLMTools({
 const handler = createMcpHandler(
   (server) => {
     tools.forEach(({ name, execute, description, parameters }) => {
-      server.tool(
+      server.registerTool(
         name,
-        description,
-        jsonSchemaObjectToZodRawShape(parameters as KnownAny),
+        {
+          description,
+          inputSchema: jsonSchemaObjectToZodRawShape(parameters) as KnownAny, // TODO: Temporary fix
+        },
         execute,
       );
     });
@@ -122,7 +121,10 @@ const authorizedHandler = (req: Request) => {
   const { MCP_ACCESS_KEY } = process.env;
   const accessKey = new URL(req.url).searchParams.get("mcp_access_key");
   if (MCP_ACCESS_KEY && accessKey !== MCP_ACCESS_KEY) {
-    return new Response("mcp_access_key is invalid", { status: 401 });
+    return new Response(
+      "Unable to authorize the MCP request: mcp_access_key query parameter is invalid",
+      { status: 401 },
+    );
   }
   return handler(req);
 };
@@ -131,6 +133,8 @@ export { authorizedHandler as GET, authorizedHandler as POST };
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/app/api/mcp/route.ts)*
 
+_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/app/api/mcp/route.ts)_
+
 Because the `server.tool` parameters argument expects Zod schemas, convert each tool’s JSON Schema parameters to Zod using [zod-from-json-schema](https://www.npmjs.com/package/zod-from-json-schema). This approach works with all supported [validation libraries](/validation). If you already use Zod to validate incoming requests, you can instead access Zod schemas directly via a tool’s `models` property, as shown below:
 
 ```ts showLineNumbers copy
@@ -138,16 +142,11 @@ Because the `server.tool` parameters argument expects Zod schemas, convert each 
 const handler = createMcpHandler(
   (server) => {
     tools.forEach(({ name, execute, description, models }) => {
-      server.tool(
-        name,
-        description,
-        models,
-        execute,
-      );
+      server.tool(name, description, models, execute);
     });
   },
   {},
-  { basePath: "/api" },
+  { basePath: '/api' }
 );
 // ...
 ```
@@ -157,23 +156,22 @@ Note that the `models` property is available only for [callable handlers](/contr
 You can also bring in third‑party [OpenAPI Mixins](/codegen) to extend your MCP server with additional tools.
 
 ```ts showLineNumbers copy
-import { GithubIssuesAPI } from "vovk-client";
+import { GithubIssuesAPI } from 'vovk-client';
 // ...
 const githubOptions = {
-    init: {
-        headers: {
-            Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
-            "X-GitHub-Api-Version": "2022-11-28",
-        },
+  init: {
+    headers: {
+      Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+      'X-GitHub-Api-Version': '2022-11-28',
     },
+  },
 };
 const { tools } = createLLMTools({
-    modules: {
-        UserController,
-        TaskController,
-        GithubIssuesAPI: [GithubIssuesAPI, githubOptions],
-    },
+  modules: {
+    UserController,
+    TaskController,
+    GithubIssuesAPI: [GithubIssuesAPI, githubOptions],
+  },
 });
 // ...
 ```
-

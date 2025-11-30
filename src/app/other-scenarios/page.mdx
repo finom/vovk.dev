@@ -32,10 +32,10 @@ However, just as NestJS builds on Express, Vovk.ts builds on Next.js API routes,
 
 This lets you use Next.js + Vovk.ts as a standalone RESTful API server without React-related features. Set `rootEntry` to `''` in the [config](/config) (it defaults to `'api'`), and create your API routes in the root of `./src/app`.
 
------
+---
 
 If you have an Angular, Vue.js, or other front-end project that needs a RESTful API server, you can use a monorepo with two projects: one front end powered by [Vite](https://vite.dev/) and one back end powered by Next.js and Vovk.ts. The back end can emit RPC modules directly to the front-end project (by setting the `outDir` [config](/config) option to `../front-end/node_modules/.vovk-client` for the [composed](/composed) client or `../front-end/src/client` for the [segmented](/segmented) client).
 
------
+---
 
 If you prefer not to use a monorepo, you can split the front end and back end into separate repositories. The back end can [bundle](/bundle) the client library and publish it as a private NPM package that is going to be consumed by the front end.

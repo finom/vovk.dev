@@ -25,7 +25,8 @@ Options:
   --dry-run                       do not write files to disk
   -h, --help                      display help for command
 ```
------
+
+---
 
 The `init` command sets up Vovk.ts in an existing Next.js project. It applies the required configuration and installs the necessary dependencies.
 
@@ -38,37 +39,48 @@ npx vovk-cli@draft init
 ## Available Flags
 
 ### `--prefix <prefix>`
+
 Directory to initialize the project in. Defaults to the current directory.
 
 ### `-y, --yes`
+
 Skips prompts and uses default values.
 
 ### `--log-level <level>`
+
 Sets the log level: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. Default: `info`.
 
 ### `--use-npm`, `--use-yarn`, `--use-pnpm`, `--use-bun`
+
 Choose the package manager for installing dependencies.
 
 ### `--skip-install`
+
 Skips installing dependencies but still updates `package.json`.
 
 ### `--update-ts-config`
+
 Updates `tsconfig.json` with settings needed for Vovk.ts, such as `experimentalDecorators`.
 
 ### `--update-scripts <mode>`
+
 Updates `package.json` scripts to run Next.js and Vovk.ts together. Modes:
+
 - `implicit` — runs the concurrently API under the hood.
 - `explicit` — uses the `concurrently` CLI.
-The flag also sets `prebuild` to run `vovk generate` before `next build` to ensure the client is generated before building.
+  The flag also sets `prebuild` to run `vovk generate` before `next build` to ensure the client is generated before building.
 
 ### `--lang <languages...>`
+
 Generates clients for additional languages. Sets [`composedClient.templates`](/composed#templates) to include "py" (Python) and "rs" (Rust).
 
 ### `--validation-library <library>`
+
 Selects a validation library: "zod", "class-validator", "valibot", "arktype", or "none" to skip validation. For libraries supporting [Standard Schema](/validation/standard) like "arktype", it also scaffolds a validation helper in **./src/lib/** (e.g., **./src/lib/withArk.ts**).
 If not set to "none", the command updates the [config](/config) to include the matching `validateOnClient`.
 
 ### `--channel <channel>`
+
 Specifies the package channel (default: "latest").
 
 - `latest` for stable releases.
@@ -82,7 +94,9 @@ npx vovk-cli@draft init --channel draft
 ```
 
 ### `--dry-run`
+
 Shows actions without writing files.
 
 ### `-h, --help`
+
 Displays help.

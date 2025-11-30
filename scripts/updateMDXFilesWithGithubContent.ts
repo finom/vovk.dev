@@ -1,6 +1,6 @@
-import { readdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
-import { getGithubFile } from "./getGithubFiles";
+import { readdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { getGithubFile } from './getGithubFiles';
 
 /*
 PROMPT:
@@ -35,133 +35,129 @@ Think carefully, think hard, this is important for my career.
 */
 
 async function updateGithubMDXCodeBlocks(mdxContent: string) {
-	// Regex to capture:
-	// - fenceLine: everything on the opening line after ```
-	// - code: the code content
-	// - linkLine: an optional single line right after the closing fence that starts with *[
-	const blockRe =
-		/```(?<fenceLine>[^\n]*)\n(?<code>[\s\S]*?)\n```(?<linkLine>\n\*\[[^\n]*\]\([^)]+\)\*?)?/g;
+  // Regex to capture:
+  // - fenceLine: everything on the opening line after ```
+  // - code: the code content
+  // - linkLine: an optional single line right after the closing fence that starts with *[
+  const blockRe = /```(?<fenceLine>[^\n]*)\n(?<code>[\s\S]*?)\n```(?<linkLine>\n\*\[[^\n]*\]\([^)]+\)\*?)?/g;
 
-	// Helper to parse attributes from the fence line (language + attrs)
-	function parseAttrs(fenceLine: string): Record<string, string> {
-		const attrs: Record<string, string> = {};
-		const attrRe = /([a-zA-Z0-9_-]+)=(?:"([^"]+)"|'([^']+)'|([^\s"']+))/g;
-		let m: RegExpExecArray | null;
-		while ((m = attrRe.exec(fenceLine))) {
-			const key = m[1];
-			const val = m[2] ?? m[3] ?? m[4] ?? "";
-			attrs[key] = val;
-		}
-		return attrs;
-	}
+  // Helper to parse attributes from the fence line (language + attrs)
+  function parseAttrs(fenceLine: string): Record<string, string> {
+    const attrs: Record<string, string> = {};
+    const attrRe = /([a-zA-Z0-9_-]+)=(?:"([^"]+)"|'([^']+)'|([^\s"']+))/g;
+    let m: RegExpExecArray | null;
+    while ((m = attrRe.exec(fenceLine))) {
+      const key = m[1];
+      const val = m[2] ?? m[3] ?? m[4] ?? '';
+      attrs[key] = val;
+    }
+    return attrs;
+  }
 
-	let out = "";
-	let lastIndex = 0;
+  let out = '';
+  let lastIndex = 0;
 
-	const matches: Array<RegExpExecArray> = [];
-	let m: RegExpExecArray | null;
-	while ((m = blockRe.exec(mdxContent))) matches.push(m);
+  const matches: Array<RegExpExecArray> = [];
+  let m: RegExpExecArray | null;
+  while ((m = blockRe.exec(mdxContent))) matches.push(m);
 
-	for (const match of matches) {
-		const { index } = match;
-		const fenceLine = match.groups?.fenceLine ?? "";
-		const code = match.groups?.code ?? "";
-		const linkLine = match.groups?.linkLine ?? "";
+  for (const match of matches) {
+    const { index } = match;
+    const fenceLine = match.groups?.fenceLine ?? '';
+    const code = match.groups?.code ?? '';
+    const linkLine = match.groups?.linkLine ?? '';
 
-		out += mdxContent.slice(lastIndex, index);
+    out += mdxContent.slice(lastIndex, index);
 
-		const attrs = parseAttrs(fenceLine);
-		const filename = attrs["filename"];
-		const repository = attrs["repository"];
+    const attrs = parseAttrs(fenceLine);
+    const filename = attrs['filename'];
+    const repository = attrs['repository'];
 
-		// Only process blocks that have both filename and repository
-		if (!filename || !repository) {
-			out += match[0];
-			lastIndex = (index ?? 0) + match[0].length;
-			continue;
-		}
+    // Only process blocks that have both filename and repository
+    if (!filename || !repository) {
+      out += match[0];
+      lastIndex = (index ?? 0) + match[0].length;
+      continue;
+    }
 
-		const [owner, repo] = repository.split("/");
-		if (!owner || !repo) {
-			// Malformed repository attribute; leave unchanged
-			out += match[0];
-			lastIndex = (index ?? 0) + match[0].length;
-			continue;
-		}
+    const [owner, repo] = repository.split('/');
+    if (!owner || !repo) {
+      // Malformed repository attribute; leave unchanged
+      out += match[0];
+      lastIndex = (index ?? 0) + match[0].length;
+      continue;
+    }
 
-		let fetched = code
-		let replaced = false;
-		try {
-			const remote = await getGithubFile(filename, { owner, repo, ref: 'main' });
-			if (typeof remote === "string" && remote !== code) {
-				fetched = remote.trim();
-				replaced = true;
-			}
-		} catch {
-			// On fetch error, leave the block untouched
-			out += match[0];
-			lastIndex = (index ?? 0) + match[0].length;
-			continue;
-		}
+    let fetched = code;
+    let replaced = false;
+    try {
+      const remote = await getGithubFile(filename, { owner, repo, ref: 'main' });
+      if (typeof remote === 'string' && remote !== code) {
+        fetched = remote.trim();
+        replaced = true;
+      }
+    } catch {
+      // On fetch error, leave the block untouched
+      out += match[0];
+      lastIndex = (index ?? 0) + match[0].length;
+      continue;
+    }
 
-		// Build the link line we expect
-		const expectedLink =
-			`*[The code above is fetched from GitHub repository.](https://github.com/${owner}/${repo}/blob/main/${filename})*`;
+    // Build the link line we expect
+    const expectedLink = `*[The code above is fetched from GitHub repository.](https://github.com/${owner}/${repo}/blob/main/${filename})*`;
 
-		// Decide whether to update/add link
-		let linkToUse = linkLine; // preserve if present and content not changed
-		if (replaced || !linkLine) {
-			linkToUse = "\n" + expectedLink;
-		}
+    // Decide whether to update/add link
+    let linkToUse = linkLine; // preserve if present and content not changed
+    if (replaced || !linkLine) {
+      linkToUse = '\n' + expectedLink;
+    }
 
-		// Reconstruct the block preserving the opening fence line
-		const rebuilt =
-			"```" +
-			fenceLine +
-			"\n" +
-			fetched +
-			"\n```" +
-			(linkToUse ?? "");
+    // Reconstruct the block preserving the opening fence line
+    const rebuilt = '```' + fenceLine + '\n' + fetched + '\n```' + (linkToUse ?? '');
 
-		out += rebuilt;
-		lastIndex = (index ?? 0) + match[0].length;
-	}
+    out += rebuilt;
+    lastIndex = (index ?? 0) + match[0].length;
+  }
 
-	out += mdxContent.slice(lastIndex);
-	return out;
+  out += mdxContent.slice(lastIndex);
+  return out;
 }
 
 export async function updateMDXFilesWithGithubContent(directoryPath: string) {
-	async function getAllMdxFiles(dir: string, acc: string[] = []): Promise<string[]> {
-		const entries = await readdir(dir, { withFileTypes: true });
-		for (const e of entries) {
-			const full = path.join(dir, e.name);
-			if (e.isDirectory()) {
-				await getAllMdxFiles(full, acc);
-			} else if (e.isFile() && full.toLowerCase().endsWith(".mdx")) {
-				acc.push(full);
-			}
-		}
-		return acc;
-	}
+  async function getAllMdxFiles(dir: string, acc: string[] = []): Promise<string[]> {
+    const entries = await readdir(dir, { withFileTypes: true });
+    for (const e of entries) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        await getAllMdxFiles(full, acc);
+      } else if (e.isFile() && full.toLowerCase().endsWith('.mdx')) {
+        acc.push(full);
+      }
+    }
+    return acc;
+  }
 
-	let count = 0;
+  let count = 0;
 
-	const files = await getAllMdxFiles(directoryPath);
-	for (const file of files) {
-		const original = await readFile(file, "utf8");
-		const updated = await updateGithubMDXCodeBlocks(original);
-		console.log(`Processed file: ${file}`);
-		if (updated !== original) {
-			await writeFile(file, updated, "utf8");
-			console.info(`Updated MDX file: ${file}`);
-			count++;
-		}
-	}
+  const files = await getAllMdxFiles(directoryPath);
+  for (const file of files) {
+    const original = await readFile(file, 'utf8');
+    const updated = await updateGithubMDXCodeBlocks(original);
+    console.log(`Processed file: ${file}`);
+    if (updated !== original) {
+      await writeFile(file, updated, 'utf8');
+      console.info(`Updated MDX file: ${file}`);
+      count++;
+    }
+  }
 
-	return { updatedFilesCount: count, totalFilesProcessed: files.length };
+  return { updatedFilesCount: count, totalFilesProcessed: files.length };
 }
 
-void updateMDXFilesWithGithubContent(path.join(process.cwd(), 'src/app')).then(({ updatedFilesCount, totalFilesProcessed }) => {
-	console.info(`MDX files updated with GitHub content. ${updatedFilesCount} out of ${totalFilesProcessed} files were modified.`);
-});
+void updateMDXFilesWithGithubContent(path.join(process.cwd(), 'src/app')).then(
+  ({ updatedFilesCount, totalFilesProcessed }) => {
+    console.info(
+      `MDX files updated with GitHub content. ${updatedFilesCount} out of ${totalFilesProcessed} files were modified.`
+    );
+  }
+);

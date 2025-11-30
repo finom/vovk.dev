@@ -23,9 +23,9 @@ Creates Next.js App Route handlers used by the main [Optional Catch-all Segment]
 HTTP method decorators define an HTTP method for a handler. They accept two optional arguments:
 
 - `path? = ''` - the path for the route.
-- `opts?: { cors?: boolean, headers?: Record<string, string>, staticParams?: Record<string, string>[] }` - options for the route. 
-  - If `cors` is set to `true`, it will add CORS headers to the response and make the `OPTIONS` HTTP method properly handled. 
-  - `headers` is an object with headers to be added to the response. 
+- `opts?: { cors?: boolean, headers?: Record<string, string>, staticParams?: Record<string, string>[] }` - options for the route.
+  - If `cors` is set to `true`, it will add CORS headers to the response and make the `OPTIONS` HTTP method properly handled.
+  - `headers` is an object with headers to be added to the response.
   - `staticParams` (`@get` decorator only) is an array of objects with static parameters that can be used in the route path, e.g., `[{ id: '123' }]`.
 
 ```ts showLineNumbers copy
@@ -225,7 +225,7 @@ Read more about it on [Standard Schema](/validation/standard) page.
 
 ### `multitenant`
 
-A [Next.js proxy](https://nextjs.org/docs/app/api-reference/file-conventions/proxy) utility that routes subdomains to specific [segments](/segment). 
+A [Next.js proxy](https://nextjs.org/docs/app/api-reference/file-conventions/proxy) utility that routes subdomains to specific [segments](/segment).
 
 ```ts showLineNumbers copy filename="src/proxy.ts"
 // ... proxy ...
@@ -265,7 +265,7 @@ const { tools, toolsByName } = createLLMTools({
       params,
       result,
     }),
-  onError: (e) => console.error("Error", e),
+  onError: (e) => console.error('Error', e),
 });
 ```
 
@@ -375,7 +375,7 @@ As `iteration` validation isn't required, the `VovkYieldType` type allows you to
 
 ### `VovkRequest`
 
-Extends the Next.js built-in `NextRequest` object to make it return proper types for `.json()`, `.nextUrl.searchParams`, and also adds a `vovk` property that provides more advanced input retrieval methods. 
+Extends the Next.js built-in `NextRequest` object to make it return proper types for `.json()`, `.nextUrl.searchParams`, and also adds a `vovk` property that provides more advanced input retrieval methods.
 
 See the [request](/controller/request) documentation for more info.
 
@@ -439,38 +439,38 @@ export enum HttpStatus {
 
 ### `VovkSchema`
 
-The full schema of the composed client or for a segment in the segmented client. Can be represented as 
+The full schema of the composed client or for a segment in the segmented client. Can be represented as
 
 ```ts showLineNumbers copy
-{ 
-  segments: { [key: string]: VovkSegmentSchema }; 
-  meta?: VovkMetaSchema 
+{
+  segments: { [key: string]: VovkSegmentSchema };
+  meta?: VovkMetaSchema
 }
 ```
 
 ### `VovkSegmentSchema`
 
-The schema of a segment. Contains segment information and a record of controllers. Can be represented as 
+The schema of a segment. Contains segment information and a record of controllers. Can be represented as
 
 ```ts showLineNumbers copy
-{ 
-  controllers: { [key: string]: VovkControllerSchema }; 
-  segmentName: string; 
-  segmentType: 'segment' | 'mixin' 
+{
+  controllers: { [key: string]: VovkControllerSchema };
+  segmentName: string;
+  segmentType: 'segment' | 'mixin'
 }
 ```
 
 ### `VovkControllerSchema`
 
-The schema of a controller. Can be represented as 
+The schema of a controller. Can be represented as
 
 ```ts showLineNumbers copy
-{ 
-  rpcModuleName: string; 
-  originalControllerName?: string; 
-  prefix?: string; 
-  forceApiRoot?: string; 
-  handlers: { [key: string]: VovkHandlerSchema } 
+{
+  rpcModuleName: string;
+  originalControllerName?: string;
+  prefix?: string;
+  forceApiRoot?: string;
+  handlers: { [key: string]: VovkHandlerSchema }
 }
 ```
 
@@ -481,7 +481,6 @@ The schema of a handler. Contains paths, HTTP methods, validation schemas, etc.
 ### `VovkMetaSchema`
 
 The schema of the meta information.
-
 
 ### `VovkConfig`
 
@@ -519,7 +518,7 @@ const response = await StreamRPC.streamLines();
 for await (const item of response) {
   console.log(item);
 
-  if(something) {
+  if (something) {
     response.abortController.abort();
   }
 }

@@ -264,6 +264,7 @@ export default config;
 The `"vovk"` package provides a `multitenant` utility that acts as the router for your multitenant app. It accepts request information and returns the action the proxy should take—redirect to a subdomain or rewrite to a path.
 
 Parameters:
+
 - `requestUrl`: the full request URL (e.g., from `request.url`).
 - `requestHost`: the request host (e.g., from `request.headers.get("host")`).
 - `targetHost`: the canonical host for redirects/rewrites (your production domain or `localhost:3000` in development).

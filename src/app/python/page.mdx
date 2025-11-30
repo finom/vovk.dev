@@ -166,6 +166,7 @@ export default class UserController {
   });
 }
 ```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserController.ts)*`
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
@@ -192,7 +193,10 @@ export default class UserService {
   };
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserService.ts)*`
+
+_[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserService.ts)_
+
 </Tabs.Tab>
 </Tabs>
 
@@ -206,8 +210,8 @@ from .api_client import ApiClient, HttpException
 HttpException = HttpException
 
 client = ApiClient('https://hello-world.vovk.dev/api')
- 
-class UserRPC: 
+
+class UserRPC:
     # UserRPC.update_user POST `https://hello-world.vovk.dev/api/users/{id}`
     class __UpdateUserBody_profile(TypedDict):
         """
@@ -246,7 +250,7 @@ class UserRPC:
         api_root: Optional[str] = None,
         disable_client_validation: bool = False
     ) -> UpdateUserOutput:
-        """ 
+        """
         Update user
         Description: Update user by ID
         Body: User data object
@@ -292,7 +296,7 @@ def main() -> None:
         query=query
     )
     print('UserRPC.update_user:', update_user_response)
-  
+
 if __name__ == "__main__":
   try:
       main()
@@ -337,6 +341,7 @@ export default class StreamController {
   });
 }
 ```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*`
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
@@ -358,14 +363,17 @@ export default class StreamService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamService.ts)*`
+
+_[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamService.ts)_
+
 </Tabs.Tab>
 </Tabs>
 
 Compiles to:
 
 ```py filename="./dist_python/src/package_name/__init__.py"
-class StreamRPC: 
+class StreamRPC:
     # StreamRPC.stream_tokens GET `https://hello-world.vovk.dev/api/streams/tokens`
     class StreamTokensIteration(TypedDict):
         """
@@ -380,7 +388,7 @@ class StreamRPC:
         api_root: Optional[str] = None,
         disable_client_validation: bool = False
     ) -> Generator[StreamTokensIteration, None, None]:
-        """ 
+        """
         Stream tokens
         Description: Stream tokens to the client
         """

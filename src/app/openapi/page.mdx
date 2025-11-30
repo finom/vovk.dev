@@ -3,27 +3,33 @@
 Vovk.ts automatically generates an OpenAPI specification from controller methods, using validation models to populate operation objects with `parameters`, `requestBody`, and `responses`. The `@operation` decorator lets you enrich operation objects with metadata such as `summary`, `description`, `tags`, and more. It accepts a `VovkOperationObject`, which extends the standard OpenAPI `OperationObject` type from [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts) and supports `x-tool-*` properties related to AI capabilities, as described in the [Function Calling](/function-calling) documentation.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
-import { put, prefix, operation } from "vovk";
-import { z } from "zod";
-import { withZod } from "vovk-zod";
+import { put, prefix, operation } from 'vovk';
+import { z } from 'zod';
+import { withZod } from 'vovk-zod';
 
-@prefix("users")
+@prefix('users')
 export default class UserController {
   @operation({
-    summary: "Update User",
-    description: "Update user information",
+    summary: 'Update User',
+    description: 'Update user information',
   })
-  @put("{id}")
+  @put('{id}')
   static updateUser = withZod({
     isForm: true,
     params: z.object({
       id: z.uuid(),
     }),
-    body: z.object({ /* ... */ }),
-    query: z.object({ /* ... */ }),
-    output: z.object({ /* ... */ }),
+    body: z.object({
+      /* ... */
+    }),
+    query: z.object({
+      /* ... */
+    }),
+    output: z.object({
+      /* ... */
+    }),
     // ...
-  })
+  });
 }
 ```
 
@@ -50,19 +56,19 @@ const config = {
         title: 'My app API',
         description: 'API for My App hosted at https://myapp.example.com/.',
         license: {
-          name: "MIT",
-          url: "https://opensource.org/licenses/MIT",
+          name: 'MIT',
+          url: 'https://opensource.org/licenses/MIT',
         },
-        version: "1.0.0",
+        version: '1.0.0',
       },
       servers: [
         {
-          url: "https://myapp.example.com",
-          description: "Production",
+          url: 'https://myapp.example.com',
+          description: 'Production',
         },
         {
-          url: "http://localhost:3000",
-          description: "Localhost",
+          url: 'http://localhost:3000',
+          description: 'Localhost',
         },
       ],
     },
@@ -85,7 +91,7 @@ const config = {
           info: {
             title: 'Admin API',
             description: 'API for Admin segment.',
-            version: "1.0.0",
+            version: '1.0.0',
           },
         },
       },
@@ -119,15 +125,16 @@ npx vovk new controller static/openApi --empty
 ```
 
 ```ts showLineNumbers copy filename="src/modules/static/openapi/OpenApiController.ts"
-import { get, operation } from "vovk";
-import { openapi } from "vovk-client/openapi";
+import { get, operation } from 'vovk';
+import { openapi } from 'vovk-client/openapi';
 
 export default class OpenApiController {
-  @operation({ // operation object definition is optional
-    summary: "OpenAPI Specification",
+  @operation({
+    // operation object definition is optional
+    summary: 'OpenAPI Specification',
     description: 'Retrieve the OpenAPI specification for the API',
   })
-  @get("openapi.json")
+  @get('openapi.json')
   static getSpec = () => openapi;
 }
 ```

@@ -34,7 +34,8 @@ With multiple segments, the most specific (deepest) one takes priority. For exam
 A request to **/api/foo/bar** is handled by the `foo/bar` segment. If it doesn’t match, but the `foo` segment does, `foo` handles it. Otherwise, the root segment handles it.
 
 <Callout type="info" emoji="ℹ️">
-  You can change the API folder name from <code>api</code> to anything else via the <a href="/config">config</a> option <code>rootEntry</code>.
+  You can change the API folder name from <code>api</code> to anything else via the <a href="/config">config</a> option{' '}
+  <code>rootEntry</code>.
 </Callout>
 
 ## Creating Segments
@@ -90,7 +91,8 @@ export const { GET, POST, PUT, DELETE } = initSegment({
 The [schema](/schema) for the root segment is stored at **.vovk-schema/root.json**.
 
 <Callout type="info" emoji="ℹ️">
-  The name <code>root</code> is used only for file naming. In configuration and elsewhere, the root segment name is an empty string.
+  The name <code>root</code> is used only for file naming. In configuration and elsewhere, the root segment name is an
+  empty string.
 </Callout>
 
 ### Multiple Segments

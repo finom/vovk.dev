@@ -46,7 +46,9 @@ export default class UserController {
   @post()
   static createUser = withZod({
     isForm: true,
-    body: z.object({ /* ... */}),
+    body: z.object({
+      /* ... */
+    }),
     async handle(req) {
       const formData = await req.formData(); // FormData instance
       // ...
@@ -64,8 +66,8 @@ export default class UserController {
   static createUser = withZod({
     isForm: true,
     body: z.object({
-        email: z.string().email(),
-        name: z.string().min(2).max(100),
+      email: z.string().email(),
+      name: z.string().min(2).max(100),
     }),
     async handle(req) {
       const form = await req.vovk.form(); // { email: 'user@example.com', name: 'John Doe' }

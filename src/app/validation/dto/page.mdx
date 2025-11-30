@@ -18,31 +18,33 @@ import { UpdateUserBodyDto, UpdateUserParamsDto, UpdateUserQueryDto, UpdateUserR
 
 @prefix('users')
 export default class UserController {
-    @operation({
-        summary: 'Update user',
-        description: 'Update user by ID with Dto validation',
-    })
-    @post('{id}')
-    static updateUser = withDto({
-        body: UpdateUserBodyDto,
-        params: UpdateUserParamsDto,
-        query: UpdateUserQueryDto,
-        output: UpdateUserResponseDto,
-        async handle(req) {
-            const body = await req.vovk.body();
-            const query = req.vovk.query();
-            const params = req.vovk.params();
+@operation({
+summary: 'Update user',
+description: 'Update user by ID with Dto validation',
+})
+@post('{id}')
+static updateUser = withDto({
+body: UpdateUserBodyDto,
+params: UpdateUserParamsDto,
+query: UpdateUserQueryDto,
+output: UpdateUserResponseDto,
+async handle(req) {
+const body = await req.vovk.body();
+const query = req.vovk.query();
+const params = req.vovk.params();
 
             console.log(body instanceof UpdateUserBodyDto); // true
             console.log(query instanceof UpdateUserQueryDto); // true
             console.log(params instanceof UpdateUserParamsDto); // true
         },
     });
+
 }
-```
+
+````
   </Tabs.Tab>
   <Tabs.Tab>
-  
+
 ```ts showLineNumbers copy filename="src/modules/user/UserDto.ts"
 import { IsString, IsNumber, Min, IsEmail, IsUUID, IsIn, IsBoolean } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
@@ -83,8 +85,8 @@ export class UpdateUserResponseDto {
     @JSONSchema({ description: 'Success status' })
     success!: boolean;
 }
-```
-  
+````
+
   </Tabs.Tab>
 </Tabs>
 
@@ -129,7 +131,7 @@ const respData = await UserRPC.updateUser({
   } satisfies UpdateUserBodyDto),
   // ... same for query and params
   // optionally transform response data to a DTO
-  transform: (data) => plainToInstance(UpdateUserResponseDto, data)
+  transform: (data) => plainToInstance(UpdateUserResponseDto, data),
 });
 ```
 
@@ -185,11 +187,11 @@ To emit a proper JSON Schema for files when using `isForm: true` in the validati
 import { JSONSchema } from 'class-validator-jsonschema';
 
 export class UploadFileDto {
-    @JSONSchema({
-        type: 'string',
-        format: 'binary',
-        description: 'File to upload',
-    })
-    file!: File;
+  @JSONSchema({
+    type: 'string',
+    format: 'binary',
+    description: 'File to upload',
+  })
+  file!: File;
 }
 ```

@@ -28,7 +28,7 @@ Options:
   -h, --help                                                   display help for command
 ```
 
------
+---
 
 The [composed](/composed) [TypeScript RPC](/typescript) library can be bundled and published to NPM with pre-filled `package.json` and `README.md` files using the `bundle` command after setting up `bundle.build` function in the [config](/config) file.
 
@@ -78,7 +78,7 @@ const config = {
         // modifies package.json content
         // by default uses values from the root package.json
         name: 'my-api-bundle',
-      }, 
+      },
       readme: {}, // modifies README.md content
       samples: {}, // modifies README.md samples content
       imports: {
@@ -141,7 +141,7 @@ export default config;
 
 The resulting bundled package will have the following structure:
 
-<FileTree> 
+<FileTree>
   <FileTree.Folder name="dist" defaultOpen>
     <FileTree.File name="package.json" />
     <FileTree.File name="README.md" />
@@ -212,8 +212,8 @@ And imported in your TypeScript code:
 ```ts showLineNumbers copy
 import { UserRPC } from 'my-api-bundle';
 
-await UserRPC.getUser({ 
-  params: { id: '123' } 
+await UserRPC.getUser({
+  params: { id: '123' },
 });
 ```
 

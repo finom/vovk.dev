@@ -11,8 +11,8 @@ The way we achieve this is by implementing database polling powered by [JSONLine
 The component below demonstrates a simple polling example that receives incremental updates from the server every second. After 10 updates, the server closes the connection, and the client reconnects automatically. We can use the same approach to receive database updates in real time, by having the server send updates whenever the database changes.
 
 <div className="example">
-<PollExample />
-[View on examples.vovk.dev »](https://examples.vovk.dev/polling)
+  <PollExample />
+  [View on examples.vovk.dev »](https://examples.vovk.dev/polling)
 </div>
 
 A small delay (up to a half of a second) is expected due to the CORS preflight. See the Network tab in dev tools for details.
@@ -24,10 +24,10 @@ While we could poll the main Postgres database for changes, that approach is ine
 Because we use [Prisma](https://www.prisma.io/) as our ORM, we can use [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. This is where the `DatabaseService` mentioned in the [previous article](/realtime-ui) comes into play.
 
 ```ts showLineNumbers copy filename="src/modules/database/DatabaseService.ts" repository="finom/realtime-kanban" {20, 96}
-import { PrismaClient } from "../../../prisma/generated/client";
+import type { BaseEntity } from "@/types";
+import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import DatabaseEventsService, { type DBChange } from "./DatabaseEventsService";
-import type { BaseEntity } from "@/types";
 import "./neon-local"; // Setup Neon for local development
 
 export default class DatabaseService {
@@ -45,92 +45,113 @@ export default class DatabaseService {
 
     DatabaseEventsService.beginEmitting();
 
-    return prisma.$extends({
-      name: "events",
-      query: {
-        $allModels: {
-          async $allOperations({ model, operation, args, query }) {
-            const allowedOperations = [
-              "create",
-              "update",
-              "delete",
-              "findMany",
-              "findUnique",
-              "findFirst",
-              "count",
-            ] as const;
-            type AllowedOperation = (typeof allowedOperations)[number];
-            if (!allowedOperations.includes(operation as AllowedOperation)) {
-              throw new Error(
-                `Unsupported database operation "${operation}" on model "${model}"`,
-              );
-            }
-            const result = (await query(args)) as BaseEntity | BaseEntity[];
-
-            const now = new Date().toISOString();
-            let change: DBChange | null = null;
-
-            const makeChange = (
-              entity: BaseEntity,
-              type: DBChange["type"],
-            ) => ({
-              id: entity.id,
-              entityType: entity.entityType,
-              date:
-                type === "delete"
-                  ? now
-                  : entity.updatedAt
-                    ? new Date(entity.updatedAt).toISOString()
-                    : now,
-              type,
-            });
-
-            switch (operation as AllowedOperation) {
-              case "create":
-                if ("entityType" in result)
-                  change = makeChange(result, "create");
-                break;
-
-              case "update":
-                if ("entityType" in result)
-                  change = makeChange(result, "update");
-                break;
-
-              case "delete":
-                if ("entityType" in result) {
-                  change = makeChange(result, "delete");
-                  // Automatically add __isDeleted flag to deletion results
-                  Object.assign(result, { __isDeleted: true });
-                }
-                break;
-
-              case "findMany":
-              case "findUnique":
-              case "findFirst":
-              case "count":
-                // no events
-                break;
-
-              default:
-                console.warn(
-                  `Unhandled Prisma operation: ${operation} for model: ${model}`,
-                );
-                break;
-            }
-
-            if (change) {
-              await DatabaseEventsService.createChanges([change]);
-            }
-
-            return result;
+    return prisma
+      .$extends({
+        // Ensure createdAt and updatedAt are always ISO strings
+        result: {
+          $allModels: {
+            createdAt: {
+              compute(data: { createdAt: Date }) {
+                return data.createdAt.toISOString();
+              },
+            },
+            updatedAt: {
+              compute(data: { updatedAt: Date }) {
+                return data.updatedAt.toISOString();
+              },
+            },
           },
         },
-      },
-    });
+      })
+      .$extends({
+        name: "events",
+        // Emit database change events for create, update, and delete operations
+        query: {
+          $allModels: {
+            async $allOperations({ model, operation, args, query }) {
+              const allowedOperations = [
+                "create",
+                "update",
+                "delete",
+                "findMany",
+                "findUnique",
+                "findFirst",
+                "count",
+              ] as const;
+              type AllowedOperation = (typeof allowedOperations)[number];
+              if (!allowedOperations.includes(operation as AllowedOperation)) {
+                throw new Error(
+                  `Unsupported database operation "${operation}" on model "${model}"`,
+                );
+              }
+              const result = (await query(args)) as BaseEntity | BaseEntity[];
+
+              const now = new Date().toISOString();
+              let change: DBChange | null = null;
+
+              const makeChange = (
+                entity: BaseEntity,
+                type: DBChange["type"],
+              ) => ({
+                id: entity.id,
+                entityType: entity.entityType,
+                date:
+                  type === "delete"
+                    ? now
+                    : entity.updatedAt
+                      ? new Date(entity.updatedAt).toISOString()
+                      : now,
+                type,
+              });
+
+              switch (operation as AllowedOperation) {
+                case "create":
+                  if ("entityType" in result)
+                    change = makeChange(result, "create");
+                  break;
+
+                case "update":
+                  if ("entityType" in result)
+                    change = makeChange(result, "update");
+                  break;
+
+                case "delete":
+                  if ("entityType" in result) {
+                    change = makeChange(result, "delete");
+                    // Automatically add __isDeleted flag to deletion results
+                    Object.assign(result, { __isDeleted: true });
+                  }
+                  break;
+
+                case "findMany":
+                case "findUnique":
+                case "findFirst":
+                case "count":
+                  // no events
+                  break;
+
+                default:
+                  console.warn(
+                    `Unhandled Prisma operation: ${operation} for model: ${model}`,
+                  );
+                  break;
+              }
+
+              if (change) {
+                await DatabaseEventsService.createChanges([change]);
+              }
+
+              return result;
+            },
+          },
+        },
+      });
   }
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseService.ts)*
+
+_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseService.ts)_
 
 - The `getClient` method calls `DatabaseEventsService.beginEmitting(){:ts}` to start emitting events. The `beginEmitting` function runs a `setInterval` that connects to Redis and periodically checks for new events. When a new event is found, it emits it via [mitt](https://npmjs.com/package/mitt).
 - `prisma.$extends` hooks into some of the Prisma model operations, determines whether an operation modifies data, and if so calls `await DatabaseEventsService.createChanges([change]){:ts}` to persist a change entry in Redis. The change captures creates, updates, and deletions:
@@ -140,7 +161,7 @@ export type DBChange = {
   id: string;
   entityType: EntityType;
   date: string;
-  type: "create" | "update" | "delete";
+  type: 'create' | 'update' | 'delete';
 };
 ```
 
@@ -156,7 +177,7 @@ Operations like `find...` and `count` do not trigger changes and are passed thro
 In addition to `beginEmitting` and `createChanges`, `DatabaseEventsService` provides a `connect` method and an `emitter` (a `mitt` instance). These are used by the polling service (`DatabasePollService`, discussed next) to be notified about new events.
 
 ```ts showLineNumbers copy filename="src/modules/database/DatabaseEventsService.ts" repository="finom/realtime-kanban"
-import { EntityType } from "../../../prisma/generated/client";
+import { EntityType } from "@prisma/client";
 import mitt from "mitt";
 import { createClient } from "redis";
 
@@ -236,6 +257,8 @@ export default class DatabaseEventsService {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseEventsService.ts)*
 
+_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseEventsService.ts)_
+
 ## Polling controller and service
 
 With Redis change entries and the change emitter in place, we can implement a polling endpoint that streams updates to clients in real time. The `DatabasePollController` exposes a single [JSONLines](/controller/jsonlines) endpoint, and `DatabasePollService` uses a [JSONLinesResponse](/controller/jsonlines#jsonlinesresponse) instance (received from the controller) to send data to clients. The service closes the connection safely after 30 seconds, so clients should reconnect.
@@ -243,9 +266,9 @@ With Redis change entries and the change emitter in place, we can implement a po
 <Tabs items={['DatabasePollService.ts', 'DatabasePollController.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/database/DatabasePollService.ts" repository="finom/realtime-kanban"
+import type DatabasePollController from "./DatabasePollController";
 import { JSONLinesResponse, type VovkIteration } from "vovk";
 import { forEach, groupBy } from "lodash";
-import type DatabasePollController from "./DatabasePollController";
 import DatabaseEventsService, { type DBChange } from "./DatabaseEventsService";
 import DatabaseService from "./DatabaseService";
 
@@ -308,15 +331,16 @@ export default class PollService {
   }
 }
 ```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollService.ts)*`
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollService.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/database/DatabasePollController.ts" repository="finom/realtime-kanban"
-import { EntityType } from "../../../prisma/generated/client";
+import { EntityType } from "@prisma/client";
 import { get, JSONLinesResponse, prefix, type VovkIteration } from "vovk";
 import { z } from "zod";
+import { TaskSchema, UserSchema } from "@schemas/index";
 import DatabasePollService from "./DatabasePollService";
-import { TaskSchema, UserSchema } from "../../../prisma/generated/schemas";
 import { withZod } from "@/lib/withZod";
 import { sessionGuard } from "@/decorators/sessionGuard";
 
@@ -347,7 +371,10 @@ export default class DatabasePollController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollController.ts)*`
+
+_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollController.ts)_
+
 </Tabs.Tab>
 </Tabs>
 
@@ -373,7 +400,7 @@ import { DatabasePollRPC } from "vovk-client";
 export default function useDatabasePolling(initialValue = false) {
   const MAX_RETRIES = 5;
   const [isPollingEnabled, setIsPollingEnabled] = useState(initialValue);
-  const pollingAbortControllerRef = useRef<AbortController | null>(null);
+  const abortRef = useRef<() => void | null>(null);
 
   useEffect(() => {
     const isEnabled = localStorage.getItem("isPollingEnabled");
@@ -384,27 +411,34 @@ export default function useDatabasePolling(initialValue = false) {
     localStorage.setItem("isPollingEnabled", isPollingEnabled.toString());
     async function poll(retries = 0) {
       if (!isPollingEnabled) {
-        pollingAbortControllerRef.current?.abort();
+        abortRef.current?.();
         return;
       }
       try {
         while (true) {
-          console.log("START POLLING");
+          console.log("Polling database for updates...");
           const iterable = await DatabasePollRPC.poll();
-          pollingAbortControllerRef.current = iterable.abortController;
+          abortRef.current = iterable.abortWithoutError;
 
           for await (const iteration of iterable) {
             console.log("New DB update:", iteration);
           }
+
+          if (iterable.abortController.signal.aborted) {
+            console.log("Polling aborted with abortWithoutError");
+            break;
+          }
         }
       } catch (error) {
-        if (
-          retries < MAX_RETRIES &&
-          (error as Error & { cause?: Error }).cause?.name !== "AbortError"
-        ) {
+        if (retries < MAX_RETRIES) {
           console.error("Polling failed, retrying...", error);
           await new Promise((resolve) => setTimeout(resolve, 2000));
           return poll(retries + 1);
+        } else {
+          console.error(
+            "Max polling retries reached. Stopping polling.",
+            error,
+          );
         }
       }
     }
@@ -412,7 +446,7 @@ export default function useDatabasePolling(initialValue = false) {
     void poll();
 
     return () => {
-      pollingAbortControllerRef.current?.abort();
+      abortRef.current?.();
     };
   }, [isPollingEnabled]);
 
@@ -421,171 +455,12 @@ export default function useDatabasePolling(initialValue = false) {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useDatabasePolling.ts)*
 
+_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useDatabasePolling.ts)_
+
 Usage:
 
 ```tsx copy
 const [isPollingEnabled, setIsPollingEnabled] = useDatabasePolling(false);
 ```
 
-## Setting up MCP server
-
-Coming soon.
-
-## Bonus: Telegram bot (unstable)
-
-As an example of a third-party source of database changes, see the [TelegramService](https://github.com/realtime-kanban/src/modules/telegram/TelegramService.ts) and the accompanying [TelegramController](https://github.com/realtime-kanban/src/modules/telegram/TelegramController.ts). It accepts text or voice messages, performs voice-to-text transcription if needed using the OpenAI Whisper API, and uses the same `createLLMTools` function on the server.
-
-The Telegram API library is implemented with [OpenAPI Mixins](/codegen) and used as a `TelegramAPI` module to call Telegram API methods.
-
-```ts showLineNumbers copy filename="vovk.config.mjs"
-// @ts-check
-/** @type {import('vovk').VovkConfig} */
-const config = {
-  // ...
-  outputConfig: {
-    // ...
-    segments: {
-      telegram: {
-        openAPIMixin: {
-          source: {
-            url: "https://raw.githubusercontent.com/sys-001/telegram-bot-api-versions/refs/heads/main/files/openapi/yaml/v183.yaml",
-            fallback: ".openapi-cache/telegram.yaml",
-          },
-          getModuleName: "TelegramAPI",
-          getMethodName: ({ path }) => path.replace(/^\//, ""),
-          errorMessageKey: "description",
-        },
-      },
-    },
-  },
-};
-
-export default config;
-```
-
-The `TelegramService` class handles interaction with the Telegram API and generates AI responses using the Vercel AI SDK.
-
-```ts showLineNumbers copy filename="src/modules/telegram/TelegramService.ts"
-import OpenAI from "openai";
-import { TelegramAPI } from "vovk-client";
-
-const openai = new OpenAI();
-
-export default class TelegramService {
-  static get apiRoot() {
-    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-    if (!TELEGRAM_BOT_TOKEN) {
-      throw new Error("Missing TELEGRAM_BOT_TOKEN environment variable");
-    }
-    return `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
-  }
-
-  // ...
-
-  private static async generateAIResponse(
-    chatId: number,
-    userMessage: string,
-    systemPrompt: string,
-  ): Promise<{ botResponse: string; messages: ModelMessage[] }> {
-    // Get chat history
-    const history = await this.getChatHistory(chatId);
-    const messages = [
-      ...this.formatHistoryForVercelAI(history),
-      { role: "user", content: userMessage } as const,
-    ];
-    const { tools } = createLLMTools({
-      modules: {
-        UserController,
-        TaskController,
-      },
-    });
-  
-    // Generate a response using Vercel AI SDK
-    const { text } = await generateText({
-      model: vercelOpenAI("gpt-5"),
-      system: systemPrompt,
-      messages,
-      stopWhen: stepCountIs(16),
-      tools: {
-        ...Object.fromEntries(
-          tools.map(({ name, execute, description, parameters }) => [
-            name,
-            tool({
-              execute,
-              description,
-              inputSchema: jsonSchema(parameters as JSONSchema7),
-            }),
-          ]),
-        ),
-      },
-    });
-
-    const botResponse = text || "I couldn't generate a response.";
-
-    // Add user message to history
-    await this.addToHistory(chatId, "user", userMessage);
-    // Add assistant response to history
-    await this.addToHistory(chatId, "assistant", botResponse);
-
-    messages.push({
-      role: "assistant",
-      content: botResponse,
-    });
-
-    return { botResponse, messages };
-  }
-
-  private static async sendTextMessage(
-    chatId: number,
-    text: string,
-  ): Promise<void> {
-    await TelegramAPI.sendMessage({
-      body: {
-        chat_id: chatId,
-        text: text,
-        parse_mode: "html",
-      },
-      apiRoot: this.apiRoot,
-    });
-  }
-
-  private static async sendVoiceMessage(
-    chatId: number,
-    text: string,
-  ): Promise<void> {
-    try {
-      // Generate speech from text using OpenAI TTS
-      const speechResponse = await openai.audio.speech.create({
-        model: "tts-1",
-        voice: "alloy",
-        input: text,
-        response_format: "opus",
-      });
-
-      // Convert the response to a Buffer
-      const voiceBuffer = Buffer.from(await speechResponse.arrayBuffer());
-
-      const formData = new FormData();
-      formData.append("chat_id", String(chatId));
-      formData.append(
-        "voice",
-        new Blob([voiceBuffer], { type: "audio/ogg" }),
-        "voice.ogg",
-      );
-
-      // Send the voice message
-      await TelegramAPI.sendVoice({
-        body: formData,
-        apiRoot: this.apiRoot,
-      });
-    } catch (error) {
-      console.error("Error generating voice message:", error);
-      // Fallback to text message if voice generation fails
-      await this.sendTextMessage(chatId, text);
-    }
-  }
-
-  // ...
-}
-```
 

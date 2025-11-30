@@ -24,17 +24,25 @@ This project is heavily inspired by [NestJS](https://nestjs.com/), which is buil
 A single Node.js project houses both front-end and back-end code, eliminating the need for monorepos and the tooling they require.
 
 **More info**
+
 - [Next.js Route Handlers](https://nextjs.org/docs/app/getting-started/route-handlers)
 
 ## "Segment"
 
 Vovk.ts introduces an additional hierarchy level in the back-end called [segments](/segment/introduction), which lets you split the back-end into smaller, independently configured parts. The traditional hierarchy of `back-end → controller → handler` becomes `back-end → segment → controller → handler`. Each segment is a separate Next.js route that can be configured independently and compiled into a separate serverless function at build time, resulting in multiple smaller "back-ends."
 
-<Image src="/draw/segment-concept.svg" alt="Segment" width={1874.4446105957031} height={745.1328125} className="mt-4 dark:invert" />
+<Image
+  src="/draw/segment-concept.svg"
+  alt="Segment"
+  width={1874.4446105957031}
+  height={745.1328125}
+  className="mt-4 dark:invert"
+/>
 
 A segment can also be turned into a static segment, compiling its endpoints into static JSON files during the build. This is useful for historical data, OpenAPI documentation, or any other data that should be pre-generated.
 
 **More info**
+
 - [Segment](/segment/introduction)
 - [Static Segment](/segment/static)
 
@@ -98,12 +106,13 @@ import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
-  @put('{id}')
-  static async updateUser(req: VovkRequest<{ name: string }, { notify: string }>, { id }: { id: string }) {
-    return UserService.updateUser(await req.json(), req.nextUrl.searchParams.get('notify'), id);
-  }
+@put('{id}')
+static async updateUser(req: VovkRequest<{ name: string }, { notify: string }>, { id }: { id: string }) {
+return UserService.updateUser(await req.json(), req.nextUrl.searchParams.get('notify'), id);
 }
-```
+}
+
+````
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserService.ts"
@@ -121,7 +130,8 @@ export default class UserService {
     return { body, notify, id, success: true };
   }
 }
-```
+````
+
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
@@ -129,7 +139,7 @@ import { initSegment } from 'vovk';
 import UserController from '@/modules/user/UserController';
 
 const controllers = {
-  UserRPC: UserController,
+UserRPC: UserController,
 };
 
 export type Controllers = typeof controllers; // used for type safety at RPC client
@@ -248,6 +258,7 @@ the resulting schema files are located in the `.vovk-schema/` directory as follo
 The JSON files follow the same recursive structure as the segments, where `root.json` is a special name for the root segment with an empty string name `""`. The `_meta.json` file contains additional metadata, such as explicitly emitted fields from the [vovk.config](/config) file for additional client-side configuration.
 
 **More info**
+
 - [Schema](/schema)
 
 ## "Composed" vs "Segmented" RPC
@@ -352,6 +363,7 @@ However, in larger applications, exposing the schema for all segments in a singl
 This approach is the **segmented RPC client** and lets you split the client into smaller TypeScript files that can be imported separately, hiding RPC modules and their corresponding schemas from specific pages. For example, pages responsible for "customer" functionality won’t import "admin" RPC modules, keeping admin implementation details hidden from customer pages.
 
 **More info**
+
 - [Composed Client](/composed)
 - [Segmented Client](/segmented)
 
@@ -470,6 +482,7 @@ for await (const { message } of stream) {
 ```
 
 **More info**
+
 - [JSON Lines](/controller/jsonlines)
 - [LLM Completions](/llm)
 - [TypeScript 5.2](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html)
@@ -493,6 +506,7 @@ export default class UsersController {
 ```
 
 **More info**
+
 - [Controller](/controller)
 - [Proxy Endpoints](/proxy)
 
@@ -532,6 +546,7 @@ const response = await UserRPC.createUser({
 ```
 
 **More info**
+
 - [FormData](/controller/formdata)
 
 ## AI Utilities
@@ -553,7 +568,7 @@ import { pick } from 'lodash';
 const { tools } = createLLMTools({
   modules: {
     // call ProductController methods at the current context
-    ProductController, 
+    ProductController,
     // call UserRPC methods over HTTP
     UserRPC: pick(UserRPC, ['getUser', 'updateUser']), // only include specific methods of UserRPC
     // add third-party OpenAPI mixin
@@ -575,6 +590,7 @@ console.log(tools); // [{ name, description, parameters, execute }, ...]
 ```
 
 **More info**
+
 - [Function Calling](/function-calling)
 - [MCP Server](/mcp)
 - [Realtime UI](/realtime-ui)
@@ -595,28 +611,28 @@ The OpenAPI feature includes first-class support for [Scalar](https://github.com
 import { UserRPC } from 'vovk-client';
 
 const response = await UserRPC.updateUser({
-    body: {
-        // User email
-        email: "john@example.com",
-        // User profile object
-        profile: {
-            // User full name
-            name: "John Doe",
-            // User age
-            age: 25
-        }
+  body: {
+    // User email
+    email: 'john@example.com',
+    // User profile object
+    profile: {
+      // User full name
+      name: 'John Doe',
+      // User age
+      age: 25,
     },
-    query: {
-        // Notification type
-        notify: "email"
-    },
-    params: {
-        // User ID
-        id: "123e4567-e89b-12d3-a456-426614174000"
-    },
+  },
+  query: {
+    // Notification type
+    notify: 'email',
+  },
+  params: {
+    // User ID
+    id: '123e4567-e89b-12d3-a456-426614174000',
+  },
 });
 
-console.log(response); 
+console.log(response);
 /* 
 {
     // -----
@@ -629,6 +645,7 @@ console.log(response);
 ```
 
 **More info**
+
 - [OpenAPI](/openapi)
 - ["Hello World" Example](/hello-world)
 
@@ -653,6 +670,7 @@ const issues = await GithubIssuesAPI.list({
 Inputs for mixins are also validated on the client side using the JSON Schema extracted from the OpenAPI schema.
 
 **More info**
+
 - [OpenAPI Mixins](/codegen)
 
 ## Standalone Code Generation Tool
@@ -660,6 +678,7 @@ Inputs for mixins are also validated on the client side using the JSON Schema ex
 Because Vovk.ts is powered by code generation and supports OpenAPI documents, it can be used as a standalone tool to generate client libraries for TypeScript, Python (experimental), and Rust (experimental). It preserves the same interface and structure as in TypeScript while also performing client-side validation out of the box.
 
 **More info**
+
 - [OpenAPI Mixins](/codegen)
 - [`generate` Command](/generate)
 - [Python RPC](/python)
@@ -690,6 +709,7 @@ This command generates a Python/mypy package in the `dist_py` directory with RPC
 This use case is demonstrated in the "Hello World" example project, which showcases this and other ideas described in this article.
 
 **More info**
+
 - ["Hello World" Example](/hello-world)
 - [`bundle` Command](/bundle)
 - [`generate` Command](/generate)

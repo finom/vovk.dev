@@ -1,9 +1,15 @@
-"use client";
-import { useEffect, useRef } from "react";
-import * as AsciinemaPlayer from "asciinema-player";
-import "asciinema-player/dist/bundle/asciinema-player.css";
+'use client';
+import { useEffect, useRef } from 'react';
+import * as AsciinemaPlayer from 'asciinema-player';
+import 'asciinema-player/dist/bundle/asciinema-player.css';
 
-export default function Asciinema({ src, options = {} }: { src: string; options?: AsciinemaPlayer.AsciinemaPlayerOptions }) {
+export default function Asciinema({
+  src,
+  options = {},
+}: {
+  src: string;
+  options?: AsciinemaPlayer.AsciinemaPlayerOptions;
+}) {
   const containerRef = useRef(null);
   const isRenderedRef = useRef(false);
 
@@ -13,13 +19,12 @@ export default function Asciinema({ src, options = {} }: { src: string; options?
         idleTimeLimit: 2,
         preload: true,
         fit: false,
-        terminalFontSize: "12px",
+        terminalFontSize: '12px',
         rows: 36,
-        ...options
+        ...options,
       });
       isRenderedRef.current = true;
     }
-
   }, [src, options]);
 
   return <div ref={containerRef} />;

@@ -17,7 +17,8 @@ export const metadata: Metadata = {
     siteName: 'Vovk.ts',
     locale: 'en_US',
     type: 'website',
-    description: 'Vovk.ts is a conceptual back-end meta-framework created on top of the Next.js App Router. Built for efficiency and an unprecedented developer experience.',
+    description:
+      'Vovk.ts is a conceptual back-end meta-framework created on top of the Next.js App Router. Built for efficiency and an unprecedented developer experience.',
   },
   icons: {
     icon: [
