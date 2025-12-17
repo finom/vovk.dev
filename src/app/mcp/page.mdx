@@ -4,7 +4,7 @@ import { Tabs } from 'nextra/components';
 
 Now that we’ve covered [Function Calling](/function-calling), [Realtime UI](/realtime-ui), and [Realtime Database Polling](/realtime-ui/polling), let’s add the final piece and demonstrate that [your API is an MCP](https://www.youtube.com/watch?v=eeOANluSqAE) when built with Vovk.ts. We’ll use the [mcp-handler](https://www.npmjs.com/package/mcp-handler) package, which makes it straightforward to create MCP servers on Next.js.
 
-The `createLLMTools` function accepts a `resultFormatter` option to format a tool’s execution result before it’s returned to the LLM. It also accepts the special string value `mcp`, which formats the result to meet MCP server expectations. That’s all you need to produce MCP‑compatible tool output in the following shape:
+The `deriveTools` function accepts a `resultFormatter` option to format a tool’s execution result before it’s returned to the LLM. It also accepts the special string value `mcp`, which formats the result to meet MCP server expectations. That’s all you need to produce MCP‑compatible tool output in the following shape:
 
 ```ts showLineNumbers copy
 {
@@ -18,11 +18,11 @@ The `createLLMTools` function accepts a `resultFormatter` option to format a too
 ```
 
 ```ts showLineNumbers copy {10}
-import { createLLMTools } from 'vovk';
+import { deriveTools } from 'vovk';
 import UserController from '@/modules/user/UserController';
 import TaskController from '@/modules/task/TaskController';
 
-const { tools } = createLLMTools({
+const { tools } = deriveTools({
   modules: {
     UserController,
     TaskController,
@@ -79,12 +79,12 @@ We’ll use `UserController` and `TaskController` as the source of MCP tools. Co
 
 ```ts showLineNumbers copy filename="src/app/api/mcp/route.ts" repository="finom/realtime-kanban" {30}
 import { createMcpHandler } from "mcp-handler";
-import { createLLMTools, KnownAny } from "vovk";
+import { createTools, KnownAny } from "vovk";
 import UserController from "@/modules/user/UserController";
 import TaskController from "@/modules/task/TaskController";
 import { jsonSchemaObjectToZodRawShape } from "zod-v3-via-v4-from-json-schema"; // TODO: Temporary fix
 
-const { tools } = createLLMTools({
+const { tools } = createTools({
   modules: {
     UserController,
     TaskController,
@@ -133,8 +133,6 @@ export { authorizedHandler as GET, authorizedHandler as POST };
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/app/api/mcp/route.ts)*
 
-_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/app/api/mcp/route.ts)_
-
 Because the `server.tool` parameters argument expects Zod schemas, convert each tool’s JSON Schema parameters to Zod using [zod-from-json-schema](https://www.npmjs.com/package/zod-from-json-schema). This approach works with all supported [validation libraries](/validation). If you already use Zod to validate incoming requests, you can instead access Zod schemas directly via a tool’s `models` property, as shown below:
 
 ```ts showLineNumbers copy
@@ -166,7 +164,7 @@ const githubOptions = {
     },
   },
 };
-const { tools } = createLLMTools({
+const { tools } = deriveTools({
   modules: {
     UserController,
     TaskController,

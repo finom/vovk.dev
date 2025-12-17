@@ -1,7 +1,16 @@
 import { Tabs } from 'nextra/components';
-import AppAlike from './AppAlike';
+import AppAlike from '../AppAlike';
 import Image from 'next/image';
 import RealtimeNavigation from '../RealtimeNavigation';
+
+# Realtime UI Overview
+
+Beyond traditional UI
+Make available to everyone
+Make users feel like Tony Stark
+Known techniques merged together
+
+-----
 
 - Running locally
 - Deploying to Vercel
@@ -81,3 +90,38 @@ This way we can build applications fully operated by LLM text or voice interface
 ### "Realtime Kanban"
 
 For a practical demonstration of these concepts, I've created an application that implements a kanban board that uses only two database tables: users and tasks, keeping it as simple as possible, while showcasing the core principles of building what I call a Realtime UI. This example can be used as a foundation for building more complex applications with additional tables and features as needed. Note that the described project is just a demo and might need additional optimizations and improvements to be used in production.
+
+
+
+## Entity Registry Overview
+
+At this article I'm going to describe an efficient way to synchronise application state with the back-end data, that can be applied to any application even if it isn't using Vovk.ts at all. This idea is state-library-agnostic and database-agnostic, so you can implement it with any tools you prefer.
+
+I'm going to use [Postgres](https://www.postgresql.org/) as a database, [Prisma](https://www.prisma.io/) as an ORM, [Zustand](https://zustand-demo.pmnd.rs/) as a state management library and, of course Vovk.ts as a back-end framework. The demo also uses [Redis](https://redis.io/) as database event bus, in order to implement DB polling functionality, it will be described in the [Database Polling article](./polling).
+
+Let's say we have an more or less complex application with multiple components that use the same data that's incoming from the server. As the most simple example imaginable, we have a user profile component that displays displays user's full name at multiple components. Once the data is updated we want to update all the components that use this data.
+
+<AppAlike />
+
+The most straightforward way to do this is to have a global state that stores the user profile as an object and update it once the data is changed, or pass the object as a prop from a parent component.
+
+```ts showLineNumbers copy
+export const UserProfile = ({ userProfile }: { userProfile: User }) => {
+    return <div>{userProfile.fullName}</div>
+}
+```
+
+This works perfectly fine for up to a certain complexity of the application, but as the application grows and more database entries are added, it becomes harder to manage the state and keep it in sync with the server.
+
+A more efficient way to handle this is to have a normalized state that stores the database data as a dictionary of entities, where the key is the ID of the entity. In every component that uses this the database row, we request the related entity from the state by its ID, avoiding passing the entire entity object as a prop or storing it in a global state explicitly.
+
+This way, once the data is requested from the server, and processed thru a middleware function that updates the entity state, we can easily retrieve the entity object with and ID and all the components that use this entity will be re-rendered automatically. Let's call it **"entity registry"**.
+
+```ts showLineNumbers copy
+export const UserProfile = ({ userId }: { userId: User['id'] }) => {
+    const userProfile = useRegistry(state => state.user[userId]);
+    return <div>{userProfile.fullName}</div>
+}
+```
+
+If all components that use database data are using this approach, we can request the data from the server in any desired way, wether its a one big initial fetch or smaller incremental updates. The UI will be updated automatically as long as the incoming data is processed thru the registry parser.

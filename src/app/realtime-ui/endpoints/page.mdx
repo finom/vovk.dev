@@ -1,31 +1,22 @@
 
-## Setting up the back-end
+import { Tabs } from 'nextra/components';
 
-### Preparations
+# Setting up the endpoints
 
-As we're going to use [function calling](/function-calling) we're going to apply a workaround decribed at [Zod / Trobleshooting](/validation/zod#troubleshooting) that allows to generate JSON schemas from Zod using draft-07 version by creating `withZod` helper function with `createStandardValidation` that creates a validation library with [Standard Schema](/validation/standard).
+## Preparations
 
-```ts showLineNumbers copy filename="src/lib/withZod.ts"
-import { z } from 'zod';
-import { createStandardValidation } from 'vovk';
+As we're going to use [function calling](/function-calling) we're going to change the `target` of the generated JSON schemas to `draft-7`, as LLMs currently support only this version.
+
+```ts showLineNumbers copy filename="src/lib/withZod.ts" repository="finom/realtime-kanban"
+import { z } from "zod";
+import { createStandardValidation } from "vovk";
 
 export const withZod = createStandardValidation({
-  toJSONSchema: (model: z.core.$ZodType) => z.toJSONSchema(model, { target: 'draft-7' }),
+  toJSONSchema: (model: z.core.$ZodType) =>
+    z.toJSONSchema(model, { target: "draft-7" }),
 });
 ```
-
-For additional type safety, let's create a `BaseEntity` interface that describes the base fields of all entities in the database for additional type checking.
-
-```ts showLineNumbers copy filename="src/types.ts"
-import { EntityType } from '@prisma/client';
-
-export interface BaseEntity {
-  id: string;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-  entityType: EntityType;
-}
-```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/lib/withZod.ts)*
 
 For the sake of shorter code, we also need to create a reusable constant `BASE_FIELDS` that is going to be used to omit `id`, `entityType`, `createdAt` and `updatedAt` fields from the Zod models, but also `BASE_KEYS` array that contains the keys of these fields to use with `lodash.omit`. This will help us to build proper create/update Zod models and omit these fields from entity objects when we need to create input objects.
 
@@ -45,24 +36,30 @@ export const BASE_KEYS = Object.keys(BASE_FIELDS) as (keyof BaseEntity)[];
 For example, here's how the `UpdateUserSchema` can be created by omitting the base fields from the generated `UserSchema`:
 
 ```ts showLineNumbers copy
-import { UserSchema } from '../../../prisma/generated/schemas';
-import { BASE_FIELDS } from '../../../constants';
-const UpdateUserSchema = UserSchema.omit(BASE_FIELDS);
+import { UserSchema } from '@schemas/index';
+import { BASE_FIELDS } from '@/constants';
+
+const UpdateUserSchema = UserSchema.omit(BASE_FIELDS); // fullName and email fields only
 ```
 
-### Implementing controllers and services
+## Implementing controllers and services
 
-The controllers and services are quite self-explanatory: we decorate each method with [@operation](/openapi) decorator, and create handlers with `withZod` function. They have some additional features that will be described later:
+The [controllers](/controller) are going to declare full CRUD operations for `User` and `Task` entities, implemented as follows:
 
-- The `@operation` decorator accepts `x-tool-successMessage` and `x-tool-errorMessage` for the most of the endpoints. The values are used for MCP responses, described at the [MCP](/mcp) article.
-- The "get all" endpoints use `x-tool-disable` operation option to disable the endpoint from being used as a tool by default, so that AI cannot access it and will use search instead in order to simulate more realistic scenarios.
-- Database requests are invoked using `DatabaseService.prisma` where the `prisma` property is a normal Prisma client instance with [extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions). One of the features relevant to this article is that it adds `__isDeleted` property to the deleted entities when `prisma.xxx.delete` methods are invoked, this will be explained below.
-- Creations and updates are followed by `EmbeddingService.generateEntityEmbedding` calls and the search endpoints use `EmbeddingService.vectorSearch` function. The `EmbeddingService` itself wouldn't be described here as it's out of the scope of this article (it's already too big), but you can check the full code at the [GitHub repository](https://github.com/finom/realtime-kanban/blob/main/src/modules/embedding/EmbeddingService.ts). In short, it uses [OpenAI embeddings](https://platform.openai.com/docs/guides/embeddings) and [pgvector](https://github.com/pgvector/pgvector) to store and search embeddings in the database.
-- Rest of the features will be described at [polling](./polling) article.
+- Each method is decorated with [@operation](/openapi) decorator that describes the operation, including `summary`, `description`, and custom `x-tool-successMessage` and `x-tool-errorMessage` properties for [MCP](./mcp) responses.
+- Each method is created with `withZod` function that implements request validation and schema emission.
+- Each method uses `sessionGuard` decorator to protect the endpoints, as described in the [authentication](./authentication) article.
+- The "get all" endpoints use `x-tool-disable` operation option to exclude them from being used as tools by AI. The tools are going to use search endpoints instead to simulate more realistic scenarios.
 
-Here is the code for `UserController`, `UserService`, `TaskController`, and `TaskService` directly fetched from the project repository:
+The [services](/controller/service) are going to implement the actual business logic for each controller method, including database operations using Prisma client and embedding generation using OpenAI embeddings.
 
-<Tabs items={['UserController.ts', 'UserService.ts', 'TaskController.ts', 'TaskService.ts']}>
+- Database requests are invoked using `DatabaseService.prisma` where the `prisma` property is a normal Prisma client instance with [extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions).
+  - Deletion operations return `__isDeleted` property to help the front-end to reconcile the state properly for soft deletions, see [State](./state) page. The property is added by the Prisma client extension when `DatabaseService.prisma.xxx.delete` methods are invoked.
+  - In order to trigger database events (see [Polling](./polling) page) on task deletions, tasks are deleted explicitly, even though we have `ON DELETE CASCADE` set up in the database schema. This is required if the app also uses [Polling](./polling) for updates made by other users or external systems, such as [MCP server](./mcp) or [Telegram bot](./telegram).
+- Creations and updates are followed by `EmbeddingService.generateEntityEmbedding` calls and the search endpoints use `EmbeddingService.vectorSearch` function to perform vector search using OpenAI embeddings and pgvector.
+
+
+<Tabs items={['UserController.ts', 'UserService.ts', 'TaskController.ts', 'TaskService.ts', 'EmbeddingService.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/realtime-kanban"
 import { prefix, get, put, post, del, operation } from "vovk";
@@ -154,7 +151,6 @@ export default class UserController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserController.ts)*`
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
@@ -234,10 +230,7 @@ export default class UserService {
   };
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserService.ts)*`
-
-_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserService.ts)_
-
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserService.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/task/TaskController.ts" repository="finom/realtime-kanban"
@@ -342,7 +335,6 @@ export default class TaskController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/TaskController.ts)*`
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/TaskController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
@@ -402,9 +394,98 @@ export default class TaskService {
     });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/TaskService.ts)*`
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/TaskService.ts)*
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/modules/embedding/EmbeddingService.ts" repository="finom/realtime-kanban"
+import { embed } from "ai";
+import { openai } from "@ai-sdk/openai";
+import { capitalize, omit } from "lodash";
+import { Prisma } from "@prisma/client";
+import { EntityType } from "@schemas/index";
+import { UserType } from "@schemas/models/User.schema";
+import { TaskType } from "@schemas/models/Task.schema";
+import { BASE_KEYS } from "@/constants";
+import DatabaseService from "../database/DatabaseService";
 
-_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/TaskService.ts)_
+export default class EmbeddingService {
+  static async generateEmbedding(value: string): Promise<number[]> {
+    const { embedding } = await embed({
+      model: openai.embeddingModel("text-embedding-3-small"),
+      value,
+    });
 
+    return embedding;
+  }
+
+  static generateEntityEmbedding = async (
+    entityType: EntityType,
+    entityId: UserType["id"] | TaskType["id"],
+  ) => {
+    const entity = await DatabaseService.prisma[
+      entityType as "user"
+    ].findUnique({
+      where: { id: entityId },
+    });
+    const capitalizedEntityType = capitalize(entityType);
+    if (!entity) throw new Error(`${capitalizedEntityType} not found`);
+
+    const embedding = await this.generateEmbedding(
+      Object.values(omit(entity, BASE_KEYS))
+        .filter((v) => typeof v === "string")
+        .join(" ")
+        .trim()
+        .toLowerCase(),
+    );
+
+    await DatabaseService.prisma.$executeRawUnsafe(
+      `
+    UPDATE "${capitalizedEntityType}" 
+    SET embedding = $1::vector
+    WHERE id = $2
+    `,
+      `[${embedding.join(",")}]`,
+      entityId,
+    );
+
+    return embedding;
+  };
+
+  static async vectorSearch<T>(
+    entityType: EntityType,
+    query: string,
+    limit: number = 10,
+    similarityThreshold: number = 0.4,
+  ) {
+    const queryEmbedding = await this.generateEmbedding(
+      query.trim().toLowerCase(),
+    );
+    const capitalizedEntityType = capitalize(entityType);
+
+    // find similar vectors and return entity IDs
+    const vectorResults = await DatabaseService.prisma.$queryRaw<
+      { id: String; similarity: number }[]
+    >`
+    SELECT
+      id,
+      1 - (embedding <=> ${`[${queryEmbedding.join(",")}]`}::vector) as similarity
+    FROM ${Prisma.raw(`"${capitalizedEntityType}"`)}
+    WHERE embedding IS NOT NULL
+      AND 1 - (embedding <=> ${`[${queryEmbedding.join(",")}]`}::vector) > ${similarityThreshold}
+    ORDER BY embedding <=> ${`[${queryEmbedding.join(",")}]`}::vector
+    LIMIT ${limit}
+  `;
+
+    return DatabaseService.prisma[entityType as "user"].findMany({
+      where: {
+        id: {
+          in: vectorResults.map((r) => r.id as string),
+        },
+      },
+    }) as Promise<T[]>;
+  }
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/embedding/EmbeddingService.ts)*
 </Tabs.Tab>
 </Tabs>

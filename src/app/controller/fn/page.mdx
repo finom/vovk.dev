@@ -126,12 +126,12 @@ export default async function Page() {
 }
 ```
 
-**For LLM [function calling](/function-calling)**: Each controller can be used as a "module" for LLM function calling, implemented with the `createLLMTools` utility to call controller methods in the current context without performing HTTP requests.
+**For LLM [function calling](/function-calling)**: Each controller can be used as a "module" for LLM function calling, implemented with the `deriveTools` utility to call controller methods in the current context without performing HTTP requests.
 
 ```ts showLineNumbers copy
-import { createLLMTools } from 'vovk';
+import { deriveTools } from 'vovk';
 
-const { tools } = createLLMTools({
+const { tools } = deriveTools({
   modules: { UserController },
 });
 
@@ -243,6 +243,6 @@ import UserHandlers from './UserHandlers';
 @prefix('users')
 export default class UserController {
   @post('{id}')
-  static updateUser = UserHandlers.updateUser;
+  static updateUser = UserHandlers.updateUser.bind(UserHandlers);
 }
 ```

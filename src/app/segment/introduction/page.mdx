@@ -4,13 +4,11 @@ import { Callout } from 'nextra/components';
 
 ## Overview
 
-Many backend frameworks that follow the Controller–Service–Repository pattern use the following hierarchy:
+Many backend frameworks that follow the Controller–Service–Repository pattern use the following routing hierarchy:
 
 - Backend server — the top level, composed of controllers.
 - Controllers — the next level, composed of handlers.
 - Handlers — the lowest level; they process requests.
-
-(Services are omitted here because they do not affect the routing hierarchy.)
 
 Vovk.ts introduces a new level between the backend server and controllers:
 

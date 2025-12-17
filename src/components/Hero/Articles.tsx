@@ -70,7 +70,7 @@ const options = [
     href: '/openapi',
   },
   {
-    title: 'RPC for NestJS',
+    title: 'API Client for NestJS',
     icon: '🔗',
     href: '/nestjs',
   },
@@ -113,10 +113,10 @@ const options = [
 
 const Articles = () => {
   return (
-    <div className="pt-18 md:pt-24 px-4">
+    <div className="pt-6 md:pt-8 px-4 pb-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-4 space-y-4">
-          <h2 className="text-xl md:text-xl font-semibold tracking-tight text-muted-foreground">
+          <h2 className="text-xl md:text-3xl font-semibold tracking-tight text-muted-foreground">
             Explore Vovk.ts Documentation
           </h2>
         </div>

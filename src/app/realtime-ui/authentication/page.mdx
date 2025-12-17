@@ -1,5 +1,5 @@
 
-### Side note: Authentication
+# Simple Password Authentication
 
 The app implements a very basic authentication mechanism with an optional `PASSWORD` stored in the `.env` file. Once the user enters the password, a session cookie is created that authorizes the user for further requests, making `userId` be a hashed version of the password. This allows to invalidate all sessions by changing the `PASSWORD` env variable in production.
 
@@ -15,7 +15,7 @@ export default async function Home() {
   // ...
 ```
 
-but also exports `isLoggedIn` function that is created for `sessionGuard` decorator to check if the user is logged in when invoking controller methods.
+but also exports `isLoggedIn` function that is created for `sessionGuard` [decorator](/authorization) to check if the user is logged in when invoking controller methods.
 
 ```ts showLineNumbers copy filename="src/decorators/sessionGuard.ts" repository="finom/realtime-kanban"
 import { createDecorator, HttpException, HttpStatus } from "vovk";
@@ -30,6 +30,5 @@ export const sessionGuard = createDecorator(async (req, next) => {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/decorators/sessionGuard.ts)*
 
-_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/decorators/sessionGuard.ts)_
 
-The `sessionGuard` decorator applied to all controller methods. `typeof req.url !== 'undefined'{:ts}` check is required to distinguish between HTTP requests and [`fn`](/controller/fn) invocations.
+The `sessionGuard` decorator applied to all controller methods. `typeof req.url !== 'undefined'{:ts}` check is required to distinguish between HTTP requests and [`fn`](/controller/fn) invocations used by PPR and [Text Chat AI](/realtime-ui/text-ai) features.

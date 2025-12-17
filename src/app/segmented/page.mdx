@@ -2,7 +2,7 @@ import { FileTree } from 'nextra/components';
 
 # Segmented RPC Client
 
-The [Composed RPC Client](/composed) works well for single-page applications, but in larger apps exposing the entire schema through a single client may be undesirable. With a small configuration change, you can instruct Vovk.ts to generate separate RPC clients for each segment. This approach—called the **Segmented RPC Client**—splits the client into smaller per-segment TypeScript modules that can be imported independently, keeping RPC modules and their schemas hidden from unrelated pages. For example, “customer” pages won’t import “admin” RPC modules, keeping admin details out of customer code.
+The [Composed RPC Client](/composed) works well for single-page applications, but in larger apps exposing the entire schema through a single client may be undesirable. With a small configuration change, you can instruct Vovk.ts to generate separate RPC clients for each segment. This approach—called the **Segmented RPC Client**—splits the client into smaller per-segment TypeScript modules that can be imported independently, keeping [RPC modules](/rpc-module) and their schemas hidden from unrelated pages. For example, “customer” pages won’t import “admin” RPC modules, keeping admin details out of customer code.
 
 By default, the segmented client is generated in the `./src/client` folder (or `./client` if you don’t use a `src` folder) from the [ts](/templates#ts) template. For an app with multiple segments, the generated structure may look like this:
 

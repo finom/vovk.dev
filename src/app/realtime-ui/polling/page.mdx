@@ -4,9 +4,9 @@ import { PollExample } from '@/components/vovk-examples';
 
 # Realtime Database Polling
 
-In the previous articles, we've covered how to make UI automatically, when the front-end receives updated database entities while the user interacts with the app but also when the app is interacted by text or voice AI interfaces. In this article, we explain how to keep the UI in sync with database changes triggered by other users or third-party services (such as [MCP](/mcp) or Telegram bot described at this article), using only HTTP protocol (no WebSockets) to ensure compatibility with any hosting provider.
+[State normalization](./state), a custom [fetcher](./fetcher) and corresponding back-end implementation makes UI updated when the user interacts with the app by making HTTP requests. The implementation also covers AI features, such as [Text Chat AI](./text-ai) and [Voice AI](/realtime-ui/voice-ai), explained in the further articles. The rule of thumb is that the data always needs to be processed by the entity registry.
 
-The way we achieve this is by implementing database polling powered by [JSONLines](/controller/jsonlines). The server sends updates to clients whenever the database changes, and the client reconnects automatically when the connection is closed.
+But what if the database is changed by other users or third-party services to keep the UI in sync with the back-end data in real-time? One of the ways to achieve this is by implementing database polling powered by [JSONLines](/controller/jsonlines). The server sends updates to clients whenever the database changes, and the client reconnects automatically when the connection is closed.
 
 The component below demonstrates a simple polling example that receives incremental updates from the server every second. After 10 updates, the server closes the connection, and the client reconnects automatically. We can use the same approach to receive database updates in real time, by having the server send updates whenever the database changes.
 
@@ -21,9 +21,9 @@ A small delay (up to a half of a second) is expected due to the CORS preflight. 
 
 While we could poll the main Postgres database for changes, that approach is inefficient. Instead, we use Redis as an event bus: whenever the main database changes, we write a small event to Redis Database. Our polling service reads these events every second and sends them to clients with the app open.
 
-Because we use [Prisma](https://www.prisma.io/) as our ORM, we can use [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. This is where the `DatabaseService` mentioned in the [previous article](/realtime-ui) comes into play.
+Because we use [Prisma](https://www.prisma.io/) as our ORM, we can use [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. This is where the `DatabaseService` mentioned in the [previous article](./endpoints) comes into play.
 
-```ts showLineNumbers copy filename="src/modules/database/DatabaseService.ts" repository="finom/realtime-kanban" {20, 96}
+```ts showLineNumbers copy filename="src/modules/database/DatabaseService.ts" repository="finom/realtime-kanban" {20, 114}
 import type { BaseEntity } from "@/types";
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
@@ -47,18 +47,17 @@ export default class DatabaseService {
 
     return prisma
       .$extends({
+        name: "timestamps",
         // Ensure createdAt and updatedAt are always ISO strings
         result: {
           $allModels: {
             createdAt: {
-              compute(data: { createdAt: Date }) {
-                return data.createdAt.toISOString();
-              },
+              compute: (data: { createdAt: Date }) =>
+                data.createdAt.toISOString(),
             },
             updatedAt: {
-              compute(data: { updatedAt: Date }) {
-                return data.updatedAt.toISOString();
-              },
+              compute: (data: { updatedAt: Date }) =>
+                data.updatedAt.toISOString(),
             },
           },
         },
@@ -151,8 +150,6 @@ export default class DatabaseService {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseService.ts)*
 
-_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseService.ts)_
-
 - The `getClient` method calls `DatabaseEventsService.beginEmitting(){:ts}` to start emitting events. The `beginEmitting` function runs a `setInterval` that connects to Redis and periodically checks for new events. When a new event is found, it emits it via [mitt](https://npmjs.com/package/mitt).
 - `prisma.$extends` hooks into some of the Prisma model operations, determines whether an operation modifies data, and if so calls `await DatabaseEventsService.createChanges([change]){:ts}` to persist a change entry in Redis. The change captures creates, updates, and deletions:
 
@@ -170,7 +167,7 @@ The `date` field indicates when the change occurred.
 - For `create` and `update` operations, it uses the `updatedAt` DB field (important: all write operations must select this field).
 - For `delete` operations, it uses the current time.
 
-The `delete` operation also adds an `__isDeleted` property. The front end checks this property to hide the deleted entity by setting `enumerable: false` on the entity registry item (see the [Setup article](/realtime-ui/setup)).
+The `delete` operation also adds an `__isDeleted` property. The front end checks this property to hide the deleted entity by setting `enumerable: false` on the entity registry item (see the [State](./state) page).
 
 Operations like `find...` and `count` do not trigger changes and are passed through as-is.
 
@@ -257,8 +254,6 @@ export default class DatabaseEventsService {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseEventsService.ts)*
 
-_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseEventsService.ts)_
-
 ## Polling controller and service
 
 With Redis change entries and the change emitter in place, we can implement a polling endpoint that streams updates to clients in real time. The `DatabasePollController` exposes a single [JSONLines](/controller/jsonlines) endpoint, and `DatabasePollService` uses a [JSONLinesResponse](/controller/jsonlines#jsonlinesresponse) instance (received from the controller) to send data to clients. The service closes the connection safely after 30 seconds, so clients should reconnect.
@@ -331,7 +326,7 @@ export default class PollService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollService.ts)*`
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollService.ts)*
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollService.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
@@ -371,9 +366,7 @@ export default class DatabasePollController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollController.ts)*`
-
-_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollController.ts)_
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollController.ts)*
 
 </Tabs.Tab>
 </Tabs>
@@ -383,10 +376,10 @@ _[The code above is fetched from GitHub repository.](https://github.com/finom/re
 
 ## Client-side logic
 
-On the client side (for example, in a React component), call `DatabasePollRPC.poll()` to receive a stream of database events. As with any [JSONLines](/controller/jsonlines) RPC method, it returns an async iterable that you can consume in a `for await` loop. Because the server may close the connection or a network error may occur, wrap the logic in a retry loop and avoid reconnecting on `AbortError` thrown when the user disables polling or navigates away. Since the [fetcher](/imports#fetcher) is already [configured](/realtime-ui#fetcher), the loop body can be empty—you do not need to handle data manually.
+On the client side (for example, in a React component), call `DatabasePollRPC.poll()` to receive a stream of database events. As with any [JSONLines](/controller/jsonlines) RPC method, it returns an async iterable that you can consume in a `for await` loop. Because the server may close the connection or a network error may occur, wrap the logic in a retry loop. Since the [fetcher](/imports#fetcher) is already [configured](./fetcher), the loop body can be empty—you do not need to handle data manually.
 
 Front-end code, besides the polling logic, also includes on/off toggle state saved to `localStorage`, so the user can enable or disable polling as needed.
-
+  
 Here's the `useDatabasePolling` hook that implements the described logic, returning the `[isPollingEnabled, setIsPollingEnabled]` state tuple:
 
 ```ts showLineNumbers copy filename="src/hooks/useDatabasePolling.ts" repository="finom/realtime-kanban"
@@ -455,12 +448,10 @@ export default function useDatabasePolling(initialValue = false) {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useDatabasePolling.ts)*
 
-_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useDatabasePolling.ts)_
-
 Usage:
 
 ```tsx copy
 const [isPollingEnabled, setIsPollingEnabled] = useDatabasePolling(false);
 ```
 
-
+From now on, when the database is changed by other users or third-party services, the front end will receive updates in real time and the entity registry will be updated accordingly, keeping the UI in sync with the back-end data.

@@ -1,16 +1,38 @@
 
-## Setting up the `fetcher`
+# Setting up the `fetcher`
 
-The next piece of the puzzle is to create a `fetcher` function (mentioned above as a "middleware") that is going to be used by the application to request data from the server. You can find more details about it at [imports](/imports#fetcher) article.
+The next piece of the puzzle is to create a `fetcher` function  that is going to be used by the application to request data from the server. You can find more details about it at [imports](/imports#fetcher) article.
 
-The fetcher is going to implement `transformResponse` function that is going to process all incoming data, passing it to the `parse` method of the registry. The function is also going to handle both regular JSON data and async iterables (if you use [JSONLines](/controller/jsonlines) responses).
+The fetcher is going to implement `transformResponse` function that is going to process all incoming data, passing it to the `parse` method of the registry. 
+
+In the simplest form, when we expect JSON responses only, the function is going to look like this:
+
+```ts showLineNumbers copy filename="src/lib/fetcher.ts"
+import { useRegistry } from "@/registry";
+import { createFetcher } from "vovk";
+
+export const fetcher = createFetcher({
+  transformResponse: async (data, { bypassRegistry }) => {
+    const state = useRegistry.getState();
+    state.parse(data);
+    return data;
+  },
+});
+```
+
+As our app is also going to support [JSONLines](/controller/jsonlines) responses for streaming data, we're going to enhance the function a bit with another `if` check.
+
+It's also good to have an option to bypass the registry for specific requests, so we're going to add `bypassRegistry` option to the fetcher config. It's declared as `createFetcher` generic parameter and used as an otpion of the second argument of `transformResponse` function. It can be used as follows: `await UserRPC.getUsers({ bypassRegistry: true }){:ts}`. The same way you can add more options in the future if needed.
 
 ```ts showLineNumbers copy filename="src/lib/fetcher.ts" repository="finom/realtime-kanban"
 import { useRegistry } from "@/registry";
 import { createFetcher, HttpStatus } from "vovk";
 
-export const fetcher = createFetcher({
-  transformResponse: async (data) => {
+export const fetcher = createFetcher<{ bypassRegistry?: boolean }>({
+  transformResponse: async (data, { bypassRegistry }) => {
+    if (bypassRegistry) {
+      return data;
+    }
     const state = useRegistry.getState();
     if (
       data &&
@@ -34,8 +56,6 @@ export const fetcher = createFetcher({
 });
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/lib/fetcher.ts)*
-
-_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/lib/fetcher.ts)_
 
 Declare the fetcher in the [config](/config). It will replace the default `fetcher` imported by the generated [client](/typescript).
 
@@ -93,12 +113,4 @@ export default UsersExample;
 
 As you can see `useQuery` invocation doesn't require to read `data` property anymore, as the response is processed by the registry automatically. The invocation of `UserRPC.getUsers()` or any other RPC method (with `useQuery` or without) can be placed anywhere in the app, and all components that use user data are going to be updated automatically.
 
-**Tip:** In order to be sure that the UI doesn't display deleted entities, even if the `userIds` array contains them, you can add additional filtering in the components, for example:
 
-```ts showLineNumbers copy
-const users = useRegistry(
-  useShallow(({ user: { ...userReg } }) => userIds.filter((id) => id in userReg).map((id) => userReg[id]))
-);
-```
-
-The destructuring will make sure that non-enumerable properties are not included in the resulting object.

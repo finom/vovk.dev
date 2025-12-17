@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { FlipWords } from '@/components/ui/flip-words';
 import Link from 'next/link';
 import Articles from './Articles';
+import Conversion from './Conversion.mdx';
+import OvervewItems from './OvervewItems.mdx';
 
 const Hero = () => {
   const words = ['with RPC', 'with Codegen', 'for SPA', 'for SaaS', 'for MCP'];
@@ -15,7 +17,7 @@ const Hero = () => {
       <div className="bg-linear-to-b from-[#ffffff30] to-[#ffffffff] dark:from-background/30 dark:to-background bottom-0 left-0 right-0 h-1/6 absolute " />
 
       {/* Content */}
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-8">
+      <div className="relative z-10 text-center px-4 max-w-7xl mx-auto pt-8">
         <div className="md:space-y-6 space-y-4">
           <div className="inline-flex items-center rounded-full bg-background/50 px-3 font-semibold text-2xl md:text-4xl opacity-60">
             Back-end for Next.js (beta)
@@ -68,9 +70,9 @@ const Hero = () => {
               </Button>
             </Link>
           </div>
-          <div>
-            <Articles />
-          </div>
+          <Conversion />
+          <OvervewItems />
+          <Articles />
         </div>
       </div>
     </div>

@@ -76,8 +76,6 @@ export default class ProgressiveService {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-examples/blob/main/src/modules/progressive/ProgressiveService.ts)*
 
-_[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-examples/blob/main/src/modules/progressive/ProgressiveService.ts)_
-
 On the controller side, instantiate `JSONLinesResponse`, pass it to the service method, and return it as the response.
 
 ```ts showLineNumbers copy
@@ -133,8 +131,6 @@ export default class ProgressiveController {
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-examples/blob/main/src/modules/progressive/ProgressiveController.ts)*
-
-_[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-examples/blob/main/src/modules/progressive/ProgressiveController.ts)_
 
 The server-side code is ready. Now we can implement the client-side code to consume this progressive response. For this, we will use the `progressive` function from the `vovk` package, which creates a promise for each property of the resulting object. It accepts the RPC method to call (e.g., `ProgressiveRPC.streamProgressiveResponse`) and optional input parameters. The function returns an object with promises per property, which can be awaited separately.
 

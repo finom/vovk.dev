@@ -94,7 +94,7 @@ This is achieved by combining code generation with TypeScript inference, mapping
 
 ## Controller and Service
 
-HTTP handlers are implemented as decorated static class methods that expect two arguments: `req: NextRequest` (enhanced with typed `req.json`, `req.nextUrl`, etc., using the `VovkRequest<TBody, TQuery, TParams>{:ts}` type) and `params: TParams{:ts}`. The class is initialized (but not instantiated with `new{:js}`) in the `route.ts` file, declaring a new RPC module.
+HTTP handlers are implemented as decorated static class methods that expect two arguments: `req: NextRequest` (enhanced with typed `req.json`, `req.nextUrl`, etc., using the `VovkRequest<TBody, TQuery, TParams>{:ts}` type) and `params: TParams{:ts}`. The class is initialized (but not instantiated with `new{:js}`) in the `route.ts` file, declaring a new [RPC module](/rpc-module).
 
 A controller can be split into the controller itself and one or more services that contain business logic (database/API calls). Service methods can safely infer controller method types, even when the controller method returns the service method’s result, without triggering “implicit any” type errors on self-references. This is enabled by a TypeScript fix ([#58616](https://github.com/microsoft/TypeScript/issues/58616)) by [Anders Hejlsberg](https://github.com/ahejlsberg).
 
@@ -106,13 +106,13 @@ import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
-@put('{id}')
-static async updateUser(req: VovkRequest<{ name: string }, { notify: string }>, { id }: { id: string }) {
-return UserService.updateUser(await req.json(), req.nextUrl.searchParams.get('notify'), id);
-}
+  @put('{id}')
+  static async updateUser(req: VovkRequest<{ name: string }, { notify: string }>, { id }: { id: string }) {
+    return UserService.updateUser(await req.json(), req.nextUrl.searchParams.get('notify'), id);
+  }
 }
 
-````
+```
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserService.ts"
@@ -130,8 +130,7 @@ export default class UserService {
     return { body, notify, id, success: true };
   }
 }
-````
-
+```
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
@@ -181,6 +180,7 @@ When a controller method uses a [validation library](/validation), the incoming 
 
 **More info**
 
+- [RPC Module](/rpc-module)
 - [TypeScript RPC](/typescript)
 - [Imports](/imports)
 
@@ -261,7 +261,7 @@ The JSON files follow the same recursive structure as the segments, where `root.
 
 - [Schema](/schema)
 
-## "Composed" vs "Segmented" RPC
+## "Composed" vs "Segmented" RPC Client
 
 By default, Vovk.ts emits a single RPC client that contains all RPC modules from all segments, importable from **vovk-client**. This approach is the **composed RPC client** and is useful for single-page applications where you want a single import entry for all RPC modules.
 
@@ -560,12 +560,12 @@ Vovk.ts solves the problem of **what to call** by providing a framework that tur
 The functions can be executed on the server side (using [controllers](/controller/fn)) or on the client side (using RPC modules that call the functions over HTTP), including the ability to use remote APIs with [OpenAPI Mixins](/codegen).
 
 ```ts showLineNumbers copy
-import { createLLMTools } from 'vovk';
+import { deriveTools } from 'vovk';
 import ProductController from '@/modules/product/ProductController';
 import { UserRPC, GithubIssuesAPI } from 'vovk-client';
 import { pick } from 'lodash';
 
-const { tools } = createLLMTools({
+const { tools } = deriveTools({
   modules: {
     // call ProductController methods at the current context
     ProductController,

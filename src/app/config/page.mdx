@@ -179,7 +179,7 @@ Augments the generated OpenAPI schema. You can provide `info`, `servers`, and ot
 
 #### `reExports: Record<string, string>`
 
-Re-exports variables from other modules. Keys list the identifiers to re-export; values are module paths. Identifiers are placed inside curly braces, and paths are resolved relative to the output directory. This is useful when you want to re-export additional items alongside generated RPC modules (including the [bundled](/bundle) package).
+Re-exports variables from other modules. Keys list the identifiers to re-export; values are module paths. Identifiers are placed inside curly braces, and paths are resolved relative to the output directory. This is useful when you want to re-export additional items alongside generated [RPC modules](/rpc-module) (including the [bundled](/bundle) package).
 
 ```js filename="/vovk.config.mjs"
 const config = {

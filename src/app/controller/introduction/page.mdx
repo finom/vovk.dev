@@ -122,7 +122,7 @@ Note that to enable safe self‑inference in [service modules](/controller/servi
 
 ## Initialization
 
-Once the controller is defined, it needs to be initialized in a [segment route](/segment) by adding it to the `controllers` object. The key of this object defines the name of the resulting RPC module variable exported from `"vovk-client"` or the [segmented client](/segmented).
+Once the controller is defined, it needs to be initialized in a [segment route](/segment) by adding it to the `controllers` object. The key of this object defines the name of the resulting [RPC module](/rpc-module) variable exported from `"vovk-client"` or the [segmented client](/segmented).
 
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';

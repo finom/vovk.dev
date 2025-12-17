@@ -242,16 +242,16 @@ const { action, destination, message, subdomains } = multitenant({
 
 For more info, check the [multitenant](/multitenant) guide.
 
-### `createLLMTools`
+### `deriveTools`
 
-A utility function that turns RPC modules or controllers into LLM tools based on the input schemas of their methods.
+A utility function that turns [RPC modules](/rpc-module) or [controllers](/controller) into LLM tools based on the input schemas of their methods.
 
 ```ts showLineNumbers copy
-import { createLLMTools } from 'vovk';
+import { deriveTools } from 'vovk';
 import { UserRPC } from 'vovk-client';
 import TaskController from '@/modules/task/TaskController';
 
-const { tools, toolsByName } = createLLMTools({
+const { tools, toolsByName } = deriveTools({
   meta: { hello: 'world' },
   modules: {
     UserRPC,
@@ -293,7 +293,7 @@ Data that will be passed as the `meta` property of each function (controller han
 
 #### `caller` (advanced)
 
-The low-level function that calls the handler function or RPC method. Check the [source code](https://github.com/finom/vovk/blob/main/packages/vovk/src/utils/createLLMTools.ts) of the `defaultCaller` function for more info.
+The low-level function that calls the handler function or RPC method. Check the [source code](https://github.com/finom/vovk/blob/main/packages/vovk/src/utils/deriveTools.ts) of the `defaultCaller` function for more info.
 
 ### `createValidateOnClient`
 
@@ -486,9 +486,9 @@ The schema of the meta information.
 
 The shape of the [config](/config) file.
 
-### `VovkLLMTool`
+### `VovkTool`
 
-The shape of the LLM tool created by the [createLLMTools](#createllmtools) function.
+The shape of the LLM tool created by the [deriveTools](#createllmtools) function.
 
 ## System Types
 
@@ -557,7 +557,11 @@ export enum VovkSchemaIdEnum {
 
 ### `VovkOperationObject`
 
-Extends `OperationObject` imported from the [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts) package by adding LLM-tool-specific properties that start with `x-tool-`.
+Extends `OperationObject` imported from the [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts) package by adding `x-tool` property, typed as `VovkToolOptions`.
+
+### `VovkToolOptions`
+
+TODO!
 
 ### `VovkValidationType`
 
@@ -607,7 +611,7 @@ export const { get, post, put, patch, del, head, options, prefix, initSegment } 
 
 ### `createRPC`
 
-Function that creates RPC modules out of the [schema](/schema) and types inferred from [controllers](/controller). It's imported by the generated TypeScript, ESM, and CJS files and can be [customized in the config](/imports).
+Function that creates [RPC module](/rpc-module) out of the [schema](/schema) and types inferred from [controllers](/controller). It's imported by the generated TypeScript, ESM, and CJS files and can be [customized in the config](/imports).
 
 ### `createCodeSamples`
 

@@ -1,18 +1,16 @@
-# Realtime UI Part 2: Text & Voice AI Interface
+# Text Chat AI Interface
 
-In the previous article, we set up the back-end and front-end to automatically synchronize state of the components with the back-end data, independent of the data fetching method. Now it's time to make the UI to be AI-powered, allowing users to interact with the application using natural language, both via text and voice.
+In the previous articles, we set up the back-end and front-end to automatically synchronize state of the components with the back-end data, independent of the data fetching method. Now it's time to make the UI to be AI-powered, allowing users to interact with the application using natural language.
 
-The approach is simple: we're going to set up normal LLM text chat via AI SDK and Realtime Voice AI interfaces, and adjust them by adding function calling capabilities, where already implemented controller methods and generated RPC module methods are converted into tools via `createLLMTools` function from Vovk.ts.
+The approach is simple: we're going to set up normal LLM text chat via [AI SDK](https://ai-sdk.dev/), and adjust it by adding function calling capabilities, where already implemented controller methods are going to be converted into tools via `deriveTools` function from Vovk.ts.
 
-## Text Chat Interface
+## Back-end Setup
 
-### Back-end Setup
-
-For the back-end setup, we need to create a handler powered by AI SDK as described in the [LLM Completions](/llm#ai-sdk) article by adding `tools` and `stopWhen` options to the `streamText` function. The tools are created by passing the controller modules that follow the [rules of callable handlers](/controller/fn) and decorated with [custom `x-tool-*` OpenAPI operation properties](/function-calling#x-tool) to the `createLLMTools` function.
+For the back-end setup, we need to create a handler powered by AI SDK as described in the [LLM Completions](/llm#ai-sdk) article by adding `tools` and `stopWhen` options to the `streamText` function. The tools are created by passing the controller modules that follow the [rules of callable handlers](/controller/fn), meaning that the handlers use only `vovk` property of the request: `async ({ vovk }) => UserService.createUser(await vovk.body()){:ts}` (see [API Endpoints](./endpoints) page) to be able to be called directly (for SSR/PPR), and to be used by `deriveTools` function for current context executions.
 
 ```ts showLineNumbers copy filename="src/modules/ai/AiSdkController.ts" repository="finom/realtime-kanban"  {33-38,44-54}
 import {
-  createLLMTools,
+  createTools,
   post,
   prefix,
   operation,
@@ -43,7 +41,7 @@ export default class AiSdkController {
   @sessionGuard()
   static async functionCalling(req: VovkRequest<{ messages: UIMessage[] }>) {
     const { messages } = await req.json();
-    const { tools } = createLLMTools({
+    const { tools } = createTools({
       modules: {
         UserController,
         TaskController,
@@ -77,20 +75,18 @@ export default class AiSdkController {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/ai/AiSdkController.ts)*
 
-_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/ai/AiSdkController.ts)_
+The resulting endpoint is served at `/api/ai-sdk/function-calling`.
 
-The endpoint is served at `/api/ai-sdk/function-calling` and will be used on the client-side with [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) package.
-
-### Front-end Setup
+## Front-end Setup
 
 On the front-end we're going to use AI SDK, represented by [ai](https://www.npmjs.com/package/ai), [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) packages but also [AI Elements](https://ai-sdk.dev/elements/) library that provides pre-built React components for building AI-powered user interfaces, built on top of [shadcn/ui](https://ui.shadcn.com/).
 
-We're going to extend the example described at [LLM Completions](/llm#ai-sdk) with two things:
+We're going to extend the client-side part described at [LLM Completions](/llm#ai-sdk) with two things:
 
 1. Using AI Elements instead of raw divs in order to not only have better UI but also to see the flow of the executed functions and their results.
-2. Parse the function calling results by using `.parse()` method described at the [previous article](./setup).
+2. Parse the function calling results by using `.parse()` method described at the [State Normalization](./state) page.
 
-```tsx copy filename="src/components/ExpandableChatDemo.tsx"  {32}
+```tsx showLineNumbers copy filename="src/components/ExpandableChatDemo.tsx"  {28}
 'use client';
 // ...
 import { useChat } from '@ai-sdk/react';
@@ -130,9 +126,9 @@ export function ExpandableChatDemo() {
 }
 ```
 
-[Check the full code for the component here](https://github.com/finom/realtime-kanban/blob/main/src/components/ExpandableChatDemo.tsx)\*
+[Check the full code for the component here](https://github.com/finom/realtime-kanban/blob/main/src/components/ExpandableChatDemo.tsx)
 
-The key part of the code is the `useParseSDKToolCallOutputs` hook that extracts the tool call outputs from the assistant messages and passes them to the registry's `parse` method, which processes the results and updates the UI accordingly. It also ensures that each tool call output is parsed only once by keeping track of the parsed tool call IDs using a `Set`.
+The key part of the code is the `useParseSDKToolCallOutputs` hook that extracts the tool call outputs from the assistant messages and passes them to the registry's `parse` method, which processes the results and triggers UI updates accordingly. It also ensures that each tool call output is parsed only once by keeping track of the parsed tool call IDs using a `Set`.
 
 ```ts showLineNumbers copy filename="src/hooks/useParseSDKToolCallOutputs.ts" repository="finom/realtime-kanban" {26}
 import { useRegistry } from "@/registry";
@@ -167,8 +163,6 @@ export default function useParseSDKToolCallOutputs(messages: UIMessage[]) {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useParseSDKToolCallOutputs.ts)*
 
-_[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useParseSDKToolCallOutputs.ts)_
-
 Without optimizations, the code can be reduced to this small snippet:
 
 ```ts showLineNumbers copy
@@ -179,4 +173,4 @@ useEffect(() => {
 // ...
 ```
 
-That's it, now you have a fully functional AI text chat interface that can call your back-end functions and update the UI in based on the results, as the controller methods return the updated data that includes `id` and `entityType` fields.
+That's it, now you have a fully functional AI text chat interface that can call your back-end functions and update the UI in based on the results, as the controller methods return the updated data that includes `id` and `entityType` fields, but also `__isDeleted` field for soft deletions.

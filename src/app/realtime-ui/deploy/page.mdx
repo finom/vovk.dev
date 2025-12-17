@@ -1,11 +1,8 @@
-### Deploying to Vercel
+# Deploying to Vercel
 
-As this is just a demo, I've used free proprietary tools and services to make it work for easy deployment. Vovk.ts isn't affiliated with any of them, and you can replace them with any other tools you prefer.
+You can use any hosting provider that supports Node.js applications, but for the sake of simplicity, we're going to use [Vercel](https://vercel.com/) as it would take minimal effort to deploy the app for a quick demo. We're going to need to set up two integrations for Vercel: [Neon](https://vercel.com/integrations/neon) for Postgres/PGVector database hosting and [Redis](https://vercel.com/integrations/redis) for Redis hosting. The first one is going to be used as the main database, while the second one is going to be used as a database event bus for real-time features that will be described in the [Polling](./polling) article, but also as a temporary storage for messages consumed by the demo [Telegram Bot](./telegram).
 
-- [OpenAI API](https://openai.com/api/) for natural language processing
-- [Vercel](https://vercel.com/) for hosting and serverless functions
-- [Neon](https://vercel.com/integrations/neon) Vercel integration for Postgres/PGVector database hosting
-- [Redis](https://vercel.com/integrations/redis) Vercel integration for Redis hosting
+**Note:** Vovk.ts is not affiliated with Vercel, Telegram or Neon in any way.
 
 In order to deploy the app, with the same setup, create a new project at Vercel, link it to the fork of the GitHub repository, and add the above mentioned integrations.
 
@@ -16,4 +13,12 @@ In order to deploy the app, with the same setup, create a new project at Vercel,
   height={1826 / 2}
 />
 
-Add `OPENAI_API_KEY` at the project environment variables. Other variables such as `DATABASE_URL` and `REDIS_URL` are going to be created automatically by the integrations. In case of a problem, check the [.env.template](https://github.com/finom/realtime-kanban/blob/main/.env.template) file for reference.
+Add `OPENAI_API_KEY` at the project environment variables. Other variables such as `DATABASE_URL` and `REDIS_URL` are going to be created automatically by the integrations. 
+
+It's also recommended to add `PASSWORD` variable in order to enable simple (and free) password protection for the app. You can set it to any desired value.
+
+For MCP protection, you can also add `MCP_ACCESS_KEY` variable in order to enable simple authorization for MCP server using `?mcp_access_key=your_key` query param. If this variable is not set, no authorization is required. It's described in more detail in the [MCP](./mcp) article. 
+
+Finally, for Telegram bot integration, you can add `TELEGRAM_BOT_TOKEN` variable if you want to use Telegram bot feature. See the [Telegram Integration](./telegram) article for more details.
+
+In case of a problem, check the [.env.template](https://github.com/finom/realtime-kanban/blob/main/.env.template) file for reference.

@@ -4,7 +4,7 @@ import { FileTree } from 'nextra/components';
 
 The `npm run dev` script runs [vovk dev](/dev) alongside `next dev` via [concurrently](https://www.npmjs.com/package/concurrently). The Vovk process watches the `modules` folder for controller and [validation](/validation) changes. On the first run or after changes, it calls the Next.js dev server’s `_schema_` endpoint for the relevant segment (available only when `process.env.NODE_ENV` is `development`). That endpoint returns the schema for the target segment, enabling isolated JSON emission per segment. This works in the [Edge Runtime](https://edge-runtime.vercel.app/) because `route.ts` files do not import Node.js modules like `fs`.
 
-Each segment emits its backend schema to an individual JSON file, which is then used to generate client-side RPC modules. If your application has multiple areas (e.g., root, admin, customer), each area has its own schema file.
+Each segment emits its backend schema to an individual JSON file, which is then used to generate client-side [RPC modules](/rpc-module). If your application has multiple areas (e.g., root, admin, customer), each area has its own schema file.
 
 For a segment structure like this:
 

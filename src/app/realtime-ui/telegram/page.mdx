@@ -1,7 +1,7 @@
 
 ## Bonus: Telegram bot (unstable)
 
-As an example of a third-party source of database changes, see the [TelegramService](https://github.com/realtime-kanban/src/modules/telegram/TelegramService.ts) and the accompanying [TelegramController](https://github.com/realtime-kanban/src/modules/telegram/TelegramController.ts). It accepts text or voice messages, performs voice-to-text transcription if needed using the OpenAI Whisper API, and uses the same `createLLMTools` function on the server.
+As an example of a third-party source of database changes, see the [TelegramService](https://github.com/realtime-kanban/src/modules/telegram/TelegramService.ts) and the accompanying [TelegramController](https://github.com/realtime-kanban/src/modules/telegram/TelegramController.ts). It accepts text or voice messages, performs voice-to-text transcription if needed using the OpenAI Whisper API, and uses the same `deriveTools` function on the server.
 
 The Telegram API library is implemented with [OpenAPI Mixins](/codegen) and used as a `TelegramAPI` module to call Telegram API methods.
 
@@ -58,7 +58,7 @@ export default class TelegramService {
     // Get chat history
     const history = await this.getChatHistory(chatId);
     const messages = [...this.formatHistoryForVercelAI(history), { role: 'user', content: userMessage } as const];
-    const { tools } = createLLMTools({
+    const { tools } = deriveTools({
       modules: {
         UserController,
         TaskController,

@@ -4,15 +4,15 @@ Vovk.ts provides LLM function calling capabilities, turning route handlers into 
 
 While many AI libraries and APIs focus on how to use function calling, Vovk.ts focuses on what should be callable.
 
-This feature is implemented by a zero-dependency function, `createLLMTools`, imported from `"vovk"`. It produces a `tools` array that can be mapped to function-calling inputs for any LLM library. Each tool, converted from a controller or RPC handler, implements the `VovkLLMTool` interface with the following properties:
+This feature is implemented by a zero-dependency function, `deriveTools`, imported from `"vovk"`. It produces a `tools` array that can be mapped to function-calling inputs for any LLM library. Each tool, converted from a controller or RPC handler, implements the `VovkTool` interface with the following properties:
 
 - `type`: the string literal `"function"`.
 - `name`: the function name in the form `${moduleName}_${handlerName}` (module name + underscore + method name), or overridden by a custom `x-tool-name`.
-- `description`: a description derived from OpenAPI metadata, concatenating the `summary` and `description` fields, or overridden by a custom `x-tool-description`. If neither is provided, `createLLMTools` ignores the function. In other words, using the `@operation` decorator on [controller](/controller) methods is required for this feature.
+- `description`: a description derived from OpenAPI metadata, concatenating the `summary` and `description` fields, or overridden by a custom `x-tool-description`. If neither is provided, `deriveTools` ignores the function. In other words, using the `@operation` decorator on [controller](/controller) methods is required for this feature.
 - `parameters`: a JSON Schema object describing `body`, `query`, and `params`, generated automatically by the [validation library](/validation).
 - `execute`: a JavaScript function to be called when the LLM invokes the tool.
 
-`createLLMTools` accepts an options object with:
+`deriveTools` accepts an options object with:
 
 - `modules`: a record of modules (explained below).
 - `caller`: optional. A function that defines how an RPC method or controller’s callable method should run to produce `execute`. Intended for advanced scenarios.
@@ -21,16 +21,16 @@ This feature is implemented by a zero-dependency function, `createLLMTools`, imp
 - `meta`: [metadata](/controller/meta) passed to each controller/RPC method. Can include any data you want available on the back end.
 - `resultFormatter`: optional. Formats the result returned to the LLM. By default, returns the raw result. Use `"mcp"` to format according to [MCP](/mcp).
 
-Each `modules` entry is either an RPC module or a controller. Controllers are functions with pre-populated features such as `schema` implementing `VovkHandlerSchema`, which includes the `operationObject` populated by the `@operation` decorator.
+Each `modules` entry is either an [RPC module](/rpc-module) or a [controller](/controller). Controllers are functions with pre-populated features such as `schema` implementing `VovkHandlerSchema`, which includes the `operationObject` populated by the `@operation` decorator.
 
-`createLLMTools` distinguishes RPC module methods from controller methods by the `isRPC` property. If `isRPC: true` is present, the method is treated as an RPC method. Otherwise, it is treated as a controller method that exposes `fn` (see [callable controller methods](/controller/fn)), mirroring the RPC function signature to allow direct invocation without HTTP.
+`deriveTools` distinguishes RPC module methods from controller methods by the `isRPC` property. If `isRPC: true` is present, the method is treated as an RPC method. Otherwise, it is treated as a controller method that exposes `fn` (see [callable controller methods](/controller/fn)), mirroring the RPC function signature to allow direct invocation without HTTP.
 
 ```ts showLineNumbers copy
-import { createLLMTools } from 'vovk';
+import { deriveTools } from 'vovk';
 import { PostRPC } from 'vovk-client';
 import UserController from '../user/UserController';
 
-const { tools } = createLLMTools({
+const { tools } = deriveTools({
   modules: {
     PostRPC,
     UserController,
@@ -51,12 +51,12 @@ In this example, `PostRPC` is an RPC module whose methods issue HTTP requests, w
 To include only certain methods from a module, use the `pick`/`omit` pattern from `lodash` or a similar utility.
 
 ```ts showLineNumbers copy
-import { createLLMTools } from 'vovk';
+import { deriveTools } from 'vovk';
 import { PostRPC } from 'vovk-client';
 import { pick, omit } from 'lodash';
 import UserController from '../user/UserController';
 
-const { tools } = createLLMTools({
+const { tools } = deriveTools({
   modules: {
     PostRPC: pick(PostRPC, ['createPost', 'getPost']),
     UserController: omit(UserController, ['deleteUser']),
@@ -71,10 +71,10 @@ The resulting `tools` include `createPost` and `getPost` from `PostRPC`, and all
 To add authorization, pass a module as a tuple: the `module` itself and an `options` object with an `init` extending `RequestInit`. This lets you add headers such as auth tokens.
 
 ```ts showLineNumbers copy
-import { createLLMTools } from 'vovk';
+import { deriveTools } from 'vovk';
 import { PostRPC } from 'vovk-client';
 
-const { tools } = createLLMTools({
+const { tools } = deriveTools({
   modules: {
     PostRPC: [
       PostRPC,
@@ -93,11 +93,11 @@ const { tools } = createLLMTools({
 You can combine pick/omit with the `init` tuple to authorize and select methods at the same time:
 
 ```ts showLineNumbers copy
-import { createLLMTools } from 'vovk';
+import { deriveTools } from 'vovk';
 import { PostRPC } from 'vovk-client';
 import { pick } from 'lodash';
 
-const { tools } = createLLMTools({
+const { tools } = deriveTools({
   modules: {
     PostRPCAuthorized: [
       pick(PostRPC, ['createPost']),
@@ -171,9 +171,9 @@ Overrides the generated function description (normally derived from `summary` + 
 Vovk.ts can generate RPC modules from third-party OpenAPI specs, letting you combine your back-end with external APIs in a single agent. See the [Codegen guide](/codegen).
 
 ```ts showLineNumbers copy
-import { createLLMTools } from 'vovk';
+import { deriveTools } from 'vovk';
 import { GithubIssuesAPI, TaskRPC } from 'vovk-client';
-const { tools } = createLLMTools({
+const { tools } = deriveTools({
   modules: {
     GithubIssuesAPI, // 3rd-party API
     TaskRPC, // your own back-end API
@@ -181,7 +181,7 @@ const { tools } = createLLMTools({
 });
 ```
 
-Because the Vovk.ts CLI can serve as a standalone code generator (e.g., for [NestJS](/nestjs)), you can still use the generated RPC modules with `createLLMTools`.
+Because the Vovk.ts CLI can serve as a standalone code generator (e.g., for [NestJS](/nestjs)), you can still use the generated RPC modules with `deriveTools`.
 
 ## Function Calling Example
 
@@ -189,7 +189,7 @@ You can implement function calling using raw AI APIs with [JSON Lines](/controll
 
 ### Create LLM Endpoint
 
-Create a controller and pass your RPC modules or controllers to `createLLMTools` as shown above.
+Create a controller and pass your RPC modules or controllers to `deriveTools` as shown above.
 
 ```sh npm2yarn copy
 npx vovk new controller aiSdk --empty
@@ -199,7 +199,7 @@ Paste the following into `src/modules/ai-sdk/AiSdkController.ts`, adjusting impo
 
 ```ts showLineNumbers copy filename="src/modules/ai-sdk/AiSdkController.ts" {18}
 import {
-  createLLMTools,
+  deriveTools,
   HttpException,
   HttpStatus,
   post,
@@ -231,7 +231,7 @@ export default class AiSdkController {
   @post('function-calling')
   static async functionCalling(req: VovkRequest<{ messages: UIMessage[] }>) {
     const { messages } = await req.json();
-    const { tools: llmTools } = createLLMTools({
+    const { tools: llmTools } = deriveTools({
       modules: { UserController, PostRPC },
       onExecute: (d) => console.log('Success', d),
       onError: (e) => console.error('Error', e),
@@ -320,4 +320,4 @@ See the [Vercel AI SDK docs](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-cha
 
 ## Roadmap
 
-- ✨ Add a `router` option to `createLLMTools` to support hundreds of functions without hitting LLM function-calling limits. Routing can be implemented using vector search or other approaches.
+- ✨ Add a `router` option to `deriveTools` to support hundreds of functions without hitting LLM function-calling limits. Routing can be implemented using vector search or other approaches.

@@ -1,6 +1,6 @@
 # TypeScript RPC Client
 
-[Controllers](/controller) implemented with Vovk.ts compile to RPC modules that share the same structure but have different argument signatures. For example, given the controller below:
+[Controllers](/controller) implemented with Vovk.ts compile to [RPC modules](/rpc-module) that share the same structure but have different argument signatures. For example, given the controller below:
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { z } from 'zod';
@@ -237,7 +237,7 @@ Every RPC method exposes the emitted JSON schema through the following propertie
 - `schema` - the schema for this method of type `VovkHandlerSchema`;
 - `controllerSchema` - the schema object of the method's controller of type `VovkControllerSchema`;
 - `segmentSchema` - the schema object of the segment of type `VovkSegmentSchema`;
-- `fullSchema` - the full schema object of type `VovkSchema` that includes all available segments as well as emitted config (by default, `"libs"` and `"outputConfig"` options only; see [config documentation](/config)).
+- `fullSchema` - the full schema object of type `VovkSchema` that includes all available segments as well as emitted config (by default, `"libs"` and `"rootEntry"` options only; see [config documentation](/config)).
 
 ```ts showLineNumbers copy
 console.log(UserRPC.updateUser.schema.validation.body); // get body validation JSON schema
