@@ -1,0 +1,52 @@
+import React from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+<h2 className="text-xl md:text-3xl font-semibold tracking-tight text-muted-foreground mt-16">
+            Features
+          </h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+      <Card className="rounded-2xl shadow">
+        <CardHeader>
+          <CardTitle className="text-xl">🔍 Type Inference & RPC</CardTitle>
+        </CardHeader>
+        <CardContent className="text-base text-left">
+          Vovk.ts combines TypeScript inference with code generation to achieve
+          contract-less RPC over RESTful API with type mapping between controllers and RPC modules.
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-2xl shadow">
+        <CardHeader>
+          <CardTitle className="text-xl">🧩 Backend Architecture Layer</CardTitle>
+        </CardHeader>
+        <CardContent className="text-base text-left">
+          On the back-end it wraps Next.js Route Handlers to provide
+          service-controller architecture layer, decorator-style syntax, request
+          validation, additional type safety for NextRequest object, and OpenAPI
+          spec generation.
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-2xl shadow">
+        <CardHeader>
+          <CardTitle className="text-xl">🤖 Back-end that runs by AI</CardTitle>
+        </CardHeader>
+        <CardContent className="text-base text-left">
+          Controllers and generated RPC modules can be used as LLM function
+          calling tools for AI SDK, MCP, or any other AI instruments. The first
+          one for current context execution, the second one for calling back-end
+          API methods via HTTP requests.
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-2xl shadow">
+        <CardHeader>
+          <CardTitle className="text-xl">📦 Publishable RPC Client</CardTitle>
+        </CardHeader>
+        <CardContent className="text-base text-left">
+          The RPC client can be bundled and published to NPM with ready-to-use
+          package.json and README.md that describes all available methods as code
+          examples.
+        </CardContent>
+      </Card>
+    </div>
