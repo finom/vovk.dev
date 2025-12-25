@@ -2,13 +2,6 @@
 <div className='lg:w-1/2 sm:w-full relative'>
 ```ts twoslash include main
 // @experimentalDecorators: true
-// @filename: @/lib/withZod.ts
-import { z } from 'zod/v4';
-import { createStandardValidation } from 'vovk';
-
-export const withZod = createStandardValidation({
-  toJSONSchema: (model: z.core.$ZodType) => z.toJSONSchema(model),
-});
 
 // @filename: ./UserService.ts
 // paste your actual UserService types here
@@ -20,15 +13,14 @@ export default class UserService {
 
 // @filename: index.ts
 // ---cut---
-import { put, prefix } from 'vovk';
+import { procedure, put, prefix } from 'vovk';
 import { z } from 'zod';
-import { withZod } from '@/lib/withZod';
 import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
   @put('{id}')
-  static updateUser = withZod({
+  static updateUser = procedure({
     params: z.object({ id: z.uuid() }),
     body: z.object({ email: z.email() }),
     query: z.object({ notify: z.enum(['push', 'sms']) }),
@@ -51,12 +43,7 @@ export default class UserController {
 ```ts twoslash
 // @experimentalDecorators: true
 // @filename: @/lib/withZod.ts
-import { z } from 'zod/v4';
-import { createStandardValidation } from 'vovk';
-
-export const withZod = createStandardValidation({
-  toJSONSchema: (model: z.core.$ZodType) => z.toJSONSchema(model),
-});
+import { z } from 'zod';
 
 // @filename: ./UserService.ts
 // paste your actual UserService types here
@@ -67,15 +54,14 @@ export default class UserService {
 }
 
 // @filename: UserController.ts
-import { put, prefix } from 'vovk';
+import { procedure, put, prefix } from 'vovk';
 import { z } from 'zod';
-import { withZod } from '@/lib/withZod';
 import UserService from './UserService';
 
 @prefix('users')
 export default class UserController {
   @put('{id}')
-  static updateUser = withZod({
+  static updateUser = procedure({
     params: z.object({ id: z.uuid() }),
     body: z.object({ email: z.email() }),
     query: z.object({ notify: z.enum(['push', 'sms']) }),

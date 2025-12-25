@@ -11,12 +11,6 @@ const options = [
     href: '/openapi',
   },
   {
-    title: 'RPC for NestJS',
-    description: 'Generate RPC libraries for NestJS applications.',
-    icon: '🔗',
-    href: '/nestjs',
-  },
-  {
     title: 'Realtime UI',
     description: 'Build Realtime, intelligent UIs — like Tony Stark’s JARVIS.',
     icon: '🤖',

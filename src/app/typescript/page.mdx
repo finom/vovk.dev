@@ -1,11 +1,10 @@
 # TypeScript RPC Client
 
-[Controllers](/controller) implemented with Vovk.ts compile to [RPC modules](/rpc-module) that share the same structure but have different argument signatures. For example, given the controller below:
+[Controllers](/controller) implemented with Vovk.ts compile to so-called RPC modules that share the same structure but have different argument signatures. For example, given the controller below:
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { z } from 'zod';
-import { withZod } from 'vovk-zod';
-import { prefix, post, operation } from 'vovk';
+import { procedure, prefix, post, operation } from 'vovk';
 
 @prefix('users')
 export default class UserController {
@@ -14,7 +13,7 @@ export default class UserController {
     description: 'Update user by ID with Zod validation',
   })
   @post('{id}')
-  static updateUser = withZod({
+  static updateUser = procedure({
     body: z
       .object({
         name: z.string().meta({ description: 'User full name' }),
@@ -218,7 +217,7 @@ export default class UserController {
 }
 ```
 
-If the handler returns an async iterable, the client casts the method to a [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator) to enable [JSON Lines](/controller/jsonlines) streaming.
+If the handler returns an async iterable, the client casts the method to a [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator) to enable [JSON Lines](/jsonlines) streaming.
 
 ```ts showLineNumbers copy
 import { StreamRPC } from 'vovk-client';
@@ -308,7 +307,7 @@ queryClient.invalidateQueries({
 });
 ```
 
-Streamed responses can utilize [`streamedQuery`](https://tanstack.com/query/latest/docs/reference/streamedQuery), which lets you consume [JSON Lines](/controller/jsonlines) as an array.
+Streamed responses can utilize [`streamedQuery`](https://tanstack.com/query/latest/docs/reference/streamedQuery), which lets you consume [JSON Lines](/jsonlines) as an array.
 
 ```ts showLineNumbers copy
 import { useQuery, experimental_streamedQuery as streamedQuery } from '@tanstack/react-query';

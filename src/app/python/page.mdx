@@ -4,7 +4,7 @@ import { FileTree, Tabs } from 'nextra/components';
 
 Generate the Python client with `vovk generate` using the [py](/templates#py) or [pySrc](/templates#pysrc) template.
 
-Create a Python package with the [CLI](/cli):
+Create a Python package with the [CLI](/generate) command:
 
 ```sh npm2yarn copy
 npx vovk generate --from py --out ./python_package
@@ -167,7 +167,6 @@ export default class UserController {
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserController.ts)*
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserService.ts" repository="finom/vovk-hello-world"
@@ -306,7 +305,7 @@ Under the hood, it uses [requests](https://pypi.org/project/requests/) for HTTP,
 
 ### JSON Lines Endpoints
 
-For continuous streaming with [JSON Lines](/controller/jsonlines) endpoints, the Python client returns a `Generator` you can iterate over.
+For continuous streaming with [JSON Lines](/jsonlines) endpoints, the Python client returns a `Generator` you can iterate over.
 
 A controller like this:
 
@@ -339,7 +338,6 @@ export default class StreamController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>

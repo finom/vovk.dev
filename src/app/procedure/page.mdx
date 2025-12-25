@@ -1,0 +1,414 @@
+import { Callout } from 'nextra/components';
+import { VovkNewDynamic } from './VovkNewDynamic';
+
+# Procedure
+
+Procedure in Vovk.ts defines a RESTful API endpoint handler. It's defined as a static method of a class, called "controller", decorated with an HTTP method decorator like `@get()`, `@post()`, `@del()`, `@put()`, `@patch()`. A procedure is a wrapper around Next.js API route handler that accepts `NextRequest` object and parameters defined in the route path.
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+import { get, put, prefix } from 'vovk';
+
+@prefix('users') // optional prefix for all routes in this controller
+export default class UserController {
+  @put('{id}')
+  static getUser(req: NextRequest, { id }: { id: string }) {
+    const data = await req.json();
+    // ...
+  }
+}
+```
+
+The class itself is initialized (not instantiated) in a [segment route](/segment) by adding it to the `controllers` object accepted by `initSegment` function.
+
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
+import { initSegment } from 'vovk';
+import UserController from '../../../modules/user/UserController';
+
+const controllers = {
+  UserRPC: UserController,
+};
+
+export type Controllers = typeof controllers;
+
+export const { GET, POST, PUT, DELETE } = initSegment({ controllers });
+```
+
+The key of this object defines the name of the resulting RPC module variable used by the client-side:
+
+```ts showLineNumbers copy
+import { UserRPC } from 'vovk-client';
+
+// performs PUT /api/users/69?notify=push
+const updatedUser = await UserRPC.updateUser({
+  params: { id: '69' },
+  query: { notify: 'push' },
+  body: { ...userData },
+});
+```
+
+For more information, see [TypeScript Client](/typescript).
+
+
+## Auto-Generated Endpoints
+
+All HTTP decorators provide an `.auto` method that generates the endpoint name from the method name, making the handler definition more RPC‑like.
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+import { prefix, put } from 'vovk';
+
+@prefix('users')
+export default class UserController {
+  // creates PUT /api/users/do-something
+  @put.auto()
+  static async doSomething(/* ... */) {
+    // ...
+  }
+}
+```
+
+## Request Headers
+
+A procedure can access any Next.js APIs, such as cookies, headers, and so on via `next` package imports. See Next.js [documentation](https://nextjs.org/docs/app/api-reference/functions/headers) for details.
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+import { put, prefix } from 'vovk';
+import { cookies, headers } from 'next/headers';
+
+@prefix('users')
+export default class UserController {
+  @put('{id}')
+  static async updateUser(req: NextRequest, { id }: { id: string }) {
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('sessionToken');
+    const headersList = await headers();
+    const userAgent = headersList.get('user-agent');
+    // ...
+  }
+}
+```
+
+Alternatively, use `req.headers` from the [Web Request API](https://developer.mozilla.org/en-US/docs/Web/API/Request/headers): `req.headers.get('user-agent'){:ts}`.
+
+## `VovkRequest` Type
+
+`VovkRequest` tweaks the standard `NextRequest` type by adding generics for request body (`json` method) and query (`searchParams` property) parameters. This allows you to define the expected types for these parts of the request, enabling type-safe access within your procedure.
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+import { put, prefix, type VovkRequest } from 'vovk';
+import type { User } from '../../types';
+
+@prefix('users')
+export default class UserController {
+  // Example request: PUT /api/users/69?role=moderator
+  @put('{id}')
+  static async updateUser(
+    req: VovkRequest<Partial<User>, { notify: 'email' | 'push' | 'none' }>,
+    { id }: { id: string }
+  ) {
+    const data = await req.json(); // Partial<User>
+    const notify = req.nextUrl.searchParams.get('notify'); // 'email' | 'push' | 'none'
+    // ...
+    return updatedUser;
+  }
+}
+```
+
+## `procedure` Function
+
+The `procedure` function is a higher-level abstraction for defining procedures with built-in validation support. It allows you to specify validation schemas for the request body, query parameters, and path parameters using libraries that support both [Standard Schema](https://standardschema.dev/schema) and [Standard JSON Schema
+](https://standardschema.dev/json-schema) interfaces, such as [Zod](https://zod.dev/), [Valibot](https://valibot.com/), and [Arktype](https://arktype.io/). The function accepts `handle` method that contains the actual logic for processing the pre-typed request object.
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+import { procedure, prefix, put } from 'vovk';
+import { z } from 'zod';
+
+@prefix('users')
+export default class UserController {
+  @put('{id}')
+  static updateUser = procedure({
+    params: z.object({ id: z.uuid() }),
+    body: z.object({ email: z.email() }),
+    query: z.object({ notify: z.enum(['email', 'push', 'none']) }),
+    async handle(req, { id }) {
+      const body = await req.json();
+      const notify = req.nextUrl.searchParams.get('notify');
+      // ...
+      return updatedUser;
+    },
+  });
+}
+```
+
+### `procedure` Options
+
+#### `body`, `query`, and `params`
+
+Use `body`, `query`, and `params` to provide input validation schemas. These validate incoming request data before it reaches the controller handler.
+
+#### `output` and `iteration`
+
+Use `output` and `iteration` to provide output validation schemas. `output` is for regular JSON responses, while `iteration` is for [JSON Lines](/jsonlines). Both are optional and don’t affect generated RPC typings, but they enable key features like [OpenAPI](/openapi), [function calling](/function-calling), and [codegen](/codegen) for [Python](/python), [Rust](/rust), and future clients. These schemas are not used for client-side validation.
+
+#### `isForm`
+
+`isForm` specifies that the request body is form data (useful for file uploads and similar cases). Setting it to `true` changes RPC method typing to accept `FormData{:ts}` on the client as the `body` option and adds `x-isForm` to the emitted JSON Schema for the body (see below).
+
+#### `handle`
+
+`handle` is the controller function executed after validation succeeds. It receives a type-enhanced `NextRequest{:ts}` as `VovkRequest<TBody, TQuery, TParams>{:ts}` and the `params: TParams{:ts}` value as the second argument.
+
+#### `disableServerSideValidation`
+
+Disables server-side validation for the specified library. Provide a boolean to disable it entirely, or an array of validation types (`body`, `query`, `params`, `output`, `iteration`). This does not affect generated RPC typings or client-side validation.
+
+#### `skipSchemaEmission`
+
+Skips emitting JSON Schema for the handler. Provide a boolean to skip entirely, or an array of validation types (`body`, `query`, `params`, `output`, `iteration`). This does not change RPC typings but disables features that depend on emitted schemas, including client-side validation.
+
+#### `validateEachIteration`
+
+Applies only to `iteration`. Controls whether to validate each item in the streamed response. By default, only the first `iteration` item is validated.
+
+#### `operation`
+
+Optionally provide an `operation` object to specify OAS details when the `@operation` decorator is not applicable—useful with [`fn`](/fn) on a regular function instead of a class method.
+
+#### `preferTransformed = true`
+
+By default, methods provided by [`req.vovk`](./req-vovk) transform (but not the built-in Next.js functions such as `req.json()` or `req.nextUrl.searchParams.get()`) incoming data into the validation result shape. If you need raw I/O without transformations, set `preferTransformed` to `false`. This causes all features that rely on validation models (`body`, `query`, `params`, `output`, `iteration`) to return the original data format instead of the transformed one.
+
+### `procedure` Features
+
+Handlers created with `procedure` function gain extra capabilities.
+
+### `fn`
+
+The `fn` property lets you call the controller procedure directly without making an HTTP request. It mirrors the generated RPC handler signature and accepts the same parameters.
+
+```ts showLineNumbers copy
+const result = await UserController.updateUser.fn({
+  body: { /* ... */ },
+  query: { /* ... */ },
+  params: { /* ... */ },
+  disableClientValidation: false, // default
+});
+
+// same as
+const result = await UserRPC.updateUser({
+  body: { /* ... */ },
+  query: { /* ... */ },
+  params: { /* ... */ },
+  disableClientValidation: false, // default
+});
+```
+
+See [local procedures](/fn) for details.
+
+### `schema`
+
+```ts showLineNumbers copy
+const schema = UserController.updateUser.schema;
+
+// same as UserRPC.updateUser.schema
+```
+
+The `schema` property exposes the method schema, mirroring the RPC method schema. It’s typically used with `fn` to build [function calling tools](/function-calling) that invoke handlers without HTTP.
+
+### `models`
+
+```ts showLineNumbers copy
+const bodyModel = UserController.updateUser.models.body;
+```
+
+The `models` property is available only on server-side methods, but not on the RPC methods. It lets you access the original validation models used by the handler.
+
+
+## Service
+
+A service is a part of Controller–Service–Repository pattern and separates business logic from request handlers. It keeps controllers focused on HTTP concerns, while the service encapsulates the business logic and data manipulation.
+
+Like controllers, services are often written as static classes with static methods, but they do not require decorators or any special structure. The static‑class style is simply a convention—you can instead use instantiated classes, standalone functions, or plain objects.
+
+Let's say you have the following controller class:
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts" {37}
+import { z } from 'zod';
+import { procedure, prefix, post, operation } from 'vovk';
+import UserService from './UserService';
+
+@prefix('users')
+export default class UserController {
+  @operation({
+    summary: 'Update user',
+    description: 'Update user by ID with Zod validation',
+  })
+  @post('{id}')
+  static updateUser = procedure({
+    body: z.object({ /* ... */ })
+    params: z.object({ /* ... */ }),
+    query: z.object({ /* ... */ }),
+    output: z
+      .object({
+        success: z.boolean().describe('Success status'),
+        id: z.uuid().describe('User ID'),
+      })
+      .describe('Response object'),
+    async handle(req) {
+      const body = await req.vovk.body();
+      const query = req.vovk.query();
+      const params = req.vovk.params();
+
+      return UserService.updateUser(body, query, params);
+    },
+  });
+}
+```
+
+As you can see, the `handle` method returns the result of `UserService.updateUser`. That method, in turn, infers its types from the controller method, making the validation models (Zod schemas in this case) the single source of truth for input and output types, with no need to define separate types, thanks to the legendary [Anders Hejlsberg](https://github.com/ahejlsberg) for the fix in [#58616](https://github.com/microsoft/TypeScript/issues/58616)—without this TypeScript change, Vovk.ts would not be possible.
+
+```ts showLineNumbers copy filename="src/modules/user/UserService.ts"
+import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from 'vovk';
+import type UserController from './UserController';
+
+export default class UserService {
+  static updateUser(
+    body: VovkBody<typeof UserController.updateUser>,
+    query: VovkQuery<typeof UserController.updateUser>,
+    params: VovkParams<typeof UserController.updateUser>
+  ) {
+    // perform DB operations or other business logic here
+    console.log(body, query, params);
+    return { success: true, id: params.id } satisfies VovkOutput<typeof UserController.updateUser>;
+  }
+}
+```
+
+In other words, service methods can infer types from controller methods, and controller methods can call service methods without self‑referencing type issues.
+
+## FormData
+
+To accept form data requests, set the `isForm` option to `true` in the procedure function.
+
+```ts showLineNumbers copy {7}
+import { z } from 'zod';
+import { procedure, post, prefix } from 'vovk';
+
+export default class UserController {
+  @post()
+  static createUser = procedure({
+    isForm: true,
+    body: z.object({
+      email: z.string().email(),
+      name: z.string().min(2).max(100),
+    }),
+    async handle(req) {
+      // ...
+    },
+  });
+}
+```
+
+This makes `req` typed as `VovkRequest<FormData, ...>`, and the RPC method’s `body` type is inferred as `FormData`.
+
+```ts showLineNumbers copy
+import { UserRPC } from 'vovk-client';
+
+const formData = new FormData();
+formData.append('email', 'user@example.com');
+formData.append('name', 'John Doe');
+
+await UserRPC.createUser({
+  body: formData,
+});
+```
+
+Access form data using the built‑in `req.formData()` method.
+
+```ts showLineNumbers copy {10}
+//...
+export default class UserController {
+  @post()
+  static createUser = procedure({
+    isForm: true,
+    body: z.object({
+      /* ... */
+    }),
+    async handle(req) {
+      const formData = await req.formData(); // FormData instance
+      // ...
+    },
+  });
+}
+```
+
+You can also use `req.vovk.form()`, which serializes the form data into a plain object.
+
+```ts showLineNumbers copy {11}
+// ...
+export default class UserController {
+  @post()
+  static createUser = procedure({
+    isForm: true,
+    // ...
+    async handle(req) {
+      const form = await req.vovk.form(); // { email: 'user@example.com', name: 'John Doe' }
+      // ...
+    },
+  });
+}
+```
+
+If the form data can contain one or more values for the same key, use a union schema of the value type and an array of the value type, because `FormData` doesn’t distinguish between single and multiple values.
+
+```ts showLineNumbers copy {9}
+import { z } from 'zod';
+import { procedure, post, prefix } from 'vovk';
+
+export default class UserController {
+  @post()
+      static createUser = procedure({
+    isForm: true,
+    body: z.object({
+      tags: z.union([z.array(z.string()), z.string()]),
+    }),
+    async handle(req) {
+      const form = await req.vovk.form(); // { tags: ['tag1', 'tag2'] } or { tags: 'tag1' }
+    },
+  });
+}
+```
+
+```ts showLineNumbers copy
+import { UserRPC } from 'vovk-client';
+
+const formData = new FormData();
+formData.append('tags', 'tag1');
+formData.append('tags', 'tag2');
+
+await UserRPC.createUser({
+  body: formData,
+});
+```
+
+The same recommendation applies to files:
+
+```ts showLineNumbers copy {9}
+import { z } from 'zod';
+import { procedure, post, prefix } from 'vovk';
+
+export default class UserController {
+  @post()
+  static createUser = procedure({
+    isForm: true,
+    body: z.object({
+      files: z.union([z.array(z.file()), z.file()]),
+    }),
+    async handle(req) {
+      const form = await req.vovk.form(); // { files: [File, File] } or { files: File }
+      // ...
+    },
+  });
+}
+```
+
+Note that [vovk-ajv](/validation/client) does not currently support the OpenAPI‑compatible `format: "binary"`, and file size, type, etc., are not validated on the client side.

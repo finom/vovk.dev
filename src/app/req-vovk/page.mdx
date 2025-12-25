@@ -1,0 +1,200 @@
+import { Callout } from 'nextra/components';
+
+# `req.vovk` Interface
+
+While using built-in `NextRequest` functions like `req.json()` and `req.nextUrl.searchParams.get()` is suffecient for most use cases, Vovk.ts also monkey-patches the request object with `vovk` property that provides additional methods for more advanced input data handling. It covers the following scenarios:
+
+- Receive data parsed by the validation library (`req.json()` and `req.nextUrl.searchParams.get()` return data as is), unless `preferParsed` isn't set to `false`.
+- Implement nested query parameters parsing.
+- Read form data as a typed object, instead of `FormData`, provided by `req.formData()`.
+- Implement request metadata storage.
+
+## `async req.vovk.body()`
+
+The `req.vovk.body` function returns the request body parsed as an object. In most cases, it behaves the same as `req.json()`, but returns data modified by the validation library (if any).
+
+```ts showLineNumbers copy
+import { post, type VovkRequest } from 'vovk';
+export default class UserController {
+  @post()
+  static async createUser(req: VovkRequest<{ foo: string }>) {
+    const body = await req.vovk.body(); // body type is { foo: string }
+    // ...
+  }
+}
+```
+
+## `req.vovk.query()`
+
+The `req.vovk.query` function returns typed query parameters, allowing for nested data structures.
+
+```ts showLineNumbers copy
+import { get, type VovkRequest } from 'vovk';
+export default class UserController {
+  @get()
+  static async getUser(req: VovkRequest<null, { id: string }>) {
+    const query = req.vovk.query(); // query type is { id: string }
+    // ...
+  }
+}
+```
+
+Nested data is serialized as a query string with square brackets, commonly referred to as “PHP‑style” or “bracket notation”.
+
+- Square brackets `[ ]` denote keys for arrays or nested objects.
+- Sequential numeric indices (e.g., `[0]`, `[1]`) represent array elements.
+- Named keys (e.g., `[f]`, `[u]`) represent object properties.
+- The structure can be nested arbitrarily to represent complex data.
+
+The following query string:
+
+```
+?simple=value&array[0]=first&array[1]=second&object[key]=value&nested[obj][prop]=data&nested[arr][0]=item1&nested[arr][1]=item2&complex[items][0][name]=product&complex[items][0][price]=9.99&complex[items][0][tags][0]=new&complex[items][0][tags][1]=featured
+```
+
+Is parsed as:
+
+```ts showLineNumbers copy
+{
+  simple: "value",
+  array: ["first", "second"],
+  object: {
+    key: "value"
+  },
+  nested: {
+    obj: {
+      prop: "data"
+    },
+    arr: ["item1", "item2"]
+  },
+  complex: {
+    items: [
+      {
+        name: "product",
+        price: "9.99",
+        tags: ["new", "featured"]
+      }
+    ]
+  }
+}
+```
+
+## `req.vovk.params()`
+
+The `req.vovk.params` function returns typed route parameters. To type it properly, use the third generic argument of `VovkRequest` (alternative to the second procedure argument).
+
+```ts showLineNumbers copy
+import { get, type VovkRequest } from 'vovk';
+
+export default class UserController {
+  @get('{id}')
+  static async getUser(req: VovkRequest<null, null, { id: string }>) {
+    const params = req.vovk.params(); // params type is { id: string }
+    // ...
+  }
+}
+```
+
+## `async req.vovk.form()`
+
+The `req.vovk.form` function returns the request `FormData` serialized into an object. It’s a type‑safe alternative to `req.formData()` that reads form data and uses `Object.fromEntries(formData.entries())` to convert it into a plain object. The generic argument defines the shape of the form data.
+
+```ts showLineNumbers copy
+interface Data {
+  foo: string;
+  bar: string;
+  file: File;
+}
+
+const formDataObject = await req.vovk.form<Data>();
+
+// the same as
+// const body = await req.formData();
+// const formDataObject = Object.fromEntries(body.entries()) as Data;
+```
+
+When [`procedure`](./procedure) function is used with the `isForm` option, `req.vovk.form` is typed automatically—no generic is required.
+
+## `req.vovk.meta()`
+
+Vovk.ts lets you attach additional metadata to controller methods for logging, analytics, or custom processing. The primary use case is setting request metadata in a custom decorator so it can be used later in the handler or in decorators declared after the one that sets the metadata.
+
+Metadata is accessible through the `vovk.meta` method in the controller handler and in decorators.
+
+```ts showLineNumbers copy {4,13}
+import { createDecorator, get, type VovkRequest } from 'vovk';
+
+const myDecorator = createDecorator(async (req, next) => {
+  req.vovk.meta({ hello: 'world' }); // set request meta for the request
+  // ...
+  return next();
+});
+
+export default class MyController {
+  @get('/my-endpoint')
+  @myDecorator()
+  static async myHandler(req: VovkRequest) {
+    console.log(req.vovk.meta<{ hello: string }>()); // { hello: 'world' }
+    // ...
+  }
+}
+```
+
+The metadata is a key‑value object that is merged when you call `vovk.meta` multiple times with different keys, allowing you to set several entries in one or multiple calls.
+
+```ts showLineNumbers copy
+// ...
+req.vovk.meta({ foo: 'bar' });
+req.vovk.meta({ baz: 'qux' });
+console.log(req.vovk.meta<{ foo: string; baz: string }>()); // { foo: 'bar', baz: 'qux' }
+```
+
+As you can see, a generic is required only when you want type‑safe access to metadata. If you don’t provide a generic, the metadata is inferred from the argument. Calling `req.vovk.meta()` without arguments always returns the current metadata object.
+
+```ts showLineNumbers copy
+const { hello } = req.vovk.meta({ hello: 'world' });
+```
+
+To reset metadata, call `req.vovk.meta(null)`, which clears the metadata object.
+
+```ts showLineNumbers copy
+req.vovk.meta(null);
+console.log(req.vovk.meta()); // {}
+```
+
+To summarize:
+
+- To set metadata, use `req.vovk.meta({ key: value })`. It will return the metadata object typed as the passed object.
+- To access metadata, use `req.vovk.meta<{ key: Type }>()`, which will return the metadata object typed as the passed generic type.
+- To reset metadata, use `req.vovk.meta(null)`, which will clear the metadata object.
+
+### Client-Side Meta with `xMetaHeader` Key
+
+[The RPC client](/typescript) can send custom metadata to the server in the `x-meta` header as a JSON string. This is useful for passing client‑side context such as user preferences, session data, or other request‑relevant information.
+
+```ts showLineNumbers copy {5}
+import { UserRPC } from 'vovk-client';
+
+const user = await UserRPC.getUser({
+  params: { id: '123' },
+  meta: { hello: 'world' }, // pass metadata to the server
+});
+```
+
+The `getUser` controller method, as well as [decorators](./decorator), can access this metadata via `req.vovk.meta` under the `xMetaHeader` key:
+
+```ts showLineNumbers copy {6-7}
+import { get, type VovkRequest } from 'vovk';
+
+export default class UserController {
+  @get('{id}')
+  static async getUser(req: VovkRequest) {
+    const meta = req.vovk.meta<{ xMetaHeader: { hello: string } }>();
+    console.log(meta.xMetaHeader); // { hello: 'world' }
+    // ...
+  }
+}
+```
+
+This design prevents server‑side metadata from being overwritten by client input, as client values are only exposed under the `xMetaHeader` key.
+

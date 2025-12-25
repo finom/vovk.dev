@@ -3,9 +3,8 @@
 Vovk.ts automatically generates an OpenAPI specification from controller methods, using validation models to populate operation objects with `parameters`, `requestBody`, and `responses`. The `@operation` decorator lets you enrich operation objects with metadata such as `summary`, `description`, `tags`, and more. It accepts a `VovkOperationObject`, which extends the standard OpenAPI `OperationObject` type from [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts) and supports `x-tool-*` properties related to AI capabilities, as described in the [Function Calling](/function-calling) documentation.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
-import { put, prefix, operation } from 'vovk';
+import { procedure, put, prefix, operation } from 'vovk';
 import { z } from 'zod';
-import { withZod } from 'vovk-zod';
 
 @prefix('users')
 export default class UserController {
@@ -14,7 +13,7 @@ export default class UserController {
     description: 'Update user information',
   })
   @put('{id}')
-  static updateUser = withZod({
+  static updateUser = procedure({
     isForm: true,
     params: z.object({
       id: z.uuid(),

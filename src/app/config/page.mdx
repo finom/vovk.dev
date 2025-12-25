@@ -1,6 +1,6 @@
 # `vovk.config.{js,cjs,mjs}`
 
-The configuration file defines options for the [CLI](/cli), updates [template definitions](/templates), and customizes other settings. In many cases, it’s optional because the CLI can rely on defaults or flags. For more advanced use, creating a config file is recommended.
+The configuration file defines options for the CLI, updates [template definitions](/templates), and customizes other settings. In many cases, it’s optional because the CLI can rely on defaults or flags. For more advanced use, creating a config file is recommended.
 
 ## Valid Config File Names
 
@@ -179,7 +179,7 @@ Augments the generated OpenAPI schema. You can provide `info`, `servers`, and ot
 
 #### `reExports: Record<string, string>`
 
-Re-exports variables from other modules. Keys list the identifiers to re-export; values are module paths. Identifiers are placed inside curly braces, and paths are resolved relative to the output directory. This is useful when you want to re-export additional items alongside generated [RPC modules](/rpc-module) (including the [bundled](/bundle) package).
+Re-exports variables from other modules. Keys list the identifiers to re-export; values are module paths. Identifiers are placed inside curly braces, and paths are resolved relative to the output directory. This is useful when you want to re-export additional items alongside generated RPC modules (including the [bundled](/bundle) package).
 
 ```js filename="/vovk.config.mjs"
 const config = {

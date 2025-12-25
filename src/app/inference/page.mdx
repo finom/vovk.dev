@@ -1,6 +1,6 @@
 # Type Inference
 
-Input and output inference is provided by universal types that work for both [RPC modules](/rpc-module) and [controller](/controller) methods.
+Input and output inference is provided by universal types that work for both RPC modules and [controller](/controller) methods.
 
 Client-side inference:
 
@@ -45,7 +45,7 @@ type Yield = VovkYieldType<typeof StreamController.streamTokens>;
 
 ## Input Inference
 
-Source types for `body`, `query`, and `params` are defined via [`VovkRequest<TBody, TQuery, ?TParams>{:ts}`](/controller/request), which specifies the type of the `req` argument in controller methods. In other words, both raw and validated method definitions determine the input types.
+Source types for `body`, `query`, and `params` are defined via `VovkRequest<TBody, TQuery, ?TParams>{:ts}`, which specifies the type of the `req` argument in controller methods. In other words, both raw and validated method definitions determine the input types.
 
 Raw method definition with `params` as a generic argument:
 
@@ -76,12 +76,12 @@ export default class UserController {
 Validated methods infer input types automatically:
 
 ```ts showLineNumbers copy
-import { withZod } from 'vovk-zod';
+import { procedure } from 'vovk';
 import { z } from 'zod';
 
 export default class UserController {
   @get()
-  static updateUser = withZod({
+  static updateUser = procedure({
     query: z.object({ id: z.string() }),
     params: z.object({ param: z.string() }),
     body: z.object({ email: z.string().email() }),
@@ -131,12 +131,12 @@ Output and iteration types are defined only when using [validation libraries](/v
 For output:
 
 ```ts showLineNumbers copy
-import { withZod } from 'vovk-zod';
+import { procedure } from 'vovk';
 import { z } from 'zod';
 
 export default class UserController {
   @get()
-  static updateUser = withZod({
+  static updateUser = procedure({
     output: z.object({ success: z.boolean() }),
     async handle(req, params) {
       return { success: true };
@@ -145,15 +145,15 @@ export default class UserController {
 }
 ```
 
-For [JSON Lines](/controller/jsonlines) responses:
+For [JSON Lines](/jsonlines) responses:
 
 ```ts showLineNumbers copy
-import { withZod } from 'vovk-zod';
+import { procedure } from 'vovk';
 import { z } from 'zod';
 
 export default class StreamController {
   @get()
-  static streamItems = withZod({
+  static streamItems = procedure({
     iteration: z.object({ item: z.boolean() }),
     async *handle(req, params) {
       yield { item: true };
@@ -182,7 +182,7 @@ type Iteration = VovkIteration<typeof StreamController.streamItems>; // { item: 
 
 ## Return/Yield Inference
 
-`VovkReturnType<T>` and `VovkYieldType<T>` infer the actual return or yield type of methods when input is not validated. These types cannot be used for self-references in [services](/controller/service), as they cause “implicit any” TypeScript errors.
+`VovkReturnType<T>` and `VovkYieldType<T>` infer the actual return or yield type of methods when input is not validated. These types cannot be used for self-references in services, as they cause “implicit any” TypeScript errors.
 
 ```ts showLineNumbers copy
 export default class UserController {

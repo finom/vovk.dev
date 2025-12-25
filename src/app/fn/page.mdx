@@ -1,13 +1,12 @@
-# Callable Handlers
+# Local Procedures
 
-Every controller method created with the [withValidationLibrary](/validation/introduction) function (used under the hood by all validation libraries) can be used outside an HTTP request context as a regular function. It exposes an `fn` method that calls the handler directly, simulating the signature of an RPC method.
+Every procedure created with the [procedure](/procedure) function can be used outside an HTTP request context as a regular function. It exposes an `fn` method that calls the handler directly, partially simulating the signature of an RPC method.
 
 Let's say you have the following controller class:
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { z } from 'zod';
-import { prefix, post, operation } from 'vovk';
-import { withZod } from 'vovk-zod';
+import { procedure, prefix, post, operation } from 'vovk';
 import UserService from './UserService';
 
 @prefix('users')
@@ -17,7 +16,7 @@ export default class UserController {
     description: 'Update user by ID with Zod validation',
   })
   @post('{id}')
-  static updateUser = withZod({
+  static updateUser = procedure({
     body: z
       .object({
         name: z.string().describe('User full name'),
@@ -28,9 +27,6 @@ export default class UserController {
     params: z.object({
       id: z.uuid().describe('User ID'),
     }),
-    query: z.object({
-      notify: z.enum(['email', 'push', 'none']).describe('Notification type'),
-    }),
     output: z
       .object({
         success: z.boolean().describe('Success status'),
@@ -39,7 +35,6 @@ export default class UserController {
       .describe('Response object'),
     async handle(req) {
       const body = await req.vovk.body();
-      const query = req.vovk.query();
       const params = req.vovk.params();
       const meta = req.vovk.meta<{ hello: string; xMetaHeader: { hello: string } }>();
 
@@ -61,9 +56,6 @@ const response = await UserRPC.updateUser({
     age: 30,
     email: 'john.doe@example.com',
   },
-  query: {
-    notify: 'email',
-  },
   disableClientValidation: true, // disables client-side validation
   meta: { hello: 'world' }, // available as xMetaHeader metadata
 });
@@ -76,15 +68,12 @@ But the `fn` method allows you to call the controller method directly, in the cu
 ```ts showLineNumbers copy
 import UserController from '@/modules/user/UserController';
 
-const response = await UserController.updateUser.fn({
+const response = await UserController.getUser.fn({
   params: { id: '69' },
   body: {
     name: 'John Doe',
     age: 30,
     email: 'john.doe@example.com',
-  },
-  query: {
-    notify: 'email',
   },
   disableClientValidation: true, // disables client-side validation
   meta: { hello: 'world' }, // available as root metadata
@@ -93,35 +82,22 @@ const response = await UserController.updateUser.fn({
 console.log('Response:', response);
 ```
 
-This will invoke `UserController.updateUser` like a normal function, performing validation with Zod (or [another library](/validation)) before executing the handler.
+This will invoke `UserController.updateUser` like a normal function, performing validation before executing the handler.
 
-There are several core use cases for callable handlers:
+There are several core use cases for local procedures:
 
 **For SSR, SSG, PPR, etc.**: You can use the method as a server-side function, allowing you to call it from server-side code without performing an HTTP request.
 
-```ts showLineNumbers copy filename="src/app/page.tsx"
+```tsx showLineNumbers copy filename="src/app/user/page.tsx"
 import UserController from '@/modules/user/UserController';
 
-export default async function Page() {
-  const response = await UserController.updateUser.fn({
+export default async function UserPage() {
+  const response = await UserController.getUser.fn({
     params: { id: '69' },
-    body: {
-      name: 'John Doe',
-      age: 30,
-      email: 'john.doe@example.com',
-    },
-    query: {
-      notify: 'email',
-    },
   });
 
-  console.log('Response:', response);
-
   return (
-    <div>
-      <h1>User Updated</h1>
-      <p>Response: {JSON.stringify(response)}</p>
-    </div>
+    <p>Response: {JSON.stringify(response)}</p>
   );
 }
 ```
@@ -138,16 +114,16 @@ const { tools } = deriveTools({
 console.log(tools); // [{ name, description, parameters, execute }, ...]
 ```
 
-## Rules of Callable Handlers
+## Rules of Local Procedures
 
-`fn` functions do not imitate the `Request` object but partially implement the [VovkRequest](/controller/request) object by exposing only the custom `vovk` property with `async vovk.body()`, `vovk.query()`, `vovk.params()`, and `vovk.meta()`. In other words, properties such as `req.url` or `req.headers` are not defined in the callable context. A suitable `req` signature looks like `Pick<VovkRequest<TBody, TQuery, TParams>, 'vovk'>`.
+`fn` functions do not imitate the `Request` object but partially implement the `VovkRequest` object by exposing only the custom `vovk` property with `async vovk.body()`, `vovk.query()`, `vovk.params()`, and `vovk.meta()`. In other words, properties such as `req.url` or `req.headers` are not defined in the local procedure context. A suitable `req` signature looks like `Pick<VovkRequest<TBody, TQuery, TParams>, 'vovk'>{:ts}`.
 
 To ensure that the implemented HTTP handler can also be called with `fn`, you can use object destructuring when defining the handler to use only the `vovk` property:
 
 ```ts showLineNumbers copy {16}
 export default class UserController {
   @post('{id}')
-  static updateUser = withZod({
+  static updateUser = procedure({
     body: z.object({
       /* ... */
     }),
@@ -171,7 +147,7 @@ export default class UserController {
 }
 ```
 
-Another thing to keep in mind is that the callable handler is [decorated](./decorator) with the same decorators as the HTTP handler. If you create a decorator to wrap an HTTP handler for use with `fn`, avoid using `NextRequest`‑specific properties like `req.url`, `req.headers`, or `req.nextUrl`.
+Another thing to keep in mind is that the local procedure is [decorated](./decorator) with the same decorators as the HTTP handler. If you create a decorator to wrap an HTTP handler for use with `fn`, avoid using `NextRequest`‑specific properties like `req.url`, `req.headers`, or `req.nextUrl`.
 
 ```ts showLineNumbers copy {4}
 import { createDecorator } from 'vovk';
@@ -183,14 +159,14 @@ const myDecorator = createDecorator(({ vovk }, next) => {
 });
 ```
 
-You can detect the callable context by checking `req.url`, which is `undefined` when called via `fn`:
+You can detect the local procedure context by checking `req.url`, which is `undefined` when called via `fn`:
 
 ```ts showLineNumbers copy {4}
 import { createDecorator } from 'vovk';
 
 const myDecorator = createDecorator((req, next) => {
   if (typeof req.url === 'undefined') {
-    console.log('Callable handler context');
+    console.log('Local handler context');
   } else {
     console.log('HTTP request context');
   }
@@ -199,7 +175,7 @@ const myDecorator = createDecorator((req, next) => {
 });
 ```
 
-Even though `req` is not a `Request`, you can still use Next.js features like `headers` or `cookies` from `next/headers` in the callable context:
+Even though `req` is not a `Request`, you can still use Next.js features like `headers` or `cookies` from `next/headers` in the local procedure context:
 
 ```ts showLineNumbers copy {5}
 import { createDecorator } from 'vovk';
@@ -212,16 +188,16 @@ const myDecorator = createDecorator(async ({ vovk }, next) => {
 });
 ```
 
-## Good to Know
+---
 
-An HTTP decorator such as `@get`, `@post`, etc., is not required for a callable handler to work. The only requirement is to use the `withValidationLibrary` function (via `withZod`, for example) to create the handler.
+An HTTP decorator such as `@get`, `@post`, etc., is not required for a local procedure to work. The only requirement is to use the `procedure` function to create the procedure.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserHandlers.ts"
 import { z } from 'zod';
-import { withZod } from 'vovk-zod';
+import { procedure } from 'vovk';
 
 export default class UserHandlers {
-  static updateUser = withZod({
+  static updateUser = procedure({
     body: z.object({
       /* ... */
     }),
@@ -234,7 +210,7 @@ UserHandlers.updateUser.fn({
 });
 ```
 
-When a static class is implemented this way, it behaves like a "validated [service](./service)", which can be attached to the controller later or used as a standalone collection of validated functions.
+When a static class is implemented this way, it behaves like a "validated service", which can be attached to the controller later or used as a standalone collection of validated functions.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts" {7}
 import { prefix, post } from 'vovk';

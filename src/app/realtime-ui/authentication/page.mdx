@@ -31,4 +31,4 @@ export const sessionGuard = createDecorator(async (req, next) => {
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/decorators/sessionGuard.ts)*
 
 
-The `sessionGuard` decorator applied to all controller methods. `typeof req.url !== 'undefined'{:ts}` check is required to distinguish between HTTP requests and [`fn`](/controller/fn) invocations used by PPR and [Text Chat AI](/realtime-ui/text-ai) features.
+The `sessionGuard` decorator applied to all controller methods. `typeof req.url !== 'undefined'{:ts}` check is required to distinguish between HTTP requests and [`fn`](/fn) invocations used by PPR and [Text Chat AI](/realtime-ui/text-ai) features.

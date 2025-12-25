@@ -58,10 +58,6 @@ const config = {
 export default config;
 ```
 
-## vovk-dto/validateOnClient
-
-When using [class-validator](/validation/dto) on the server, you can reuse the same DTOs to validate client-side requests. See the [DTO client-side validation](/validation/dto#validateonclient) section for details.
-
 ## Custom Client-Side Validation
 
 You can implement a custom `validateOnClient` using `createValidateOnClient`, which accepts a `validate` option. The `validate` function receives the input data, the validation schema, and request metadata (`meta`) such as `type`, `endpoint`, and more. It should return validated data, or throw an error on failure. Optionally, throw an `HttpException` with status `0` (`HttpStatus.NULL`) to follow the default behavior for failed client-side validation.

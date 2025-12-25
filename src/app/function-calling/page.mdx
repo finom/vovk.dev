@@ -1,4 +1,33 @@
-# Function Calling
+# Deriving AI Tools from Controllers and RPC Modules
+
+Controllers as well as generated RPC modules can be converted into AI tools for LLM function calling with minimal effort, using `deriveTools` utility. This makes your back-end functionality accessible to AI models (including MCP clients) with almost no extra code.
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts" {4-12}
+import { deriveTools } from 'vovk';
+import { TaskRPC } from 'vovk-client';
+import UserController from '@/modules/user/UserController';
+
+const { tools, toolsByName } = deriveTools({
+  modules: {
+    UserController,
+    TaskRPC,
+  },
+});
+
+console.log('Derived tools:', tools); // [{ name, description, parameters, execute }, ...]
+```
+
+The function returns an array of `tools` and a `toolsByName` object for easy access by tool name. Each tool implements `VovkTool` type and includes the `name`, `description`, `parameters` (JSON Schema), and `execute` function (+ some extra properties, such as `type: "function"`, `outputSchema`, `inputSchemas`, when available).
+
+## `deriveTools` Options
+
+The `deriveTools` function accepts an options object with the following properties:
+
+- `modules: Record<string, object>` - a record of modules (RPC modules or controllers) to derive tools from.
+- `onExecute?: (tool: VovkTool, result: KnownAny) => void` - optional callback invoked when a tool's `execute` function completes successfully.
+
+----
+
 
 Vovk.ts provides LLM function calling capabilities, turning route handlers into functions callable by AI. This enables more interactive user experiences, including interactions via a [text chat interface, a Realtime voice interface](/realtime-ui/ai), or [MCP](/mcp).
 
@@ -21,7 +50,7 @@ This feature is implemented by a zero-dependency function, `deriveTools`, import
 - `meta`: [metadata](/controller/meta) passed to each controller/RPC method. Can include any data you want available on the back end.
 - `resultFormatter`: optional. Formats the result returned to the LLM. By default, returns the raw result. Use `"mcp"` to format according to [MCP](/mcp).
 
-Each `modules` entry is either an [RPC module](/rpc-module) or a [controller](/controller). Controllers are functions with pre-populated features such as `schema` implementing `VovkHandlerSchema`, which includes the `operationObject` populated by the `@operation` decorator.
+Each `modules` entry is either an RPC module or a [controller](/controller). Controllers are functions with pre-populated features such as `schema` implementing `VovkHandlerSchema`, which includes the `operationObject` populated by the `@operation` decorator.
 
 `deriveTools` distinguishes RPC module methods from controller methods by the `isRPC` property. If `isRPC: true` is present, the method is treated as an RPC method. Otherwise, it is treated as a controller method that exposes `fn` (see [callable controller methods](/controller/fn)), mirroring the RPC function signature to allow direct invocation without HTTP.
 
@@ -185,7 +214,7 @@ Because the Vovk.ts CLI can serve as a standalone code generator (e.g., for [Nes
 
 ## Function Calling Example
 
-You can implement function calling using raw AI APIs with [JSON Lines](/controller/jsonlines). In most cases, including this example, the [Vercel AI SDK](https://ai-sdk.dev/) provides a simple way to build a text chat with function calling.
+You can implement function calling using raw AI APIs with [JSON Lines](/jsonlines). In most cases, including this example, the [Vercel AI SDK](https://ai-sdk.dev/) provides a simple way to build a text chat with function calling.
 
 ### Create LLM Endpoint
 

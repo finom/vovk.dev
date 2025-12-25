@@ -20,7 +20,7 @@ export const fetcher = createFetcher({
 });
 ```
 
-As our app is also going to support [JSONLines](/controller/jsonlines) responses for streaming data, we're going to enhance the function a bit with another `if` check.
+As our app is also going to support [JSONLines](/jsonlines) responses for streaming data, we're going to enhance the function a bit with another `if` check.
 
 It's also good to have an option to bypass the registry for specific requests, so we're going to add `bypassRegistry` option to the fetcher config. It's declared as `createFetcher` generic parameter and used as an otpion of the second argument of `transformResponse` function. It can be used as follows: `await UserRPC.getUsers({ bypassRegistry: true }){:ts}`. The same way you can add more options in the future if needed.
 

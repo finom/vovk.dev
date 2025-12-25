@@ -6,7 +6,7 @@ import { PollExample } from '@/components/vovk-examples';
 
 [State normalization](./state), a custom [fetcher](./fetcher) and corresponding back-end implementation makes UI updated when the user interacts with the app by making HTTP requests. The implementation also covers AI features, such as [Text Chat AI](./text-ai) and [Voice AI](/realtime-ui/voice-ai), explained in the further articles. The rule of thumb is that the data always needs to be processed by the entity registry.
 
-But what if the database is changed by other users or third-party services to keep the UI in sync with the back-end data in real-time? One of the ways to achieve this is by implementing database polling powered by [JSONLines](/controller/jsonlines). The server sends updates to clients whenever the database changes, and the client reconnects automatically when the connection is closed.
+But what if the database is changed by other users or third-party services to keep the UI in sync with the back-end data in real-time? One of the ways to achieve this is by implementing database polling powered by [JSONLines](/jsonlines). The server sends updates to clients whenever the database changes, and the client reconnects automatically when the connection is closed.
 
 The component below demonstrates a simple polling example that receives incremental updates from the server every second. After 10 updates, the server closes the connection, and the client reconnects automatically. We can use the same approach to receive database updates in real time, by having the server send updates whenever the database changes.
 
@@ -256,7 +256,7 @@ export default class DatabaseEventsService {
 
 ## Polling controller and service
 
-With Redis change entries and the change emitter in place, we can implement a polling endpoint that streams updates to clients in real time. The `DatabasePollController` exposes a single [JSONLines](/controller/jsonlines) endpoint, and `DatabasePollService` uses a [JSONLinesResponse](/controller/jsonlines#jsonlinesresponse) instance (received from the controller) to send data to clients. The service closes the connection safely after 30 seconds, so clients should reconnect.
+With Redis change entries and the change emitter in place, we can implement a polling endpoint that streams updates to clients in real time. The `DatabasePollController` exposes a single [JSONLines](/jsonlines) endpoint, and `DatabasePollService` uses a [JSONLinesResponse](/jsonlines#jsonlinesresponse) instance (received from the controller) to send data to clients. The service closes the connection safely after 30 seconds, so clients should reconnect.
 
 <Tabs items={['DatabasePollService.ts', 'DatabasePollController.ts']}>
 <Tabs.Tab>
@@ -332,18 +332,17 @@ export default class PollService {
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/database/DatabasePollController.ts" repository="finom/realtime-kanban"
 import { EntityType } from "@prisma/client";
-import { get, JSONLinesResponse, prefix, type VovkIteration } from "vovk";
+import { procedure, get, JSONLinesResponse, prefix, type VovkIteration } from "vovk";
 import { z } from "zod";
 import { TaskSchema, UserSchema } from "@schemas/index";
 import DatabasePollService from "./DatabasePollService";
-import { withZod } from "@/lib/withZod";
 import { sessionGuard } from "@/decorators/sessionGuard";
 
 @prefix("poll")
 export default class DatabasePollController {
   @get()
   @sessionGuard()
-  static poll = withZod({
+  static poll = procedure({
     preferTransformed: false,
     iteration: z.union([
       z.object({
@@ -376,7 +375,7 @@ export default class DatabasePollController {
 
 ## Client-side logic
 
-On the client side (for example, in a React component), call `DatabasePollRPC.poll()` to receive a stream of database events. As with any [JSONLines](/controller/jsonlines) RPC method, it returns an async iterable that you can consume in a `for await` loop. Because the server may close the connection or a network error may occur, wrap the logic in a retry loop. Since the [fetcher](/imports#fetcher) is already [configured](./fetcher), the loop body can be empty—you do not need to handle data manually.
+On the client side (for example, in a React component), call `DatabasePollRPC.poll()` to receive a stream of database events. As with any [JSONLines](/jsonlines) RPC method, it returns an async iterable that you can consume in a `for await` loop. Because the server may close the connection or a network error may occur, wrap the logic in a retry loop. Since the [fetcher](/imports#fetcher) is already [configured](./fetcher), the loop body can be empty—you do not need to handle data manually.
 
 Front-end code, besides the polling logic, also includes on/off toggle state saved to `localStorage`, so the user can enable or disable polling as needed.
   

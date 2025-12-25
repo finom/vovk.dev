@@ -70,11 +70,6 @@ const options = [
     href: '/openapi',
   },
   {
-    title: 'API Client for NestJS',
-    icon: '🔗',
-    href: '/nestjs',
-  },
-  {
     title: 'TypeScript Bundle',
     icon: '📦',
     href: '/bundle',

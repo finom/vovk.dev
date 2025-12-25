@@ -6,11 +6,11 @@ The approach is simple: we're going to set up normal LLM text chat via [AI SDK](
 
 ## Back-end Setup
 
-For the back-end setup, we need to create a handler powered by AI SDK as described in the [LLM Completions](/llm#ai-sdk) article by adding `tools` and `stopWhen` options to the `streamText` function. The tools are created by passing the controller modules that follow the [rules of callable handlers](/controller/fn), meaning that the handlers use only `vovk` property of the request: `async ({ vovk }) => UserService.createUser(await vovk.body()){:ts}` (see [API Endpoints](./endpoints) page) to be able to be called directly (for SSR/PPR), and to be used by `deriveTools` function for current context executions.
+For the back-end setup, we need to create a handler powered by AI SDK as described in the [LLM Chat](/llm#ai-sdk) article by adding `tools` and `stopWhen` options to the `streamText` function. The tools are created by passing the controller modules that follow the [rules of local procedures](/fn), meaning that the handlers use only `vovk` property of the request: `async ({ vovk }) => UserService.createUser(await vovk.body()){:ts}` (see [API Endpoints](./endpoints) page) to be able to be called directly (for SSR/PPR), and to be used by `deriveTools` function for current context executions.
 
 ```ts showLineNumbers copy filename="src/modules/ai/AiSdkController.ts" repository="finom/realtime-kanban"  {33-38,44-54}
 import {
-  createTools,
+  deriveTools,
   post,
   prefix,
   operation,
@@ -41,7 +41,7 @@ export default class AiSdkController {
   @sessionGuard()
   static async functionCalling(req: VovkRequest<{ messages: UIMessage[] }>) {
     const { messages } = await req.json();
-    const { tools } = createTools({
+    const { tools } = deriveTools({
       modules: {
         UserController,
         TaskController,
@@ -81,7 +81,7 @@ The resulting endpoint is served at `/api/ai-sdk/function-calling`.
 
 On the front-end we're going to use AI SDK, represented by [ai](https://www.npmjs.com/package/ai), [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) packages but also [AI Elements](https://ai-sdk.dev/elements/) library that provides pre-built React components for building AI-powered user interfaces, built on top of [shadcn/ui](https://ui.shadcn.com/).
 
-We're going to extend the client-side part described at [LLM Completions](/llm#ai-sdk) with two things:
+We're going to extend the client-side part described at [LLM Chat](/llm#ai-sdk) with two things:
 
 1. Using AI Elements instead of raw divs in order to not only have better UI but also to see the flow of the executed functions and their results.
 2. Parse the function calling results by using `.parse()` method described at the [State Normalization](./state) page.

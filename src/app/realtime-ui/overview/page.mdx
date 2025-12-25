@@ -52,7 +52,7 @@ Realtime UI is an idea of building user interfaces that combines well-known patt
 - Entity-driven normalization (similar to [Redux](https://redux.js.org/usage/structuring-reducers/normalizing-state-shape)) powered by Zustand - to keep the front-end state in sync with the back-end data efficiently and reduce development overhead.
 - Database polling events powered by Redis and served as JSONLines streaming endpoints - to implement real-time updates without manual refreshes.
 - Agentic function calling made from existing controller methods - to allow AI agents to interact with the DB and UI autonomously and safely.
-  - For server-side executions use [`fn` pattern](/controller/fn) that allows to call controller methods directly from the back-end as normal functions.
+  - For server-side executions use [`fn` pattern](/fn) that allows to call controller methods directly from the back-end as normal functions.
   - For client-side executions use methods of generated RPC modules that call the back-end endpoints via HTTP.
 
 Implementing an endpoint that returns a DB entity and a UI component that retrieves data from the normalized entity registry, you get the following set of features for free:
@@ -75,7 +75,7 @@ AI agents are a powerful technology that can autonomously analyze information, m
 
 However, allowing AI agents to interact with the UI automatically—without direct user input—introduces a new set of challenges. Systems must ensure that the agent’s behavior is predictable, that unintended or disruptive changes are avoided, and that users can clearly understand what actions the agent is taking on their behalf.
 
-The goal of this series of articles is to introduce a clear and predictable framework for enabling AI agents to update user interfaces autonomously, while maintaining safety and control. Using simple techniques such as setting up entity registry on front-end described in this article together with [function calling](/function-calling) that converts AI requests into authorized HTTP calls to the back-end, or invoking back-end controller methods directly via [callable handlers](/controller/fn), we can create applications where AI agents can modify the UI in a controlled manner.
+The goal of this series of articles is to introduce a clear and predictable framework for enabling AI agents to update user interfaces autonomously, while maintaining safety and control. Using simple techniques such as setting up entity registry on front-end described in this article together with [function calling](/function-calling) that converts AI requests into authorized HTTP calls to the back-end, or invoking back-end controller methods directly via [local procedures](/fn), we can create applications where AI agents can modify the UI in a controlled manner.
 
 The articles are structured as follows:
 

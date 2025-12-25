@@ -4,7 +4,7 @@ import { FileTree, Tabs } from 'nextra/components';
 
 The Rust client can be generated with `vovk generate` using the [rs](/templates#rs) or [rsSrc](/templates#rssrc) template.
 
-Generate a Rust package with the [CLI](/cli):
+Generate a Rust package with the [CLI](/generate):
 
 ```sh npm2yarn copy
 npx vovk generate --from rs --out ./rust_package
@@ -370,7 +370,7 @@ Under the hood, it uses [reqwest](https://docs.rs/reqwest/latest/reqwest/) for H
 
 ### JSON Lines Endpoints
 
-For continuous streaming with [JSON Lines](/controller/jsonlines) endpoints, the client implements the `Iterator` trait to return an async-capable iterator for streamed data.
+For continuous streaming with [JSON Lines](/jsonlines) endpoints, the client implements the `Iterator` trait to return an async-capable iterator for streamed data.
 
 A controller like this:
 

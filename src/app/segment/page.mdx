@@ -1,11 +1,247 @@
----
-asIndexPage: true
-description: Segments Documentation
----
-
-import DocIndexCards from '../../components/DocIndexCards';
-import meta, { icons } from './_meta';
+import { Callout } from 'nextra/components';
 
 # Segment
 
-<DocIndexCards meta={meta} icons={icons} hrefPrefix="segment" />
+## Overview
+
+Many backend frameworks that follow the Controller–Service–Repository pattern use the following routing hierarchy:
+
+- Backend server — the top level, composed of controllers.
+- Controllers — the next level, composed of handlers.
+- Handlers — the lowest level; they process requests.
+
+Vovk.ts introduces a new level between the backend server and controllers:
+
+- Backend server — the top level, composed of segments.
+- **Segments** — the second level, composed of controllers.
+- Controllers — the third level, composed of handlers.
+- Handlers — the lowest level; they process requests.
+
+<Image
+  src="/draw/segment-concept.svg"
+  alt="Segment"
+  width={1874.4446105957031}
+  height={745.1328125}
+  className="mt-4 dark:invert"
+/>
+
+
+Each segment owns a specific path, such as `/api/foo` or `/api/bar`, and is compiled into a separate serverless function. This lets you split backend code into smaller, focused “mini backends,” similar to how frontend code is split into pages in Next.js. Segments are implemented using [Next.js optional catch-all segments](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) and are initialized by calling `initSegment` in the **route.ts** file located in **[[...slug]]** folders.
+
+When `NODE_ENV` is set to `"development"`, each segment exposes a `_schema_` endpoint that serves the segment schema. The [dev CLI](/dev) calls this endpoint to retrieve the schema and build JSON files in **.vovk-schema/**. This avoids importing Node.js modules in Next.js code and allows `export const runtime = 'edge'` in **route.ts** without issues.
+
+## Segment Priority
+
+With multiple segments, the most specific (deepest) one takes priority. For example:
+
+- **/src/app/api/[[...slug]]/** — root segment
+- **/src/app/api/foo/[[...slug]]/** — `foo` segment
+- **/src/app/api/foo/bar/[[...slug]]/** — `foo/bar` segment
+
+A request to **/api/foo/bar** is handled by the `foo/bar` segment. If it doesn’t match, but the `foo` segment does, `foo` handles it. Otherwise, the root segment handles it.
+
+<Callout type="info" emoji="ℹ️">
+  You can change the API folder name from <code>api</code> to anything else via the <a href="/config">config</a> option{' '}
+  <code>rootEntry</code>.
+</Callout>
+
+## Creating Segments
+
+Vovk.ts implements segments via an ["optional catch-all segment"](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments), defined as **route.ts** in **/src/app/api/[[...slug]]/** for the root segment or **/src/app/api/`segment-name`/[[...slug]]/** for others. It exports [route handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) (`GET`, `POST`, etc.) created by `initSegment`. The file can also export any Next.js [segment config options](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#segment-config-options), such as `runtime` or `maxDuration`. If a segment should be callable from the frontend via RPC, it should also export a `Controllers` type used to type the generated TypeScript RPC library.
+
+[The module generator](/new) and this documentation use `vovk` as the slug name, but any valid name works.
+
+Initialize a segment by calling `initSegment` in **route.ts**. The function accepts:
+
+- `controllers` — an object with controllers used by the segment. Object keys define generated RPC module names; values are the controllers.
+- `segmentName` — the segment name. Defaults to an empty string for the root segment.
+- `emitSchema` — whether to emit the schema for the segment. Defaults to `true`.
+- `exposeValidation` — whether to expose validation data. Defaults to `true`.
+- `onError` — a callback invoked on errors with:
+  - `error: HttpError` — the error instance.
+  - `request: NextRequest` — the incoming request (headers, URL, etc.).
+
+### The Root Segment
+
+```sh npm2yarn copy
+npx vovk new segment # creates a new root segment at src/app/api/[[...vovk]]/route.ts
+```
+
+[`vovk new` documentation](/new)
+
+For simple single-page apps, a single root segment is sufficient. In this setup, the backend is bundled into one serverless function when deployed.
+
+Example **route.ts** for a single-segment app:
+
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
+import { initSegment } from 'vovk';
+import UserController from '../../modules/user/UserController';
+import PostController from '../../modules/post/PostController';
+
+// maximum request duration in seconds; useful for long-running JSON Lines requests
+export const maxDuration = 300;
+
+const controllers = {
+  UserRPC: UserController,
+  PostRPC: PostController,
+};
+
+// export the controllers type to be used in the client code
+export type Controllers = typeof controllers;
+
+// export the Next.js route handlers
+export const { GET, POST, PUT, DELETE } = initSegment({
+  controllers,
+});
+```
+
+The [schema](/schema) for the root segment is stored at **.vovk-schema/root.json**.
+
+<Callout type="info" emoji="ℹ️">
+  The name <code>root</code> is used only for file naming. In configuration and elsewhere, the root segment name is an
+  empty string.
+</Callout>
+
+### Multiple Segments
+
+Create multiple segments to split your backend into separate serverless functions. Reasons include:
+
+- Reducing bundle size by splitting code.
+- Separating app areas (e.g., root, `admin`, `customer`, `customer/public`).
+- Supporting multiple API versions (e.g., `v1`, `v2`).
+- Creating a [static segment](./static) for OpenAPI specs, historical data, etc.
+
+Each segment’s nested folder determines both the API path and the segment name. For example, **/src/app/api/`segment-name`/[[...slug]]/** is served at **/api/`segment-name`**. Nesting is unlimited.
+
+For non-root segments, provide `segmentName` to `initSegment`:
+
+```ts showLineNumbers copy filename="src/app/api/foo/[[...vovk]]/route.ts"
+// ...
+
+export const { GET, POST, PUT, DELETE } = initSegment({
+  segmentName: 'foo',
+  controllers,
+});
+```
+
+The schema for `foo` is stored at **.vovk-schema/`foo`.json**.
+
+For deeper nesting, e.g., **/src/app/api/`foo/bar/baz`/[[...slug]]/**, set `segmentName` to `"foo/bar/baz"`. The schema is stored at **.vovk-schema/`foo/bar/baz`.json**.
+
+## Static Segment
+
+```sh npm2yarn copy
+npx vovk new segment openapi --static # creates a new static segment named "openapi" at src/app/api/openapi/[[...vovk]]/route.ts
+```
+
+Next.js can pre-render API endpoints at build time using [generateStaticParams](https://nextjs.org/docs/app/api-reference/functions/generate-static-params). Vovk.ts provides the `generateStaticAPI` helper to take advantage of this and emit static API endpoints for minimal latency. Use it to serve OpenAPI definitions, historical datasets (refreshed periodically via CI/CD), or other infrequently changing data. It also works in [Static Export mode](https://nextjs.org/docs/pages/building-your-application/deploying/static-exports) with the `output: 'export'` Next.js option:
+
+```ts showLineNumbers copy filename="next.config.js"
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'export',
+};
+
+module.exports = nextConfig;
+```
+
+All you need to do is implement `generateStaticParams` and return `generateStaticAPI` with your controller list.
+
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
+// ...
+export type Controllers = typeof controllers;
+
+export function generateStaticParams() {
+  return generateStaticAPI(controllers);
+}
+
+export const { GET } = initSegment({ controllers });
+```
+
+When deploying to static hosting (e.g., GitHub Pages), include a `.json` extension in endpoint paths to ensure proper HTTP headers are served.
+
+```ts showLineNumbers copy
+import { get, prefix } from 'vovk';
+
+@prefix('hello')
+export default class HelloController {
+  @get('greeting.json')
+  static async getHello() {
+    return { greeting: 'Hello world!' };
+  }
+}
+```
+
+This produces an endpoint like: [https://vovk.dev/api/hello/greeting.json](https://vovk.dev/api/hello/greeting.json) (hosted on GitHub Pages).
+
+If you use a custom slug (e.g., `/src/app/api/[[...custom]]/route.ts`) instead of the default `vovk`, pass it as the second argument:
+
+```ts showLineNumbers copy
+export function generateStaticParams() {
+  return generateStaticAPI(controllers, 'custom');
+}
+```
+
+### Static Endpoint Parameters
+
+The `@get` decorator accepts an options object. One of the options, `staticParams`, lets you enumerate static parameter combinations to simulate conditional routing. The example below shows a single handler that renders six variants for two parameters: section (`a | b`) and page (`1 | 2 | 3`).
+
+```ts showLineNumbers copy
+import { z } from 'zod/v4';
+import { procedure, prefix, get, operation } from 'vovk';
+
+@prefix('static-params')
+export default class StaticParamsController {
+  @operation({
+    summary: 'Static Params',
+    description: 'Get the static params: section and page',
+  })
+  @get('{section}/page{page}.json', {
+    staticParams: [
+      { section: 'a', page: '1' },
+      { section: 'a', page: '2' },
+      { section: 'a', page: '3' },
+      { section: 'b', page: '1' },
+      { section: 'b', page: '2' },
+      { section: 'b', page: '3' },
+    ],
+  })
+  static getStaticParams = procedure({
+    params: z.object({
+      section: z.enum(['a', 'b']),
+      page: z.enum(['1', '2', '3']),
+    }),
+    handle: async (_req, { section, page }) => {
+      return { section, page };
+    },
+  });
+}
+```
+
+[View live example on examples.vovk.dev »](https://examples.vovk.dev/static-params)
+
+This builds six JSON files:
+
+- [/static-params/a/page1.json](https://examples.vovk.dev/api/static/static-params/a/page1.json)
+- [/static-params/a/page2.json](https://examples.vovk.dev/api/static/static-params/a/page2.json)
+- [/static-params/a/page3.json](https://examples.vovk.dev/api/static/static-params/a/page3.json)
+- [/static-params/b/page1.json](https://examples.vovk.dev/api/static/static-params/b/page1.json)
+- [/static-params/b/page2.json](https://examples.vovk.dev/api/static/static-params/b/page2.json)
+- [/static-params/b/page3.json](https://examples.vovk.dev/api/static/static-params/b/page3.json)
+
+See the live example [here](https://examples.vovk.dev/static-params).
+
+### RPC Client
+
+Whether the API is static or dynamic, you call it with the same RPC client, including client-side validation and type inference.
+
+```ts showLineNumbers copy
+const resp = await StaticParamsRPC.getStaticParams({
+  params: {
+    section: 'a',
+    page: '1',
+  },
+});
+
+console.log(resp); // { section: 'a', page: '1' }
+```

@@ -46,8 +46,8 @@ Then open [http://localhost:3000](http://localhost:3000).
 - [Zod validation](/validation/zod) for `body`, `query`, and `params` input, plus `output` and `iteration` output schemas with `description` and `examples` via Zod [meta](https://zod.dev/metadata#meta).
 - [Client-side validation](/validation/client) for RPC inputs.
 - [Composed](/composed) and [segmented](/segmented) [TypeScript](/typescript) clients.
-- [JSONLines](/controller/jsonlines) streaming.
-- [Type inference](/inference) between [service](/controller/service) and [controller](/controller) layers.
+- [JSONLines](/jsonlines) streaming.
+- [Type inference](/inference) between service and controller layers.
 - `useQuery` / `useMutation` usage with [`queryKey`](/typescript#querykey).
 - TypeScript client [bundle](/bundle) published on [npm](https://npmjs.com/package/vovk-hello-world).
 - Experimental [Rust](/rust) and [Python](/python) clients published on [crates.io](https://crates.io/crates/vovk_hello_world) / [PyPI](https://pypi.org/project/vovk-hello-world/).
@@ -438,7 +438,7 @@ The app is [configured](/config) to:
 
 - Client-side validation via [Ajv](/validation/client).
 - Generate [Rust](/rust) and [Python](/python) code when running [vovk dev](/dev) or [vovk generate](/generate).
-- Demonstrate the [segmented client](/segmented), generating [RPC modules](/rpc-module) per [segment](/segment).
+- Demonstrate the [segmented client](/segmented), generating RPC modules per [segment](/segment).
 - Generate clients and bundle with an explicit `origin`:
   - Python and Rust clients: use `https://hello-world.vovk.dev`.
   - TypeScript Bundle: use `https://hello-world.vovk.dev`.

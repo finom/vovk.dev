@@ -1,23 +1,22 @@
 
 # WebRTC-based Realtime Voice AI
 
-For the JARVIS-like experience, mentioned at the [Overview](./overview) page, we're going to set up a voice interface that uses OpenAI Realtime API with WebRTC to send and receive audio data in real-time. This time, instead of controller methods that are executed by AI SDK on the back-end, we're going to use function calling capabilities to call the methods of the [RPC modules](/rpc-module) directly from the browser, making the experience truly real-time and almost instantaneous.
+For the JARVIS-like experience, mentioned at the [Overview](./overview) page, we're going to set up a voice interface that uses OpenAI Realtime API with WebRTC to send and receive audio data in real-time. This time, instead of controller methods that are executed by AI SDK on the back-end, we're going to use function calling capabilities to call the methods of the RPC modules directly from the browser, making the experience truly real-time and almost instantaneous.
 
 ## Back-end Setup
 
 For the back-end we're going to create a session endpoint that's implemented with the help of the [Realtime API with WebRTC article](https://platform.openai.com/docs/guides/realtime-webrtc) from the official OpenAI documentation. The endpoint is going to accept the SDP offer from the client, voice selection query parameter, and return the SDP answer from the OpenAI Realtime API.
 
 ```ts showLineNumbers copy filename="src/modules/realtime/RealtimeController.ts" repository="finom/realtime-kanban"
-import { prefix, post, HttpException, HttpStatus } from "vovk";
+import { procedure, prefix, post, HttpException, HttpStatus } from "vovk";
 import { z } from "zod";
-import { withZod } from "@/lib/withZod";
 import { sessionGuard } from "@/decorators/sessionGuard";
 
 @prefix("realtime")
 export default class RealtimeController {
   @post("session")
   @sessionGuard()
-  static session = withZod({
+  static session = procedure({
     query: z.object({
       voice: z.enum(["ash", "ballad", "coral", "sage", "verse"]),
     }),
@@ -25,7 +24,7 @@ export default class RealtimeController {
     output: z.object({ sdp: z.string() }),
     async handle({ vovk }) {
       const voice = vovk.query().voice;
-      const { sdp: sdpOffer } = (await vovk.body());
+      const { sdp: sdpOffer } = await vovk.body();
       const sessionConfig = JSON.stringify({
         type: "realtime",
         model: "gpt-realtime",
@@ -66,32 +65,7 @@ export default class RealtimeController {
 For the front-end, let's create the client-side tools first. The tools array is going to include all the HTTP tools from the `TaskRPC` and `UserRPC` modules, as well as two custom tools: `getCurrentTime` and `partyMode`, borrowed from [this repository](https://github.com/cameronking4/openai-realtime-api-nextjs) to demonstrate custom tool creation. The list can be extended with other UI-related tools.
 
 ```ts showLineNumbers copy filename="src/lib/tools/index.ts" repository="finom/realtime-kanban" {7-9}
-import { createTools, type VovkTool } from "vovk";
-import { TaskRPC, UserRPC } from "vovk-client";
-import getCurrentTime from "./getCurrentTime";
-import partyMode from "./partyMode";
-
-const tools: VovkTool[] = [
-  ...createTools({
-    modules: { TaskRPC, UserRPC },
-  }).tools,
-  {
-    type: "function",
-    name: "getCurrentTime",
-    description: "Gets the current time in the user's timezone",
-    parameters: {},
-    execute: getCurrentTime,
-  },
-  {
-    type: "function",
-    name: "partyMode",
-    description: "Triggers a confetti animation on the page",
-    parameters: {},
-    execute: partyMode,
-  },
-];
-
-export default tools;
+404: Not Found
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/lib/tools/index.ts)*
 
@@ -194,7 +168,7 @@ export default function useWebRTCAudioSession(
         type: "session.update",
         session: {
           type: "realtime",
-          tools: tools.map(({ execute: _execute, ...toolRest }) => toolRest),
+          tools: tools.map(({ name, description, parameters, type }) => ({ name, description, parameters, type })),
         },
       };
       dc.send(JSON.stringify(sessionUpdate));
@@ -206,7 +180,7 @@ export default function useWebRTCAudioSession(
         const execute = tools.find((tool) => tool.name === msg.name)?.execute;
         if (execute) {
           const args = JSON.parse(msg.arguments);
-          const result = await execute(args);
+          const result = await execute(args) as { __preventResponseCreate?: boolean };
 
           // Respond with function output
           const response = {
@@ -219,10 +193,12 @@ export default function useWebRTCAudioSession(
           };
           dcRef.current?.send(JSON.stringify(response));
 
-          const responseCreate = {
-            type: "response.create",
-          };
-          dcRef.current?.send(JSON.stringify(responseCreate));
+          if (!result?.__preventResponseCreate) {
+            const responseCreate = {
+              type: "response.create",
+            };
+            dcRef.current?.send(JSON.stringify(responseCreate));
+          }
         }
       }
     };
@@ -283,14 +259,421 @@ Finally, we can create a simple component that uses the `useWebRTCAudioSession` 
 ```ts showLineNumbers copy filename="src/components/RealTimeDemo.tsx" repository="finom/realtime-kanban"
 "use client";
 import useWebRTCAudioSession from "@/hooks/useWebRTCAudioSession";
-import tools from "@/lib/tools";
 import Floaty from "./Floaty";
+import { useRouter } from "next/navigation";
+import { createTool, deriveTools } from "vovk";
+import { TaskRPC, UserRPC } from "vovk-client";
+import getCurrentTime from "@/lib/tools/getCurrentTime";
+import partyMode from "@/lib/tools/partyMode";
+import z from "zod";
 
 const RealTimeDemo = () => {
-  const { isActive, isTalking, toggleSession } = useWebRTCAudioSession(
-    "ash",
-    tools,
-  );
+  const router = useRouter();
+  const { isActive, isTalking, toggleSession } = useWebRTCAudioSession("ash", [
+    ...deriveTools({
+      modules: { TaskRPC, UserRPC },
+    }).tools,
+    createTool({
+      name: "getCurrentTime",
+      description: "Gets the current time in the user's timezone",
+      outputSchema: z.object({ time: z.string(), timezone: z.string(), message: z.string() }).meta({ description: "Current time info." }),
+      execute: getCurrentTime,
+    }),
+    createTool({
+      name: "partyMode",
+      description: "Triggers a confetti animation on the page",
+      execute: partyMode,
+    }),
+    createTool({
+      name: "navigateTo",
+      description: "Navigates the user to a specified URL within the application.",
+      inputSchema: z.object({
+        url: z.enum(["/", "/openapi"]).meta({ description: "The URL to navigate to." }),
+      }),
+      outputSchema: z.string().meta({ description: "Navigation confirmation message." }),
+      execute: async ({ url }: { url: string }) => {
+        router.push(url);
+        return `Navigating to ${url}`;
+      },
+    }),
+    createTool({
+      name: "scroll",
+      description:
+        "Scrolls the page up or down.",
+      inputSchema: z.object({
+        direction: z.enum(["up", "down"]).meta({ description: "The direction to scroll" }),
+        px: z.number().optional().meta({ description: "The number of pixels to scroll. If not provided, scrolls by one viewport height." }),
+      }),
+      outputSchema: z.object({
+        message: z.string().meta({ description: "Scroll action confirmation message." }),
+        __preventResponseCreate: z.boolean().meta({ description: "Flag to prevent response creation." }),
+      }),
+      execute: async ({ direction, px }: { direction: "up" | "down"; px?: number }) => {
+        console.log("Scrolling", direction);
+        const windowHeight =
+          window.innerHeight || document.documentElement.clientHeight;
+        const pxToScroll = px ?? windowHeight;
+
+        window.scrollBy({
+          top: direction === "up" ? -pxToScroll : pxToScroll,
+          behavior: "smooth",
+        });
+        return {
+          message: `Scrolling ${direction}`,
+          __preventResponseCreate: true,
+        };
+      },
+    }),
+    createTool({
+      name: "getVisiblePageSection",
+      description: "Gets the currently visible section of the page",
+      outputSchema: z.string().meta({ description: "Visible text content from the page." }),
+      execute: async () => {
+        function getVisibleText() {
+          const viewportHeight = window.innerHeight;
+          const viewportWidth = window.innerWidth;
+
+          // Check if an element or its ancestors are hidden from accessibility tree
+          function isAccessibilityHidden(element: Element | null): boolean {
+            while (element) {
+              if (element.getAttribute("aria-hidden") === "true") return true;
+              if (element.hasAttribute("hidden")) return true;
+              const role = element.getAttribute("role");
+              if (role === "presentation" || role === "none") return true;
+              const style = window.getComputedStyle(element);
+              if (style.display === "none" || style.visibility === "hidden") return true;
+              element = element.parentElement;
+            }
+            return false;
+          }
+
+          // Get accessible name from aria-label or aria-labelledby
+          function getAccessibleName(element: Element): string {
+            const ariaLabel = element.getAttribute("aria-label");
+            if (ariaLabel) return ariaLabel;
+
+            const labelledBy = element.getAttribute("aria-labelledby");
+            if (labelledBy) {   
+              return labelledBy
+                .split(/\s+/)
+                .map((id) => document.getElementById(id)?.textContent?.trim() || "")
+                .filter(Boolean)
+                .join(" ");
+            }
+            
+            // For images, use alt text
+            if (element.tagName === "IMG") {
+              const alt = element.getAttribute("alt");
+              if (alt) return alt;
+            }
+
+            return "";
+          }
+
+          // Get aria-describedby text
+          function getDescription(element: Element): string {
+            const describedBy = element.getAttribute("aria-describedby");
+            if (describedBy) {
+              return describedBy
+                .split(/\s+/)
+                .map((id) => document.getElementById(id)?.textContent?.trim() || "")
+                .filter(Boolean)
+                .join(" ");
+            }
+            return "";
+          }
+
+          const visibleTexts: string[] = [];
+          const processedElements = new Set<Element>();
+
+          // First, collect accessible names and descriptions from elements
+          const allElements = document.body.querySelectorAll("*");
+          for (const element of allElements) {
+            if (isAccessibilityHidden(element)) continue;
+
+            const rect = element.getBoundingClientRect();
+            const isInViewport =
+              rect.top < viewportHeight &&
+              rect.bottom > 0 &&
+              rect.left < viewportWidth &&
+              rect.right > 0;
+
+            if (!isInViewport) continue;
+
+            const accessibleName = getAccessibleName(element);
+            if (accessibleName && !processedElements.has(element)) {
+              visibleTexts.push(accessibleName);
+              processedElements.add(element);
+            }
+
+            const description = getDescription(element);
+            if (description) {
+              visibleTexts.push(description);
+            }
+          }
+
+          // Then collect visible text nodes
+          const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_TEXT,
+            {
+              acceptNode(node) {
+                const parent = node.parentElement;
+                if (!parent) return NodeFilter.FILTER_REJECT;
+                if (isAccessibilityHidden(parent)) return NodeFilter.FILTER_REJECT;
+                return NodeFilter.FILTER_ACCEPT;
+              },
+            },
+          );
+
+          let node;
+          while ((node = walker.nextNode())) {
+            const range = document.createRange(); 
+            range.selectNode(node);
+            const rect = range.getBoundingClientRect();
+
+            if (
+              rect.top < viewportHeight &&
+              rect.bottom > 0 &&
+              rect.left < viewportWidth &&
+              rect.right > 0
+            ) {
+              const text = node.textContent?.trim();
+              if (text) {
+                visibleTexts.push(text);
+              }
+            }
+          }
+
+          return visibleTexts.join(" ").replace(/\s+/g, " ").trim();
+        }
+
+        return getVisibleText();
+      },
+    }),
+    /*createTool({
+    /*{
+      type: "function",
+      name: "getCurrentTime",
+      description: "Gets the current time in the user's timezone",
+      parameters: {},
+      // @ts-ignore
+      execute: getCurrentTime,
+    },
+    {
+      type: "function",
+      name: "partyMode",
+      description: "Triggers a confetti animation on the page",
+      parameters: {},
+      // @ts-ignore
+      execute: partyMode,
+    },
+    {
+      type: "function",
+      name: "navigateTo",
+      description:
+        "Navigates the user to a specified URL within the application.",
+      parameters: {
+        type: "object",
+        properties: {
+          body: {
+            type: "object",
+            properties: {
+              url: {
+                type: "string",
+                description: "The URL to navigate to.",
+                enum: ["/", "/openapi"],
+              },
+            },
+            required: ["url"],
+          },
+        },
+      },
+
+      // @ts-ignore
+      execute: async ({ body }: { body: { url: string } }) => {
+        router.push(body.url);
+        return `Navigating to ${body.url}`;
+      },
+    },
+    {
+      type: "function",
+      name: "scroll",
+      description:
+        "Scrolls the page up or down. After executing this, never respond to the user, keep silent!",
+      parameters: {
+        type: "object",
+        properties: {
+          body: {
+            type: "object",
+            properties: {
+              direction: {
+                type: "string",
+                description: "The direction to scroll",
+                enum: ["up", "down"],
+              },
+              px: {
+                type: "number",
+                description:
+                  "The number of pixels to scroll. If not provided, scrolls by one viewport height.",
+              },
+            },
+            required: ["direction"],
+          },
+        },
+        required: ["body"],
+      },
+      // @ts-ignore
+      execute: async ({
+        body: { direction, px },
+      }: {
+        body: { direction: "up" | "down", px?: number };
+      }) => {
+        console.log("Scrolling", direction);
+            const windowHeight =
+          window.innerHeight || document.documentElement.clientHeight;
+        const pxToScroll = px ?? windowHeight;
+ 
+        window.scrollBy({
+          top: direction === "up" ? -pxToScroll : pxToScroll,
+          behavior: "smooth",
+        });
+        return {
+          message: `Scrolling ${direction}`,
+          __preventResponseCreate: true,
+        };
+      },
+    },
+    {
+      type: "function",
+      name: "getVisiblePageSection",
+      description: "Gets the currently visible section of the page",
+      parameters: {},
+      // @ts-ignore
+      execute: async () => {
+        function getVisibleText() {
+          const viewportHeight = window.innerHeight;
+          const viewportWidth = window.innerWidth;
+
+          // Check if an element or its ancestors are hidden from accessibility tree
+          function isAccessibilityHidden(element: Element | null): boolean {
+            while (element) {
+              if (element.getAttribute("aria-hidden") === "true") return true;
+              if (element.hasAttribute("hidden")) return true;
+              const role = element.getAttribute("role");
+              if (role === "presentation" || role === "none") return true;
+              const style = window.getComputedStyle(element);
+              if (style.display === "none" || style.visibility === "hidden") return true;
+              element = element.parentElement;
+            }
+            return false;
+          }
+
+          // Get accessible name from aria-label or aria-labelledby
+          function getAccessibleName(element: Element): string {
+            const ariaLabel = element.getAttribute("aria-label");
+            if (ariaLabel) return ariaLabel;
+
+            const labelledBy = element.getAttribute("aria-labelledby");
+            if (labelledBy) {
+              return labelledBy
+                .split(/\s+/)
+                .map((id) => document.getElementById(id)?.textContent?.trim() || "")
+                .filter(Boolean)
+                .join(" ");
+            }
+
+            // For images, use alt text
+            if (element.tagName === "IMG") {
+              const alt = element.getAttribute("alt");
+              if (alt) return alt;
+            }
+
+            return "";
+          }
+
+          // Get aria-describedby text
+          function getDescription(element: Element): string {
+            const describedBy = element.getAttribute("aria-describedby");
+            if (describedBy) {
+              return describedBy
+                .split(/\s+/)
+                .map((id) => document.getElementById(id)?.textContent?.trim() || "")
+                .filter(Boolean)
+                .join(" ");
+            }
+            return "";
+          }
+
+          const visibleTexts: string[] = [];
+          const processedElements = new Set<Element>();
+
+          // First, collect accessible names and descriptions from elements
+          const allElements = document.body.querySelectorAll("*");
+          for (const element of allElements) {
+            if (isAccessibilityHidden(element)) continue;
+
+            const rect = element.getBoundingClientRect();
+            const isInViewport =
+              rect.top < viewportHeight &&
+              rect.bottom > 0 &&
+              rect.left < viewportWidth &&
+              rect.right > 0;
+
+            if (!isInViewport) continue;
+
+            const accessibleName = getAccessibleName(element);
+            if (accessibleName && !processedElements.has(element)) {
+              visibleTexts.push(accessibleName);
+              processedElements.add(element);
+            }
+
+            const description = getDescription(element);
+            if (description) {
+              visibleTexts.push(description);
+            }
+          }
+
+          // Then collect visible text nodes
+          const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_TEXT,
+            {
+              acceptNode(node) {
+                const parent = node.parentElement;
+                if (!parent) return NodeFilter.FILTER_REJECT;
+                if (isAccessibilityHidden(parent)) return NodeFilter.FILTER_REJECT;
+                return NodeFilter.FILTER_ACCEPT;
+              },
+            },
+          );
+
+          let node;
+          while ((node = walker.nextNode())) {
+            const range = document.createRange();
+            range.selectNode(node);
+            const rect = range.getBoundingClientRect();
+
+            if (
+              rect.top < viewportHeight &&
+              rect.bottom > 0 &&
+              rect.left < viewportWidth &&
+              rect.right > 0
+            ) {
+              const text = node.textContent?.trim();
+              if (text) {
+                visibleTexts.push(text);
+              }
+            }
+          }
+
+          return visibleTexts.join(" ").replace(/\s+/g, " ").trim();
+        }
+
+        return getVisibleText();
+      },
+    }, */
+  ]);
 
   return (
     <Floaty

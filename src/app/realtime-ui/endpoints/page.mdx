@@ -8,13 +8,7 @@ import { Tabs } from 'nextra/components';
 As we're going to use [function calling](/function-calling) we're going to change the `target` of the generated JSON schemas to `draft-7`, as LLMs currently support only this version.
 
 ```ts showLineNumbers copy filename="src/lib/withZod.ts" repository="finom/realtime-kanban"
-import { z } from "zod";
-import { createStandardValidation } from "vovk";
-
-export const withZod = createStandardValidation({
-  toJSONSchema: (model: z.core.$ZodType) =>
-    z.toJSONSchema(model, { target: "draft-7" }),
-});
+404: Not Found
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/lib/withZod.ts)*
 
@@ -44,14 +38,14 @@ const UpdateUserSchema = UserSchema.omit(BASE_FIELDS); // fullName and email fie
 
 ## Implementing controllers and services
 
-The [controllers](/controller) are going to declare full CRUD operations for `User` and `Task` entities, implemented as follows:
+The controllers are going to declare full CRUD operations for `User` and `Task` entities, implemented as follows:
 
 - Each method is decorated with [@operation](/openapi) decorator that describes the operation, including `summary`, `description`, and custom `x-tool-successMessage` and `x-tool-errorMessage` properties for [MCP](./mcp) responses.
 - Each method is created with `withZod` function that implements request validation and schema emission.
 - Each method uses `sessionGuard` decorator to protect the endpoints, as described in the [authentication](./authentication) article.
 - The "get all" endpoints use `x-tool-disable` operation option to exclude them from being used as tools by AI. The tools are going to use search endpoints instead to simulate more realistic scenarios.
 
-The [services](/controller/service) are going to implement the actual business logic for each controller method, including database operations using Prisma client and embedding generation using OpenAI embeddings.
+The services are going to implement the actual business logic for each controller method, including database operations using Prisma client and embedding generation using OpenAI embeddings.
 
 - Database requests are invoked using `DatabaseService.prisma` where the `prisma` property is a normal Prisma client instance with [extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions).
   - Deletion operations return `__isDeleted` property to help the front-end to reconcile the state properly for soft deletions, see [State](./state) page. The property is added by the Prisma client extension when `DatabaseService.prisma.xxx.delete` methods are invoked.
@@ -62,11 +56,10 @@ The [services](/controller/service) are going to implement the actual business l
 <Tabs items={['UserController.ts', 'UserService.ts', 'TaskController.ts', 'TaskService.ts', 'EmbeddingService.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/realtime-kanban"
-import { prefix, get, put, post, del, operation } from "vovk";
+import { procedure, prefix, get, put, post, del, operation } from "vovk";
 import { z } from "zod";
 import { TaskSchema, UserSchema } from "@schemas/index";
 import { sessionGuard } from "@/decorators/sessionGuard";
-import { withZod } from "@/lib/withZod";
 import { BASE_FIELDS } from "@/constants";
 import UserService from "./UserService";
 
@@ -75,11 +68,11 @@ export default class UserController {
   @operation({
     summary: "Get all users",
     description: "Retrieves a list of all users.",
-    "x-tool-disable": true, // Make it to be used as an endpoint only, excluding from the list of available tools
+    "x-tool-disable": true, // Make it to be used as an procedure only, excluding from the list of available tools
   })
   @get()
   @sessionGuard()
-  static getUsers = withZod({
+  static getUsers = procedure({
     output: UserSchema.array(),
     handle: UserService.getUsers,
   });
@@ -92,7 +85,7 @@ export default class UserController {
   })
   @get("search")
   @sessionGuard()
-  static findUsers = withZod({
+  static findUsers = procedure({
     query: z.object({
       search: z.string().meta({
         description: "Search term for users",
@@ -110,7 +103,7 @@ export default class UserController {
   })
   @post()
   @sessionGuard()
-  static createUser = withZod({
+  static createUser = procedure({
     body: UserSchema.omit(BASE_FIELDS),
     output: UserSchema,
     handle: async ({ vovk }) => UserService.createUser(await vovk.body()),
@@ -124,7 +117,7 @@ export default class UserController {
   })
   @put("{id}")
   @sessionGuard()
-  static updateUser = withZod({
+  static updateUser = procedure({
     body: UserSchema.omit(BASE_FIELDS).partial(),
     params: UserSchema.pick({ id: true }),
     output: UserSchema,
@@ -139,7 +132,7 @@ export default class UserController {
   })
   @del("{id}")
   @sessionGuard()
-  static deleteUser = withZod({
+  static deleteUser = procedure({
     params: UserSchema.pick({ id: true }),
     output: UserSchema.partial().extend({
       __isDeleted: z.literal(true),
@@ -234,12 +227,11 @@ export default class UserService {
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/task/TaskController.ts" repository="finom/realtime-kanban"
-import { prefix, get, put, post, del, operation } from "vovk";
+import { procedure, prefix, get, put, post, del, operation } from "vovk";
 import { z } from "zod";
 import { BASE_FIELDS } from "@/constants";
 import { TaskSchema, UserSchema } from "@schemas/index";
 import { sessionGuard } from "@/decorators/sessionGuard";
-import { withZod } from "@/lib/withZod";
 import TaskService from "./TaskService";
 
 @prefix("tasks")
@@ -247,11 +239,11 @@ export default class TaskController {
   @operation({
     summary: "Get all tasks",
     description: "Retrieves a list of all tasks.",
-    "x-tool-disable": true, // Make it to be used as an endpoint only, excluding from the list of available tools
+    "x-tool-disable": true, // Make it to be used as an procedure only, excluding from the list of available tools
   })
   @get()
   @sessionGuard()
-  static getTasks = withZod({
+  static getTasks = procedure({
     output: TaskSchema.array(),
     handle: TaskService.getTasks,
   });
@@ -264,7 +256,7 @@ export default class TaskController {
   })
   @get("search")
   @sessionGuard()
-  static findTasks = withZod({
+  static findTasks = procedure({
     query: z.object({
       search: z.string().meta({
         description: "Search term for tasks",
@@ -282,7 +274,7 @@ export default class TaskController {
   })
   @get("by-user/{userId}")
   @sessionGuard()
-  static getTasksByUserId = withZod({
+  static getTasksByUserId = procedure({
     params: z.object({ userId: UserSchema.shape.id }),
     output: TaskSchema.array(),
     handle: async ({ vovk }) =>
@@ -297,7 +289,7 @@ export default class TaskController {
   })
   @post()
   @sessionGuard()
-  static createTask = withZod({
+  static createTask = procedure({
     body: TaskSchema.omit(BASE_FIELDS),
     output: TaskSchema,
     handle: async ({ vovk }) => TaskService.createTask(await vovk.body()),
@@ -311,7 +303,7 @@ export default class TaskController {
   })
   @put("{id}")
   @sessionGuard()
-  static updateTask = withZod({
+  static updateTask = procedure({
     body: TaskSchema.omit(BASE_FIELDS).partial(),
     params: TaskSchema.pick({ id: true }),
     output: TaskSchema,
@@ -326,7 +318,7 @@ export default class TaskController {
   })
   @del("{id}")
   @sessionGuard()
-  static deleteTask = withZod({
+  static deleteTask = procedure({
     params: TaskSchema.pick({ id: true }),
     output: TaskSchema.partial().extend({
       __isDeleted: z.literal(true),

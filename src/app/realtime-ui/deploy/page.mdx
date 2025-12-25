@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 # Deploying to Vercel
 
 You can use any hosting provider that supports Node.js applications, but for the sake of simplicity, we're going to use [Vercel](https://vercel.com/) as it would take minimal effort to deploy the app for a quick demo. We're going to need to set up two integrations for Vercel: [Neon](https://vercel.com/integrations/neon) for Postgres/PGVector database hosting and [Redis](https://vercel.com/integrations/redis) for Redis hosting. The first one is going to be used as the main database, while the second one is going to be used as a database event bus for real-time features that will be described in the [Polling](./polling) article, but also as a temporary storage for messages consumed by the demo [Telegram Bot](./telegram).

@@ -14,7 +14,7 @@ Creates Next.js App Route handlers used by the main [Optional Catch-all Segment]
 
 ### `JSONLinesResponse`
 
-`JSONLinesResponse` is a utility class for creating responses in the JSON Lines format. It extends the standard `Response` class and adds support for streaming JSON objects as individual lines. See the [JSON Lines](/controller/jsonlines) documentation for more info.
+`JSONLinesResponse` is a utility class for creating responses in the JSON Lines format. It extends the standard `Response` class and adds support for streaming JSON objects as individual lines. See the [JSON Lines](/jsonlines) documentation for more info.
 
 ## Decorators
 
@@ -244,7 +244,7 @@ For more info, check the [multitenant](/multitenant) guide.
 
 ### `deriveTools`
 
-A utility function that turns [RPC modules](/rpc-module) or [controllers](/controller) into LLM tools based on the input schemas of their methods.
+A utility function that turns RPC modules or [controllers](/controller) into LLM tools based on the input schemas of their methods.
 
 ```ts showLineNumbers copy
 import { deriveTools } from 'vovk';
@@ -273,7 +273,7 @@ For more info, check the [function calling](/function-calling) guide.
 
 #### `modules`
 
-Key-value object where keys are module names and values are objects with methods. Each method should have a `schema: VovkHandlerSchema` property and either `isRPC: true` (for RPC modules) or the [fn](/controller/callable) function (for controllers).
+Key-value object where keys are module names and values are objects with methods. Each method should have a `schema: VovkHandlerSchema` property and either `isRPC: true` (for RPC modules) or the [fn](/controller/fn) function (for controllers).
 
 #### `onExecute`
 
@@ -325,7 +325,7 @@ An experimental utility function that allows you to make one request and get mul
 const { users: usersPromise, tasks: tasksPromise } = progressive(ProgressiveRPC.streamProgressiveResponse);
 ```
 
-Read more about it in the [progressive responses](/controller/progressive) documentation.
+Read more about it in the [JSONLines](/jsonlines#progressive) documentation.
 
 ### `HttpException`
 
@@ -377,7 +377,7 @@ As `iteration` validation isn't required, the `VovkYieldType` type allows you to
 
 Extends the Next.js built-in `NextRequest` object to make it return proper types for `.json()`, `.nextUrl.searchParams`, and also adds a `vovk` property that provides more advanced input retrieval methods.
 
-See the [request](/controller/request) documentation for more info.
+See the [request](/controller/req-vovk) documentation for more info.
 
 #### `HttpStatus` enum
 
@@ -510,7 +510,7 @@ An object that represents the options for the fetcher function.
 
 ### `VovkStreamAsyncIterable`
 
-The iterable object returned by an RPC method for [JSON Lines](/controller/jsonlines) responses. Besides `Symbol.asyncIterator`, `Symbol.dispose`, and `Symbol.asyncDispose` methods, it also contains a `status` property with the HTTP status code, an `asPromise` method that resolves all data as a single promise, an `onIterate` method that accepts a callback function and calls it on each iteration, `abortController: AbortController{:ts}` and `abortWithoutError(reason?: KnownAny): void{:ts}`.
+The iterable object returned by an RPC method for [JSON Lines](/jsonlines) responses. Besides `Symbol.asyncIterator`, `Symbol.dispose`, and `Symbol.asyncDispose` methods, it also contains a `status` property with the HTTP status code, an `asPromise` method that resolves all data as a single promise, an `onIterate` method that accepts a callback function and calls it on each iteration, `abortController: AbortController{:ts}` and `abortWithoutError(reason?: KnownAny): void{:ts}`.
 
 ```ts showLineNumbers copy
 const response = await StreamRPC.streamLines();
@@ -611,7 +611,7 @@ export const { get, post, put, patch, del, head, options, prefix, initSegment } 
 
 ### `createRPC`
 
-Function that creates [RPC module](/rpc-module) out of the [schema](/schema) and types inferred from [controllers](/controller). It's imported by the generated TypeScript, ESM, and CJS files and can be [customized in the config](/imports).
+Function that creates RPC module out of the [schema](/schema) and types inferred from [controllers](/controller). It's imported by the generated TypeScript, ESM, and CJS files and can be [customized in the config](/imports).
 
 ### `createCodeSamples`
 
