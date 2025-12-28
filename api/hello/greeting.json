@@ -1,1 +1,1 @@
-{"statusCode":404,"message":"Route hello/greeting.json is not found","isError":true}
+{"greeting":"Hello world!"}

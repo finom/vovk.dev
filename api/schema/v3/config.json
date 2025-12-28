@@ -1,1 +1,1 @@
-{"$schema":"https://json-schema.org/draft-07/schema","$id":"https://vovk.dev/api/spec/v3/config.json","title":"Schema for Vovk config","description":"","type":"object","additionalProperties":true,"properties":{"$schema":{"type":"string","description":"Schema URL","enum":["https://vovk.dev/api/schema/v3/config.json"]}}}
+{"statusCode":404,"message":"Route v3/config.json is not found","isError":true}
