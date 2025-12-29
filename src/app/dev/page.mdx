@@ -29,7 +29,7 @@ The `vovk dev` command runs a watcher that monitors controllers and updates the 
 
 1. `vovk dev` and `next dev` run together via [concurrently](https://www.npmjs.com/package/concurrently).
 2. `vovk dev` watches the **/src/modules** directory (configurable with [`modulesDir`](/config#modulesdir)).
-3. On change, the script checks whether the file contains a [controller](/controller) and belongs to a [segment](/segment) using simple RegExp checks.
+3. On change, the script checks whether the file contains a controller and belongs to a [segment](/segment) using simple RegExp checks.
 4. If it is a controller within a segment, the script requests `/api/<segment-name>/_schema_` to retrieve the updated schema.
 5. If the schema differs:
    - If the controller list has changed (added, removed, renamed) or method definitions (including validation) were updated, the script writes the schema to the [.vovk-schema](/config#schemaoutdir) directory as `<segment-name>.json`.

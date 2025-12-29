@@ -1,6 +1,6 @@
 # OpenAPI Specification and `@operation` Decorator
 
-Vovk.ts automatically generates an OpenAPI specification from controller methods, using validation models to populate operation objects with `parameters`, `requestBody`, and `responses`. The `@operation` decorator lets you enrich operation objects with metadata such as `summary`, `description`, `tags`, and more. It accepts `OperationObject` type from [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts), enhanced with Vovk-specific `x-tool` poperty related to [deriveTools](/function-calling) function.
+Vovk.ts automatically generates an OpenAPI specification from controller methods, using validation models to populate operation objects with `parameters`, `requestBody`, and `responses`. The `@operation` decorator lets you enrich operation objects with metadata such as `summary`, `description`, `tags`, and more. It accepts `OperationObject` type from [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts), enhanced with Vovk-specific `x-tool` poperty related to [deriveTools](/tools) function.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { procedure, put, prefix, operation } from 'vovk';
@@ -98,7 +98,7 @@ import { openapi } from 'vovk-client/openapi'; // composed client
 import { openapi } from '@/client/admin/openapi.ts'; // segmented client
 ```
 
-You can use the specification directly as a variable or expose it via a static segment with a simple [controller](/controller) that serves it as a JSON endpoint.
+You can use the specification directly as a variable or expose it via a static segment with a simple controller that serves it as a JSON endpoint.
 
 ```ts showLineNumbers copy filename="src/modules/static/openapi/OpenApiController.ts"
 import { get, operation } from 'vovk';
@@ -133,7 +133,7 @@ For a live demonstration, see the ["Hello World" application spec](https://hello
 
 ---
 
-The `@operation` decorator also provides `tool` property that defines tool-specific attributes for [deriveTools](/function-calling) function. It's set under `x-tool` key in the OpenAPI operation object.
+The `@operation` decorator also provides `tool` property that defines tool-specific attributes for [deriveTools](/tools) function. It's set under `x-tool` key in the OpenAPI operation object.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { procedure, put, operation } from 'vovk';
@@ -154,4 +154,4 @@ export default class UserController {
 }
 ```
 
-For more details, see the [deriveTools](/function-calling) documentation.
+For more details, see the [deriveTools](/tools) documentation.

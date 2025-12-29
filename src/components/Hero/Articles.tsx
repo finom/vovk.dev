@@ -30,14 +30,9 @@ const options = [
     href: '/performance',
   },
   {
-    title: 'Server-Side Validation',
-    icon: '✅',
-    href: '/validation/introduction',
-  },
-  {
-    title: 'Client-Side Validation',
+    title: 'Procedure',
     icon: '🛡️',
-    href: '/validation/client',
+    href: '/procedure',
   },
   {
     title: 'Schema',
@@ -48,11 +43,6 @@ const options = [
     title: 'Segment',
     icon: '📊',
     href: '/segment',
-  },
-  {
-    title: 'Controller',
-    icon: '🎛️',
-    href: '/controller',
   },
   {
     title: 'TypeScript RPC',
@@ -90,14 +80,9 @@ const options = [
     href: '/config',
   },
   {
-    title: 'MCP Server',
-    icon: '🖥️',
-    href: '/mcp',
-  },
-  {
-    title: 'LLM Function Calling',
+    title: 'Deriving AI Tools',
     icon: '🤖',
-    href: '/function-calling',
+    href: '/tools',
   },
   {
     title: 'JARVIS-Grade Realtime UI',

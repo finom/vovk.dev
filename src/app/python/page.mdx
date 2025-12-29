@@ -87,14 +87,13 @@ export default config;
 
 The snippets below are adapted from a real example described on the [Hello World](/hello-world) page.
 
-A [controller](/controller) like this:
+A controller like this:
 
 <Tabs items={['UserController.ts', 'UserService.ts', 'route.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/vovk-hello-world"
 import { z } from "zod";
-import { prefix, post, operation } from "vovk";
-import { withZod } from "vovk-zod";
+import { procedure, prefix, post, operation } from "vovk";
 import UserService from "./UserService";
 
 @prefix("users")
@@ -104,7 +103,7 @@ export default class UserController {
     description: "Update user by ID",
   })
   @post("{id}")
-  static updateUser = withZod({
+  static updateUser = procedure({
     body: z
       .object({
         email: z.email().meta({
@@ -334,8 +333,7 @@ A controller like this:
 <Tabs items={['StreamController.ts', 'StreamService.ts', 'route.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/stream/StreamController.ts" repository="finom/vovk-hello-world"
-import { prefix, get, operation } from "vovk";
-import { withZod } from "vovk-zod";
+import { procedure, prefix, get, operation } from "vovk";
 import { z } from "zod";
 import StreamService from "./StreamService";
 
@@ -346,7 +344,7 @@ export default class StreamController {
     description: "Stream tokens to the client",
   })
   @get("tokens")
-  static streamTokens = withZod({
+  static streamTokens = procedure({
     iteration: z
       .object({
         message: z.string().meta({ description: "Message from the token" }),

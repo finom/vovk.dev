@@ -43,8 +43,8 @@ Then open [http://localhost:3000](http://localhost:3000).
 
 ## Topics and Concepts Covered
 
-- [Zod validation](/validation/zod) for `body`, `query`, and `params` input, plus `output` and `iteration` output schemas with `description` and `examples` via Zod [meta](https://zod.dev/metadata#meta).
-- [Client-side validation](/validation/client) for RPC inputs.
+- Zod validation for `body`, `query`, and `params` input, plus `output` and `iteration` output schemas with `description` and `examples` via Zod [meta](https://zod.dev/metadata#meta).
+- Client-side validation for RPC inputs, described in the [customization](/imports) article.
 - [Composed](/composed) and [segmented](/segmented) [TypeScript](/typescript) clients.
 - [JSONLines](/jsonlines) streaming.
 - [Type inference](/inference) between service and controller layers.
@@ -63,7 +63,7 @@ The demo provides a simple form (no native validation attributes) and a “Disab
 
 `/api/users/{id}` is implemented by `UserController` / `UserService` through `updateUser`.
 
-The controller method uses `@post` to map POST and `withZod` for [Zod validation](/validation/zod) of `body`, `params`, `query` and `output`. Each schema applies `meta` for richer OpenAPI (`description`, `examples`). For illustration, `body` nests `email` and a `profile` object (`name`, `age`).
+The controller method uses `@post` to map POST and `withZod` for Zod validation of `body`, `params`, `query` and `output`. Each schema applies `meta` for richer OpenAPI (`description`, `examples`). For illustration, `body` nests `email` and a `profile` object (`name`, `age`).
 
 The service method infers parameter types from the controller method, returning the service method result directly and avoiding implicit `any` self-reference issues.
 
@@ -71,8 +71,7 @@ The service method infers parameter types from the controller method, returning 
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/vovk-hello-world"
 import { z } from "zod";
-import { prefix, post, operation } from "vovk";
-import { withZod } from "vovk-zod";
+import { procedure, prefix, post, operation } from "vovk";
 import UserService from "./UserService";
 
 @prefix("users")
@@ -82,7 +81,7 @@ export default class UserController {
     description: "Update user by ID",
   })
   @post("{id}")
-  static updateUser = withZod({
+  static updateUser = procedure({
     body: z
       .object({
         email: z.email().meta({
@@ -182,8 +181,7 @@ export default class UserService {
 <Tabs items={['StreamController.ts', 'StreamService.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/stream/StreamController.ts" repository="finom/vovk-hello-world"
-import { prefix, get, operation } from "vovk";
-import { withZod } from "vovk-zod";
+import { procedure, prefix, get, operation } from "vovk";
 import { z } from "zod";
 import StreamService from "./StreamService";
 
@@ -194,7 +192,7 @@ export default class StreamController {
     description: "Stream tokens to the client",
   })
   @get("tokens")
-  static streamTokens = withZod({
+  static streamTokens = procedure({
     iteration: z
       .object({
         message: z.string().meta({ description: "Message from the token" }),
@@ -208,7 +206,6 @@ export default class StreamController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
@@ -436,7 +433,7 @@ export default StreamDemo;
 
 The app is [configured](/config) to:
 
-- Client-side validation via [Ajv](/validation/client).
+- Client-side validation via Ajv, the primary client-side validation library, described in the [customization](/imports) article.
 - Generate [Rust](/rust) and [Python](/python) code when running [vovk dev](/dev) or [vovk generate](/generate).
 - Demonstrate the [segmented client](/segmented), generating RPC modules per [segment](/segment).
 - Generate clients and bundle with an explicit `origin`:
@@ -463,7 +460,7 @@ const config = {
       info: {
         title: '"Hello World" app API',
         description:
-          'API for "Hello World" app hosted at https://hello-world.vovk.dev/. Source code is available on Github https://github.com/finom/vovk-hello-world.',
+          'API for "Hello World" app hosted at https://hello-world.vovk.dev/. Source code is available on Github https://github.com/finom/vovk-hello-world. For more information about this app, visit the documentation page https://vovk.dev/hello-world.',
         license: {
           name: "MIT",
           url: "https://opensource.org/licenses/MIT",
@@ -805,5 +802,5 @@ Even with only three endpoints (`updateUser`, `streamTokens`, `getSpec`), Vovk.t
 - Rich, documented OpenAPI output rendered via Scalar.
 - Text streaming and unified client-side validation flows.
 
-Additional topics not shown here include [Function Calling](/function-calling) (LLM tool generation), source‑only [templates](/templates), custom [decorators](/decorators), advanced [imports](/imports) configuration, and more—explore the docs for deeper features.
-```
+Additional topics not shown here include [Function Calling](/tools) (LLM tool generation), source‑only [templates](/templates), custom [decorators](/decorators), advanced [imports](/imports) configuration, and more—explore the docs for deeper features.
+

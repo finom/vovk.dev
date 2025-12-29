@@ -147,7 +147,7 @@ Use `body`, `query`, and `params` to provide input validation schemas. These val
 
 #### `output` and `iteration`
 
-Use `output` and `iteration` to provide output validation schemas. `output` is for regular JSON responses, while `iteration` is for [JSON Lines](/jsonlines). Both are optional and don’t affect generated RPC typings, but they enable key features like [OpenAPI](/openapi), [function calling](/function-calling), and for [Python](/python), [Rust](/rust), and future clients. These schemas are not used for client-side validation.
+Use `output` and `iteration` to provide output validation schemas. `output` is for regular JSON responses, while `iteration` is for [JSON Lines](/jsonlines). Both are optional and don’t affect generated RPC typings, but they enable key features like [OpenAPI](/openapi), [AI tools](/tools), and for [Python](/python), [Rust](/rust), and future clients. These schemas are not used for client-side validation.
 
 #### `isForm`
 
@@ -212,7 +212,7 @@ const schema = UserController.updateUser.schema;
 // same as UserRPC.updateUser.schema
 ```
 
-The `schema` property exposes the method schema, mirroring the RPC method schema. It’s typically used with `fn` to build [function calling tools](/function-calling) that invoke handlers without HTTP.
+The `schema` property exposes the method schema, mirroring the RPC method schema. It’s typically used with `fn` to build [AI tools](/tools) that invoke handlers without HTTP.
 
 ### `models`
 
@@ -411,4 +411,4 @@ export default class UserController {
 }
 ```
 
-Note that [vovk-ajv](/validation/client) does not currently support the OpenAPI‑compatible `format: "binary"`, and file size, type, etc., are not validated on the client side.
+Note that client-side validation does not currently support the OpenAPI‑compatible `format: "binary"`, and file size, type, etc., are not validated on the client side.

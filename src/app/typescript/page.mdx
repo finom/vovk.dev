@@ -1,6 +1,6 @@
 # TypeScript RPC Client
 
-[Controllers](/controller) implemented with Vovk.ts compile to so-called RPC modules that share the same structure but have different argument signatures. For example, given the controller below:
+Controllers and its procedures implemented as static methods compile to so-called RPC modules that share the same structure but have different argument signatures. For example, given the controller below:
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { z } from 'zod';
@@ -58,7 +58,7 @@ const updatedUser = await UserRPC.updateUser({
 });
 ```
 
-`updateUser` performs [client-side validation](/validation/client), serializes `query` and `params` into the URL, and issues a standard `fetch` request. The server handles it in `UserController.updateUser`. The RPC method returns a promise that resolves to the return type used in the controller method.
+`updateUser` performs client-side validation, serializes `query` and `params` into the URL, and issues a standard `fetch` request. The server handles it in `UserController.updateUser`. The RPC method returns a promise that resolves to the return type used in the controller method.
 
 ```ts showLineNumbers copy
 const resp = await fetch(`/api/users/${id}?notify=push`, {
@@ -165,7 +165,7 @@ response satisfies Response;
 
 ### `disableClientValidation`
 
-Turns off client-side validation for this call. Useful when debugging to surface server-side validation errors instead. See the [validation page](/validation) for details.
+Turns off client-side validation for this call. Useful when debugging to surface server-side validation errors instead.
 
 ```ts showLineNumbers copy
 await UserRPC.updateUser({
@@ -283,7 +283,7 @@ console.log(UserRPC.updateUser.schema.operationObject); // get OpenAPI operation
 console.log(UserRPC.updateUser.fullSchema.meta.config.libs.ajv); // get config option
 ```
 
-This design also allows you to create [LLM tools](/function-calling) that can use the schema to define the tool parameters.
+This design also allows you to create [LLM tools](/tools) that can use the schema to define the tool parameters.
 
 ## `getURL` method
 

@@ -17,12 +17,6 @@ const options = [
     href: '/realtime-ui',
   },
   {
-    title: 'MCP Server',
-    description: 'Turn your API into a powerful MCP server.',
-    icon: '🖥️',
-    href: '/mcp',
-  },
-  {
     title: 'Bundle',
     description: 'Bundle your API and deploy it anywhere fetch is supported.',
     icon: '📦',

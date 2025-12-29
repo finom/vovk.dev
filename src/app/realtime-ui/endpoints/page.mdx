@@ -5,7 +5,7 @@ import { Tabs } from 'nextra/components';
 
 ## Preparations
 
-As we're going to use [function calling](/function-calling) we're going to change the `target` of the generated JSON schemas to `draft-7`, as LLMs currently support only this version.
+As we're going to use [function calling](/tools) we're going to change the `target` of the generated JSON schemas to `draft-7`, as LLMs currently support only this version.
 
 ```ts showLineNumbers copy filename="src/lib/withZod.ts" repository="finom/realtime-kanban"
 404: Not Found
@@ -40,7 +40,7 @@ const UpdateUserSchema = UserSchema.omit(BASE_FIELDS); // fullName and email fie
 
 The controllers are going to declare full CRUD operations for `User` and `Task` entities, implemented as follows:
 
-- Each method is decorated with [@operation](/openapi) decorator that describes the operation, including `summary`, `description`, and custom `x-tool-successMessage` and `x-tool-errorMessage` properties for [MCP](./mcp) responses.
+- Each method is decorated with [@operation](/openapi) decorator that describes the operation, including `summary`, `description`, and custom `x-tool-successMessage` and `x-tool-errorMessage` properties for MCP responses.
 - Each method is created with `withZod` function that implements request validation and schema emission.
 - Each method uses `sessionGuard` decorator to protect the endpoints, as described in the [authentication](./authentication) article.
 - The "get all" endpoints use `x-tool-disable` operation option to exclude them from being used as tools by AI. The tools are going to use search endpoints instead to simulate more realistic scenarios.

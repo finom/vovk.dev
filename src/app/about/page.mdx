@@ -20,14 +20,14 @@ Vovk.ts utilizes Next.js routing capabilities to introduce an additional hierarc
 
 ## Schema Emission
 
-Vovk.ts generates a comprehensive back-end schema in JSON format for each segment separately. This polarizing approach, usually opposed to contracts (schema defined in a separate module that's read by back-end and front-end), makes endpoint definition to be the only source of truth, enabling direct type mapping between back-end and front-end code, but also can expose custom data set by a decorator to the client side. Each segment emits its schema to an individual JSON file, located in **.vovk-schema/** folder.
+Vovk.ts generates a comprehensive back-end schema in JSON format for each segment separately. This polarizing approach, usually opposed to contracts (schema implemented in a separate module that's read by back-end and front-end), makes endpoint definition to be the only source of truth, enabling direct type mapping between back-end and front-end code (with CMD+Click you can navigate from the RPC method to the controller method), but also can expose custom data set by a decorator to the client side. Each segment emits its schema to an individual JSON file, located in **.vovk-schema/** folder.
 
 **Related Documentation**
 - [Schema](/schema)
 
 ## Code Generation and "RPC Modules"
 
-Controllers implemented as static classes are compiled into RPC modules through code generation. Each RPC module mirrors the controller's structure but has a different argument signature, requiring three separate inputs: URL parameters, query parameters, and request body. The code generation can be configured to emit either a single "composed" RPC client or multiple "segmented" RPC clients for each back-end segment independently, splitting the app into isolated parts.
+Controllers implemented as static classes are compiled into RPC modules through code generation. Each RPC module mirrors the controller's structure but has a different argument signature, requiring three separate inputs: URL parameters, query parameters, and request body. The code generation can be configured to emit either a single "composed" RPC client or multiple "segmented" RPC clients for each back-end segment independently, splitting the app into isolated parts that use their own schema files.
 
 **Related Documentation**
 - [TypeScript Client](/typescript)
@@ -39,16 +39,15 @@ Controllers implemented as static classes are compiled into RPC modules through 
 Vovk.ts can derive AI tools from back-end controllers (for same-context execution) and RPC modules (for HTTP calls), turning them into LLM function calling tools with `name`, `description`, `parameters`, and an `execute` function. This allows you to create AI agents that can interact with your back-end functionality seamlessly.
 
 **Related Documentation**
-- [Function Calling](/function-calling)
-- [MCP Handler](/mcp)
+- [Deriving AI Tools](/tools)
 - [Realtime UI](/realtime-ui)
 
-## OpenAPI mixins
+## OpenAPI Mixins
 
 Vovk.ts can convert OpenAPI 3.x schema files into API modules following that follow the same calling signature as Vovk.ts RPC modules. This allows you to mix Vovk.ts back-end functionality with third-party APIs defined in OpenAPI format and create derived AI tools that combine both - your back-end and external services.
 
 **Related Documentation**
-- [OpenAPI mixins](/mixins)
+- [OpenAPI Mixins](/mixins)
 
 ## Documentation Generation and Publishing
 
