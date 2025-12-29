@@ -62,7 +62,7 @@ const options = [
   {
     title: 'Codegen',
     icon: '⚙️',
-    href: '/codegen',
+    href: '/mixins',
   },
   {
     title: 'RESTful API with OpenAPI',

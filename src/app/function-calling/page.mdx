@@ -1,8 +1,12 @@
 # Deriving AI Tools from Controllers and RPC Modules
 
-Controllers as well as generated RPC modules can be converted into AI tools for LLM function calling with minimal effort, using `deriveTools` utility. This makes your back-end functionality accessible to AI models (including MCP clients) with almost no extra code.
+Controllers as well as generated RPC/API modules can be converted into AI tools for LLM function calling, using `deriveTools` utility. This makes your back-end functionality accessible to AI models (including MCP clients) with minimum code. The function accepts `modules` record with 
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts" {4-12}
+- Controllers for same-context execution to be used on back-end.
+- Modules generated from controllers for HTTP calls or be used on front-end (see [Realtime UI](/realtime-ui)) or other environments that support `fetch`.
+- Third-party OpenAPI-based modules (called [OpenAPI mixins](/mixins) in this documentation), enabling to combine back-end functionality with external APIs in a single agent.
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { deriveTools } from 'vovk';
 import { TaskRPC } from 'vovk-client';
 import UserController from '@/modules/user/UserController';
@@ -19,65 +23,222 @@ console.log('Derived tools:', tools); // [{ name, description, parameters, execu
 
 The function returns an array of `tools` and a `toolsByName` object for easy access by tool name. Each tool implements `VovkTool` type and includes the `name`, `description`, `parameters` (JSON Schema), and `execute` function (+ some extra properties, such as `type: "function"`, `outputSchema`, `inputSchemas`, when available).
 
+`deriveTools` distinguishes between RPC modules and controllers by checking for the `isRPC` property on each module method. If `isRPC: true` is present, the method is treated as an RPC method that performs an HTTP request. Otherwise, it is treated as a controller method that exposes `fn` (see [`fn` page](/fn)) that is called in the current context without HTTP.
+
 ## `deriveTools` Options
 
 The `deriveTools` function accepts an options object with the following properties:
 
-- `modules: Record<string, object>` - a record of modules (RPC modules or controllers) to derive tools from.
-- `onExecute?: (tool: VovkTool, result: KnownAny) => void` - optional callback invoked when a tool's `execute` function completes successfully.
+- `modules: Record<string, object>` - a record of modules (RPC/API modules or controllers) to derive tools from.
+- `onExecute?: (tool: VovkTool, result: unknown) => void` - optional callback invoked when a tool's `execute` function completes successfully.
+- `onError?: (tool: VovkTool, error: Error) => void` - optional callback invoked when a tool's `execute` function throws an error.
+- `toModelOutput?: ToModelOutputFn<TOutput, TFormattedOutput>` - optional function to format the output returned to the LLM. Can be set to a custom function or one of the built-in formatters, defined in `ToModelOutput` object, exported from `vovk`, such as `ToModelOutput.MCP` for [MCP](/mcp) formatting and `ToModelOutput.DEFAULT` that's used by default when `toModelOutput` is not provided.
+- `meta?: Record<string, unknown>` - optional metadata passed to each controller/RPC method. The meta can be read on the back end using [req.vovk.meta](/req-vovk). When passed to a controller procedure, it's merged with procedure-level meta normally. When passed to an RPC method, it's available as `xMetaHeader` key.
 
-----
+## Custom Operation Attributes with `x-tool` or `@operation.tool` Decorator
 
+By default, tool description is derived from OpenAPI `summary` and `description` fields and the tool name is generated in the form of `${moduleName}_${handlerName}`. You can override these values and add tool-specific attributes using `x-tool` custom attributes in the `@operation` decorator.
 
-Vovk.ts provides LLM function calling capabilities, turning route handlers into functions callable by AI. This enables more interactive user experiences, including interactions via a [text chat interface, a Realtime voice interface](/realtime-ui/ai), or [MCP](/mcp).
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+import { prefix, get, operation } from 'vovk';
 
-While many AI libraries and APIs focus on how to use function calling, Vovk.ts focuses on what should be callable.
-
-This feature is implemented by a zero-dependency function, `deriveTools`, imported from `"vovk"`. It produces a `tools` array that can be mapped to function-calling inputs for any LLM library. Each tool, converted from a controller or RPC handler, implements the `VovkTool` interface with the following properties:
-
-- `type`: the string literal `"function"`.
-- `name`: the function name in the form `${moduleName}_${handlerName}` (module name + underscore + method name), or overridden by a custom `x-tool-name`.
-- `description`: a description derived from OpenAPI metadata, concatenating the `summary` and `description` fields, or overridden by a custom `x-tool-description`. If neither is provided, `deriveTools` ignores the function. In other words, using the `@operation` decorator on [controller](/controller) methods is required for this feature.
-- `parameters`: a JSON Schema object describing `body`, `query`, and `params`, generated automatically by the [validation library](/validation).
-- `execute`: a JavaScript function to be called when the LLM invokes the tool.
-
-`deriveTools` accepts an options object with:
-
-- `modules`: a record of modules (explained below).
-- `caller`: optional. A function that defines how an RPC method or controller’s callable method should run to produce `execute`. Intended for advanced scenarios.
-- `onExecute`: optional. Called when `execute` completes successfully.
-- `onError`: optional. Called when an `execute` call fails.
-- `meta`: [metadata](/controller/meta) passed to each controller/RPC method. Can include any data you want available on the back end.
-- `resultFormatter`: optional. Formats the result returned to the LLM. By default, returns the raw result. Use `"mcp"` to format according to [MCP](/mcp).
-
-Each `modules` entry is either an RPC module or a [controller](/controller). Controllers are functions with pre-populated features such as `schema` implementing `VovkHandlerSchema`, which includes the `operationObject` populated by the `@operation` decorator.
-
-`deriveTools` distinguishes RPC module methods from controller methods by the `isRPC` property. If `isRPC: true` is present, the method is treated as an RPC method. Otherwise, it is treated as a controller method that exposes `fn` (see [callable controller methods](/controller/fn)), mirroring the RPC function signature to allow direct invocation without HTTP.
-
-```ts showLineNumbers copy
-import { deriveTools } from 'vovk';
-import { PostRPC } from 'vovk-client';
-import UserController from '../user/UserController';
-
-const { tools } = deriveTools({
-  modules: {
-    PostRPC,
-    UserController,
-  },
-  onExecute: (tool, result) => {
-    console.log(`Tool ${tool.name} executed successfully with result:`, result);
-  },
-  onError: (tool, error) => {
-    console.error(`Tool ${tool.name} execution failed with error:`, error);
-  },
-});
+@prefix('user')
+export default class UserController {
+  @operation({
+    summary: 'Get user by ID',
+    description: 'Retrieves a user by their unique ID.',
+    'x-tool': {
+      // tool-specific attributes
+    }
+  })
+  @get('{id}')
+  static getUser() {
+    // ...
+  }
+}
 ```
 
-In this example, `PostRPC` is an RPC module whose methods issue HTTP requests, while `UserController` is a controller exposing callable methods that can be used like regular functions outside of an HTTP request. This enables function calling on the server (for direct DB access) and on the client (via HTTP). The “client” can be a browser or any JavaScript environment that supports `fetch`, such as React Native, Node.js, or Edge Runtime.
+`@operation` also provides `tool` property that defines tool-specific attributes for `deriveTools` function. It's set under `x-tool` key in the OpenAPI operation object and created for cleaner syntax.
 
-## Selecting Specific Methods
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+import { prefix, get, operation } from 'vovk';
 
-To include only certain methods from a module, use the `pick`/`omit` pattern from `lodash` or a similar utility.
+@prefix('user')
+export default class UserController {
+  @operation.tool({
+    title: 'Get user by ID',
+    name: 'get_user_by_id',
+    description: 'Retrieves a user by their unique ID, including name and email.',
+  })
+  @operation({
+    summary: 'Get user by ID',
+    description: 'Retrieves a user by their unique ID.',
+  })
+  @get('{id}')
+  static getUser() {
+    // ...
+  }
+}
+```
+
+The tool attributes available under `x-tool` are:
+
+- `hidden?: boolean` - if set to `true`, the tool is excluded from the derived tools.
+- `name?: string` - overrides the generated tool name.
+- `title?: string` - optional title for the tool. Used mainly for MCPs.
+- `description?: string` - overrides the generated tool description.
+
+## MCP (Model Context Protocol) Output Formatting
+
+`ToModelOutput.MCP` formatter formats the tool output to meet [MCP tool specification](https://modelcontextprotocol.io/specification/2025-11-25/server/tools), supporting the folowing types of outputs: `text`, `image`, `audio`, alongside with meta information, described with `annotations` object.
+
+### JSON Content
+
+JSON responses (including ones created with `Response` or `NextResponse`) will be formatted as text content with `structuredContent` field.
+
+```ts showLineNumbers copy
+export default class UserController {
+  @get('{id}')
+  static getUser() {
+    return { hello: 'world' };
+  }
+}
+```
+
+When the tool is executed with `ToModelOutput.MCP` formatter, the output will be:
+
+```json
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"hello\":\"world\"}",
+    }
+  ],
+  "structuredContent": { "hello": "world" }
+}
+```
+
+### Audio and Image Content
+
+If procedure returns a `Response` with `Content-Type` header set to `audio/*` or `image/*`, the output will be formatted accordingly.
+
+```ts showLineNumbers copy
+export default class MediaController {
+  @get('image')
+  static getImage() {
+    return new Response(buffer, {
+      headers: { 'Content-Type': 'image/png' },
+    });
+  };
+}
+```
+
+When the tool is executed with `ToModelOutput.MCP` formatter, the output will be:
+
+```json
+{
+  "content": [
+    {
+      "type": "image",
+      "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+      "mimeType": "image/png"
+    }
+  ]
+}
+```
+
+The response can be created with [`toDownloadResponse`](/response#downloads) utility, or using `fetch` to get media from an external source.
+
+```ts showLineNumbers copy
+import { toDownloadResponse } from 'vovk';
+
+export default class MediaController {
+  @get('audio')
+  static getAudio() {
+    return toDownloadResponse(buffer, { contentType: 'audio/mpeg' });
+  }
+}
+```
+
+```ts showLineNumbers copy
+export default class MediaController {
+  @get('from-url')
+  static async getAudioFromURL() {
+    return fetch('https://example.com/image.jpg');
+  }
+}
+```
+
+### Text Content
+
+If procedure returns a `Response` with `Content-Type` header set to `text/*` or other text-based types, such as XML, the output will be formatted as text content.
+
+```ts showLineNumbers copy
+export default class TextController {
+  @get('greeting')
+  static getGreeting() {
+    return new Response('Hello, world!', {
+      headers: { 'Content-Type': 'text/plain' },
+    });
+  }
+}
+```
+
+When the tool is executed with `ToModelOutput.MCP` formatter, the output will be:
+
+```json
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Hello, world!"
+    }
+  ]
+}
+```
+
+### `annotations`
+
+Annotations can be added to the output by setting a special metadata key `mcpOutput` using [req.vovk.meta](/req-vovk) function. This approach makes sure that if the procedure used as an endpoint, the response will not be affected.
+
+```ts showLineNumbers copy
+export default class AnnotatedController {
+  @get('annotated-image')
+  static async getAnnotatedImage(req: VovkRequest) {
+    req.vovk.meta({
+      mcpOutput: { annotations: { audience: ['user'], priority: 5 } },
+    });
+    return fetch('https://example.com/image.jpg');
+  }
+}
+```
+
+When the tool is executed with `ToModelOutput.MCP` formatter, the output will include the `annotations` object:
+
+```json
+{
+  "content": [
+    {
+      "type": "image",
+      "data": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...",
+      "mimeType": "image/jpeg"
+    }
+  ],
+  "annotations": {
+    "audience": ["user"],
+    "priority": 5
+  }
+}
+```
+
+Note that `mcpOutput` metadata key can also override other MCP output properties, such as `data`, `text`, `type`, and `mimeType`. This might be useful if you want to customize the MCP output without changing the actual procedure response.
+
+## Tips 
+
+### Selecting Specific Procedures
+
+To include only certain procedures from a module (besides using `hidden` attribute), use the `pick`/`omit` pattern from `lodash` or a similar utility.
 
 ```ts showLineNumbers copy
 import { deriveTools } from 'vovk';
@@ -95,146 +256,50 @@ const { tools } = deriveTools({
 
 The resulting `tools` include `createPost` and `getPost` from `PostRPC`, and all methods from `UserController` except `deleteUser`.
 
-## Authorizing RPC Calls
+### Authorizing API Calls
 
-To add authorization, pass a module as a tuple: the `module` itself and an `options` object with an `init` extending `RequestInit`. This lets you add headers such as auth tokens.
+Third-party API calls may require authorization headers that can be passed by using `withDefaults` function, available for all [generated RPC/API modules](/typescript). Having `GithubIssuesAPI` module, described in [OpenAPI mixins](/mixins), you can create authorized tools for Github Issues API:
 
 ```ts showLineNumbers copy
+
 import { deriveTools } from 'vovk';
-import { PostRPC } from 'vovk-client';
+import { GithubIssuesAPI } from 'vovk-client';
 
 const { tools } = deriveTools({
   modules: {
-    PostRPC: [
-      PostRPC,
-      {
-        init: {
-          headers: {
-            Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
-          },
+    AuthorizedGithubIssuesAPI: GithubIssuesAPI.withDefaults({
+      init: {
+        headers: {
+          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+          'X-GitHub-Api-Version': '2022-11-28'
         },
       },
-    ],
+    }),
   },
 });
 ```
 
-You can combine pick/omit with the `init` tuple to authorize and select methods at the same time:
+## Examples
 
-```ts showLineNumbers copy
-import { deriveTools } from 'vovk';
-import { PostRPC } from 'vovk-client';
-import { pick } from 'lodash';
+### Vercel AI SDK Example
 
-const { tools } = deriveTools({
-  modules: {
-    PostRPCAuthorized: [
-      pick(PostRPC, ['createPost']),
-      {
-        init: {
-          headers: {
-            Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
-          },
-        },
-      },
-    ],
-    PostRPCUnauthorized: pick(PostRPC, ['getPost']),
-  },
-});
-```
 
-<a id="x-tool" />
-## Custom Operation Attributes
 
-You can add custom attributes with the `x-tool-*` syntax to the OpenAPI operation in the `@operation` decorator, enabling AI-specific tooling metadata.
+That's an example of Vercel AI SDK chat that uses `UserController` to derive tools. [View live example on examples.vovk.dev »](https://examples.vovk.dev/ai-sdk)
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
-import { prefix, get, operation } from 'vovk';
-
-@prefix('user')
-export default class UserController {
-  @operation({
-    summary: 'Get user by ID',
-    description: 'Retrieves a user by their unique ID.',
-    'x-tool-disable': false,
-    'x-tool-name': 'get_user_by_id',
-    'x-tool-description':
-      'Retrieves a user by their unique ID, including name and email. Also includes user roles and permissions that define what actions the user can perform within the system.',
-    'x-tool-successMessage': 'User retrieved successfully.',
-    'x-tool-errorMessage': 'Failed to retrieve user.',
-    'x-tool-includeResponse': true,
-  })
-  @get('{id}')
-  static getUser() {
-    // ...
-  }
-}
-```
-
-### `x-tool-disable`
-
-Force-disables the function for LLM function calling, even if `summary`, `description`, or `x-tool-description` is present.
-
-### `x-tool-name`
-
-Overrides the generated function name (normally in the form `${moduleName}_${handlerName}`).
-
-### `x-tool-description`
-
-Overrides the generated function description (normally derived from `summary` + `description`).
-
-### `x-tool-successMessage`
-
-[MCP](/mcp)-specific attribute sent to the LLM when the function executes successfully.
-
-### `x-tool-errorMessage`
-
-[MCP](/mcp)-specific attribute sent to the LLM when the function execution fails.
-
-### `x-tool-includeResponse`
-
-[MCP](/mcp)-specific attribute indicating whether the function response should be included in the message sent back to the LLM after successful execution. Defaults to `true`.
-
-## Third-Party APIs
-
-Vovk.ts can generate RPC modules from third-party OpenAPI specs, letting you combine your back-end with external APIs in a single agent. See the [Codegen guide](/codegen).
-
-```ts showLineNumbers copy
-import { deriveTools } from 'vovk';
-import { GithubIssuesAPI, TaskRPC } from 'vovk-client';
-const { tools } = deriveTools({
-  modules: {
-    GithubIssuesAPI, // 3rd-party API
-    TaskRPC, // your own back-end API
-  },
-});
-```
-
-Because the Vovk.ts CLI can serve as a standalone code generator (e.g., for [NestJS](/nestjs)), you can still use the generated RPC modules with `deriveTools`.
-
-## Function Calling Example
-
-You can implement function calling using raw AI APIs with [JSON Lines](/jsonlines). In most cases, including this example, the [Vercel AI SDK](https://ai-sdk.dev/) provides a simple way to build a text chat with function calling.
-
-### Create LLM Endpoint
-
-Create a controller and pass your RPC modules or controllers to `deriveTools` as shown above.
+First, create an empty controller. The command will also update the root `route.ts` file.
 
 ```sh npm2yarn copy
 npx vovk new controller aiSdk --empty
 ```
 
-Paste the following into `src/modules/ai-sdk/AiSdkController.ts`, adjusting imports as needed:
+Paste the following into the newly created `src/modules/ai-sdk/AiSdkController.ts`, adjusting imports as needed:
 
-```ts showLineNumbers copy filename="src/modules/ai-sdk/AiSdkController.ts" {18}
+```ts showLineNumbers copy filename="src/modules/ai-sdk/AiSdkController.ts" {22-24, 26-35}
 import {
   deriveTools,
-  HttpException,
-  HttpStatus,
   post,
   prefix,
-  operation,
-  type KnownAny,
   type VovkRequest,
 } from 'vovk';
 import {
@@ -242,67 +307,46 @@ import {
   streamText,
   tool,
   convertToModelMessages,
-  type ModelMessage,
   type UIMessage,
-  type JSONSchema7,
 } from 'ai';
 import { openai } from '@ai-sdk/openai';
-import { PostRPC } from 'vovk-client';
 import UserController from '@/modules/user/UserController';
 
 @prefix('ai-sdk')
 export default class AiSdkController {
-  @operation({
-    summary: 'Vercel AI SDK with Function Calling',
-    description:
-      'Uses [@ai-sdk/openai](https://www.npmjs.com/package/@ai-sdk/openai) and ai packages to call a function',
-  })
   @post('function-calling')
   static async functionCalling(req: VovkRequest<{ messages: UIMessage[] }>) {
     const { messages } = await req.json();
     const { tools: llmTools } = deriveTools({
-      modules: { UserController, PostRPC },
-      onExecute: (d) => console.log('Success', d),
-      onError: (e) => console.error('Error', e),
+      modules: { UserController },
     });
 
     const tools = Object.fromEntries(
       llmTools.map(({ name, execute, description, parameters }) => [
         name,
         tool({
-          execute: async (args, { toolCallId }) => {
-            return execute(args, { toolCallId });
-          },
+          execute: (input) => execute(input),
           description,
-          inputSchema: jsonSchema(parameters as JSONSchema7),
+          inputSchema: jsonSchema(parameters),
         }),
       ])
     );
 
     return streamText({
       model: openai('gpt-5-nano'),
-      system:
-        'You are a helpful assistant. Always provide a clear confirmation message after executing any function. Explain what was done and what the results were after the user request is executed.',
-      messages: convertToModelMessages(messages),
+      system: 'You are a helpful assistant',
+      messages: await convertToModelMessages(messages),
       tools,
-      onError: (e) => console.error('streamText error', e),
-      onFinish: ({ finishReason }) => {
-        if (finishReason === 'tool-calls') {
-          console.log('Tool calls finished');
-        }
-      },
     }).toUIMessageStreamResponse();
   }
 }
 ```
 
-Here, the `tools` are mapped to Vercel AI SDK `tool` instances using `jsonSchema`. For other Node.js libraries, you can map them differently.
+Here, the `tools` are mapped to Vercel AI SDK `tool` instances using `jsonSchema`. For other libraries, you can map them differently.
 
-### Create a Front-End Component
+On the client-side, create a component using the [useChat](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat) hook:
 
-On the front end, create a component using the [useChat](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat) hook:
-
-```ts showLineNumbers copy filename="src/app/page.tsx"
+```tsx showLineNumbers copy filename="src/app/page.tsx"
 'use client';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
@@ -345,7 +389,9 @@ export default function Page() {
 }
 ```
 
-See the [Vercel AI SDK docs](https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat) and the [LLM guide](/llm).
+### MCP Handler Example
+
+Coming soon...
 
 ## Roadmap
 

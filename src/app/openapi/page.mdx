@@ -1,6 +1,6 @@
-# OpenAPI Specification with `@operation` Decorator
+# OpenAPI Specification and `@operation` Decorator
 
-Vovk.ts automatically generates an OpenAPI specification from controller methods, using validation models to populate operation objects with `parameters`, `requestBody`, and `responses`. The `@operation` decorator lets you enrich operation objects with metadata such as `summary`, `description`, `tags`, and more. It accepts a `VovkOperationObject`, which extends the standard OpenAPI `OperationObject` type from [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts) and supports `x-tool-*` properties related to AI capabilities, as described in the [Function Calling](/function-calling) documentation.
+Vovk.ts automatically generates an OpenAPI specification from controller methods, using validation models to populate operation objects with `parameters`, `requestBody`, and `responses`. The `@operation` decorator lets you enrich operation objects with metadata such as `summary`, `description`, `tags`, and more. It accepts `OperationObject` type from [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts), enhanced with Vovk-specific `x-tool` poperty related to [deriveTools](/function-calling) function.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { procedure, put, prefix, operation } from 'vovk';
@@ -14,25 +14,12 @@ export default class UserController {
   })
   @put('{id}')
   static updateUser = procedure({
-    isForm: true,
-    params: z.object({
-      id: z.uuid(),
-    }),
-    body: z.object({
-      /* ... */
-    }),
-    query: z.object({
-      /* ... */
-    }),
-    output: z.object({
-      /* ... */
-    }),
     // ...
   });
 }
 ```
 
-The [validation](/validation) models are converted to OpenAPI operation objects according to the following mapping:
+The validation models, accepted by the [procedure](/procedure) are converted to OpenAPI operation objects according to the following mapping:
 
 - `params` → `parameters` with `in: "path"`
 - `query` → `parameters` with `in: "query"`
@@ -77,7 +64,7 @@ const config = {
 module.exports = config;
 ```
 
-The `openAPIObject` can also be configured individually for each [segment](/segment) using `outputConfig.segments.[segmentName].openAPIObject`. This is useful for [segmented client](/segment) where each segment has its own API specification.
+The `openAPIObject` can also be configured individually for each [segment](/segment) using `outputConfig.segments.[segmentName].openAPIObject`.
 
 ```ts showLineNumbers copy filename="vovk.config.js"
 // @ts-check
@@ -99,7 +86,7 @@ const config = {
 };
 ```
 
-## Utilizing the Generated OpenAPI Specification
+## Utilizing the OpenAPI Specification
 
 The generated RPC client exports an `openapi` object from `openapi` module that contains the full back-end specification for the [composed client](/composed). When using the [segmented client](/segmented), each [segment](/segment) also exports its own specification.
 
@@ -111,34 +98,19 @@ import { openapi } from 'vovk-client/openapi'; // composed client
 import { openapi } from '@/client/admin/openapi.ts'; // segmented client
 ```
 
-This object is a fully compliant OpenAPI 3.x specification and works with any tool that supports OpenAPI 3 or later.
-
-You can use the specification directly as a variable or expose it via a [static segment](/segment/static) with a simple [controller](/controller) that serves it as a JSON endpoint.
-
-```sh npm2yarn copy
-npx vovk new segment --static static
-```
-
-```sh npm2yarn copy
-npx vovk new controller static/openApi --empty
-```
+You can use the specification directly as a variable or expose it via a static segment with a simple [controller](/controller) that serves it as a JSON endpoint.
 
 ```ts showLineNumbers copy filename="src/modules/static/openapi/OpenApiController.ts"
 import { get, operation } from 'vovk';
 import { openapi } from 'vovk-client/openapi';
 
 export default class OpenApiController {
-  @operation({
-    // operation object definition is optional
-    summary: 'OpenAPI Specification',
-    description: 'Retrieve the OpenAPI specification for the API',
-  })
   @get('openapi.json')
   static getSpec = () => openapi;
 }
 ```
 
-On the client side, you can use any OpenAPI documentation generator, but [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react) is the best choice as Vovk.ts generates code snippets that integrate directly into your codebase.
+On the client side, you can use any OpenAPI documentation generator. [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react) is a recommended choice as Vovk.ts generates code snippets for the generated RPC modules.
 
 ```ts showLineNumbers copy
 import { ApiReferenceReact } from "@scalar/api-reference-react";
@@ -157,4 +129,29 @@ async function App() {
 export default App;
 ```
 
-For a live demonstration, see the ["Hello World" application spec](https://hello-world.vovk.dev/openapi). Additional details are available on the ["Hello World"](/hello-world) page.
+For a live demonstration, see the ["Hello World" application spec](https://hello-world.vovk.dev/openapi). Check ["Hello World"](/hello-world) page for details.
+
+---
+
+The `@operation` decorator also provides `tool` property that defines tool-specific attributes for [deriveTools](/function-calling) function. It's set under `x-tool` key in the OpenAPI operation object.
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+import { procedure, put, operation } from 'vovk';
+
+export default class UserController {
+  @operation.tool({
+    name: 'updateUser',
+    description: 'Update user information in the system',
+  })
+  @operation({
+    summary: 'Update User',
+    description: 'Update user information',
+  })
+  @put('{id}')
+  static updateUser = procedure({
+    // ...
+  });
+}
+```
+
+For more details, see the [deriveTools](/function-calling) documentation.

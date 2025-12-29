@@ -46,7 +46,7 @@ export default class UserController {
 }
 ```
 
-It compiles to the following RPC method, which accepts `body`, `params`, and `query` as a three-part input.
+It compiles to the following RPC module with `updateUser` method, which accepts `body`, `params`, and `query` as a three-part input.
 
 ```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
@@ -58,7 +58,7 @@ const updatedUser = await UserRPC.updateUser({
 });
 ```
 
-Behind the scenes, `updateUser` performs [client-side validation](/validation/client), serializes `query` and `params` into the URL, and issues a standard `fetch` request. The server handles it in `UserController.updateUser`. The RPC method returns a promise that resolves to the return type used in the controller method.
+`updateUser` performs [client-side validation](/validation/client), serializes `query` and `params` into the URL, and issues a standard `fetch` request. The server handles it in `UserController.updateUser`. The RPC method returns a promise that resolves to the return type used in the controller method.
 
 ```ts showLineNumbers copy
 const resp = await fetch(`/api/users/${id}?notify=push`, {
@@ -69,6 +69,24 @@ const resp = await fetch(`/api/users/${id}?notify=push`, {
 });
 
 const updatedUser = await resp.json();
+```
+
+Behind the scenes the RPC module is created by an internal function `createRPC` and uses default imports or imports defined in the [vovk.config](/config) file. See [imports customization](/imports) for details.
+
+```ts showLineNumbers copy
+import type { VovkFetcher } from "vovk";
+import { createRPC } from "vovk";
+import { schema } from "./schema";
+
+import type { Controllers as Controllers0 } from "../../app/api/[[...vovk]]/route.ts";
+
+// The arguments are: schema, segmentName, controllerName, fetcher and options
+export const UserRPC = createRPC<
+  Controllers0["UserRPC"],
+  typeof import("vovk").fetcher extends VovkFetcher<infer U> ? U : never
+>(schema, "", "UserRPC", import("vovk"), {
+  validateOnClient: import("vovk-ajv"),
+});
 ```
 
 ## RPC Method Options
@@ -178,6 +196,27 @@ const user = await UserRPC.updateUser({
 ### `validateOnClient`
 
 Overrides the `validateOnClient` setting from [imports](/imports#validateonclient).
+
+## `withDefaults`
+
+An RPC module can be wrapped with default options using the `withDefaults` method. It returns a new RPC module with the specified deeply-merged defaults applied to every method call.
+
+```ts showLineNumbers copy
+import { UserRPC } from 'vovk-client';
+
+const WithDefaultsUserRPC = UserRPC.withDefaults({
+  apiRoot: 'https://api.example.com/v1',
+  init: {
+    headers: {
+      'x-hello': 'world',
+    },
+  },
+});
+
+const user = await WithDefaultsUserRPC.updateUser({
+  // ...
+});
+```
 
 ## Customization
 
@@ -387,7 +426,7 @@ The TypeScript RPC client is generated from the following templates:
 
 - [cjs](/templates#cjs), [mjs](/templates#mjs) - compiled CJS and ESM modules with TypeScript definitions; used by default in the [composed client](/composed);
 - [ts](/templates#ts) - uncompiled TypeScript module with type definitions; used by default in the [segmented client](/segmented);
-- [mixins](/templates#mixins) - `.d.ts` types and `.json` files generated when [OpenAPI Mixins](/codegen) are used;
+- [mixins](/templates#mixins) - `.d.ts` types and `.json` files generated when [OpenAPI mixins](/mixins) are used;
 - [readme](/templates#readme), [packageJson](/templates#packagejson) - `README.md` with RPC documentation and `package.json` suitable for publishing the generated library as an NPM package.
 
 For more information, see the [client templates documentation](/templates).

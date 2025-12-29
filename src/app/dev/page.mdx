@@ -4,7 +4,7 @@ import devSvg from '../../excalidraw/vovk-dev.svg';
 # vovk dev
 
 ```sh filename="Quick CLI Ref"
-$ npx vovk@draft dev --help
+$ npx vovk dev --help
 
 Usage: vovk dev|d [options] [nextArgs...]
 
@@ -66,19 +66,6 @@ npx vovk dev --https --next-dev -- --experimental-https --turbo
 Internally, the implicit mode uses the concurrently API, making both approaches nearly identical.
 
 Read more about [HTTPS in development](/config#devhttps).
-
-When you run [vovk init](/init), the `dev` script in `package.json` is updated while preserving your previous value and flags:
-
-```json
-{
-  "scripts": {
-    // was
-    // "dev": "next dev --experimental-https --turbo",
-    // becomes
-    "dev": "vovk dev --next-dev -- --experimental-https --turbo"
-  }
-}
-```
 
 ## Run and Exit
 

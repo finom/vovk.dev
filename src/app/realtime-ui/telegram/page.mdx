@@ -3,7 +3,7 @@
 
 As an example of a third-party source of database changes, see the [TelegramService](https://github.com/realtime-kanban/src/modules/telegram/TelegramService.ts) and the accompanying [TelegramController](https://github.com/realtime-kanban/src/modules/telegram/TelegramController.ts). It accepts text or voice messages, performs voice-to-text transcription if needed using the OpenAI Whisper API, and uses the same `deriveTools` function on the server.
 
-The Telegram API library is implemented with [OpenAPI Mixins](/codegen) and used as a `TelegramAPI` module to call Telegram API methods.
+The Telegram API library is implemented with [OpenAPI mixins](/mixins) and used as a `TelegramAPI` module to call Telegram API methods.
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
 // @ts-check

@@ -5,8 +5,8 @@
 Vovk.ts renders client libraries from [EJS](https://www.npmjs.com/package/ejs) templates. To accommodate a wide range of use cases, Vovk.ts provides simple yet powerful template logic that meets the following requirements:
 
 1. Render multiple files from a single template definition. This means a **"template" is a directory** with one or more files, where files with the `.ejs` extension are rendered as EJS templates and other files are copied as-is. An `index.ts.ejs` file is rendered as `index.ts`, and an `index.ts` without the `.ejs` extension is copied as-is.
-2. Use existing templates as a base for other templates using the `extends` option. This allows you to create a new template that extends an existing one and overrides some of its options.
-3. Use existing templates as dependencies for other templates using the `requires` option. This allows you to create a new template that composes existing templates and renders them into the output directory.
+2. Use existing templates as a base for other templates using the `extends` option. This allows to create a new template that extends an existing one and overrides some of its options.
+3. Use existing templates as dependencies for other templates using the `requires` option. This allows to create a new template that composes existing templates and renders them into the output directory.
 
 Template definitions are configured in [config](/config) under the `clientTemplateDefs` option. By default, this object includes built-in template definitions that become visible if you set [`exposeConfigKeys`](/config#exposeConfigKeys) to `true` or, if `exposeConfigKeys` is an array, add `clientTemplateDefs`. You can then inspect `.vovk-schema/_meta.json`, which lists all available template definitions under `config`.
 
@@ -14,40 +14,51 @@ Template definitions are configured in [config](/config) under the `clientTempla
 
 To make the options in the next section concrete, let’s break down the built-in template definition for the [Rust client](/rust). The primary definition is stored under the [rs](#rs) key, which is the template name used in the [segmented client](/segmented) or [composed client](/composed) configuration.
 
-By itself, it doesn’t contain files, so it omits `templatePath`. Instead, it extends the [rsSrc](#rssrc) definition that renders Rust source files to `./src` (relative to `outDir`), the [rsPkg](#rspkg) definition that renders Cargo-related files to the root of `outDir`, and the [rsReadme](#rsreadme) definition that renders README files to the root of `outDir`. The `rs` template definition also sets a `composedClient` option that overrides the default `outDir` to `dist_rust`, so it isn’t compiled into the `node_modules/.vovk-client` folder used by the composed [TypeScript](/typescript) client.
+By itself, the `rs` template doesn’t contain files, so it omits `templatePath`. Instead, it requires:
+
+- the [rsSrc](#rssrc) definition that renders Rust source files to `./src` (relative to `outDir`)
+- the [rsPkg](#rspkg) definition that renders Cargo-related files to the root of `outDir`, 
+- and the [rsReadme](#rsreadme) definition that renders README files to the root of `outDir`.
+
+ The `rs` template definition also sets a `composedClient` option that overrides the default `outDir` to `dist_rust`, so it isn’t compiled into the `node_modules/.vovk-client` folder used by the composed [TypeScript](/typescript) client.
 
 The [rsSrc](#rssrc) definition uses `templatePath` to point to its template directory (`lib.rs.ejs`, `http_request.rs`, etc.). It `requires` the [schemaJson](#schemajson) template that renders `schema.json`, which combines the full schema from the `.vovk-schema/` folder.
 
-Take a look at the example copied from the project codebase. `BuiltInTemplateName` is an enum whose values match the built-in template keys:
+Let's simulate how you would define this setup in your own `vovk.config.mjs` file.
 
-```ts showLineNumbers copy
-const rsTemplateDemo = {
-  [BuiltInTemplateName.schemaJson]: {
-    templatePath: `vovk-cli/client-templates/${BuiltInTemplateName.schemaJson}/`,
-  },
-  [BuiltInTemplateName.rsSrc]: {
-    templatePath: `vovk-rust/client-templates/${BuiltInTemplateName.rsSrc}/`,
-    requires: {
-      [BuiltInTemplateName.schemaJson]: './',
+```ts showLineNumbers copy filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  clientTemplateDefs: {
+    schemaJson: {
+      templatePath: `vovk-cli/client-templates/schemaJson/`,
     },
-  },
-  [BuiltInTemplateName.rsPkg]: {
-    templatePath: `vovk-rust/client-templates/${BuiltInTemplateName.rsPkg}/`,
-  },
-  [BuiltInTemplateName.rsReadme]: {
-    templatePath: `vovk-rust/client-templates/${BuiltInTemplateName.rsReadme}/`,
-  },
-  [BuiltInTemplateName.rs]: {
-    composedClient: {
-      outDir: 'dist_rust',
+    rsSrc: {
+      templatePath: `vovk-rust/client-templates/rsSrc/`,
+      requires: {
+        schemaJson: './',
+      },
     },
-    requires: {
-      [BuiltInTemplateName.rsSrc]: './src/',
-      [BuiltInTemplateName.rsPkg]: './',
-      [BuiltInTemplateName.rsReadme]: './',
+    rsPkg: {
+      templatePath: `vovk-rust/client-templates/rsPkg/`,
     },
-  },
+    rsReadme: {
+      templatePath: `vovk-rust/client-templates/rsReadme/`,
+    },
+    rs: {
+      composedClient: {
+        outDir: 'dist_rust',
+      },
+      requires: {
+        rsSrc: './src/',
+        rsPkg: './',
+        rsReadme: './',
+      },
+    },
+  }
 };
+
+export default config;
 ```
 
 (all paths end with a slash `/` for clarity, though it isn’t required)
@@ -146,21 +157,21 @@ Used as one of the default templates (the other one is [cjs](#cjs)) for the [com
 Used as the default template for the [bundle](/bundle) as it doesn't include `openapi` object. Renders TypeScript code.
 
 - `templatePath` is `vovk-cli/client-templates/tsBase/`.
-- `requires` [schemaTs](#schemats), [mixins](#mixins) (the last one is used conditionally if [OpenAPI Mixins](/codegen) are used).
+- `requires` [schemaTs](#schemats), [mixins](#mixins) (the last one is used conditionally if [OpenAPI mixins](/mixins) are used).
 
 ### `cjsBase`
 
 Renders CommonJS code.
 
 - `templatePath` is `vovk-cli/client-templates/cjsBase/`.
-- `requires` [schemaCjs](#schemacjs), [mixins](#mixins) (the last one is used conditionally if OpenAPI Mixins are used).
+- `requires` [schemaCjs](#schemacjs), [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
 
 ### `mjsBase`
 
 Renders ES Module code.
 
 - `templatePath` is `vovk-cli/client-templates/mjsBase/`.
-- `requires` [schemaCjs](#schemacjs), [mixins](#mixins) (the last one is used conditionally if OpenAPI Mixins are used).
+- `requires` [schemaCjs](#schemacjs), [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
 
 ### `schemaTs`
 
@@ -214,7 +225,7 @@ Renders the `package.json` file that makes the generated client ready to be publ
 
 ### `mixins`
 
-Generates types and [schema](/schema) for [OpenAPI Mixins](/codegen) when they are present.
+Generates types and [schema](/schema) for [OpenAPI mixins](/mixins) when they are present.
 
 - `templatePath` is `vovk-cli/client-templates/mixins/`.
 
@@ -237,3 +248,7 @@ Renders `Cargo.toml` and `README.md` files for the Rust client.
 Renders the `README.md` file for the Rust client. Works similarly to the [readme](#readme) template.
 
 - `templatePath` is `vovk-rust/client-templates/rsReadme/`.
+
+## Roadmap
+
+- 📝 Describe creation of custom templates.

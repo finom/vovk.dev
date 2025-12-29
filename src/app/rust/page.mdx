@@ -88,7 +88,7 @@ The snippets below are adapted from a real example described on the [Hello World
 
 A [controller](/controller) like this:
 
-<Tabs items={['UserController.ts', 'UserService.ts']}>
+<Tabs items={['UserController.ts', 'UserService.ts', 'route.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/vovk-hello-world"
 import { z } from "zod";
@@ -166,7 +166,6 @@ export default class UserController {
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserController.ts)*
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserService.ts" repository="finom/vovk-hello-world"
@@ -194,6 +193,29 @@ export default class UserService {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserService.ts)*
 
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"
+import { initSegment } from "vovk";
+import UserController from "../../../modules/user/UserController";
+import StreamController from "../../../modules/stream/StreamController";
+
+export const runtime = "edge";
+
+const controllers = {
+  UserRPC: UserController,
+  StreamRPC: StreamController,
+};
+
+export type Controllers = typeof controllers;
+
+export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
+  emitSchema: true,
+  controllers,
+  onError: console.error,
+});
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/app/api/[[...vovk]]/route.ts)*
 </Tabs.Tab>
 </Tabs>
 
@@ -374,7 +396,7 @@ For continuous streaming with [JSON Lines](/jsonlines) endpoints, the client imp
 
 A controller like this:
 
-<Tabs items={['StreamController.ts', 'StreamService.ts']}>
+<Tabs items={['StreamController.ts', 'StreamService.ts', 'route.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/stream/StreamController.ts" repository="finom/vovk-hello-world"
 import { prefix, get, operation } from "vovk";
@@ -404,7 +426,6 @@ export default class StreamController {
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts" repository="finom/vovk-hello-world"
@@ -427,6 +448,29 @@ export default class StreamService {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamService.ts)*
 
+</Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"
+import { initSegment } from "vovk";
+import UserController from "../../../modules/user/UserController";
+import StreamController from "../../../modules/stream/StreamController";
+
+export const runtime = "edge";
+
+const controllers = {
+  UserRPC: UserController,
+  StreamRPC: StreamController,
+};
+
+export type Controllers = typeof controllers;
+
+export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
+  emitSchema: true,
+  controllers,
+  onError: console.error,
+});
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/app/api/[[...vovk]]/route.ts)*
 </Tabs.Tab>
 </Tabs>
 
@@ -518,5 +562,5 @@ pub fn main() {
 ## Roadmap
 
 - 🧩 Use async (.await) instead of blocking calls.
-- 🐞 Allow circular $refs with [OpenAPI Mixins](/codegen).
+- 🐞 Allow circular $refs with [OpenAPI mixins](/mixins).
 - ✨ Generate importable types for named schemas defined in `components/schemas`.

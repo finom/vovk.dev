@@ -1,6 +1,6 @@
-# TypeScript RPC Customization
+# TypeScript Client Customization
 
-You can customize the generated TypeScript client by replacing imports of lower-level libraries. Do this via the `outputConfig.imports` object in the [config](/config) file, which can specify a [fetcher](#fetcher), [validateOnClient](#validateonclient), or [createRPC](#createrpc-advanced).
+You can customize the generated TypeScript client by replacing imports of lower-level libraries. Do this via the `outputConfig.imports` object in the [config](/config) file, which can specify a [fetcher](#fetcher) and [validateOnClient](#validateonclient).
 
 By default (when [vovk-ajv](/validation/client) is used for client-side validation), an `index.mjs` file generating the `UserRPC` module might look like:
 
@@ -23,7 +23,6 @@ const config = {
     imports: {
       fetcher: './src/lib/fetcher',
       validateOnClient: './src/lib/validateOnClient',
-      createRPC: './src/lib/createRPC',
     },
   },
 };
@@ -41,7 +40,7 @@ export const UserRPC = createRPC(schema, '', 'UserRPC', import('../../src/lib/fe
 });
 ```
 
-`fetcher` and `validateOnClient` can also be set per [segment](/segment). This enables different options or auth mechanisms per segment (including [OpenAPI Mixins](/codegen)) and different validation libraries where needed.
+`fetcher` and `validateOnClient` can also be set per [segment](/segment). This enables different options or auth mechanisms per segment (including [OpenAPI mixins](/mixins)) and different validation libraries where needed.
 
 ```ts showLineNumbers copy
 /** @type {import('vovk').VovkConfig} */
@@ -180,8 +179,4 @@ export const validateOnClient = createValidateOnClient({
 });
 ```
 
-See [client-side validation](/validation/client) for details.
-
-## `createRPC` (Advanced)
-
-`createRPC` lets you replace the default RPC client completely. It is configured globally (not per segment, unlike `fetcher` or `validateOnClient`). This is an advanced option with limited use cases; feel free to ask on [GitHub Discussions](https://github.com/finom/vovk/discussions).
+See [client-side validation](/client-validation) for details.

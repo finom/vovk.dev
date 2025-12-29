@@ -1,9 +1,9 @@
 import { Callout } from 'nextra/components';
 import { VovkNewDynamic } from './VovkNewDynamic';
 
-# Procedure
+# Controller & Remote Procedure
 
-Procedure in Vovk.ts defines a RESTful API endpoint handler. It's defined as a static method of a class, called "controller", decorated with an HTTP method decorator like `@get()`, `@post()`, `@del()`, `@put()`, `@patch()`. A procedure is a wrapper around Next.js API route handler that accepts `NextRequest` object and parameters defined in the route path.
+Procedure in Vovk.ts defines a RESTful API endpoint handler. It's implemented as a **static method** of a class, called "controller", decorated with an HTTP method decorator like `@get()`, `@post()`, `@del()`, `@put()`, `@patch()`. A procedure is a wrapper around Next.js API route handler that accepts `NextRequest` object and parameters defined in the route path.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { get, put, prefix } from 'vovk';
@@ -147,7 +147,7 @@ Use `body`, `query`, and `params` to provide input validation schemas. These val
 
 #### `output` and `iteration`
 
-Use `output` and `iteration` to provide output validation schemas. `output` is for regular JSON responses, while `iteration` is for [JSON Lines](/jsonlines). Both are optional and don’t affect generated RPC typings, but they enable key features like [OpenAPI](/openapi), [function calling](/function-calling), and [codegen](/codegen) for [Python](/python), [Rust](/rust), and future clients. These schemas are not used for client-side validation.
+Use `output` and `iteration` to provide output validation schemas. `output` is for regular JSON responses, while `iteration` is for [JSON Lines](/jsonlines). Both are optional and don’t affect generated RPC typings, but they enable key features like [OpenAPI](/openapi), [function calling](/function-calling), and for [Python](/python), [Rust](/rust), and future clients. These schemas are not used for client-side validation.
 
 #### `isForm`
 
@@ -202,7 +202,7 @@ const result = await UserRPC.updateUser({
 });
 ```
 
-See [local procedures](/fn) for details.
+See [Calling Procedures Locally](/fn) for details.
 
 ### `schema`
 
@@ -341,9 +341,9 @@ export default class UserController {
 }
 ```
 
-You can also use `req.vovk.form()`, which serializes the form data into a plain object.
+You can also use `req.vovk.form()`, which serializes the form data into a plain object (see [req.vovk](/req-vovk)).
 
-```ts showLineNumbers copy {11}
+```ts showLineNumbers copy {8}
 // ...
 export default class UserController {
   @post()

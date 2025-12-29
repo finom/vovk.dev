@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 # Multitenancy
 
-This article explains how to host multiple tenants or sites—each served from a different subdomain—within a single Next.js application. The backend and frontend run as separate serverless functions in one project, which keeps maintenance and deployment simple, reduces infrastructure complexity, and lowers hosting costs.
+This article explains how to host multiple tenants or sites—each served from a different subdomain—within a single Next.js application. The backend and frontend run as separate serverless functions in one project, which keeps maintenance and deployment simple and reduces infrastructure complexity.
 
 <Image
   src="/draw/multitenancy.svg"
@@ -23,16 +23,18 @@ This guide walks you through implementing multitenancy in Next.js with a small a
 
 The live example is available at [multitenant.vovk.dev](https://multitenant.vovk.dev/), and the source code is in the [vovk-multitenant-example](https://github.com/finom/vovk-multitenant-example).
 
-Each tenant has its own root API endpoint under that domain’s `/api` path. For example, the customer tenant’s API lives at `customer.example.com/api`, and the admin tenant’s API at `admin.example.com/api`. These root endpoints are implemented as [segments](/segments) and rewritten by [Next.js proxy](https://nextjs.org/docs/app/getting-started/proxy) to the appropriate path based on the tenant subdomain.
+Each tenant has its own root API endpoint under that domain’s `/api` path. For example, the customer tenant’s API lives at `customer.example.com/api`, and the admin tenant’s API at `admin.example.com/api`. These root endpoints are implemented as [segments](/segments) and rewritten at [Next.js proxy](https://nextjs.org/docs/app/getting-started/proxy) to the appropriate path based on the tenant subdomain.
 
 On the frontend, use Next.js [dynamic routes](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes) for tenant‑specific paths. For example, a customer’s dedicated tenant page lives at `src/customer/[customer_name]/page.tsx`, and the admin tenant uses `src/admin/page.tsx`.
 
 Vovk.ts provides a small routing utility, `multitenant`, that accepts request information and returns the action the proxy should take—redirecting to a subdomain or rewriting to a path. You’ll use it in Next.js proxy to route requests based on the tenant subdomain.
 
+This example uses Vercel for deployment, but you can adapt it to any platform that supports Node.js.
+
 <Steps>
 ## Configure DNS
 
-To set up [multitenant.vovk.dev](https://multitenant.vovk.dev/) with subdomains, this example uses Vercel as the host. DNS records are configured as follows:
+DNS records are configured as follows:
 
 | Type         | Host           | Value                 |
 | ------------ | -------------- | --------------------- |
@@ -50,7 +52,7 @@ On Vercel, the project domains are configured like this:
 
 See the [Vercel documentation](https://vercel.com/docs/domains/working-with-domains/add-a-domain) for details on configuring domains, or consult your provider’s documentation for wildcard subdomains.
 
-The project uses the following domains:
+As it was mentioned above, the project uses the following domains:
 
 - `multitenant.vovk.dev` for the root tenant,
 - `admin.multitenant.vovk.dev` for the admin tenant,
@@ -259,7 +261,7 @@ const config = {
 export default config;
 ```
 
-## Create Proxy
+## Create Next.js Proxy
 
 The `"vovk"` package provides a `multitenant` utility that acts as the router for your multitenant app. It accepts request information and returns the action the proxy should take—redirect to a subdomain or rewrite to a path.
 

@@ -5,22 +5,29 @@ import Image from 'next/image';
 
 ## Next.js App Router Back-End Framework
 
-Vovk.ts is built on top of the Next.js App Router, utilizing Route Handlers as the underlying HTTP framework and being a thin abstraction layer over it, being fully compatible with existing Next.js features and libraries.
+Vovk.ts is built on top of the Next.js App Router, utilizing Route Handlers as the underlying HTTP framework and being a thin abstraction layer over it, being fully compatible with existing Next.js features and libraries. It encourages the use of the Controller-Service-Repository pattern for organizing back-end code, leading to cleaner, more maintainable code for large applications.
 
 **Related Documentation**
 - [Next.js Route Handlers (nextjs.org)](https://nextjs.org/docs/app/getting-started/route-handlers)
 - [Procedure](/procedure)
 
-## Schema
+## Back-end Segmentation
 
-Vovk.ts generates a comprehensive back-end schema in JSON format. This polarizing approach makes endpoint definition to be the only source of truth, enabling direct type mapping between back-end and front-end code, doesn't require contract definition, but also can expose custom data defined in a decorator to the client side.
+Vovk.ts utilizes Next.js routing capabilities to introduce an additional hierarchy level in the back-end called [segments](/segment), powered by Next.js Route Handlers. Segments allow you to split the back-end into smaller, independently configured parts, each compiled into a separate serverless function.
+
+**Related Documentation**
+- [Segment](/segment)
+
+## Schema Emission
+
+Vovk.ts generates a comprehensive back-end schema in JSON format for each segment separately. This polarizing approach, usually opposed to contracts (schema defined in a separate module that's read by back-end and front-end), makes endpoint definition to be the only source of truth, enabling direct type mapping between back-end and front-end code, but also can expose custom data set by a decorator to the client side. Each segment emits its schema to an individual JSON file, located in **.vovk-schema/** folder.
 
 **Related Documentation**
 - [Schema](/schema)
 
 ## Code Generation and "RPC Modules"
 
-Controllers implemented as static classes are compiled into RPC modules through code generation. Each RPC module mirrors the controller's structure but has a different argument signature, requiring three separate inputs: URL parameters, query parameters, and request body. The code generation can be configured to emit either a single "composed" RPC client or multiple "segmented" RPC clients for each back-end segment independently.
+Controllers implemented as static classes are compiled into RPC modules through code generation. Each RPC module mirrors the controller's structure but has a different argument signature, requiring three separate inputs: URL parameters, query parameters, and request body. The code generation can be configured to emit either a single "composed" RPC client or multiple "segmented" RPC clients for each back-end segment independently, splitting the app into isolated parts.
 
 **Related Documentation**
 - [TypeScript Client](/typescript)
@@ -36,23 +43,12 @@ Vovk.ts can derive AI tools from back-end controllers (for same-context executio
 - [MCP Handler](/mcp)
 - [Realtime UI](/realtime-ui)
 
-## Controller-Service-Repository Pattern
-
-Vovk.ts encourages the use of the Controller-Service-Repository pattern for organizing back-end code. Controllers handle HTTP requests and services contain business logic. This separation of concerns leads to cleaner, more maintainable code for large applications.
-
-## Back-end Segmentation
-
-Vovk.ts utilizes Next.js routing capabilities to introduce an additional hierarchy level in the back-end called [segments](/segment). Segments allow you to split the back-end into smaller, independently configured parts, each compiled into a separate serverless function.
-
-**Related Documentation**
-- [Segment](/segment)
-
-## OpenAPI Mixins
+## OpenAPI mixins
 
 Vovk.ts can convert OpenAPI 3.x schema files into API modules following that follow the same calling signature as Vovk.ts RPC modules. This allows you to mix Vovk.ts back-end functionality with third-party APIs defined in OpenAPI format and create derived AI tools that combine both - your back-end and external services.
 
 **Related Documentation**
-- [OpenAPI Mixins](/codegen)
+- [OpenAPI mixins](/mixins)
 
 ## Documentation Generation and Publishing
 
@@ -65,3 +61,11 @@ Vovk.ts generates comprehensive documentation for RPC modules, including OpenAPI
 - [Python Client](/python)
 - [Rust Client](/rust)
 
+## Vocabulary
+
+- **API Module** - Generated module from a Vovk.ts controller or OpenAPI schema that exposes methods for making HTTP requests to the back-end.
+- **RPC Module** - Generated module from a Vovk.ts controller, a subset term of API module that infer types directly from the controller methods.
+- **Controller** - A class in Vovk.ts that defines HTTP endpoints using decorators. All methods in a controller are considered procedures and defined with `static` keyword.
+- **Procedure** - A static method in a controller that handles HTTP requests. Procedure accepts `NextRequest` object and URL parameters and can be wrapped by [procedure](/procedure) function for additional features like validation with automatic type inference.
+- **Segment** - A part of the back-end defined by a Next.js Optional Catch-All Segment that initializes controllers and is compiled into a separate serverless function.
+- **OpenAPI mixin** - An API module generated from an OpenAPI 3.x schema file that can be used alongside Vovk.ts RPC modules.

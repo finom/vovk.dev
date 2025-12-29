@@ -73,7 +73,7 @@ export default class UserController {
 }
 ```
 
-Validated methods infer input types automatically:
+Validated [procedures](/procedure) infer input types automatically:
 
 ```ts showLineNumbers copy
 import { procedure } from 'vovk';
@@ -92,7 +92,7 @@ export default class UserController {
 }
 ```
 
-All three cases generate the same RPC method:
+All three cases result the same RPC method:
 
 ```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
@@ -104,7 +104,7 @@ await UserRPC.updateUser({
 });
 ```
 
-And they allow you to infer input types identically:
+And they allow to infer input types identically:
 
 ```ts showLineNumbers copy
 import type { VovkBody, VovkQuery, VovkParams } from 'vovk';
@@ -126,7 +126,7 @@ type Params = VovkParams<typeof UserController.updateUser>; // { param: string }
 
 ## Output/Iteration Inference
 
-Output and iteration types are defined only when using [validation libraries](/validation).
+Output and iteration types are set only when using [procedure](/procedure) function.
 
 For output:
 

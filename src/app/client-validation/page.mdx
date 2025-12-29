@@ -2,7 +2,7 @@ import { Tabs } from 'nextra/components';
 
 # Client-Side Validation for RPC Methods
 
-The [schema](/schema) emitted by the server-side code is primarily used to generate RPC modules. As a side effect of this implementation, it can also power client-side validation. Client-side validation is enabled by wiring a library into the RPC module template via the [validateOnClient](/imports#validateonclient) import.
+The [schema](/schema) emitted by the server-side code also used for client-side validation. The client-side validation is enabled by wiring a library into the RPC module template via the [validateOnClient](/imports#validateonclient) import.
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -32,7 +32,7 @@ export const UserRPC = createRPC(schema, '', 'UserRPC', import('vovk'), {
 [vovk-ajv](https://www.npmjs.com/package/vovk-ajv) is the primary library for client-side validation, built on top of [Ajv](https://www.npmjs.com/package/ajv). It’s installed and configured automatically when you run `npx vovk-cli init`. **vovk-ajv** supports additional configuration under `config.libs.ajv` in [vovk.config](/config), including Ajv options, localization, and the target JSON Schema draft.
 
 ```bash npm2yarn copy
-npm install vovk-ajv@draft
+npm install vovk-ajv
 ```
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
@@ -73,41 +73,5 @@ export const validateOnClient = createValidateOnClient({
       throw new HttpException(HttpStatus.NULL, `Custom validation failed: ${error.message}`);
     }
   },
-});
-```
-
-## FormData
-
-Because JSON Schema has no standard representation for `FormData`, each validation library must provide a way to generate an OAS-compatible schema for `multipart/form-data` requests.
-
-```json {6}
-{
-  "type": "object",
-  "properties": {
-    "fileField": {
-      "type": "string",
-      "format": "binary"
-    }
-  }
-}
-```
-
-Zod 4 includes a `.file()` schema that is converted to a valid [OAS schema](https://zod.dev/json-schema?id=file-schemas). For other libraries, this is addressed individually in the corresponding sections of the docs (for ArkType, use a `fallback`; for Valibot, use `overrideSchema`, etc.).
-
----
-
-If you’re using an unlisted library and can’t produce a proper OAS file schema, the simplest workaround is to set `disableClientValidation` in the generated RPC call:
-
-```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
-
-const respData = await UserRPC.updateUser({
-  body: {
-    /* ... */
-  },
-  params: {
-    /* ... */
-  },
-  disableClientValidation: true, // disable client-side validation
 });
 ```

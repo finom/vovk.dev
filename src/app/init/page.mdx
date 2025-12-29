@@ -33,7 +33,7 @@ The `init` command sets up Vovk.ts in an existing Next.js project. It applies th
 This is equivalent to:
 
 ```sh npm2yarn copy
-npx vovk-cli@draft init
+npx vovk-cli init
 ```
 
 ## Available Flags
@@ -52,7 +52,7 @@ Sets the log level: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. Default:
 
 ### `--use-npm`, `--use-yarn`, `--use-pnpm`, `--use-bun`
 
-Choose the package manager for installing dependencies.
+Choose the package manager for installing dependencies to skip auto-detection.
 
 ### `--skip-install`
 
@@ -76,8 +76,7 @@ Generates clients for additional languages. Sets [`composedClient.templates`](/c
 
 ### `--validation-library <library>`
 
-Selects a validation library: "zod", "class-validator", "valibot", "arktype", or "none" to skip validation. For libraries supporting [Standard Schema](/validation/standard) like "arktype", it also scaffolds a validation helper in **./src/lib/** (e.g., **./src/lib/withArk.ts**).
-If not set to "none", the command updates the [config](/config) to include the matching `validateOnClient`.
+Selects a validation library: "zod", "valibot", "arktype", or "none" to set up validation later.
 
 ### `--channel <channel>`
 
@@ -90,7 +89,7 @@ Specifies the package channel (default: "latest").
 In that case, use the corresponding version suffix when running the command:
 
 ```sh npm2yarn copy
-npx vovk-cli@draft init --channel draft
+npx vovk-cli init@draft --channel draft
 ```
 
 ### `--dry-run`

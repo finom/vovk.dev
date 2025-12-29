@@ -1,9 +1,9 @@
 
-# Response
+# Response and Errors
 
-[Procedures](./procedure), being a wrapper over Next.js route handlers, return `Response` objects. Alternatively, they can return JSON objects and HTTP exceptions, that internally get converted to `Response` objects.
+[Procedures](./procedure), being a wrapper over Next.js route handlers, return `Response` objects. Alternatively, they can return JSON objects and throw exceptions, that internally get converted to `Response` objects.
 
-The following snippets are equivalent:
+The following snippets are equivalent for type inference at [TypeScript client](/typescript).
 
 ```ts showLineNumbers copy
 // ...
@@ -33,7 +33,7 @@ export default class HelloController {
   static helloWorld() {
     return new Response(JSON.stringify({ hello: 'world' }), {
       headers: { 'Content-Type': 'application/json' },
-    }) as unknown as { hello: string }; // for RPC type inference
+    }) as unknown as { hello: string };
   }
 }
 ```
@@ -121,7 +121,7 @@ Both functions work by throwing an error, so you don’t need a `return` stateme
 
 See the [Next.js documentation](https://nextjs.org/docs/app/building-your-application/routing/redirecting) for more information.
 
-
+<a name="downloads"></a>
 ## File Downloads
 
 For attachments use `Response` from the Web API with appropriate headers.

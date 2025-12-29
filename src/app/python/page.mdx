@@ -2,7 +2,7 @@ import { FileTree, Tabs } from 'nextra/components';
 
 # Python RPC Client (Experimental)
 
-Generate the Python client with `vovk generate` using the [py](/templates#py) or [pySrc](/templates#pysrc) template.
+The Python client can be generated with `vovk generate` using the [py](/templates#py) or [pySrc](/templates#pysrc) template.
 
 Create a Python package with the [CLI](/generate) command:
 
@@ -89,7 +89,7 @@ The snippets below are adapted from a real example described on the [Hello World
 
 A [controller](/controller) like this:
 
-<Tabs items={['UserController.ts', 'UserService.ts']}>
+<Tabs items={['UserController.ts', 'UserService.ts', 'route.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/vovk-hello-world"
 import { z } from "zod";
@@ -195,6 +195,29 @@ export default class UserService {
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserService.ts)*
 
 </Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"
+import { initSegment } from "vovk";
+import UserController from "../../../modules/user/UserController";
+import StreamController from "../../../modules/stream/StreamController";
+
+export const runtime = "edge";
+
+const controllers = {
+  UserRPC: UserController,
+  StreamRPC: StreamController,
+};
+
+export type Controllers = typeof controllers;
+
+export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
+  emitSchema: true,
+  controllers,
+  onError: console.error,
+});
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/app/api/[[...vovk]]/route.ts)*
+</Tabs.Tab>
 </Tabs>
 
 ...emits a [Vovk.ts schema](/schema), which is then used to generate the Python client, following Python conventions, adding comments from `description`, and selecting appropriate number types. For example, `age` is generated as `int`, matching the controller definition.
@@ -286,7 +309,6 @@ def main() -> None:
     }
     query: UserRPC.UpdateUserQuery = {"notify": "email"}
     params: UserRPC.UpdateUserParams = {"id": "123e4567-e89b-12d3-a456-426614174000"}
-    # Update user using local module
     update_user_response = UserRPC.update_user(
         params=params,
         body=body,
@@ -309,7 +331,7 @@ For continuous streaming with [JSON Lines](/jsonlines) endpoints, the Python cli
 
 A controller like this:
 
-<Tabs items={['StreamController.ts', 'StreamService.ts']}>
+<Tabs items={['StreamController.ts', 'StreamService.ts', 'route.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/stream/StreamController.ts" repository="finom/vovk-hello-world"
 import { prefix, get, operation } from "vovk";
@@ -362,6 +384,29 @@ export default class StreamService {
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamService.ts)*
 
 </Tabs.Tab>
+<Tabs.Tab>
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"
+import { initSegment } from "vovk";
+import UserController from "../../../modules/user/UserController";
+import StreamController from "../../../modules/stream/StreamController";
+
+export const runtime = "edge";
+
+const controllers = {
+  UserRPC: UserController,
+  StreamRPC: StreamController,
+};
+
+export type Controllers = typeof controllers;
+
+export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
+  emitSchema: true,
+  controllers,
+  onError: console.error,
+});
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/app/api/[[...vovk]]/route.ts)*
+</Tabs.Tab>
 </Tabs>
 
 Compiles to:
@@ -401,7 +446,7 @@ class StreamRPC:
 Usage:
 
 ```py
-from dist_python.src.vovk_hello_world import StreamRPC  # local module
+from dist_python.src.vovk_hello_world import StreamRPC
 import vovk_hello_world
 
 def main() -> None:
@@ -419,5 +464,5 @@ if __name__ == "__main__":
 
 ## Roadmap
 
-- 🐞 Allow circular $refs with [OpenAPI Mixins](/codegen).
+- 🐞 Allow circular $refs with [OpenAPI mixins](/mixins).
 - ✨ Generate importable types for named schemas defined in `components/schemas`.

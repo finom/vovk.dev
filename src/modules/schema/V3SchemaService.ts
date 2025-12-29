@@ -32,7 +32,7 @@ export default class V3SchemaService {
         segmentType: {
           type: 'string',
           enum: ['segment', 'mixin'],
-          description: 'Defines if the segment is a regular segment or an OpenAPI Mixin',
+          description: 'Defines if the segment is a regular segment or an OpenAPI mixin',
         },
         forceApiRoot: {
           type: 'string',

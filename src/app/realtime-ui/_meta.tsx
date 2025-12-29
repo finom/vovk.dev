@@ -19,7 +19,7 @@ const meta = {
   'text-ai': 'Text AI Chat Integration with AI SDK and AI Elements',
   'voice-ai': 'Realtime API with WebRTC',
   'mcp': 'MCP with mcp-handler 🚧',
-  'telegram': 'Telegram Bot with Vovk.ts OpenAPI Mixins 🚧',
+  'telegram': 'Telegram Bot with Vovk.ts OpenAPI mixins 🚧',
   last: 'Additional Topics 🚧', // Conclusion + uncovered topics? TODO
 } as const satisfies MetaRecord;
 

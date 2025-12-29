@@ -120,6 +120,50 @@ if (someCondition) {
 console.log('All messages:', await stream.asPromise());
 ```
 
+## OpenAI Chat Example
+
+Create a procedure that delegates iterable output from OpenAI's streaming chat completions:
+
+```ts showLineNumbers copy filename="src/modules/llm/LlmController.ts"
+import { post, prefix, operation, type VovkRequest } from 'vovk';
+import OpenAI from 'openai';
+
+@prefix('openai')
+export default class OpenAiController {
+  @operation({
+    summary: 'Create a chat completion',
+  })
+  @post('chat')
+  static async *createChatCompletion(
+    req: VovkRequest<{ messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] }>
+  ) {
+    const { messages } = await req.json();
+    const openai = new OpenAI();
+
+    yield* await openai.chat.completions.create({
+      messages,
+      model: 'gpt-5-nano',
+      stream: true,
+    });
+  }
+}
+```
+
+On the client side, consume the streamed completion as follows:
+
+```ts showLineNumbers copy
+// ...
+using completion = await OpenAiRPC.createChatCompletion({
+  body: { messages: [...messages, userMessage] },
+});
+
+for await (const part of completion) {
+  // ...
+}
+```
+
+[View full example on examples.vovk.dev »](https://examples.vovk.dev/openai)
+
 <a name="jsonlinesresponse" />
 ## `JSONLinesResponse` Class
 
@@ -130,9 +174,10 @@ A service method in this case is implemented as a regular function that accepts 
 Here's what the streaming service might look like:
 
 ```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts"
-import type { JSONLinesResponse } from 'vovk';
+import type { JSONLinesResponse, VovkIteration } from 'vovk';
+import type StreamController from './StreamController';
 
-export type Token = { message: string };
+export type Token = VovkIteration<typeof StreamController.streamTokens>
 
 export default class StreamService {
   static async streamTokens(resp: JSONLinesResponse<Token>) {
@@ -175,7 +220,7 @@ The `JSONLinesResponse` class also provides a `throw` method that safely closes 
 await resp.throw(new Error('Stream error'));
 ```
 <a name="progressive" />
-## Progressive Response (Experimental)
+## Progressive Response with `progressive` Function
 
 <div className="example">
   <ProgressiveExample />
@@ -185,8 +230,6 @@ await resp.throw(new Error('Stream error'));
 A common use of the JSON Lines  format is to sequentially send multiple data chunks (JSON lines) in response to a single request. This is useful for long‑running operations, such as LLM completions, where you want to deliver partial results as they become available.
 
 But what if you don’t know which chunk will arrive first, second, and so on? In this case, you can use an experimental feature called “progressive response,” inspired by Dan Abramov’s proposal [Progressive JSON](https://overreacted.io/progressive-json/), from which the “progressive” name originates.
-
-The progressive response feature can also be described as “partial response streaming,” similar to [Partial Prerendering](https://nextjs.org/docs/app/getting-started/partial-prerendering), but instead of rendering UI, it “renders” response data in an unknown order. When all data has been sent, the response is closed.
 
 Let's say you have two functions that return data after some random delay: `getUsers` and `getTasks`, implemented as static methods of a service class. In a real application, these could be API calls or queries to different databases.
 
@@ -305,7 +348,7 @@ export default class ProgressiveController {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-examples/blob/main/src/modules/progressive/ProgressiveController.ts)*
 
-The server-side code is ready. Now we can implement the client-side code to consume this progressive response. For this, we will use the `progressive` function from the `vovk` package, which creates a promise for each property of the resulting object. It accepts the RPC method to call (e.g., `ProgressiveRPC.streamProgressiveResponse`) and optional input parameters. The function returns an object with promises per property, which can be awaited separately.
+For the client-side, we will use the `progressive` function from the `vovk` package, which creates a promise for each property of the resulting object. It accepts the RPC method to call (e.g., `ProgressiveRPC.streamProgressiveResponse`) and optional input parameters. The function returns an object with promises per property, which can be awaited separately.
 
 ```ts showLineNumbers copy
 const { users: usersPromise, tasks: tasksPromise } = progressive(ProgressiveRPC.streamProgressiveResponse);

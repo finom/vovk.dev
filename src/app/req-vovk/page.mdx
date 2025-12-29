@@ -117,9 +117,7 @@ When [`procedure`](./procedure) function is used with the `isForm` option, `req.
 
 ## `req.vovk.meta()`
 
-Vovk.ts lets you attach additional metadata to controller methods for logging, analytics, or custom processing. The primary use case is setting request metadata in a custom decorator so it can be used later in the handler or in decorators declared after the one that sets the metadata.
-
-Metadata is accessible through the `vovk.meta` method in the controller handler and in decorators.
+Custom metadata is accessible through the `vovk.meta` method in the procedure and in [custom decorators](/decorator).
 
 ```ts showLineNumbers copy {4,13}
 import { createDecorator, get, type VovkRequest } from 'vovk';
@@ -140,7 +138,7 @@ export default class MyController {
 }
 ```
 
-The metadata is a key‑value object that is merged when you call `vovk.meta` multiple times with different keys, allowing you to set several entries in one or multiple calls.
+The metadata is a key‑value object that is merged when you call `vovk.meta` multiple times with different keys.
 
 ```ts showLineNumbers copy
 // ...
@@ -149,11 +147,7 @@ req.vovk.meta({ baz: 'qux' });
 console.log(req.vovk.meta<{ foo: string; baz: string }>()); // { foo: 'bar', baz: 'qux' }
 ```
 
-As you can see, a generic is required only when you want type‑safe access to metadata. If you don’t provide a generic, the metadata is inferred from the argument. Calling `req.vovk.meta()` without arguments always returns the current metadata object.
-
-```ts showLineNumbers copy
-const { hello } = req.vovk.meta({ hello: 'world' });
-```
+As you can see, a generic is required only when you want type‑safe access to metadata. If you don’t provide a generic, the metadata is inferred from the argument.
 
 To reset metadata, call `req.vovk.meta(null)`, which clears the metadata object.
 
@@ -170,14 +164,14 @@ To summarize:
 
 ### Client-Side Meta with `xMetaHeader` Key
 
-[The RPC client](/typescript) can send custom metadata to the server in the `x-meta` header as a JSON string. This is useful for passing client‑side context such as user preferences, session data, or other request‑relevant information.
+[The TypeScript client](/typescript) can send custom metadata to the server in the `x-meta` header as a JSON string.
 
 ```ts showLineNumbers copy {5}
 import { UserRPC } from 'vovk-client';
 
 const user = await UserRPC.getUser({
   params: { id: '123' },
-  meta: { hello: 'world' }, // pass metadata to the server
+  meta: { hello: 'world' }, // pass metadata to the server via x-meta header
 });
 ```
 

@@ -2,7 +2,7 @@ import { FileTree } from 'nextra/components';
 
 # Schema
 
-The `npm run dev` script runs [vovk dev](/dev) alongside `next dev` via [concurrently](https://www.npmjs.com/package/concurrently). The Vovk process watches the `modules` folder for controller and [validation](/validation) changes. On the first run or after changes, it calls the Next.js dev server’s `_schema_` endpoint for the relevant segment (available only when `process.env.NODE_ENV` is `development`). That endpoint returns the schema for the target segment, enabling isolated JSON emission per segment. This works in the [Edge Runtime](https://edge-runtime.vercel.app/) because `route.ts` files do not import Node.js modules like `fs`.
+The `npm run dev` script runs [vovk dev](/dev) alongside `next dev` via [concurrently](https://www.npmjs.com/package/concurrently). The Vovk process watches the `modules` folder for controller and [validation](/validation) changes. On the first run or after changes, it calls the Next.js dev server’s `_schema_` endpoint for the relevant segment (available only when `process.env.NODE_ENV` is `development`). That endpoint returns the schema for the target segment, enabling isolated JSON emission per segment.
 
 Each segment emits its backend schema to an individual JSON file, which is then used to generate client-side RPC modules. If your application has multiple areas (e.g., root, admin, customer), each area has its own schema file.
 
@@ -77,9 +77,9 @@ The resulting schema files are written to `.vovk-schema/`:
 
 Emitted files mirror the segment tree. For example, a `foo/bar/baz` segment emits `.vovk-schema/foo/bar/baz.json`. The root segment is the only exception and uses `root.json` for clarity.
 
-`_meta.json` contains additional metadata, including selected fields from [vovk.config](/config) under the `config` key, plus other information.
+`_meta.json` contains additional metadata, including selected fields from [vovk.config](/config) under the `config` key.
 
-When the Vovk CLI reads these files, it builds a single object with `segments` and `meta`. `segments` is flat, keyed by segment name, and `meta` contains the `_meta.json` content. This object powers client-side RPC generation and OpenAPI output, and is also available on both the client and server as the `schema` export.
+When the Vovk CLI reads these files, it builds a single object with `segments` and `meta`. `segments` is flat, keyed by segment name, and `meta` contains the `_meta.json` content. This object powers client generation and OpenAPI output.
 
 ```ts showLineNumbers copy
 {
@@ -92,6 +92,8 @@ When the Vovk CLI reads these files, it builds a single object with `segments` a
   "meta": { ... } // content of _meta.json file
 }
 ```
+
+The scmela is available as the `schema` export.
 
 ```ts showLineNumbers copy
 import { schema } from 'vovk-client';

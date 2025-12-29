@@ -147,7 +147,7 @@ export default class UserController {
 }
 ```
 
-Another thing to keep in mind is that the local procedure is [decorated](./decorator) with the same decorators as the HTTP handler. If you create a decorator to wrap an HTTP handler for use with `fn`, avoid using `NextRequest`‑specific properties like `req.url`, `req.headers`, or `req.nextUrl`.
+Local procedure is [decorated](./decorator) with the same decorators as the HTTP handler. If you create a decorator to wrap an HTTP handler for use with `fn`, avoid using `NextRequest`‑specific properties like `req.headers`, or `req.nextUrl`.
 
 ```ts showLineNumbers copy {4}
 import { createDecorator } from 'vovk';
@@ -159,14 +159,14 @@ const myDecorator = createDecorator(({ vovk }, next) => {
 });
 ```
 
-You can detect the local procedure context by checking `req.url`, which is `undefined` when called via `fn`:
+You can detect if the procedure is called locally by checking `req.url`, which is `undefined` when called via `fn`:
 
 ```ts showLineNumbers copy {4}
 import { createDecorator } from 'vovk';
 
 const myDecorator = createDecorator((req, next) => {
   if (typeof req.url === 'undefined') {
-    console.log('Local handler context');
+    console.log('Local context');
   } else {
     console.log('HTTP request context');
   }

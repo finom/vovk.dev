@@ -4,7 +4,7 @@ Controller decorators extend the functionality of controller methods. Use them t
 
 `createDecorator` is a higher‑order function that produces a decorator factory (a function that returns a decorator) for controller class methods. It accepts a middleware function with the following parameters:
 
-- `request`, which extends `VovkRequest`. It provides `req.vovk.meta` to get and set metadata for sharing data between decorators and the route handler.
+- `request`, which extends `VovkRequest`. It provides [req.vovk.meta](/req-vovk) to get and set metadata for sharing data between decorators and the route handler.
 - `next`, a function you call (and return) to invoke subsequent decorators or the route handler.
 - Additional arguments passed through the decorator factory.
 
@@ -95,7 +95,7 @@ export default class UserController {
 
 ### Basic Authorization Decorator
 
-Basic authentication is a simple HTTP protocol for user authentication where credentials (username and password) are sent in the Authorization header of a request after being encoded in Base64. While not the most secure method, it can be useful for legacy cross-service communication or simple applications.
+Basic authentication is a simple HTTP protocol for user authentication where credentials (username and password) are sent in the Authorization header of a request after being encoded in Base64. While not the most secure method, it can be useful for legacy cross-service communication.
 
 ```ts showLineNumbers copy filename="src/decorators/basicAuthGuard.ts"
 import { HttpException, HttpStatus, createDecorator } from 'vovk';
@@ -150,7 +150,7 @@ export default class SecureController {
 
 > Role-based access control (RBAC) is a method of restricting system access for users based on their role within an organization, rather than assigning permissions individually.
 
-Let’s define a simple authorization decorator that ensures a user is authenticated and has the required permission to access a resource. The `authGuard` decorator below:
+The `authGuard` decorator below:
 
 - Verifies the user is authorized; otherwise returns an `Unauthorized` status.
 - Adds `currentUser` to request metadata, represented by the `AuthMeta` TypeScript interface.
