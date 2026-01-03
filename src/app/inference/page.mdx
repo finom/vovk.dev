@@ -45,7 +45,7 @@ type Yield = VovkYieldType<typeof StreamController.streamTokens>;
 
 ## Input Inference
 
-Source types for `body`, `query`, and `params` are defined via `VovkRequest<TBody, TQuery, ?TParams>{:ts}`, which specifies the type of the `req` argument in controller methods. In other words, both raw and validated method definitions determine the input types.
+Source types for `body`, `query`, and `params` are defined via `VovkRequest<TBody, TQuery, ?TParams>{:ts}`, which specifies the type of the `req` argument in procedures. In other words, both raw and validated method definitions determine the input types.
 
 Raw method definition with `params` as a generic argument:
 

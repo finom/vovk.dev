@@ -1,18 +1,13 @@
 
 import { Tabs } from 'nextra/components';
 
-# Setting up the endpoints
+# Setting Up API Endpoints
+
+The article describes how to set up API endpoints/procedures for `User` and `Task` entities with full CRUD operations. The OpenAPI documentation generated from the procedures, described below, can be explored [here](https://kanban.vovk.dev/openapi).
 
 ## Preparations
 
-As we're going to use [function calling](/tools) we're going to change the `target` of the generated JSON schemas to `draft-7`, as LLMs currently support only this version.
-
-```ts showLineNumbers copy filename="src/lib/withZod.ts" repository="finom/realtime-kanban"
-404: Not Found
-```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/lib/withZod.ts)*
-
-For the sake of shorter code, we also need to create a reusable constant `BASE_FIELDS` that is going to be used to omit `id`, `entityType`, `createdAt` and `updatedAt` fields from the Zod models, but also `BASE_KEYS` array that contains the keys of these fields to use with `lodash.omit`. This will help us to build proper create/update Zod models and omit these fields from entity objects when we need to create input objects.
+For the sake of shorter code, we create a reusable constant `BASE_FIELDS` that is going to be used to omit `id`, `entityType`, `createdAt` and `updatedAt` fields from the Zod models, but also `BASE_KEYS` array that contains the keys of these fields to use with `lodash.omit`. This will help us to build proper create/update Zod models and omit these fields from entity objects when we need to create input objects.
 
 ```ts showLineNumbers copy filename="src/constants.ts"
 import type { BaseEntity } from './types';
@@ -36,24 +31,25 @@ import { BASE_FIELDS } from '@/constants';
 const UpdateUserSchema = UserSchema.omit(BASE_FIELDS); // fullName and email fields only
 ```
 
-## Implementing controllers and services
+## Implementing Controllers and Services
 
 The controllers are going to declare full CRUD operations for `User` and `Task` entities, implemented as follows:
 
-- Each method is decorated with [@operation](/openapi) decorator that describes the operation, including `summary`, `description`, and custom `x-tool-successMessage` and `x-tool-errorMessage` properties for MCP responses.
-- Each method is created with `withZod` function that implements request validation and schema emission.
+- Each method is decorated with [@operation](/openapi) decorator that describes the operation, including `summary`, `description`.
+- Each method is created with [procedure](/procedure) function that implements request validation and schema emission.
 - Each method uses `sessionGuard` decorator to protect the endpoints, as described in the [authentication](./authentication) article.
-- The "get all" endpoints use `x-tool-disable` operation option to exclude them from being used as tools by AI. The tools are going to use search endpoints instead to simulate more realistic scenarios.
+- The "get all" endpoints use `x-tool['hidden']` operation option implemented with `@operation.tool()` decorator to exclude them from being used as tools by AI. The tools are going to use search endpoints that use OpenAI Embeddings instead to simulate more realistic scenarios.
 
-The services are going to implement the actual business logic for each controller method, including database operations using Prisma client and embedding generation using OpenAI embeddings.
+The services implement the actual business logic for each procedure, including database operations and vector generation and search via OpenAI embeddings.
 
-- Database requests are invoked using `DatabaseService.prisma` where the `prisma` property is a normal Prisma client instance with [extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions).
-  - Deletion operations return `__isDeleted` property to help the front-end to reconcile the state properly for soft deletions, see [State](./state) page. The property is added by the Prisma client extension when `DatabaseService.prisma.xxx.delete` methods are invoked.
-  - In order to trigger database events (see [Polling](./polling) page) on task deletions, tasks are deleted explicitly, even though we have `ON DELETE CASCADE` set up in the database schema. This is required if the app also uses [Polling](./polling) for updates made by other users or external systems, such as [MCP server](./mcp) or [Telegram bot](./telegram).
-- Creations and updates are followed by `EmbeddingService.generateEntityEmbedding` calls and the search endpoints use `EmbeddingService.vectorSearch` function to perform vector search using OpenAI embeddings and pgvector.
+- Database requests are invoked using `DatabaseService.prisma` where the `prisma` property is a normal Prisma client instance with [extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions). This will be explained in more details in the [Database Polling](./polling) article.
+  - Deletion operations return `__isDeleted` property to help the front-end to reconcile the state properly for soft deletions (see [State](./state) page). The property is added by the Prisma client extension when `DatabaseService.prisma.xxx.delete` methods are invoked.
+  - In order to trigger database events on task deletions, tasks are deleted explicitly, even though we have `ON DELETE CASCADE` set up in the database schema.
+- Creations and updates are followed by `EmbeddingService.generateEntityEmbedding` calls and the search endpoints use `EmbeddingService.vectorSearch` function to perform vector search using OpenAI embeddings and pgvector, for more details see the [Embeddings](./embeddings) article.
+- The controller procedures use [req.vovk](/req-vovk) to access request data such as `params`, `query`, and `body`, as we want to be able to call these methods directly from the code (not only through HTTP requests) via [fn](/fn) interface for SSR/PPR and AI tools execution.
 
 
-<Tabs items={['UserController.ts', 'UserService.ts', 'TaskController.ts', 'TaskService.ts', 'EmbeddingService.ts']}>
+<Tabs items={['UserController.ts', 'UserService.ts', 'TaskController.ts', 'TaskService.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/realtime-kanban"
 import { procedure, prefix, get, put, post, del, operation } from "vovk";
@@ -65,10 +61,12 @@ import UserService from "./UserService";
 
 @prefix("users")
 export default class UserController {
+  @operation.tool({
+    hidden: true,
+  })
   @operation({
     summary: "Get all users",
     description: "Retrieves a list of all users.",
-    "x-tool-disable": true, // Make it to be used as an procedure only, excluding from the list of available tools
   })
   @get()
   @sessionGuard()
@@ -81,7 +79,6 @@ export default class UserController {
     summary: "Find users by ID, full name, or email",
     description:
       "Retrieves users that match the provided ID, full name, or email. Used to search the users when they need to be updated or deleted.",
-    "x-tool-successMessage": "Users found successfully",
   })
   @get("search")
   @sessionGuard()
@@ -99,7 +96,6 @@ export default class UserController {
   @operation({
     summary: "Create user",
     description: "Creates a new user with the provided details.",
-    "x-tool-successMessage": "User created successfully",
   })
   @post()
   @sessionGuard()
@@ -113,7 +109,6 @@ export default class UserController {
     summary: "Update user",
     description:
       "Updates an existing user with the provided details, such as their email or name.",
-    "x-tool-successMessage": "User updated successfully",
   })
   @put("{id}")
   @sessionGuard()
@@ -128,7 +123,6 @@ export default class UserController {
   @operation({
     summary: "Delete user",
     description: "Deletes a user by ID.",
-    "x-tool-successMessage": "User deleted successfully",
   })
   @del("{id}")
   @sessionGuard()
@@ -236,10 +230,12 @@ import TaskService from "./TaskService";
 
 @prefix("tasks")
 export default class TaskController {
+  @operation.tool({
+    hidden: true,
+  })
   @operation({
     summary: "Get all tasks",
     description: "Retrieves a list of all tasks.",
-    "x-tool-disable": true, // Make it to be used as an procedure only, excluding from the list of available tools
   })
   @get()
   @sessionGuard()
@@ -252,7 +248,6 @@ export default class TaskController {
     summary: "Find tasks by ID, title or description",
     description:
       "Retrieves tasks that match the provided ID, title, or description. Used to search the tasks when they need to be updated or deleted.",
-    "x-tool-successMessage": "Tasks found successfully",
   })
   @get("search")
   @sessionGuard()
@@ -270,7 +265,6 @@ export default class TaskController {
   @operation({
     summary: "Get tasks assigned to a specific user",
     description: "Retrieves all tasks associated with a specific user ID.",
-    "x-tool-successMessage": "Tasks retrieved successfully",
   })
   @get("by-user/{userId}")
   @sessionGuard()
@@ -285,7 +279,6 @@ export default class TaskController {
     summary: "Create a new task",
     description:
       "Creates a new task with the provided details, such as its title and description.",
-    "x-tool-successMessage": "Task created successfully",
   })
   @post()
   @sessionGuard()
@@ -299,7 +292,6 @@ export default class TaskController {
     summary: "Update task",
     description:
       "Updates an existing task with the provided details, such as its title or description.",
-    "x-tool-successMessage": "Task updated successfully",
   })
   @put("{id}")
   @sessionGuard()
@@ -314,7 +306,6 @@ export default class TaskController {
   @operation({
     summary: "Delete task",
     description: "Deletes a task by ID.",
-    "x-tool-successMessage": "Task deleted successfully",
   })
   @del("{id}")
   @sessionGuard()
@@ -387,97 +378,5 @@ export default class TaskService {
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/TaskService.ts)*
-</Tabs.Tab>
-<Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/embedding/EmbeddingService.ts" repository="finom/realtime-kanban"
-import { embed } from "ai";
-import { openai } from "@ai-sdk/openai";
-import { capitalize, omit } from "lodash";
-import { Prisma } from "@prisma/client";
-import { EntityType } from "@schemas/index";
-import { UserType } from "@schemas/models/User.schema";
-import { TaskType } from "@schemas/models/Task.schema";
-import { BASE_KEYS } from "@/constants";
-import DatabaseService from "../database/DatabaseService";
-
-export default class EmbeddingService {
-  static async generateEmbedding(value: string): Promise<number[]> {
-    const { embedding } = await embed({
-      model: openai.embeddingModel("text-embedding-3-small"),
-      value,
-    });
-
-    return embedding;
-  }
-
-  static generateEntityEmbedding = async (
-    entityType: EntityType,
-    entityId: UserType["id"] | TaskType["id"],
-  ) => {
-    const entity = await DatabaseService.prisma[
-      entityType as "user"
-    ].findUnique({
-      where: { id: entityId },
-    });
-    const capitalizedEntityType = capitalize(entityType);
-    if (!entity) throw new Error(`${capitalizedEntityType} not found`);
-
-    const embedding = await this.generateEmbedding(
-      Object.values(omit(entity, BASE_KEYS))
-        .filter((v) => typeof v === "string")
-        .join(" ")
-        .trim()
-        .toLowerCase(),
-    );
-
-    await DatabaseService.prisma.$executeRawUnsafe(
-      `
-    UPDATE "${capitalizedEntityType}" 
-    SET embedding = $1::vector
-    WHERE id = $2
-    `,
-      `[${embedding.join(",")}]`,
-      entityId,
-    );
-
-    return embedding;
-  };
-
-  static async vectorSearch<T>(
-    entityType: EntityType,
-    query: string,
-    limit: number = 10,
-    similarityThreshold: number = 0.4,
-  ) {
-    const queryEmbedding = await this.generateEmbedding(
-      query.trim().toLowerCase(),
-    );
-    const capitalizedEntityType = capitalize(entityType);
-
-    // find similar vectors and return entity IDs
-    const vectorResults = await DatabaseService.prisma.$queryRaw<
-      { id: String; similarity: number }[]
-    >`
-    SELECT
-      id,
-      1 - (embedding <=> ${`[${queryEmbedding.join(",")}]`}::vector) as similarity
-    FROM ${Prisma.raw(`"${capitalizedEntityType}"`)}
-    WHERE embedding IS NOT NULL
-      AND 1 - (embedding <=> ${`[${queryEmbedding.join(",")}]`}::vector) > ${similarityThreshold}
-    ORDER BY embedding <=> ${`[${queryEmbedding.join(",")}]`}::vector
-    LIMIT ${limit}
-  `;
-
-    return DatabaseService.prisma[entityType as "user"].findMany({
-      where: {
-        id: {
-          in: vectorResults.map((r) => r.id as string),
-        },
-      },
-    }) as Promise<T[]>;
-  }
-}
-```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/embedding/EmbeddingService.ts)*
 </Tabs.Tab>
 </Tabs>

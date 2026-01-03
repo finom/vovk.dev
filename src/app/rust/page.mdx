@@ -218,7 +218,7 @@ export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
 </Tabs.Tab>
 </Tabs>
 
-...emits a [Vovk.ts schema](/schema), which is then used to generate the Rust client following Rust conventions, adding comments from the schema `description`, and choosing suitable types. For example, `age` is generated as `u8` due to `min`/`max` constraints.
+...emits a [Vovk.ts schema](/schema), which is then used to generate the Rust client, adding comments from the schema `description`, and choosing suitable types. For example, `age` is generated as `u8` due to `min`/`max` constraints.
 
 ```rs filename="./dist_rust/src/lib.rs"
 mod http_request;
@@ -226,13 +226,16 @@ mod read_full_schema;
 
 pub use crate::http_request::HttpException;
 
-
 pub mod user_rpc {
     #[allow(unused_imports)]
     use crate::http_request::{HttpException, http_request, http_request_stream};
+    #[allow(unused_imports)]
+    use futures_util::Stream;
     use std::collections::HashMap;
+    #[allow(unused_imports)]
+    use std::pin::Pin;
 
-    // UserRPC.update_user POST `http://localhost:3000/api/users/{id}`
+    // UserRPC.update_user POST `https://hello-world.vovk.dev/api/users/{id}`
     pub mod update_user_ {
       use serde::{Serialize, Deserialize};
       /// User data object
@@ -299,17 +302,36 @@ pub mod user_rpc {
       pub struct output {
         /// Success status
         pub success: bool,
+        /// User ID
+        pub id: String,
+        /// Notification type
+        pub notify: output_::notify,
       }
 
+      #[allow(non_snake_case)]
+      pub mod output_ {
+        use serde::{Serialize, Deserialize};
+
+        /// Notification type
+        #[derive(Debug, Serialize, Deserialize, Clone)]
+        #[allow(non_camel_case_types)]
+        pub enum notify {
+          #[serde(rename = "email")]
+          email,
+          #[serde(rename = "push")]
+          push,
+          #[serde(rename = "none")]
+          none,
+        }
+
+      }
     }
 
-    /// Summary: Update user
-    /// Description: Update user by ID
     /// Params: Path parameters
     /// Body: User data object
     /// Query: Query parameters
     /// Returns: Response object
-    pub fn update_user(
+    pub async fn update_user( 
         body: update_user_::body,
         query: update_user_::query,
         params: update_user_::params,
@@ -323,7 +345,7 @@ pub mod user_rpc {
             update_user_::query,
             update_user_::params
         >(
-            "http://localhost:3000/api",
+            "https://hello-world.vovk.dev/api",
             "",
             "UserRPC",
             "updateUser",
@@ -334,17 +356,17 @@ pub mod user_rpc {
             headers,
             api_root,
             disable_client_validation,
-        );
+        ).await;
 
         result
     }
-
+        
 }
 ```
 
 All RPC modules are generated in `lib.rs`, which contains RPC functions and the associated types. Nested structures are emitted as nested modules with corresponding `struct` definitions or types.
 
-Access nested structures via `_::`. For example, `body.profile` is `update_user_::body_::profile`.
+Access nested structures via `_::`. For example, `body.profile` is `update_user_::body_::profile`. This syntax avoids name collisions and maps 1:1 to the schema structure.
 
 Use `use` to import and rename structs to follow PascalCase:
 
@@ -378,12 +400,9 @@ pub fn main() {
     None, // Headers (hashmap)
     None, // API root
     false, // Disable client validation
-  );
+  ).await?;
 
-  match update_user_response {
-    Ok(response) => println!("user_rpc.update_user: {:?}", response),
-    Err(e) => println!("update_user error: {:?}", e),
-  }
+  println!("user_rpc.update_user response: {:?}", update_user_response);
 }
 ```
 
@@ -478,9 +497,13 @@ Compiles to:
 pub mod stream_rpc {
     #[allow(unused_imports)]
     use crate::http_request::{HttpException, http_request, http_request_stream};
+    #[allow(unused_imports)]
+    use futures_util::Stream;
     use std::collections::HashMap;
+    #[allow(unused_imports)]
+    use std::pin::Pin;
 
-    // StreamRPC.stream_tokens GET `http://localhost:3000/api/streams/tokens`
+    // StreamRPC.stream_tokens GET `https://hello-world.vovk.dev/api/streams/tokens`
     pub mod stream_tokens_ {
       use serde::{Serialize, Deserialize};
       /// Streamed token object
@@ -493,23 +516,22 @@ pub mod stream_rpc {
 
     }
 
-    /// Summary: Stream tokens
-    /// Description: Stream tokens to the client
-    pub fn stream_tokens(
+
+    pub async fn stream_tokens( 
         body: (),
         query: (),
         params: (),
         headers: Option<&HashMap<String, String>>,
         api_root: Option<&str>,
         disable_client_validation: bool,
-    ) -> Result<Box<dyn Iterator<Item = stream_tokens_::iteration>>, HttpException>{
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<stream_tokens_::iteration, HttpException>> + Send>>, HttpException>{
         let result = http_request_stream::<
             stream_tokens_::iteration,
             (),
             (),
             ()
         >(
-            "http://localhost:3000/api",
+            "https://hello-world.vovk.dev/api",
             "",
             "StreamRPC",
             "streamTokens",
@@ -520,45 +542,34 @@ pub mod stream_rpc {
             headers,
             api_root,
             disable_client_validation,
-        );
+        ).await;
 
         result
     }
-
+        
 }
 ```
 
 Usage:
 
 ```rs
-use std::io::Write;
+use futures::StreamExt;
+use std::io::{stdout, Write};
 use vovk_hello_world_local::open_api_rpc::stream_rpc;
-pub fn main() {
-  let stream_response = stream_rpc::stream_tokens(
-      (), // no body, query, or params
-      (),
-      (),
-      None,
-      None,
-      false,
-  );
 
-  match stream_response {
-    Ok(stream) => {
-      print!("streamTokens:\n");
-      for (_i, item) in stream.enumerate() {
-        print!("{}", item.message.as_str());
-        std::io::stdout().flush().unwrap();
-      }
-      println!();
-    },
-    Err(e) => println!("Error initiating stream: {:?}", e),
+pub async fn consume_stream() -> Result<(), Box<dyn std::error::Error>> {
+  let mut stream = stream_rpc::stream_tokens((), (), (), None, None, false).await?;
+  while let Some(item) = stream.next().await {
+    let val = item.expect("stream item should be Ok");
+    let message = val.message;
+    print!("{}", message.as_str());
+    stdout().flush().expect("flush stdout");
   }
+  Ok(())
 }
 ```
 
 ## Roadmap
 
-- 🧩 Use async (.await) instead of blocking calls.
 - 🐞 Allow circular $refs with [OpenAPI mixins](/mixins).
 - ✨ Generate importable types for named schemas defined in `components/schemas`.

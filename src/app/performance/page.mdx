@@ -30,7 +30,7 @@ npm run perf-test
 
 ## Overview
 
-Vovk.ts sits on top of Next.js API routes and generates handlers via decorators applied to controller methods:
+Vovk.ts sits on top of Next.js API routes and generates handlers via decorators applied to procedures:
 
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 export const { GET, POST } = initSegment({ controllers });

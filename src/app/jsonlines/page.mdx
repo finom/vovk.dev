@@ -10,6 +10,12 @@ import { Suspense } from 'react';
 
 Vovk.ts includes first‑class support for the [JSON Lines](https://jsonlines.org/) format, a convenient way to implement “one request—many responses.” JSON Lines is another output type that uses the `iteration` validation field and produces the `application/jsonl` content type if the client sends an `Accept: application/jsonl` header. If the `Accept` header doesn’t include `application/jsonl`, the output is returned as `text/plain` so it’s viewable when the endpoint URL is opened directly in a browser.
 
+The use cases for JSON Lines include:
+
+- Type-safe alternative to Server-Sent Events (SSE) for streaming data to clients.
+- Long‑running operations that produce multiple results over time, such as LLM completions or database polling.
+- Progressive data loading, where partial results are sent as they become available.
+
 > [!IMPORTANT]
 >
 > Because the response size is not known in advance, JSON Lines responses cannot be compressed with Gzip, Brotli, or other algorithms. Keep this in mind for large responses.
@@ -227,7 +233,7 @@ await resp.throw(new Error('Stream error'));
   [View on examples.vovk.dev »](https://examples.vovk.dev/progressive)
 </div>
 
-A common use of the JSON Lines  format is to sequentially send multiple data chunks (JSON lines) in response to a single request. This is useful for long‑running operations, such as LLM completions, where you want to deliver partial results as they become available.
+A common use of the JSON Lines format is to sequentially send multiple data chunks (JSON lines) in response to a single request. This is useful for long‑running operations, such as LLM completions, where you want to deliver partial results as they become available.
 
 But what if you don’t know which chunk will arrive first, second, and so on? In this case, you can use an experimental feature called “progressive response,” inspired by Dan Abramov’s proposal [Progressive JSON](https://overreacted.io/progressive-json/), from which the “progressive” name originates.
 

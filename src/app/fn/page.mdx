@@ -63,7 +63,7 @@ const response = await UserRPC.updateUser({
 console.log('Response:', response);
 ```
 
-But the `fn` method allows you to call the controller method directly, in the current evaluation context, without performing an HTTP request:
+But the `fn` method allows you to call the procedures directly, in the current evaluation context, without performing an HTTP request:
 
 ```ts showLineNumbers copy
 import UserController from '@/modules/user/UserController';
@@ -102,7 +102,7 @@ export default async function UserPage() {
 }
 ```
 
-**For LLM [function calling](/tools)**: Each controller can be used as a "module" for LLM function calling, implemented with the `deriveTools` utility to call controller methods in the current context without performing HTTP requests.
+**For LLM [function calling](/tools)**: Each procedure can be used as a "module" for LLM function calling, implemented with the `deriveTools` utility to call procedures in the current context without performing HTTP requests.
 
 ```ts showLineNumbers copy
 import { deriveTools } from 'vovk';
@@ -114,7 +114,8 @@ const { tools } = deriveTools({
 console.log(tools); // [{ name, description, parameters, execute }, ...]
 ```
 
-## Rules of Local Procedures
+<a name="rules"></a>
+## Rules of Locally Called Procedures
 
 `fn` functions do not imitate the `Request` object but partially implement the `VovkRequest` object by exposing only the custom `vovk` property with `async vovk.body()`, `vovk.query()`, `vovk.params()`, and `vovk.meta()`. In other words, properties such as `req.url` or `req.headers` are not defined in the local procedure context. A suitable `req` signature looks like `Pick<VovkRequest<TBody, TQuery, TParams>, 'vovk'>{:ts}`.
 

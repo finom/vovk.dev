@@ -109,7 +109,7 @@ For deeper nesting, e.g., **/src/app/api/`foo/bar/baz`/[[...slug]]/**, set `segm
 npx vovk new segment openapi --static # creates a new static segment named "openapi" at src/app/api/openapi/[[...vovk]]/route.ts
 ```
 
-Next.js can pre-render API endpoints at build time using [generateStaticParams](https://nextjs.org/docs/app/api-reference/functions/generate-static-params). Vovk.ts provides the `generateStaticAPI` helper to take advantage of this and emit static API endpoints for minimal latency. Use it to serve OpenAPI definitions, historical datasets (refreshed periodically via CI/CD), or other infrequently changing data. It also works in [Static Export mode](https://nextjs.org/docs/pages/building-your-application/deploying/static-exports) with the `output: 'export'` Next.js option:
+Next.js can pre-render API endpoints at build time using [generateStaticParams](https://nextjs.org/docs/app/api-reference/functions/generate-static-params). Vovk.ts provides the `controllersToStaticParams` helper to take advantage of this and emit static API endpoints for minimal latency. Use it to serve OpenAPI definitions, historical datasets (refreshed periodically via CI/CD), or other infrequently changing data. It also works in [Static Export mode](https://nextjs.org/docs/pages/building-your-application/deploying/static-exports) with the `output: 'export'` Next.js option:
 
 ```ts showLineNumbers copy filename="next.config.js"
 /** @type {import('next').NextConfig} */
@@ -120,14 +120,14 @@ const nextConfig = {
 module.exports = nextConfig;
 ```
 
-All you need to do is implement `generateStaticParams` and return `generateStaticAPI` with your controller list.
+All you need to do is implement `generateStaticParams` and return `controllersToStaticParams` with your controller list.
 
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 // ...
 export type Controllers = typeof controllers;
 
 export function generateStaticParams() {
-  return generateStaticAPI(controllers);
+  return controllersToStaticParams(controllers);
 }
 
 export const { GET } = initSegment({ controllers });
@@ -153,7 +153,7 @@ If you use a custom slug (e.g., `/src/app/api/[[...custom]]/route.ts`) instead o
 
 ```ts showLineNumbers copy
 export function generateStaticParams() {
-  return generateStaticAPI(controllers, 'custom');
+  return controllersToStaticParams(controllers, 'custom');
 }
 ```
 

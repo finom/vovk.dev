@@ -5,123 +5,16 @@ import RealtimeNavigation from '../RealtimeNavigation';
 
 # Realtime UI Overview
 
-Beyond traditional UI
-Make available to everyone
-Make users feel like Tony Stark
-Known techniques merged together
+This series of articles describes a full-stack application called **Realtime Kanban**, demonstrating a **Realtime UI** approach built from established web development techniques. Applications built with this approach behave like regular web apps but can also be fully operated by AI agents via text or voice interfaces, as well as MCP clients—enabling new levels of interactivity (including navigation) and automation, keeping the code both on front-end and back-end short and self-explanatory.
 
------
+The building blocks of this approach are:
 
-- Running locally
-- Deploying to Vercel
-- Designing DB (createdAt is always ISO)
-- Setting up back-end
-- Entity registry
-- Fetcher
-- Authentication
-- Embeddings
-- Text AI
-- Voice AI
-- Redis and Prisma extensions
-- Polling back-end and front-end
-- MCP
-- Telegram Bot
+- **Entity-driven state normalization** on the front end using [Zustand](https://github.com/pmndrs/zustand), keeping UI state efficiently synchronized with back-end data and reducing development overhead. Data received from the back end is processed through an entity registry parser that automatically updates the normalized state, allowing components to retrieve entities by ID and re-render as needed.
+- **Database schema as the source of truth**, which not only defines the database structure via Postgres and Prisma but also drives Zod schema generation via [prisma-zod-generator](https://www.npmjs.com/package/prisma-zod-generator). These schemas are reused on the back end to validate procedure inputs and keep the codebase as DRY as possible.
+- **Database polling events**, powered by Redis and exposed as [JSON Lines](/jsonlines) streaming endpoints, enabling real-time updates without manual refreshes. Changes made by other users, MCP clients, or bots are reflected in the UI automatically.
+- **Text-based AI chat interface** implemented with the Vercel [AI SDK](https://ai-sdk.dev/docs/introduction) and [AI Elements](https://ai-sdk.dev/elements), reusing existing controller implementations to derive AI tools. As users interact via chat, the AI agent invokes predefined back-end procedures and sends data updates to the front end, where they are processed through the entity registry.
+- **Voice AI interface** powered by the [OpenAI Realtime API](https://platform.openai.com/docs/guides/realtime) and WebRTC, enabling hands-free, JARVIS-like interaction. The AI agent performs authorized HTTP requests to the back end using generated RPC modules, with resulting data updates flowing through the same entity registry pipeline. The provided example also demonstrates client-side tools, that implement navigation across the pages of the app.
+- **MCP server** that enables interaction via Model Context Protocol clients. The server executes procedures locally on the back end, triggering polling events that update front-end state through the entity registry.
+- **Updating from other sources**, implemented as **Telegram bot integration** allowing users to manage tasks through a text or voice interface within Telegram, and demonstrating that the app can be controlled from various platforms.
 
-- P1 Overview (Introduction and overview, deployment)
-- P2 State normalization (Frontend: entity registry, fetcher)
-- P3 Database and Back-end (Backend: DB (ISO dates), controllers, services, embeddings, auth)
-- P4 Text AI interface
-- P5 Voice AI interface
-- P6 Database Polling (Polling with Redis and Prisma extensions)
-- P7 Third party integrations (MCP, Telegram bot)
-
-# THIS IS A DRAFT!
-
-<RealtimeNavigation thisArticle="overview" />
-
-# Realtime UI Part 1: Frontend & Backend
-
-## Introduction
-
-The goal of this series of articles is to combine entity-driven state normalization (part 1, this article), function calling (part 2), and database polling (part 3), into an reproducible full-stack framework that:
-
-## Introduction (DRAFT1)
-
-Realtime UI is an idea of building user interfaces that combines well-known patterns from modern web development with function calling framework, offered by Vovk.ts.
-
-- Entity-driven normalization (similar to [Redux](https://redux.js.org/usage/structuring-reducers/normalizing-state-shape)) powered by Zustand - to keep the front-end state in sync with the back-end data efficiently and reduce development overhead.
-- Database polling events powered by Redis and served as JSONLines streaming endpoints - to implement real-time updates without manual refreshes.
-- Agentic function calling made from existing controller methods - to allow AI agents to interact with the DB and UI autonomously and safely.
-  - For server-side executions use [`fn` pattern](/fn) that allows to call controller methods directly from the back-end as normal functions.
-  - For client-side executions use methods of generated RPC modules that call the back-end endpoints via HTTP.
-
-Implementing an endpoint that returns a DB entity and a UI component that retrieves data from the normalized entity registry, you get the following set of features for free:
-
-- AI availability: AI agents can call the pre-implemented handler methods that automatically update the client-side UI components via entity registry.
-  - Via LLM text chat interface (the functions are executed on the back-end).
-  - Via Realtime API voice interface (the functions are executed on the front-end, performing pre-authorized HTTP requests).
-  - Via MCPs (the functions are executed on the back-end).
-  - Via other sources, including REST clients, CLI tools, etc.
-- Collaborative updates: multiple users can work with the same data simultaneously, and see each other's changes in real-time.
-- OpenAPI documentation with self-documented code snipets.
-
-Database polling with Redis as event bus to keep the front-end state in sync with the back-end data in real-time.
-
-is a normalized, entity-driven state architecture where all UI state is derived from a shared registry updated whenever the backend returns data in response to user interactions, API calls, or AI function executions, adding minimal development overhead.
-
-## Introduction (DRAFT2)
-
-AI agents are a powerful technology that can autonomously analyze information, make decisions, and take actions to accomplish complex tasks with minimal human intervention. Unlike traditional software, which follows rigid, predefined rules, AI agents can adapt to new situations, learn from data, and collaborate with other agents or humans to achieve goals more efficiently. As these systems become more capable, they are transforming industries ranging from customer service and healthcare to finance, education, and creative work.
-
-However, allowing AI agents to interact with the UI automatically—without direct user input—introduces a new set of challenges. Systems must ensure that the agent’s behavior is predictable, that unintended or disruptive changes are avoided, and that users can clearly understand what actions the agent is taking on their behalf.
-
-The goal of this series of articles is to introduce a clear and predictable framework for enabling AI agents to update user interfaces autonomously, while maintaining safety and control. Using simple techniques such as setting up entity registry on front-end described in this article together with [function calling](/tools) that converts AI requests into authorized HTTP calls to the back-end, or invoking back-end controller methods directly via [local procedures](/fn), we can create applications where AI agents can modify the UI in a controlled manner.
-
-The articles are structured as follows:
-
-- **Part 1 (this article): Frontend & Backend** - setting up the back-end controllers and front-end entity registry for efficient state management. The goal is to make the front-end state easily synchronizable with the back-end data, independent of the data fetching method: wether it's a one big fetch, smaller incremental updates, or tool invocations from AI agents. The article doesn't cover any AI-specific logic, focusing solely on the data flow between front-end and back-end.
-- [Part 2: Text & Voice AI Interface](./ai) - building a text-based chat interface that allows users to interact with the application using natural language, but also WebRTC voice interface for hands-free operation for JARVIS-like experience powered by OpeenAI Realtime API.
-- [Part 3: Database Polling](./polling) - implementing a polling mechanism to keep the front-end state in sync with the back-end data in real-time, enabling dynamic updates without manual refreshes, wether the changes are made by other users, MCPs, or bots.
-
-This is a safe alternative to the "AI browsers" as the AI cannot execute arbitrary code in the browser, but only invoke pre-defined functions that already exist on the back-end for normal CRUD operations.
-
-This way we can build applications fully operated by LLM text or voice interfaces, adding a whole new level of interactivity and automation to user experiences. This would also allow to create assistive technologies that help users with disabilities to interact with complex applications more easily.
-
-### "Realtime Kanban"
-
-For a practical demonstration of these concepts, I've created an application that implements a kanban board that uses only two database tables: users and tasks, keeping it as simple as possible, while showcasing the core principles of building what I call a Realtime UI. This example can be used as a foundation for building more complex applications with additional tables and features as needed. Note that the described project is just a demo and might need additional optimizations and improvements to be used in production.
-
-
-
-## Entity Registry Overview
-
-At this article I'm going to describe an efficient way to synchronise application state with the back-end data, that can be applied to any application even if it isn't using Vovk.ts at all. This idea is state-library-agnostic and database-agnostic, so you can implement it with any tools you prefer.
-
-I'm going to use [Postgres](https://www.postgresql.org/) as a database, [Prisma](https://www.prisma.io/) as an ORM, [Zustand](https://zustand-demo.pmnd.rs/) as a state management library and, of course Vovk.ts as a back-end framework. The demo also uses [Redis](https://redis.io/) as database event bus, in order to implement DB polling functionality, it will be described in the [Database Polling article](./polling).
-
-Let's say we have an more or less complex application with multiple components that use the same data that's incoming from the server. As the most simple example imaginable, we have a user profile component that displays displays user's full name at multiple components. Once the data is updated we want to update all the components that use this data.
-
-<AppAlike />
-
-The most straightforward way to do this is to have a global state that stores the user profile as an object and update it once the data is changed, or pass the object as a prop from a parent component.
-
-```ts showLineNumbers copy
-export const UserProfile = ({ userProfile }: { userProfile: User }) => {
-    return <div>{userProfile.fullName}</div>
-}
-```
-
-This works perfectly fine for up to a certain complexity of the application, but as the application grows and more database entries are added, it becomes harder to manage the state and keep it in sync with the server.
-
-A more efficient way to handle this is to have a normalized state that stores the database data as a dictionary of entities, where the key is the ID of the entity. In every component that uses this the database row, we request the related entity from the state by its ID, avoiding passing the entire entity object as a prop or storing it in a global state explicitly.
-
-This way, once the data is requested from the server, and processed thru a middleware function that updates the entity state, we can easily retrieve the entity object with and ID and all the components that use this entity will be re-rendered automatically. Let's call it **"entity registry"**.
-
-```ts showLineNumbers copy
-export const UserProfile = ({ userId }: { userId: User['id'] }) => {
-    const userProfile = useRegistry(state => state.user[userId]);
-    return <div>{userProfile.fullName}</div>
-}
-```
-
-If all components that use database data are using this approach, we can request the data from the server in any desired way, wether its a one big initial fetch or smaller incremental updates. The UI will be updated automatically as long as the incoming data is processed thru the registry parser.
+The app can be [run locally](./run) via Docker Compose or deployed to any Node.js hosting platform, such as [Vercel](./deploy).

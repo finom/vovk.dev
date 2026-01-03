@@ -74,7 +74,7 @@ export default class HelloController {
 
 ### `@operation`
 
-The `@operation(openAPIOperationObject)` decorator can be used to add OpenAPI documentation to the controller method. It accepts an object with `summary`, `description`, and other OpenAPI Operation Object properties.
+The `@operation(openAPIOperationObject)` decorator can be used to add OpenAPI documentation to the procedure. It accepts an object with `summary`, `description`, and other OpenAPI Operation Object properties.
 
 It also accepts custom AI-related properties, such as `x-tool-description`, which can be used to generate LLM tools. Read more about it on the [Deriving AI Tools](/tools) page.
 
@@ -169,7 +169,7 @@ export const fetcher = createFetcher<{
 });
 ```
 
-### `generateStaticAPI`
+### `controllersToStaticParams`
 
 Function that generates an API that is created at build time instead of on-demand at request time. It accepts a record of controllers and an optional slug that is used to generate the static API path. The function returns an array of static parameters that can be used in the `generateStaticParams` function.
 
@@ -178,7 +178,7 @@ Function that generates an API that is created at build time instead of on-deman
 export type Controllers = typeof controllers;
 
 export function generateStaticParams() {
-  return generateStaticAPI(controllers);
+  return controllersToStaticParams(controllers);
 }
 
 export const { GET } = initSegment({ controllers });
@@ -304,7 +304,7 @@ Read more about it in the [JSONLines](/jsonlines#progressive) documentation.
 
 ### `HttpException`
 
-A custom error class that extends the built-in `Error` class. It represents an HTTP error with a status code and a message. It can be used to throw errors in controller methods and is caught by the framework to return proper HTTP responses.
+A custom error class that extends the built-in `Error` class. It represents an HTTP error with a status code and a message. It can be used to throw errors in procedure and is caught by the framework to return proper HTTP responses.
 
 ```ts showLineNumbers copy
 import { HttpException, HttpStatus } from 'vovk';
@@ -320,29 +320,28 @@ Read more about it in the [responses](/response) documentation.
 
 ### `VovkOutput`
 
-Allows you to infer the output type of the controller method or RPC method when `output` validation is used: `VovkOutput<typeof MyController.method>{:ts}` or `VovkOutput<typeof MyRPC.method>{:ts}`.
+Allows you to infer the output type of the procedure or RPC method when `output` validation is used: `VovkOutput<typeof MyProcedure.method>{:ts}` or `VovkOutput<typeof MyRPC.method>{:ts}`.
 
 ### `VovkIteration`
 
-Allows you to infer the iteration type of the controller method or RPC method when `iteration` validation is used: `VovkIteration<typeof MyController.method>{:ts}` or `VovkIteration<typeof MyRPC.method>{:ts}`.
+Allows you to infer the iteration type of the procedure or RPC method when `iteration` validation is used: `VovkIteration<typeof MyProcedure.method>{:ts}` or `VovkIteration<typeof MyRPC.method>{:ts}`.
 ### `VovkBody`
 
-Allows you to infer the type of the request input body of the controller method or RPC method when `body` validation is used: `VovkBody<typeof MyController.method>{:ts}` or `VovkBody<typeof MyRPC.method>{:ts}`.
+Allows you to infer the type of the request input body of the procedure or RPC method when `body` validation is used: `VovkBody<typeof MyProcedure.method>{:ts}` or `VovkBody<typeof MyRPC.method>{:ts}`.
 
 ### `VovkQuery`
 
-Allows you to infer the type of the request query of the controller method or RPC method when `query` validation is used: `VovkQuery<typeof MyController.method>{:ts}` or `VovkQuery<typeof MyRPC.method>{:ts}`.
+Allows you to infer the type of the request query of the procedure or RPC method when `query` validation is used: `VovkQuery<typeof MyProcedure.method>{:ts}` or `VovkQuery<typeof MyRPC.method>{:ts}`.
 ### `VovkParams`
 
-Allows you to infer the type of the request params of the controller method or RPC method when `params` validation is used: `VovkParams<typeof MyController.method>{:ts}` or `VovkParams<typeof MyRPC.method>{:ts}`.
+Allows you to infer the type of the request params of the procedure or RPC method when `params` validation is used: `VovkParams<typeof MyProcedure.method>{:ts}` or `VovkParams<typeof MyRPC.method>{:ts}`.
 
 ### `VovkReturnType`
 
-As `output` validation isn't required, the `VovkReturnType` type allows you to infer the `return{:ts}`ed type of the controller method or RPC method: `VovkReturnType<typeof MyController.method>{:ts}` or `VovkReturnType<typeof MyRPC.method>{:ts}`.
-
+As `output` validation isn't required, the `VovkReturnType` type allows you to infer the `return{:ts}`ed type of the procedure or RPC method: `VovkReturnType<typeof MyProcedure.method>{:ts}` or `VovkReturnType<typeof MyRPC.method>{:ts}`.
 ### `VovkYieldType`
 
-As `iteration` validation isn't required, the `VovkYieldType` type allows you to infer the `yield{:ts}`ed type of the controller method or RPC method: `VovkYieldType<typeof MyController.method>{:ts}` or `VovkYieldType<typeof MyRPC.method>{:ts}`.
+As `iteration` validation isn't required, the `VovkYieldType` type allows you to infer the `yield{:ts}`ed type of the procedure or RPC method: `VovkYieldType<typeof MyProcedure.method>{:ts}` or `VovkYieldType<typeof MyRPC.method>{:ts}`.
 
 ## Other Types and Enums
 

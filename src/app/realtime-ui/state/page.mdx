@@ -1,8 +1,47 @@
-# Setting up the Entity Registry
+import AppAlike from '../AppAlike';
 
-As discussed in the [App Overview](./overview), the application state is going to be normalized and store entities in a dictionary by their IDs. The registry is going to have a `parse` method that accepts any data and extracts entities from it, storing them in the registry. The method is going to be used to process all incoming data from the server, so that all components that use this data are going to be updated automatically.
+# Entity-driven state normalization with Zustand registry
 
-For additional type safety, let's create a `BaseEntity` interface that describes the base fields of all entities in the database for additional type checking.
+Entity-driven state normalization is the most effecient way to manage application state in complex applications that deal with a lot of interconnected data. Instead of passing raw data to components, or storing responses as-is in the state, it's better to extract entities from the data and store them in a centralized registry. This way, components can subscribe to specific entities by their IDs, and when an entity is updated, all components that use it are going to be updated automatically.
+
+<AppAlike />
+
+An item in the registry can be used in any component as follows:
+
+```ts showLineNumbers copy
+export const UserProfile = ({ userId }: { userId: User['id'] }) => {
+    const userProfile = useRegistry(useShallow(state => state.user[userId]));
+    return <div>{userProfile.fullName}</div>
+}
+```
+
+Arrays of entities can be derived by mapping over the IDs:
+
+```ts showLineNumbers copy
+// ...
+const users = useRegistry(
+  useShallow((state) => userIds.map((id) => state.user[id])),
+);
+```
+
+The implementation explained below also considers soft deletions, where deleted entities are marked as non-enumerable without actually removing them from the state, preventing errors in components that might still reference them.
+
+```ts showLineNumbers copy
+const users = useRegistry(
+  useShallow(({ user: { ...userReg } }) => userIds.filter((id) => id in userReg).map((id) => userReg[id]))
+);
+```
+
+
+## Implementing `useRegistry` hook
+
+The application state is going to be normalized and store entities in a dictionary by their IDs. The registry is going to have a `parse` method that accepts any data and extracts entities from it, storing them in the registry. The method is going to be used to process all incoming data from the server, so that all components that use this data are going to be updated automatically.
+
+```ts showLineNumbers copy
+useRegistry.getState().parse(data);
+```
+
+For type safety, let's create a `BaseEntity` interface that describes common shape of all entities in the database. Each database entity will have `id`, `createdAt`, `updatedAt`, and `entityType` fields, where `id` and `entityType` are used to identify the entity in the registry.
 
 ```ts showLineNumbers copy filename="src/types.ts"
 import { EntityType } from '@prisma/client';
@@ -15,14 +54,17 @@ export interface BaseEntity {
 }
 ```
 
+`useRegistry` hook, made with Zustand library, implements `Registry` interface that describes the shape of the registry state: `parse` method and the entity maps such as `user` and `task`.
 
-```ts showLineNumbers copy filename="src/registry.ts" repository="finom/realtime-kanban"
-import type { UserType } from "@schemas/models/User.schema";
-import type { TaskType } from "@schemas/models/Task.schema";
-import type { BaseEntity } from "./types";
+The types for `UserType` and `TaskType` are imported from the generated schema files, based on the Prisma models. For more defails, see the [Database](./database) article.
+
+```ts showLineNumbers copy filename="src/hooks/useRegistry.ts" repository="finom/realtime-kanban"
 import { EntityType } from "@prisma/client";
 import { create } from "zustand";
 import fastDeepEqual from "fast-deep-equal";
+import type { UserType } from "@schemas/models/User.schema";
+import type { TaskType } from "@schemas/models/Task.schema";
+import type { BaseEntity } from "../types";
 
 interface Registry {
   [EntityType.user]: Record<UserType["id"], UserType>;
@@ -55,7 +97,7 @@ export function getEntitiesFromData(
   return entities as Partial<Omit<Registry, "parse">>;
 }
 
-export const useRegistry = create<Registry>((set, get) => ({
+const useRegistry = create<Registry>((set, get) => ({
   [EntityType.user]: {},
   [EntityType.task]: {},
   parse: (data) => {
@@ -90,12 +132,14 @@ export const useRegistry = create<Registry>((set, get) => ({
     });
   },
 }));
+
+export default useRegistry;
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/registry.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useRegistry.ts)*
 
 ## `getEntitiesFromData` function explained
 
-`getEntitiesFromData` is a recursive function that extracts entities from any data structure based on the presence of `entityType` and `id` properties. It returns, for each discovered `entityType`, a record (object) whose keys are entity IDs and whose values are the entity objects themselves (not arrays). Let's say the server returns the following response:
+`getEntitiesFromData` is a recursive function that extracts entities from any data structure based on the presence of `entityType` and `id` properties. For each discovered `entityType`, it builds a record whose keys are entity IDs and whose values are the entity objects themselves. Let's say the server returns the following response:
 
 ```json {6,10,16,20}
 {
@@ -140,15 +184,13 @@ The function walks through the entire structure and produces a normalized interm
 ```
 
 
-## `useRegistry` explained
+## `parse` method explained
 
-First two bits such as `[EntityType.user]: {}{:ts}` and `[EntityType.task]: {}{:ts}` are the objects where the entities are going to be stored, with entity IDs as keys, represented by `Record<UserType["id"], UserType>{:ts}` and `Record<TaskType["id"], TaskType>{:ts}` types.
+`parse` method that accepts any data, extracts entities from it and stores them in the registry. Instead of simply extending the state with new entities, we're using `Object.getOwnPropertyDescriptors` to get the property descriptors of the existing entities. This way we can check if the entity already exists in the state and if it does, we can compare it with the new entity using `fast-deep-equal` library. If the entities are equal, we don't update the state, otherwise we create a new property descriptor with the updated entity. This way we can avoid unnecessary re-renders of the components that use this entity.
 
-The third bit is the `parse` method that accepts any data, extracts entities from it and stores them in the registry. That's where the magic happens. Instead of simply extending the state with new entities, we're using `Object.getOwnPropertyDescriptors` to get the property descriptors of the existing entities. This way we can check if the entity already exists in the state and if it does, we can compare it with the new entity using `fast-deep-equal` library. If the entities are equal, we don't update the state, otherwise we create a new property descriptor with the updated entity. This way we can avoid unnecessary re-renders of the components that use this entity.
+### Soft deletions via `__isDeleted` property
 
-### Soft deletions
-
-The `__isDeleted` property is used to mark entities as deleted without actually removing them from the state, avoiding errors in components that might still reference them. Once `__isDeleted` is received as part of the entity, the property descriptor is marked as non-enumerable, so it won't be included in `Object.values` or `Object.keys` calls, making the entity effectively invisible to the components. 
+The `__isDeleted` property is used to mark entities as deleted without actually removing them from the state, avoiding errors in components that might still reference them. Once `__isDeleted` is received as part of the entity, the property descriptor is marked as non-enumerable, so it won't be included in `Object.values` or `Object.keys` calls or using `{...spread}` syntax, making the entity effectively invisible to the components. 
 
 In other words, in order to soft-delete an entity, the server needs to send an object like this:
 
@@ -160,21 +202,9 @@ In other words, in order to soft-delete an entity, the server needs to send an o
 }
 ```
 
-When the `parse` method processes this object, it marks the corresponding entity in the registry as non-enumerable, effectively hiding it from the UI without removing it from the state.
-
-**Tip:** In order to be sure that the UI doesn't display deleted entities, even if the `userIds` array contains them, you can add additional filtering in the components, for example:
-
-```ts showLineNumbers copy
-const users = useRegistry(
-  useShallow(({ user: { ...userReg } }) => userIds.filter((id) => id in userReg).map((id) => userReg[id]))
-);
-```
-
-The destructuring will make sure that non-enumerable properties are not included in the resulting object.
-
 ---
 
-That's it. Each time when the data is received from from any source, it needs to go thru the `parse` method of the registry, and all components that use the data are going to be updated automatically. 
+That's it. Each time when the data is received from from any source, it needs to go thru the `parse` method of the registry, and all components that reference the data by ID are going to be updated automatically. 
 
 ```ts showLineNumbers copy
 import { useRegistry } from "@/registry";
@@ -185,4 +215,4 @@ const data = await resp.json();
 useRegistry.getState().parse(data);
 ```
 
-In order to make it automatic, you can create a custom fetcher that calls the `parse` method for each response, as described in the [next article](./fetcher).
+In order to make it automatic, we'll create a custom fetcher that calls the `parse` method for each response, as described in the [next article](./fetcher).

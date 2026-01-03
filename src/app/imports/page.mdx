@@ -159,10 +159,10 @@ Called on success. Use it for success messages, logging, or post-processing.
 
 ## `validateOnClient`
 
-`validateOnClient` defines how client-side validation is performed for RPC method input (`params`, `query`, `body`). Create it via `createValidateOnClient` from `vovk`. It accepts a `validate` function that receives the input data, the validation schema, and metadata, and returns validated data or throws on failure. Validation runs only when both input and schema are provided.
+`validateOnClient` defines how client-side validation is performed for RPC/API method input (`params`, `query`, `body`). Create it via `createValidateOnClient` from `vovk`. It accepts a `validate` function that receives the input data, the JSON schema, and metadata, and returns validated data or throws on failure. Validation runs only when both input and schema are provided.
 
 ```ts showLineNumbers copy filename="./src/lib/validateOnClient.ts"
-import { validateData } from 'validation-library';
+import { validateData } from 'some-json-validation-library';
 import { createValidateOnClient, HttpException, HttpStatus } from 'vovk';
 
 export const validateOnClient = createValidateOnClient({
@@ -179,35 +179,7 @@ export const validateOnClient = createValidateOnClient({
 });
 ```
 
-
-# Client-Side Validation for RPC Methods
-
-The [schema](/schema) emitted by the server-side code also used for client-side validation. The client-side validation is enabled by wiring a library into the RPC module template via the [validateOnClient](/imports#validateonclient) import.
-
-```ts showLineNumbers copy filename="vovk.config.mjs"
-/** @type {import('vovk').VovkConfig} */
-const config = {
-  outputConfig: {
-    imports: {
-      validateOnClient: 'my-client-validation-library',
-    },
-  },
-};
-
-export default config;
-```
-
-This configuration makes the generated RPC modules import the specified client-side validation library.
-
-```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.mjs"
-// ...existing code...
-export const UserRPC = createRPC(schema, '', 'UserRPC', import('vovk'), {
-  validateOnClient: import('my-client-validation-library'),
-});
-// ...existing code...
-```
-
-## vovk-ajv
+### vovk-ajv
 
 [vovk-ajv](https://www.npmjs.com/package/vovk-ajv) is the primary library for client-side validation, built on top of [Ajv](https://www.npmjs.com/package/ajv). It’s installed and configured automatically when you run `npx vovk-cli init`. **vovk-ajv** supports additional configuration under `config.libs.ajv` in [vovk.config](/config), including Ajv options, localization, and the target JSON Schema draft.
 
@@ -236,22 +208,4 @@ const config = {
   },
 };
 export default config;
-```
-
-## Custom Client-Side Validation
-
-You can implement a custom `validateOnClient` using `createValidateOnClient`, which accepts a `validate` option. The `validate` function receives the input data, the validation schema, and request metadata (`meta`) such as `type`, `endpoint`, and more. It should return validated data, or throw an error on failure. Optionally, throw an `HttpException` with status `0` (`HttpStatus.NULL`) to follow the default behavior for failed client-side validation.
-
-```ts showLineNumbers copy
-import { createValidateOnClient, HttpException, HttpStatus } from 'vovk';
-
-export const validateOnClient = createValidateOnClient({
-  validate: async (input, schema, meta) => {
-    try {
-      return myValidateFunction(input, schema, meta);
-    } catch (error) {
-      throw new HttpException(HttpStatus.NULL, `Custom validation failed: ${error.message}`);
-    }
-  },
-});
 ```

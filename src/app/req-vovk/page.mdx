@@ -175,7 +175,7 @@ const user = await UserRPC.getUser({
 });
 ```
 
-The `getUser` controller method, as well as [decorators](./decorator), can access this metadata via `req.vovk.meta` under the `xMetaHeader` key:
+The `getUser` procedure, as well as [decorators](./decorator), can access this metadata via `req.vovk.meta` under the `xMetaHeader` key:
 
 ```ts showLineNumbers copy {6-7}
 import { get, type VovkRequest } from 'vovk';

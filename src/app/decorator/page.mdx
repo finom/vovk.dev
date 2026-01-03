@@ -1,6 +1,6 @@
 # Decorators
 
-Controller decorators extend the functionality of controller methods. Use them to implement cross‑cutting concerns such as logging, caching, validation, and authorization. They can also attach custom metadata to the handler for purposes like identifying authorized users.
+Decorators extend the functionality of procedures. Use them to implement cross‑cutting concerns such as logging, caching, validation, and authorization. They can also attach custom metadata to the handler for purposes like identifying authorized users.
 
 `createDecorator` is a higher‑order function that produces a decorator factory (a function that returns a decorator) for controller class methods. It accepts a middleware function with the following parameters:
 
@@ -8,12 +8,12 @@ Controller decorators extend the functionality of controller methods. Use them t
 - `next`, a function you call (and return) to invoke subsequent decorators or the route handler.
 - Additional arguments passed through the decorator factory.
 
-The second argument to `createDecorator` is an optional init handler. It runs each time the decorator is initialized and can populate **.vovk-schema/\*.json** with validation or custom data. It may return an object with optional keys `"validation"`, `"operationObject"`, and `"misc"` to merge into the handler schema, or a function returning that object and receiving the existing handler schema for proper merging.
+The second argument to `createDecorator` is an optional init handler. It runs each time the decorator is initialized and can populate **.vovk-schema/\*.json** with validation or custom data. It may return an object with optional keys `"validation"`, `"operationObject"`, and `"misc"` (for custom metadata) to merge into the handler schema, or a function returning that object and receiving the existing handler schema for proper merging.
 
 ```ts showLineNumbers copy
 import { createDecorator, get, HttpException, HttpStatus } from 'vovk';
 
-interface ReqMeta {
+export interface ReqMeta {
   foo: string;
   a: string;
   b: number;
@@ -77,7 +77,7 @@ const log = createDecorator((req, next, message?: string) => {
 export default log;
 ```
 
-Import the `log` decorator and apply it to controller methods after the `@get`, `@post`, etc., decorators.
+Import the `log` decorator and apply it to a procedure after the `@get`, `@post`, etc., decorators.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { get, prefix } from 'vovk';
@@ -130,7 +130,7 @@ const basicAuthGuard = createDecorator((req, next) => {
 export default basicAuthGuard;
 ```
 
-Import the `basicAuthGuard` decorator and apply it to controller methods after the `@get`, `@post`, etc., decorators.
+Import the `basicAuthGuard` decorator and apply it to procedures after the `@get`, `@post`, etc., decorators.
 
 ```ts showLineNumbers copy filename="src/modules/secure/SecureController.ts"
 import { get, prefix } from 'vovk';
@@ -200,7 +200,7 @@ const authGuard = createDecorator(async (req, next, permission: Permission) => {
 export default authGuard;
 ```
 
-Import the `authGuard` decorator and related members, then apply it to controller methods after the `@get`, `@post`, etc., decorators.
+Import the `authGuard` decorator and related members, then apply it to procedures after the `@get`, `@post`, etc., decorators.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { get, prefix } from 'vovk';
@@ -238,7 +238,7 @@ const cronGuard = createDecorator(async (req, next) => {
 export default cronGuard;
 ```
 
-Apply the `cronGuard` decorator to the controller method that should be protected by the cron job authorization.
+Apply the `cronGuard` decorator to the procedure that should be protected by the cron job authorization.
 
 ```ts showLineNumbers copy filename="src/modules/cron/CronController.ts"
 import { get, prefix } from 'vovk';

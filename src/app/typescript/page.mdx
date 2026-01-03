@@ -58,7 +58,7 @@ const updatedUser = await UserRPC.updateUser({
 });
 ```
 
-`updateUser` performs client-side validation, serializes `query` and `params` into the URL, and issues a standard `fetch` request. The server handles it in `UserController.updateUser`. The RPC method returns a promise that resolves to the return type used in the controller method.
+`updateUser` performs client-side validation, serializes `query` and `params` into the URL, and issues a standard `fetch` request. The server handles it in `UserController.updateUser`. The RPC method returns a promise that resolves to the return type used in the procedure.
 
 ```ts showLineNumbers copy
 const resp = await fetch(`/api/users/${id}?notify=push`, {

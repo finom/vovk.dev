@@ -8,11 +8,11 @@ The fetcher is going to implement `transformResponse` function that is going to 
 In the simplest form, when we expect JSON responses only, the function is going to look like this:
 
 ```ts showLineNumbers copy filename="src/lib/fetcher.ts"
-import { useRegistry } from "@/registry";
 import { createFetcher } from "vovk";
+import { useRegistry } from "@/registry";
 
 export const fetcher = createFetcher({
-  transformResponse: async (data, { bypassRegistry }) => {
+  transformResponse: (data) => {
     const state = useRegistry.getState();
     state.parse(data);
     return data;
@@ -20,13 +20,21 @@ export const fetcher = createFetcher({
 });
 ```
 
+On each RPC method call, the `transformResponse` function is going to be invoked with the response data, which is then passed to the `parse` method of the registry.
+
+```ts showLineNumbers copy
+import { UserRPC } from "vovk-client";
+
+const users = await UserRPC.getUsers(); // transformResponse is called internally
+```
+
 As our app is also going to support [JSONLines](/jsonlines) responses for streaming data, we're going to enhance the function a bit with another `if` check.
 
 It's also good to have an option to bypass the registry for specific requests, so we're going to add `bypassRegistry` option to the fetcher config. It's declared as `createFetcher` generic parameter and used as an otpion of the second argument of `transformResponse` function. It can be used as follows: `await UserRPC.getUsers({ bypassRegistry: true }){:ts}`. The same way you can add more options in the future if needed.
 
 ```ts showLineNumbers copy filename="src/lib/fetcher.ts" repository="finom/realtime-kanban"
-import { useRegistry } from "@/registry";
 import { createFetcher, HttpStatus } from "vovk";
+import useRegistry from "@/hooks/useRegistry";
 
 export const fetcher = createFetcher<{ bypassRegistry?: boolean }>({
   transformResponse: async (data, { bypassRegistry }) => {

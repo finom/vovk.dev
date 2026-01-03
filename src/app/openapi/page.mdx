@@ -1,6 +1,6 @@
 # OpenAPI Specification and `@operation` Decorator
 
-Vovk.ts automatically generates an OpenAPI specification from controller methods, using validation models to populate operation objects with `parameters`, `requestBody`, and `responses`. The `@operation` decorator lets you enrich operation objects with metadata such as `summary`, `description`, `tags`, and more. It accepts `OperationObject` type from [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts), enhanced with Vovk-specific `x-tool` poperty related to [deriveTools](/tools) function.
+Vovk.ts automatically generates an OpenAPI specification from procedures, using validation models to populate operation objects with `parameters`, `requestBody`, and `responses`. The `@operation` decorator lets you enrich operation objects with metadata such as `summary`, `description`, `tags`, and more. It accepts `OperationObject` type from [openapi3-ts/oas31](https://www.npmjs.com/package/openapi3-ts), enhanced with Vovk-specific `x-tool` poperty related to [deriveTools](/tools) function.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { procedure, put, prefix, operation } from 'vovk';

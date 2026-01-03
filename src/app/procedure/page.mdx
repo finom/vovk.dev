@@ -264,7 +264,7 @@ export default class UserController {
 }
 ```
 
-As you can see, the `handle` method returns the result of `UserService.updateUser`. That method, in turn, infers its types from the controller method, making the validation models (Zod schemas in this case) the single source of truth for input and output types, with no need to define separate types, thanks to the legendary [Anders Hejlsberg](https://github.com/ahejlsberg) for the fix in [#58616](https://github.com/microsoft/TypeScript/issues/58616)—without this TypeScript change, Vovk.ts would not be possible.
+The `handle` method returns the result of `UserService.updateUser`. That method, in turn, infers its types from the procedure, making the validation models (Zod schemas in this case) the single source of truth for input and output types, with no need to define separate types, thanks to the legendary [Anders Hejlsberg](https://github.com/ahejlsberg) for the fix in [#58616](https://github.com/microsoft/TypeScript/issues/58616)—without this TypeScript change, Vovk.ts would not be possible.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserService.ts"
 import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from 'vovk';
@@ -283,7 +283,7 @@ export default class UserService {
 }
 ```
 
-In other words, service methods can infer types from controller methods, and controller methods can call service methods without self‑referencing type issues.
+In other words, service methods can infer types from procedures, and procedures can call service methods without self‑referencing type issues.
 
 ## FormData
 

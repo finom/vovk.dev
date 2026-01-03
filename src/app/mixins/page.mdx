@@ -94,20 +94,18 @@ In the [Python](/python) client, types are exposed as TypedDicts.
 ```py
 from vovk_client import PetstoreAPI
 
-body: PetstoreAPI.UpdateUserBody = {}
-query: PetstoreAPI.UpdateUserQuery = {}
-params: PetstoreAPI.UpdateUserParams = {}
-output: PetstoreAPI.UpdateUserOutput = {}
+body: PetstoreAPI.UpdatePetBody = {}
+query: PetstoreAPI.UpdatePetQuery = {}
+params: PetstoreAPI.UpdatePetParams = {}
+output: PetstoreAPI.UpdatePetOutput = {}
 ```
 
-For the [Rust](/rust) client, types are generated as nested modules that contain structs.
+For the [Rust](/rust) client, types are generated as nested modules that contain structs and enums, following the same structure as the OpenAPI spec schemas via `_::` separator.
 
 ```rs
-use vovk_client::petstore_api;
-
-use user_api::update_user_::{
+use vovk_client::petstore_api::update_pet_::{
     body as Body,
-    body_::profile as Profile, // for nested data
+    body_::foo as Foo, // for nested data
     query as Query,
     params as Params,
     output as Output,

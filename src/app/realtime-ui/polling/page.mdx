@@ -8,6 +8,7 @@ import { PollExample } from '@/components/vovk-examples';
 
 But what if the database is changed by other users or third-party services to keep the UI in sync with the back-end data in real-time? One of the ways to achieve this is by implementing database polling powered by [JSONLines](/jsonlines). The server sends updates to clients whenever the database changes, and the client reconnects automatically when the connection is closed.
 
+
 The component below demonstrates a simple polling example that receives incremental updates from the server every second. After 10 updates, the server closes the connection, and the client reconnects automatically. We can use the same approach to receive database updates in real time, by having the server send updates whenever the database changes.
 
 <div className="example">
@@ -22,6 +23,10 @@ A small delay (up to a half of a second) is expected due to the CORS preflight. 
 While we could poll the main Postgres database for changes, that approach is inefficient. Instead, we use Redis as an event bus: whenever the main database changes, we write a small event to Redis Database. Our polling service reads these events every second and sends them to clients with the app open.
 
 Because we use [Prisma](https://www.prisma.io/) as our ORM, we can use [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. This is where the `DatabaseService` mentioned in the [previous article](./endpoints) comes into play.
+
+> [!IMPORTANT]
+>
+> A downside of this approach is that the deletions need to be explicit, even if cascade deletions are handled automatically by the database. See [`UserController.deleteUser`](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserService.ts) method for more details.
 
 ```ts showLineNumbers copy filename="src/modules/database/DatabaseService.ts" repository="finom/realtime-kanban" {20, 114}
 import type { BaseEntity } from "@/types";
@@ -48,7 +53,7 @@ export default class DatabaseService {
     return prisma
       .$extends({
         name: "timestamps",
-        // Ensure createdAt and updatedAt are always ISO strings
+        // Ensure createdAt and updatedAt are always ISO strings to match Zod schemas
         result: {
           $allModels: {
             createdAt: {
@@ -370,7 +375,7 @@ export default class DatabasePollController {
 </Tabs.Tab>
 </Tabs>
 
-- When a `delete` DB change is emitted via `DatabaseEventsService.emitter`, the service sends an event with `id`, `entityType`, and `__isDeleted: true`. The front end uses `__isDeleted` to hide the entity by making it non-enumerable in the registry. That's why deletions need to be explicit, even if cascade deletions are handled automatically by the database. See [`UserController.deleteUser`](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserService.ts) method.
+- When a `delete` DB change is emitted via `DatabaseEventsService.emitter`, the service sends an event with `id`, `entityType`, and `__isDeleted: true`. The front end uses `__isDeleted` to hide the entity by making it non-enumerable in the registry.
 - When an `update` or `create` change is emitted, the service fetches the full entity from Postgres (since Redis stores only metadata) and sends it to clients.
 
 ## Client-side logic

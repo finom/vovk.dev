@@ -7,6 +7,15 @@ import Image from 'next/image';
 
 Vovk.ts is built on top of the Next.js App Router, utilizing Route Handlers as the underlying HTTP framework and being a thin abstraction layer over it, being fully compatible with existing Next.js features and libraries. It encourages the use of the Controller-Service-Repository pattern for organizing back-end code, leading to cleaner, more maintainable code for large applications.
 
+```ts
+export default class UserController {
+  @get('{id}')
+  static async getUser(req: NextRequest, { id }: { id: string }) {
+    // ...
+  }
+}
+```
+
 **Related Documentation**
 - [Next.js Route Handlers (nextjs.org)](https://nextjs.org/docs/app/getting-started/route-handlers)
 - [Procedure](/procedure)
@@ -14,6 +23,13 @@ Vovk.ts is built on top of the Next.js App Router, utilizing Route Handlers as t
 ## Back-end Segmentation
 
 Vovk.ts utilizes Next.js routing capabilities to introduce an additional hierarchy level in the back-end called [segments](/segment), powered by Next.js Route Handlers. Segments allow you to split the back-end into smaller, independently configured parts, each compiled into a separate serverless function.
+
+```ts filename="route.ts"
+// ...
+const controllers = { UserRPC: UserController };
+export type Controllers = typeof controllers;
+export const { GET, POST } = initSegment({ controllers });
+```
 
 **Related Documentation**
 - [Segment](/segment)
@@ -29,6 +45,12 @@ Vovk.ts generates a comprehensive back-end schema in JSON format for each segmen
 
 Controllers implemented as static classes are compiled into RPC modules through code generation. Each RPC module mirrors the controller's structure but has a different argument signature, requiring three separate inputs: URL parameters, query parameters, and request body. The code generation can be configured to emit either a single "composed" RPC client or multiple "segmented" RPC clients for each back-end segment independently, splitting the app into isolated parts that use their own schema files.
 
+```ts
+import { UserRPC } from 'vovk-client';
+
+const user = await UserRPC.getUser({ params: { id: '123' } });
+``` 
+
 **Related Documentation**
 - [TypeScript Client](/typescript)
 - [Composed Clients](/composed)
@@ -38,6 +60,13 @@ Controllers implemented as static classes are compiled into RPC modules through 
 
 Vovk.ts can derive AI tools from back-end controllers (for same-context execution) and RPC modules (for HTTP calls), turning them into LLM function calling tools with `name`, `description`, `parameters`, and an `execute` function. This allows you to create AI agents that can interact with your back-end functionality seamlessly.
 
+```ts
+import { UserRPC } from 'vovk-client';
+
+const { tools } = deriveTools({ modules: { UserRPC } });
+console.log(tools); // { name, description, parameters, execute }
+```
+
 **Related Documentation**
 - [Deriving AI Tools](/tools)
 - [Realtime UI](/realtime-ui)
@@ -46,12 +75,46 @@ Vovk.ts can derive AI tools from back-end controllers (for same-context executio
 
 Vovk.ts can convert OpenAPI 3.x schema files into API modules following that follow the same calling signature as Vovk.ts RPC modules. This allows you to mix Vovk.ts back-end functionality with third-party APIs defined in OpenAPI format and create derived AI tools that combine both - your back-end and external services.
 
+```ts
+import { PetStoreAPI } from 'vovk-client';
+
+const pet = await PetStoreAPI.getPetById({ params: { petId: 1 } });
+```
+
 **Related Documentation**
 - [OpenAPI Mixins](/mixins)
 
 ## Documentation Generation and Publishing
 
 Vovk.ts generates comprehensive documentation for RPC modules, including OpenAPI 3.1 documentation with code examples, compatible with [Scalar](https://scalar.com/), but also includes codegen templates for README and package files. This allows you to publish client libraries for TypeScript (using easily configured bundler), Python, and Rust with minimal effort.
+
+```ts
+import { UserRPC } from 'my-api-client';
+
+const user = await UserRPC.getUser({ params: { id: '123' } });
+```
+
+```python
+from my_api_client import UserRPC
+
+params: UserRPC.GetUserParams = {"id": "123"}
+user = UserRPC.get_user(params=params)
+```
+
+```rust
+use my_api_client::user_api::user_rpc::get_user;
+use my_api_client::user_api::user_rpc::get_user_::params as Params;
+let user = user_rpc::get_user(
+    (), // body
+    (), // query
+    Params {
+      id: String::from("123e4567-e89b-12d3-a456-426614174000")
+    }, 
+    None, // headers
+    None, // API root
+    false // disable client-side validation
+).await?;
+```
 
 **Related Documentation**
 - [Bundle Command](/bundle)
