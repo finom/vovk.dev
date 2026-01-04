@@ -7,7 +7,7 @@
     </picture>
   </a>
   <br>
-  <strong>Back-end for Next.js (beta)</strong>
+  <strong>Structured API Layer for Next.js</strong>
   <br />
   <a href="https://vovk.dev/about">About Vovk.ts</a>
   &nbsp;

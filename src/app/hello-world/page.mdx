@@ -1,20 +1,21 @@
 import { Tabs } from 'nextra/components';
-import GithubFiles from '@/components/GithubFiles';
 import IFrame from './IFrame';
 import Asciinema from '../../components/AsciinemaPlayer';
 import NoSSR from '../../components/NoSSR';
 
 # "Hello World" Example
 
-> **📘 About this example:** Although it is called “Hello World,” this sample is intentionally comprehensive. It brings together validation, streaming, multi‑language client generation, and OpenAPI output in a single, focused project. If you need the absolute minimal starting point, see the [Quick Start](/quick-install) guide first.
+> **About this example:** Although it is called “Hello World,” this sample is intentionally comprehensive. It brings together validation, streaming, multi‑language client generation, and OpenAPI output in a single, focused project. If you need the absolute minimal starting point, see the [Quick Start](/quick-install) guide first.
+
+If you want a more advanced, agent-operated reference app (Realtime UI + MCP + voice/chat surfaces), see the [Realtime UI overview](/realtime-ui/overview).
 
 The "Hello World" app at [hello-world.vovk.dev](https://hello-world.vovk.dev/) is a Next.js / Vovk.ts example showcasing core features by implementing:
 
-- Back end:
+- Back-end:
   - `UserController` with an `updateUser` method (POST `/api/users/{id}`).
   - `StreamController` with a JSONLines `streamTokens` handler (GET `/api/streams/tokens`).
   - `OpenApiController` with `getSpec` (GET `/api/static/openapi/spec.json`), serving the generated OpenAPI spec. Documentation is viewable at the [`/openapi` page](https://hello-world.vovk.dev/openapi).
-- Front end:
+- Front-end:
   - A form plus a JSONLines streaming demo above it.
 - Configuration:
   - Client‑side validation; segmented & composed TypeScript clients; generation of Rust/Python clients; npm bundle output; and OpenAPI metadata (info + servers).
@@ -284,7 +285,7 @@ The demo uses [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/re
 
 <Tabs items={['index.tsx', 'UserFormDemo.tsx', 'StreamDemo.tsx']}>
 <Tabs.Tab>
-```ts showLineNumbers copy showLineNumbers copy filename="src/components/Demo/index.tsx" repository="finom/vovk-hello-world"
+```ts showLineNumbers copy filename="src/components/Demo/index.tsx" repository="finom/vovk-hello-world"
 "use client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import StreamDemo from "./StreamDemo";
@@ -312,7 +313,7 @@ export default Demo;
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/Demo/index.tsx)*
 </Tabs.Tab>
 <Tabs.Tab>
-```tsx showLineNumbers copy showLineNumbers copy filename="src/components/Demo/UserFormDemo.tsx" repository="finom/vovk-hello-world"
+```tsx showLineNumbers copy filename="src/components/Demo/UserFormDemo.tsx" repository="finom/vovk-hello-world"
 "use client";
 import React, { useState } from "react";
 import type { VovkQuery } from "vovk";
@@ -444,7 +445,7 @@ export default UserFormDemo;
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/Demo/UserFormDemo.tsx)*
 </Tabs.Tab>
 <Tabs.Tab>
-```tsx showLineNumbers copy showLineNumbers copy filename="src/components/Demo/StreamDemo.tsx" repository="finom/vovk-hello-world"
+```tsx showLineNumbers copy filename="src/components/Demo/StreamDemo.tsx" repository="finom/vovk-hello-world"
 "use client";
 import {
   useQuery,

@@ -1,0 +1,224 @@
+import { FileTree } from 'nextra/components';
+
+
+<img src="/vovk-logo.svg" alt="Vovk.ts Logo" className='dark:invert mx-auto clear-both'/>
+
+<div className="flex justify-center gap-2 mt-6 mb-8">
+  <a href="https://github.com/finom/vovk">
+    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/finom/vovk" />
+  </a>
+  <a href="https://www.npmjs.com/package/vovk">
+    <img alt="NPM Downloads" src="https://img.shields.io/npm/dm/vovk" />
+  </a>
+  <a href="https://github.com/finom/vovk/blob/main/LICENSE" className="hidden lg:block">
+    <img alt="License" src="https://img.shields.io/github/license/finom/vovk" />
+  </a>
+  <a href="https://bundlephobia.com/package/vovk" className="hidden lg:block">
+    <img alt="Bundle Size" src="https://img.shields.io/bundlephobia/minzip/vovk" />
+  </a>
+  <a href="https://www.npmjs.com/package/vovk">
+    <img alt="NPM Version" src="https://img.shields.io/npm/v/vovk" />
+  </a>
+  <a href="https://github.com/finom/vovk/issues">
+    <img alt="GitHub Issues" src="https://img.shields.io/github/issues/finom/vovk" />
+  </a>
+</div>
+
+# Vovk.ts — Structured API Layer for Next.js
+
+
+Vovk.ts is a **Next.js App Router–native back-end framework** that turns Route Handlers into a structured API layer (Controller → Service → Repository), with **first-class schema emission** and **code generation** for type-safe clients, docs, and AI tools.
+
+## Get Started
+
+- [Quick Start](/quick-install)
+- [Manual Install](/manual-install)
+- [Github Repository](https://github.com/finom/vovk)
+
+## What you get (in one sentence)
+
+Define endpoints once (as real Next.js handlers), and Vovk.ts **derives schema artifacts** to **generate type-safe clients**, **publish docs**, and **build AI tools**—without writing and maintaining a separate contract layer.
+
+
+## Vovk.ts is a great fit if you
+
+- Use Next.js App Router and want to stay native to it
+- Want typed clients without maintaining a separate contract layer
+- Need to generate OpenAPI docs or AI tools from existing endpoints
+- Care about serverless and deployment parity
+
+## It’s probably not for you if you:
+
+- Don’t use Next.js
+- Need runtime access to original schema (JSON Schema is available, though)
+- Prefer contract-first API design
+
+## See it in a real project
+
+If you want a concrete reference, the ["Hello World" example](/hello-world) shows Vovk.ts doing all of this in one app:
+
+- Zod-validated inputs/outputs (with OpenAPI-friendly metadata)
+- JSONLines streaming endpoints
+- Segmented and composed TypeScript clients
+- Generated OpenAPI served by a segment and rendered via Scalar
+- Bundling/publishing and multi-language clients (TypeScript + Rust + Python)
+
+## Realtime UI (advanced reference app)
+
+If you want to see how Vovk.ts scales beyond “API + client”, the [Realtime UI overview](/realtime-ui/overview) walks through **Realtime Kanban**: a full-stack app designed to be operated by users *and* **AI agents / MCP clients**, using generated RPC modules, derived tools, and streaming updates.
+
+## Next.js-native, not a parallel runtime
+
+Vovk.ts is intentionally built on top of **Route Handlers**. You keep Next.js features (streaming, middleware, auth patterns, deployment targets), while getting a clean back-end architecture and typed request handling. Auth is handled the same way as native Route Handlers—Vovk.ts does not introduce a parallel auth model.
+
+```ts
+export default class UserController {
+  @get('{id}')
+  static async getUser(req: NextRequest, { id }: { id: string }) {
+    // ...
+  }
+}
+```
+
+With [`procedure`](/procedure), params/query/body are validated and typed:
+
+```ts
+export default class UserController {
+  @get('{id}')
+  static getUser = procedure({
+    params: z.object({
+      id: z.string().uuid(),
+    }),
+    handle: async (req, { id }) => {
+      // ...
+    },
+  });
+}
+```
+
+**Related**
+- [Next.js Route Handlers](https://nextjs.org/docs/app/getting-started/route-handlers)
+- [Procedure](/procedure)
+
+## Standards-based validation (Zod, Valibot, ArkType)
+
+Vovk.ts supports validation libraries that implement [Standard Schema](https://standardschema.dev/schema) + [Standard JSON Schema](https://standardschema.dev/json-schema):
+
+That includes libraries like **Zod**, **Valibot**, and **ArkType**. As more libraries adopt these standards, they can be supported without inventing a new integration per library.
+
+## Schema emission (a feature, not a compromise)
+
+Many teams avoid emitting schema artifacts for different reasons: some prefer **inference-only** approaches (no explicit schema artifact), while others prefer **contract-first** approaches (like ts-rest) where the schema lives in a dedicated contract module. Vovk.ts takes a different route:
+
+- **Your handlers are the source of truth** (no separate contract file to keep in sync).
+- Schema is **derived** from what you already wrote.
+- Schema is a **build artifact**: the runtime stays lean, while tooling (clients/docs/AI) gets a stable interface.
+- Validation stays flexible: the input/output schemas come from libraries implementing **Standard Schema / Standard JSON Schema**.
+- You get **direct type mapping** and “jump-to-definition” between generated clients and server code.
+- Procedure JSDoc/TSDoc stays next to the implementation and shows up **on hover over the generated RPC methods** (via type mapping).
+
+Each segment emits schema to **`.vovk-schema/`**:
+
+<FileTree>
+  <FileTree.Folder name=".vovk-schema" defaultOpen>
+    <FileTree.File name="root.json" />
+    <FileTree.File name="customer.json" />
+    <FileTree.Folder name="nested-segment" defaultOpen>
+      <FileTree.File name="foo.json" />
+    </FileTree.Folder>
+    <FileTree.File name="_meta.json" />
+  </FileTree.Folder>
+</FileTree>
+
+**Related**
+- [Schema](/schema)
+
+## Runtime vs Toolchain (so “thin wrapper” doesn’t undersell it)
+
+Vovk.ts is split by design:
+
+- **`vovk` (runtime)**: decorators, `procedure`, routing helpers, `deriveTools`—the code you ship.
+- **`vovk-cli` (toolchain)**: codegen, mixins, documentation generation, bundling/publishing—dev-only automation.
+- **`vovk-client` (optional)**: re-exported composed client for easy import.
+
+This keeps production dependencies small while still offering a full “API platform” workflow.
+
+## RPC modules via code generation
+
+> RPC here refers to the client call shape—not a custom transport.
+
+Controllers (static methods + decorators) compile into **RPC modules** with a consistent call signature: `{ params, query, body }`. You can generate a single composed client or per-segment clients.
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+const user = await UserRPC.getUser({ params: { id: '123' } });
+```
+
+**Related**
+- [TypeScript Client](/typescript)
+- [Composed Clients](/composed)
+- [Segmented Clients](/segmented)
+
+## Segments: split your back-end like your routes
+
+Vovk.ts uses Next.js routing to add a back-end hierarchy level called [segments](/segment). Each segment can be configured independently and compiles into its own serverless function.
+
+```ts filename="route.ts"
+// ...
+const controllers = { UserRPC: UserController };
+export type Controllers = typeof controllers;
+export const { GET, POST } = initSegment({ controllers });
+```
+
+**Related**
+- [Segment](/segment)
+
+## AI tools from your real API
+
+Vovk.ts can derive tool definitions from controllers or generated modules—so agents can call your API with structured parameters and a real `execute` function.
+
+```ts
+import { UserRPC } from 'vovk-client';
+
+const { tools } = deriveTools({ modules: { UserRPC } });
+console.log(tools); // [{ name, description, parameters, execute }]
+```
+
+**Related**
+- [Deriving AI Tools](/tools)
+- [Realtime UI](/realtime-ui)
+
+## OpenAPI mixins (use your API + third-party APIs together)
+
+Convert OpenAPI 3.x schemas into modules that match the same calling convention as Vovk.ts RPC modules—then combine them in one client/tooling pipeline.
+
+```ts
+import { PetStoreAPI } from 'vovk-client';
+
+const pet = await PetStoreAPI.getPetById({ params: { petId: 1 } });
+```
+
+**Related**
+- [OpenAPI Mixins](/mixins)
+
+## Docs + publishing
+
+Vovk.ts can generate API documentation (including OpenAPI 3.1 + examples) and package files for publishing client libraries.
+
+**Related**
+- [Generate Command](/generate)
+- [Bundle Command](/bundle)
+- ["Hello World" Example](/hello-world)
+- [Python Client](/python)
+- [Rust Client](/rust)
+
+## Vocabulary
+
+- **Controller**: a class defining endpoints via decorators on `static` methods.
+- **Procedure**: a decorated method handling a request; optionally wrapped by [`procedure`](/procedure).
+- **Segment**: a routed back-end “slice” compiled independently (often into its own function).
+- **RPC module**: generated module mirroring a controller, used by the client with `{ params, query, body }`.
+- **API module**: a generated module from a controller *or* an OpenAPI schema (includes RPC modules).
+
+

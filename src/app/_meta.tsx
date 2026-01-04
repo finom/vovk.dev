@@ -3,16 +3,6 @@ import type { MetaRecord } from 'nextra';
 const separator = (title: string) => ({ type: 'separator', title });
 
 const meta = {
-  index: {
-    title: 'Home',
-    type: 'page',
-    theme: {
-      layout: 'full',
-      toc: false,
-      footer: false,
-      copyPage: false,
-    },
-  },
   blog: {
     title: 'Blog',
     href: '/blog',
@@ -20,7 +10,7 @@ const meta = {
     display: 'hidden',
   },
   '#introduction': separator('Getting Started'),
-  about: 'Core Concepts & Features 🚧',
+  index: 'Home Page',
   'quick-install': 'Quick Start',
   'manual-install': 'Manual Install',
   performance: 'Overhead Performance',
@@ -29,7 +19,7 @@ const meta = {
   procedure: 'Controller & Procedure',
   schema: 'Schema',
   response: 'Response & Errors',
-  'req-vovk': <><code className='code'>req.vovk</code>{' '}<span className="leading-6">Interface</span></>,
+  'req-vovk': 'req.vovk Interface',
   decorator: 'Custom Decorators',
   fn: 'Calling Procedures Locally',
   jsonlines: 'JSON Lines',

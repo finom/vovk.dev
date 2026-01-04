@@ -9,8 +9,8 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   metadataBase: new URL('https://vovk.dev'),
   title: {
-    default: 'Vovk.ts - Back-end for Next.js',
-    template: '%s | Vovk.ts - Back-end for Next.js',
+    default: 'Vovk.ts - Structured API Layer for Next.js',
+    template: '%s | Vovk.ts - Structured API Layer for Next.js',
   },
   openGraph: {
     url: 'https://vovk.dev',
