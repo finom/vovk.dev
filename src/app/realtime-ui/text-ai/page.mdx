@@ -11,13 +11,7 @@ For the back-end setup, we need to create a procedure powered by AI SDK, adding 
 As the procedures already follow [rules of locally called procedures](/fn#rules), meaning that the handlers use only `vovk` property of the request: `async ({ vovk }) => UserService.createUser(await vovk.body()){:ts}` (see [API Endpoints](./endpoints) page), we can use `deriveTools` function to create AI tools from the controllers and call them in the current back-end context without performing HTTP requests.
 
 ```ts showLineNumbers copy filename="src/modules/ai/AiSdkController.ts" repository="finom/realtime-kanban"  {32-37,43-53}
-import {
-  deriveTools,
-  post,
-  prefix,
-  operation,
-  type VovkRequest,
-} from "vovk";
+import { deriveTools, post, prefix, operation, type VovkRequest } from "vovk";
 import {
   convertToModelMessages,
   jsonSchema,

@@ -5,16 +5,16 @@ import RealtimeNavigation from '../RealtimeNavigation';
 
 # Realtime UI Overview
 
-This series of articles describes a full-stack application called **Realtime Kanban**, demonstrating a **Realtime UI** approach built from established web development techniques. Applications built with this approach behave like regular web apps but can also be fully operated by AI agents via text or voice interfaces, as well as MCP clients—enabling new levels of interactivity (including navigation) and automation, keeping the code both on front-end and back-end short and self-explanatory.
+This series walks through **Realtime Kanban**, a full‑stack reference app that demonstrates a **Realtime UI** architecture. The app behaves like a standard web application, but it’s also designed to be operated by **AI agents** via text or voice, and by **MCP clients**—including navigation and workflow automation—while keeping both front‑end and back‑end code short and easy to follow.
 
-The building blocks of this approach are:
+Key building blocks:
 
-- **Entity-driven state normalization** on the front end using [Zustand](https://github.com/pmndrs/zustand), keeping UI state efficiently synchronized with back-end data and reducing development overhead. Data received from the back end is processed through an entity registry parser that automatically updates the normalized state, allowing components to retrieve entities by ID and re-render as needed.
-- **Database schema as the source of truth**, which not only defines the database structure via Postgres and Prisma but also drives Zod schema generation via [prisma-zod-generator](https://www.npmjs.com/package/prisma-zod-generator). These schemas are reused on the back end to validate procedure inputs and keep the codebase as DRY as possible.
-- **Database polling events**, powered by Redis and exposed as [JSON Lines](/jsonlines) streaming endpoints, enabling real-time updates without manual refreshes. Changes made by other users, MCP clients, or bots are reflected in the UI automatically.
-- **Text-based AI chat interface** implemented with the Vercel [AI SDK](https://ai-sdk.dev/docs/introduction) and [AI Elements](https://ai-sdk.dev/elements), reusing existing controller implementations to derive AI tools. As users interact via chat, the AI agent invokes predefined back-end procedures and sends data updates to the front end, where they are processed through the entity registry.
-- **Voice AI interface** powered by the [OpenAI Realtime API](https://platform.openai.com/docs/guides/realtime) and WebRTC, enabling hands-free, JARVIS-like interaction. The AI agent performs authorized HTTP requests to the back end using generated RPC modules, with resulting data updates flowing through the same entity registry pipeline. The provided example also demonstrates client-side tools, that implement navigation across the pages of the app.
-- **MCP server** that enables interaction via Model Context Protocol clients. The server executes procedures locally on the back end, triggering polling events that update front-end state through the entity registry.
-- **Updating from other sources**, implemented as **Telegram bot integration** allowing users to manage tasks through a text or voice interface within Telegram, and demonstrating that the app can be controlled from various platforms.
+- **Entity-driven state normalization (front end)** with [Zustand](https://github.com/pmndrs/zustand): back-end responses are parsed through an entity registry that updates a normalized store, so components can read entities by ID and re-render with minimal wiring.
+- **Database schema as the source of truth**: Postgres + Prisma define structure and drive Zod schemas via [prisma-zod-generator](https://www.npmjs.com/package/prisma-zod-generator). The same schemas validate back-end procedure inputs to keep the codebase DRY.
+- **Database polling events** via Redis, exposed as [JSON Lines](/jsonlines) streaming endpoints: changes from users, MCP clients, or bots propagate to the UI without manual refreshes.
+- **Text-based AI chat** using the Vercel [AI SDK](https://ai-sdk.dev/docs/introduction) and [AI Elements](https://ai-sdk.dev/elements): existing controllers are reused to define AI tools, and results flow back through the entity registry pipeline.
+- **Voice interface** with the [OpenAI Realtime API](https://platform.openai.com/docs/guides/realtime) + WebRTC: the agent performs authorized HTTP requests through generated RPC modules; responses update the UI through the same entity registry flow. The example also includes client-side tools for in-app navigation.
+- **MCP server**: procedures run locally on the back end and trigger polling events, updating front-end state through the entity registry.
+- **External updates** (Telegram bot): manage tasks through text/voice inside Telegram, showing how the same app can be controlled from multiple surfaces.
 
-The app can be [run locally](./run) via Docker Compose or deployed to any Node.js hosting platform, such as [Vercel](./deploy).
+You can [run the app locally](./run) with Docker Compose or deploy it to any Node.js platform (for example, [Vercel](./deploy)).

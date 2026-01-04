@@ -22,13 +22,16 @@ A small delay (up to a half of a second) is expected due to the CORS preflight. 
 
 While we could poll the main Postgres database for changes, that approach is inefficient. Instead, we use Redis as an event bus: whenever the main database changes, we write a small event to Redis Database. Our polling service reads these events every second and sends them to clients with the app open.
 
-Because we use [Prisma](https://www.prisma.io/) as our ORM, we can use [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. This is where the `DatabaseService` mentioned in the [previous article](./endpoints) comes into play.
+Because we use [Prisma](https://www.prisma.io/) as our ORM, we can use [Prisma Extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions) to hook into database operations and write events to Redis. This is where the `DatabaseService` mentioned in the [Endpoints](./endpoints) comes into play.
 
 > [!IMPORTANT]
 >
-> A downside of this approach is that the deletions need to be explicit, even if cascade deletions are handled automatically by the database. See [`UserController.deleteUser`](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserService.ts) method for more details.
+> The existing implementation has the folowing cons:
+> - Deletions need to be explicit, even if cascade deletions are handled automatically by the database. See [`UserController.deleteUser`](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserService.ts) method for more details.
+> - All write operations must select the `updatedAt` field for the change detection to work properly.
+> - List of supported write operations is limited to `create`, `update`, `upsert`, and `delete` for simplicity. Read operations are passed through as-is. For more complex operations, additional handling or abstraction is required.
 
-```ts showLineNumbers copy filename="src/modules/database/DatabaseService.ts" repository="finom/realtime-kanban" {20, 114}
+```ts showLineNumbers copy filename="src/modules/database/DatabaseService.ts" repository="finom/realtime-kanban" {20,124}
 import type { BaseEntity } from "@/types";
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
@@ -53,7 +56,7 @@ export default class DatabaseService {
     return prisma
       .$extends({
         name: "timestamps",
-        // Ensure createdAt and updatedAt are always ISO strings to match Zod schemas
+        // Ensure createdAt and updatedAt are always ISO strings
         result: {
           $allModels: {
             createdAt: {
@@ -77,10 +80,15 @@ export default class DatabaseService {
                 "create",
                 "update",
                 "delete",
+                "upsert",
                 "findMany",
                 "findUnique",
                 "findFirst",
+                "findUniqueOrThrow",
+                "findFirstOrThrow",
                 "count",
+                "aggregate",
+                "groupBy",
               ] as const;
               type AllowedOperation = (typeof allowedOperations)[number];
               if (!allowedOperations.includes(operation as AllowedOperation)) {
@@ -115,6 +123,7 @@ export default class DatabaseService {
                   break;
 
                 case "update":
+                case "upsert":
                   if ("entityType" in result)
                     change = makeChange(result, "update");
                   break;
@@ -130,7 +139,11 @@ export default class DatabaseService {
                 case "findMany":
                 case "findUnique":
                 case "findFirst":
+                case "findUniqueOrThrow":
+                case "findFirstOrThrow":
                 case "count":
+                case "aggregate":
+                case "groupBy":
                   // no events
                   break;
 
@@ -167,9 +180,9 @@ export type DBChange = {
 };
 ```
 
-The `date` field indicates when the change occurred.
+The `date` field indicates when the change occurred to help clients fetch only the latest changes.
 
-- For `create` and `update` operations, it uses the `updatedAt` DB field (important: all write operations must select this field).
+- For `create`, `update`, and `upsert` operations, it uses the `updatedAt` DB field (all write operations must select this field).
 - For `delete` operations, it uses the current time.
 
 The `delete` operation also adds an `__isDeleted` property. The front end checks this property to hide the deleted entity by setting `enumerable: false` on the entity registry item (see the [State](./state) page).
@@ -332,12 +345,17 @@ export default class PollService {
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollService.ts)*
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollService.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/database/DatabasePollController.ts" repository="finom/realtime-kanban"
 import { EntityType } from "@prisma/client";
-import { procedure, get, JSONLinesResponse, prefix, type VovkIteration } from "vovk";
+import {
+  procedure,
+  get,
+  JSONLinesResponse,
+  prefix,
+  type VovkIteration,
+} from "vovk";
 import { z } from "zod";
 import { TaskSchema, UserSchema } from "@schemas/index";
 import DatabasePollService from "./DatabasePollService";

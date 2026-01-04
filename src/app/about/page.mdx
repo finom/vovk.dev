@@ -16,6 +16,22 @@ export default class UserController {
 }
 ```
 
+With the [procedure](/procedure) function parameters, `req.json()`, `req.nextUrl` get typed automatically:
+
+```ts
+export default class UserController {
+  @get('{id}')
+  static getUser = procedure({
+    params: z.object({
+      id: z.string().uuid(),
+    }),
+    handle: async (req, { id }) => {
+      // ...
+    },
+  });
+}
+```
+
 **Related Documentation**
 - [Next.js Route Handlers (nextjs.org)](https://nextjs.org/docs/app/getting-started/route-handlers)
 - [Procedure](/procedure)
@@ -43,7 +59,9 @@ Vovk.ts generates a comprehensive back-end schema in JSON format for each segmen
 
 ## Code Generation and "RPC Modules"
 
-Controllers implemented as static classes are compiled into RPC modules through code generation. Each RPC module mirrors the controller's structure but has a different argument signature, requiring three separate inputs: URL parameters, query parameters, and request body. The code generation can be configured to emit either a single "composed" RPC client or multiple "segmented" RPC clients for each back-end segment independently, splitting the app into isolated parts that use their own schema files.
+Controllers implemented as static classes are compiled into RPC modules through code generation. Each RPC module mirrors the controller's structure but has a different argument signature, requiring three separate inputs: URL parameters, query parameters, and request body. 
+
+The code generation can be configured to emit either a single "composed" RPC client or multiple "segmented" RPC clients for each back-end segment independently, splitting the app into isolated parts that use their own schema files.
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -127,7 +145,10 @@ let user = user_rpc::get_user(
 
 - **API Module** - Generated module from a Vovk.ts controller or OpenAPI schema that exposes methods for making HTTP requests to the back-end.
 - **RPC Module** - Generated module from a Vovk.ts controller, a subset term of API module that infer types directly from the controller methods.
-- **Controller** - A class in Vovk.ts that defines HTTP endpoints using decorators. All methods in a controller are considered procedures and defined with `static` keyword.
-- **Procedure** - A static method in a controller that handles HTTP requests. Procedure accepts `NextRequest` object and URL parameters and can be wrapped by [procedure](/procedure) function for additional features like validation with automatic type inference.
+- **Controller** - A class in Vovk.ts that defines HTTP endpoints using decorators. All methods in a controller declated with `static` keyword and decorated with HTTP method decorators are considered procedures.
+- **Procedure** - A static decorated method in a controller that handles HTTP requests. Procedure accepts `NextRequest` object and URL parameters and can be wrapped by [procedure](/procedure) function for additional features like validation with automatic type inference.
 - **Segment** - A part of the back-end defined by a Next.js Optional Catch-All Segment that initializes controllers and is compiled into a separate serverless function.
 - **OpenAPI mixin** - An API module generated from an OpenAPI 3.x schema file that can be used alongside Vovk.ts RPC modules.
+
+---
+

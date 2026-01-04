@@ -4,7 +4,7 @@ const separator = (title: string) => ({ type: 'separator', title });
 
 const meta = {
   '#getting-started': separator('Getting Started'),
-  overview: 'Realtime UI Overview 🚧',
+  overview: 'Realtime UI Overview',
   run: 'Run Locally with Docker Compose',
   deploy: 'Deploy to Vercel',
   '#client': separator('Front-end Setup'),
@@ -14,7 +14,7 @@ const meta = {
   database: 'Database Setup with Prisma and Zod Generator',
   endpoints: 'API Endpoints',
   embeddings: 'Vector Search via Embeddings',
-  polling: 'Database Polling with Redis 🚧',
+  polling: 'Database Polling with Redis',
   authentication: 'Basic Authentication and Authorization (Password Protection)',
   '#ai': separator('AI Integration'),
   'text-ai': 'Text AI Chat Integration with AI SDK and AI Elements',

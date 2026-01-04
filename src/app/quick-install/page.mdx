@@ -1,17 +1,9 @@
 import { Steps } from 'nextra/components';
-import Asciinema from '../../components/AsciinemaPlayer';
-import NoSSR from '../../components/NoSSR';
 
 # Quick Start
 
-<div className='mt-4'>
-<NoSSR>
-<Asciinema src="/asciinema/install.cast" />
-</NoSSR>
-</div>
- 
 <Steps>
-### Create a Next.js project (App Router + TypeScript)
+### Create a Next.js app (App Router + TypeScript)
  
 ```bash npm2yarn copy
 npx create-next-app@latest my-app --ts --app --src-dir
@@ -20,11 +12,9 @@ npx create-next-app@latest my-app --ts --app --src-dir
 cd my-app
 ```
 
-The `src` directory is optional but recommended because it keeps the project root clean.
-
 ### Initialize Vovk.ts
 
-You will be prompted to choose a validation library and answer a few additional questions. The CLI will install the selected dependencies, update npm scripts, enable `experimentalDecorators` in **tsconfig.json**, and create the framework [config](/config) file.
+You will be prompted to answer a few questions. The CLI will install the selected dependencies, update npm scripts, enable `experimentalDecorators` in **tsconfig.json**, and create a [config](/config) file.
 
 ```bash npm2yarn copy
 npx vovk-cli@latest init
@@ -70,14 +60,14 @@ npm run dev
 Then open: http://localhost:3000/api/users/123  
 You’ll see a placeholder response from `UserController.getSingleUser`: `{"message":"TODO: get single user","id":"123"}{:json}`
 
-You can also check the schema endpoint (available only when NODE_ENV is set to development) at http://localhost:3000/api/_schema_
+You can also check the schema endpoint (available only when NODE_ENV is set to development) at [http://localhost:3000/api/\_schema\_](http://localhost:3000/api/_schema_)
 
 **More info:**
 
 - [vovk dev](/dev)
 - [Schema](/schema)
-- [Composed Client](/composed)
-- [Segmented Client](/segmented)
+- [Composed Clients](/composed)
+- [Segmented Clients](/segmented)
 
 ### Create a React component to display data
 
@@ -113,7 +103,7 @@ const { data, error, isLoading } = useQuery({
 
 **More info:**
 
-- [TypeScript RPC](/typescript)
+- [TypeScript Client](/typescript)
 
 ### Deploy
 

@@ -3,8 +3,8 @@
 ## TL;DR
 
 - Goal: measure Vovk.ts overhead over native Next.js route handlers (not HTTP stack).
-- Routing: O(1) across 1–10,000 controllers (20,000 endpoints). Median latency ~1.1 µs; at 10,000 controllers ~1.3 µs. Throughput ~750k–930k ops/s/core.
-- Cold start: O(n). ~5.5 ms at 1,000 controllers; ~63 ms at 10,000. About 8–10× the cost of no‑op decorators.
+- Routing: O(1) across 1–10,000 controllers (20,000 endpoints). Median latency ~1.3–1.5 µs; at 10,000 controllers ~1.6 µs. Throughput ~630k–780k ops/s/core.
+- Cold start: O(n). ~6.0 ms at 1,000 controllers; ~85 ms at 10,000. About 8–11× the cost of no‑op decorators.
 - Notes: Tinybench on Apple M4 Pro. Next.js runtime cost is out of scope. Compiled from real benchmark output with AI assistance and minor edits. See vovk-perf-test repo for scripts.
 
 ## Reproducing the Tests
@@ -45,6 +45,40 @@ Source: test scripts in the vovk-perf-test repository.
 
 ## Request Overhead
 
+Example controller (N = 1) used in the request-overhead tests:
+
+```ts showLineNumbers copy filename="src/modules/one/a/AController.ts" repository="finom/vovk-perf-test"
+import { procedure, prefix, get, post, operation } from "vovk";
+
+@prefix("as")
+export default class AController {
+  @operation({
+    summary: "Get AS",
+  })
+  @get()
+  static getAS = procedure({
+    handle: (_req, params: unknown) => {
+      if (params && typeof params === "object" && "id" in params)
+        throw new Error("Unexpected id param");
+      return null;
+    },
+  });
+
+  @operation({
+    summary: "Create A",
+  })
+  @post("{id}")
+  static createA = procedure({
+    handle: (_req, params: unknown) => {
+      if (!(params && typeof params === "object" && "id" in params))
+        throw new Error("Missing id param");
+      return null;
+    },
+  });
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-perf-test/blob/main/src/modules/one/a/AController.ts)*
+
 ### Methodology (short)
 
 - Autogenerate N controllers (N ∈ \{1, 10, 100, 1,000, 10,000\}), each exposing:
@@ -57,11 +91,11 @@ Source: test scripts in the vovk-perf-test repository.
 
 | Controllers | Endpoints | GET Latency (med) | POST Latency (med) | GET Throughput (med ops/s) | POST Throughput (med ops/s) |
 | ----------- | --------- | ----------------- | ------------------ | -------------------------- | --------------------------- |
-| 1           | 2         | 1,083 ns          | 1,042 ns           | 923,361                    | 959,693                     |
-| 10          | 20        | 1,084 ns          | 1,083 ns           | 922,509                    | 923,361                     |
-| 100         | 200       | 1,083 ns          | 1,125 ns           | 923,361                    | 888,889                     |
-| 1,000       | 2,000     | 1,083 ns          | 1,125 ns           | 923,361                    | 888,889                     |
-| 10,000      | 20,000    | 1,292 ns          | 1,333 ns           | 773,994                    | 750,188                     |
+| 1           | 2         | 1,292 ns          | 1,333 ns           | 773,994                    | 750,188                     |
+| 10          | 20        | 1,292 ns          | 1,333 ns           | 773,994                    | 750,188                     |
+| 100         | 200       | 1,333 ns          | 1,375 ns           | 750,188                    | 727,273                     |
+| 1,000       | 2,000     | 1,291 ns          | 1,333 ns           | 774,593                    | 750,188                     |
+| 10,000      | 20,000    | 1,542 ns          | 1,583 ns           | 648,508                    | 631,712                     |
 
 Key takeaways:
 
@@ -69,6 +103,46 @@ Key takeaways:
 - Sub‑µs overhead at typical scales; GET≈POST indicates efficient param extraction.
 
 ## Cold Start Overhead
+
+Example cold-start benchmark (N = 1) contrasting Vovk.ts vs. no-op decorators:
+
+```ts showLineNumbers copy filename="perf/generated_coldStartPerfTest.ts"
+bench.add("Cold start for 1 controllers", async () => {
+  const controllers: Record<string, Function> = {};
+  @prefix("one/0")
+  class One0Controller {
+    @operation({
+      summary: "Create",
+    })
+    @post("{id}")
+    static create = procedure({
+      handle: () => null,
+    });
+  }
+
+  controllers["One0Controller"] = One0Controller;
+
+  initSegment({
+    segmentName: "",
+    emitSchema: true,
+    controllers,
+  });
+});
+
+bench.add("No-op decorators for 1 classes", async () => {
+  const controllers: Record<string, Function> = {};
+  @noopClassDecorator()
+  class One0Controller {
+    @noopDecorator({
+      summary: "Create",
+    })
+    @noopDecorator("{id}")
+    static create = (_req: unknown, params: any) => {
+      return null;
+    };
+  }
+});
+```
 
 ### Methodology (short)
 
@@ -94,15 +168,15 @@ function noopClassDecorator() {
 
 | Controllers | Vovk.ts Init Time (med) | No-op Time (med) | Overhead Ratio | Throughput (ops/s) |
 | ----------- | ----------------------- | ---------------- | -------------- | ------------------ |
-| 1           | 5.7 μs                  | 0.54 μs          | 10.6x          | 175,193            |
-| 10          | 52.7 μs                 | 5.1 μs           | 10.3x          | 18,972             |
-| 100         | 520.1 μs                | 52.4 μs          | 9.9x           | 1,923              |
-| 1,000       | 5,519.8 μs              | 646.1 μs         | 8.5x           | 181                |
-| 10,000      | 62,769.2 μs             | 7,629.1 μs       | 8.2x           | 16                 |
+| 1           | 6.208 μs                | 0.584 μs         | 10.6x          | 161,082            |
+| 10          | 54.250 μs               | 5.084 μs         | 10.7x          | 18,433             |
+| 100         | 567.896 μs              | 53.125 μs        | 10.7x          | 1,761              |
+| 1,000       | 6,032.355 μs            | 745.834 μs       | 8.1x           | 166                |
+| 10,000      | 85,207.376 μs           | 17,858.750 μs    | 4.8x           | 12                 |
 
 Key takeaways:
 
-- O(n) init: linear in controller count with stable per‑controller cost.
+- O(n) init: linear in controller count; per‑controller cost rises at 10,000 because decorator overhead dominates.
 - Absolute times are small for long‑lived services; still acceptable for serverless at typical sizes.
 
 ## Practical guidance

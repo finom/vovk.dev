@@ -45,7 +45,7 @@ const options = [
     href: '/segment',
   },
   {
-    title: 'TypeScript RPC',
+    title: 'TypeScript RPC Client',
     icon: '📡',
     href: '/typescript',
   },

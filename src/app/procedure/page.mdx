@@ -1,7 +1,7 @@
 import { Callout } from 'nextra/components';
 import { VovkNewDynamic } from './VovkNewDynamic';
 
-# Controller & Remote Procedure
+# Controller & Procedure
 
 Procedure in Vovk.ts defines a RESTful API endpoint handler. It's implemented as a **static method** of a class, called "controller", decorated with an HTTP method decorator like `@get()`, `@post()`, `@del()`, `@put()`, `@patch()`. A procedure is a wrapper around Next.js API route handler that accepts `NextRequest` object and parameters defined in the route path.
 
@@ -48,6 +48,20 @@ const updatedUser = await UserRPC.updateUser({
 
 For more information, see [TypeScript Client](/typescript).
 
+## Root Endpoint
+
+In order to create a root endpoint for a [segment](/segment), use no prefix and an empty path (or an empty string) in the HTTP decorator.
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+import { get } from 'vovk';
+
+export default class UserController {
+  @get()
+  static async listUsers(req: NextRequest) {
+    // ...
+  }
+}
+```
 
 ## Auto-Generated Endpoints
 
@@ -65,7 +79,7 @@ export default class UserController {
   }
 }
 ```
-
+ 
 ## Request Headers
 
 A procedure can access any Next.js APIs, such as cookies, headers, and so on via `next` package imports. See Next.js [documentation](https://nextjs.org/docs/app/api-reference/functions/headers) for details.
@@ -113,6 +127,7 @@ export default class UserController {
 }
 ```
 
+<a name="procedure"></a>
 ## `procedure` Function
 
 The `procedure` function is a higher-level abstraction for defining procedures with built-in validation support. It allows you to specify validation schemas for the request body, query parameters, and path parameters using libraries that support both [Standard Schema](https://standardschema.dev/schema) and [Standard JSON Schema
