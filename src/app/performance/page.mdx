@@ -1,10 +1,12 @@
+import { ColdStartChart } from "./ColdStartChart.tsx";
+
 # Overhead Performance
 
 ## TL;DR
 
 - Goal: measure Vovk.ts overhead over native Next.js route handlers (not HTTP stack).
-- Routing: O(1) across 1–10,000 controllers (20,000 endpoints). Median latency ~1.3–1.5 µs; at 10,000 controllers ~1.6 µs. Throughput ~630k–780k ops/s/core.
-- Cold start: O(n). ~6.0 ms at 1,000 controllers; ~85 ms at 10,000. About 8–11× the cost of no‑op decorators.
+- Routing: O(1) across 1–10,000 controllers (20,000 endpoints). Median latency ~1.25–1.33 µs even at 10,000 controllers. Throughput ~745k–800k ops/s/core.
+- Cold start: O(n). ~5.7 ms at 1,000 controllers; ~83 ms at 10,000. About 8–10× the cost of no‑op decorators.
 - Notes: Tinybench on Apple M4 Pro. Next.js runtime cost is out of scope. Compiled from real benchmark output with AI assistance and minor edits. See vovk-perf-test repo for scripts.
 
 ## Reproducing the Tests
@@ -50,17 +52,15 @@ Example controller (N = 1) used in the request-overhead tests:
 ```ts showLineNumbers copy filename="src/modules/one/a/AController.ts" repository="finom/vovk-perf-test"
 import { procedure, prefix, get, post, operation } from "vovk";
 
-@prefix("as")
+@prefix("a")
 export default class AController {
   @operation({
-    summary: "Get AS",
+    summary: "Get A",
   })
   @get()
-  static getAS = procedure({
-    handle: (_req, params: unknown) => {
-      if (params && typeof params === "object" && "id" in params)
-        throw new Error("Unexpected id param");
-      return null;
+  static getA = procedure({
+    handle: () => {
+      return { get: true };
     },
   });
 
@@ -69,10 +69,8 @@ export default class AController {
   })
   @post("{id}")
   static createA = procedure({
-    handle: (_req, params: unknown) => {
-      if (!(params && typeof params === "object" && "id" in params))
-        throw new Error("Missing id param");
-      return null;
+    handle: (_req, params: any) => {
+      return { post: true, id: params.id };
     },
   });
 }
@@ -82,8 +80,8 @@ export default class AController {
 ### Methodology (short)
 
 - Autogenerate N controllers (N ∈ \{1, 10, 100, 1,000, 10,000\}), each exposing:
-  - GET without params (reject unexpected id).
-  - POST with path param "\{id\}" (require id).
+  - GET without params.
+  - POST with path param "\{id\}".
 - Minimal handler logic; measure full routing + handler path.
 - Tinybench: 100 ms min per test, nanosecond timing; report median latency/throughput.
 
@@ -91,16 +89,16 @@ export default class AController {
 
 | Controllers | Endpoints | GET Latency (med) | POST Latency (med) | GET Throughput (med ops/s) | POST Throughput (med ops/s) |
 | ----------- | --------- | ----------------- | ------------------ | -------------------------- | --------------------------- |
-| 1           | 2         | 1,292 ns          | 1,333 ns           | 773,994                    | 750,188                     |
-| 10          | 20        | 1,292 ns          | 1,333 ns           | 773,994                    | 750,188                     |
-| 100         | 200       | 1,333 ns          | 1,375 ns           | 750,188                    | 727,273                     |
-| 1,000       | 2,000     | 1,291 ns          | 1,333 ns           | 774,593                    | 750,188                     |
-| 10,000      | 20,000    | 1,542 ns          | 1,583 ns           | 648,508                    | 631,712                     |
+| 1           | 2         | 1,250 ns          | 1,250 ns           | 800,000                    | 800,000                     |
+| 10          | 20        | 1,291 ns          | 1,292 ns           | 774,593                    | 773,994                     |
+| 100         | 200       | 1,250 ns          | 1,292 ns           | 800,000                    | 773,994                     |
+| 1,000       | 2,000     | 1,250 ns          | 1,291 ns           | 800,000                    | 774,593                     |
+| 10,000      | 20,000    | 1,292 ns          | 1,333 ns           | 773,994                    | 750,188                     |
 
 Key takeaways:
 
-- O(1) routing: stable latency from 1 to 1,000 controllers; small bump at 10,000.
-- Sub‑µs overhead at typical scales; GET≈POST indicates efficient param extraction.
+- O(1) routing: flat latency from 1 to 10,000 controllers.
+- ≈1.3 µs overhead at typical scales; GET≈POST indicates efficient param extraction.
 
 ## Cold Start Overhead
 
@@ -168,16 +166,24 @@ function noopClassDecorator() {
 
 | Controllers | Vovk.ts Init Time (med) | No-op Time (med) | Overhead Ratio | Throughput (ops/s) |
 | ----------- | ----------------------- | ---------------- | -------------- | ------------------ |
-| 1           | 6.208 μs                | 0.584 μs         | 10.6x          | 161,082            |
-| 10          | 54.250 μs               | 5.084 μs         | 10.7x          | 18,433             |
-| 100         | 567.896 μs              | 53.125 μs        | 10.7x          | 1,761              |
-| 1,000       | 6,032.355 μs            | 745.834 μs       | 8.1x           | 166                |
-| 10,000      | 85,207.376 μs           | 17,858.750 μs    | 4.8x           | 12                 |
+| 1           | 5.125 μs                | 0.500 μs         | 10.3x          | 195,122            |
+| 10          | 47.167 μs               | 5.208 μs         | 9.1x           | 21,201             |
+| 100         | 526.416 μs              | 53.541 μs        | 9.8x           | 1,900              |
+| 1,000       | 5,719.333 μs            | 702.896 μs       | 8.1x           | 175                |
+| 10,000      | 82,924.833 μs           | 10,370.729 μs    | 8.0x           | 12                 |
 
 Key takeaways:
 
-- O(n) init: linear in controller count; per‑controller cost rises at 10,000 because decorator overhead dominates.
-- Absolute times are small for long‑lived services; still acceptable for serverless at typical sizes.
+- O(n) init: linear growth with a near-constant per-controller cost through 10,000 controllers.
+- Absolute times are small for long-lived services; still acceptable for serverless at typical sizes.
+
+<ColdStartChart coldStartData={[
+  { controllers: 1, vovk: 5.125, noop: 0.5 },
+  { controllers: 10, vovk: 47.167, noop: 5.208 },
+  { controllers: 100, vovk: 526.416, noop: 53.541 },
+  { controllers: 1000, vovk: 5719.333, noop: 702.896 },
+  { controllers: 10000, vovk: 82924.833, noop: 10370.729 },
+]} />
 
 ## Practical guidance
 

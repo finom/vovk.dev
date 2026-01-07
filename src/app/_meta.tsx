@@ -10,7 +10,7 @@ const meta = {
     display: 'hidden',
   },
   '#introduction': separator('Getting Started'),
-  index: 'Home Page',
+  index: 'About Vovk.ts',
   'quick-install': 'Quick Start',
   'manual-install': 'Manual Install',
   performance: 'Overhead Performance',
