@@ -1,11 +1,10 @@
-
 # Basic Authentication and Authorization for Password Protection
 
-The app implements a simple authentication mechanism with an optional `PASSWORD` stored in the `.env` file. Once the user enters the password, a session cookie is created that authorizes the user for further requests, making `userId` be a hashed version of the password. This allows to invalidate all sessions by changing the `PASSWORD` env variable in production.
+The app implements a simple authentication mechanism with an optional `PASSWORD` stored in the `.env` file. Once the user enters the password, a session cookie is created that authorizes the user for subsequent requests. The `userId` is a hashed version of the password, which allows all sessions to be invalidated by changing the `PASSWORD` env variable in production.
 
-The authentication is made by simplifying a solution provided at the official [Next.js authentication documentation](https://nextjs.org/docs/app/guides/authentication). It implements a [login page](https://github.com/finom/realtime-kanban/blob/main/src/app/login/page.tsx) with a form that invokes [login server action](https://github.com/finom/realtime-kanban/blob/main/src/app/actions/auth.ts). The session is created at [src/lib/session.ts](https://github.com/finom/realtime-kanban/blob/main/src/lib/session.ts) and Data Access Level file is defined at [src/lib/dal.ts](https://github.com/finom/realtime-kanban/blob/main/src/lib/dal.ts).
+The authentication flow is a simplified version of the solution provided in the official [Next.js authentication documentation](https://nextjs.org/docs/app/guides/authentication). It implements a [login page](https://github.com/finom/realtime-kanban/blob/main/src/app/login/page.tsx) with a form that invokes a [login server action](https://github.com/finom/realtime-kanban/blob/main/src/app/actions/auth.ts). The session is created in [src/lib/session.ts](https://github.com/finom/realtime-kanban/blob/main/src/lib/session.ts), and the Data Access Layer file is defined in [src/lib/dal.ts](https://github.com/finom/realtime-kanban/blob/main/src/lib/dal.ts).
 
-The DAL file, in its turn, exports `verifySession` function that is invoked at [page.tsx](https://github.com/finom/realtime-kanban/blob/main/src/app/page.tsx) and redirects the user to the login page if the session is invalid.
+The DAL file exports the `verifySession` function, which is invoked in [page.tsx](https://github.com/finom/realtime-kanban/blob/main/src/app/page.tsx) and redirects the user to the login page if the session is invalid.
 
 ```ts showLineNumbers copy filename="src/lib/dal.ts" repository="finom/realtime-kanban"
 import { cookies } from "next/headers";
@@ -47,7 +46,7 @@ export default async function Home() {
   // ...
 ```
 
-It also exports `isLoggedIn` function that is created for `sessionGuard` [decorator](/decorator) to check if the user is logged in when invoking procedures.
+It also exports the `isLoggedIn` function, which is used by the `sessionGuard` [decorator](/decorator) to check if the user is logged in when invoking procedures.
 
 ```ts showLineNumbers copy filename="src/decorators/sessionGuard.ts" repository="finom/realtime-kanban"
 import { createDecorator, HttpException, HttpStatus } from "vovk";
@@ -62,5 +61,4 @@ export const sessionGuard = createDecorator(async (req, next) => {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/decorators/sessionGuard.ts)*
 
-
-The `sessionGuard` decorator applied to all procedures. `typeof req.url !== 'undefined'{:ts}` check is required to distinguish between HTTP requests and [`fn`](/fn) invocations.
+The `sessionGuard` decorator is applied to all procedures. The `typeof req.url !== 'undefined'{:ts}` check is required to distinguish between HTTP requests and [`fn`](/fn) invocations.

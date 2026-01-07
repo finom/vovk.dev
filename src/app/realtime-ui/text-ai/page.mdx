@@ -1,16 +1,16 @@
 # Text Chat AI Interface
 
-In the previous articles, we set up the back-end and front-end to automatically synchronize state of the components with the back-end data, independent of the data fetching method, while user interacts with the app via UI elements. On this page we're going to make the UI to be AI-powered, allowing users to interact with the application using natural language.
+In the previous articles, we set up the backend and frontend to automatically synchronize component state with backend data, independent of the data-fetching method, while the user interacts with the app via UI elements. On this page we’re going to make the UI AI-powered, allowing users to interact with the application using natural language.
 
-We're going to set up a text AI chat via [AI SDK](https://ai-sdk.dev/), adding function calling capabilities, deriving AI tools from the back-end controllers via [deriveTools](/tools) function.
+We’re going to set up a text AI chat via the [AI SDK](https://ai-sdk.dev/), adding function-calling capabilities and deriving AI tools from the backend controllers via the [deriveTools](/tools) function.
 
-## Back-end Setup
+## Backend Setup
 
-For the back-end setup, we need to create a procedure powered by AI SDK, adding `tools` and `stopWhen` options to the `streamText` function. 
+For the backend setup, we need to create a procedure powered by the AI SDK, adding `tools` and `stopWhen` options to the `streamText` function.
 
-As the procedures already follow [rules of locally called procedures](/fn#rules), meaning that the handlers use only `vovk` property of the request: `async ({ vovk }) => UserService.createUser(await vovk.body()){:ts}` (see [API Endpoints](./endpoints) page), we can use `deriveTools` function to create AI tools from the controllers and call them in the current back-end context without performing HTTP requests.
+Because the procedures already follow the [rules of locally called procedures](/fn#rules)—their handlers use only the `vovk` property of the request, for example `async ({ vovk }) => UserService.createUser(await vovk.body()){:ts}` (see the [API Endpoints](./endpoints) page)—we can use the `deriveTools` function to create AI tools from the controllers and call them in the current backend context without performing HTTP requests.
 
-```ts showLineNumbers copy filename="src/modules/ai/AiSdkController.ts" repository="finom/realtime-kanban"  {32-37,43-53}
+```ts showLineNumbers copy filename="src/modules/ai/AiSdkController.ts" repository="finom/realtime-kanban"  {26-31,37-46}
 import { deriveTools, post, prefix, operation, type VovkRequest } from "vovk";
 import {
   convertToModelMessages,
@@ -72,9 +72,9 @@ export default class AiSdkController {
 
 The resulting endpoint is served at `/api/ai-sdk/tools`.
 
-## Front-end Setup
+## Frontend Setup
 
-On the front-end we're going to use AI SDK, represented by [ai](https://www.npmjs.com/package/ai), [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) packages but also [AI Elements](https://ai-sdk.dev/elements/) library that provides pre-built React components for building AI-powered user interfaces, built on top of [shadcn/ui](https://ui.shadcn.com/).
+On the frontend we’re going to use the AI SDK, represented by the [ai](https://www.npmjs.com/package/ai) and [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) packages, as well as the [AI Elements](https://ai-sdk.dev/elements/) library. AI Elements provides pre-built React components for building AI-powered user interfaces, built on top of [shadcn/ui](https://ui.shadcn.com/).
 
 ```tsx showLineNumbers copy filename="src/components/ExpandableChatDemo.tsx"  {27}
 'use client';
@@ -117,7 +117,7 @@ export function ExpandableChatDemo() {
 
 [Check the full code for the component here](https://github.com/finom/realtime-kanban/blob/main/src/components/ExpandableChatDemo.tsx)
 
-The key part of the code is the `useParseSDKToolCallOutputs` hook that extracts the tool call outputs from the assistant messages and passes them to the registry's `parse` method, which processes the results and triggers UI updates accordingly. It also ensures that each tool call output is parsed only once by keeping track of the parsed tool call IDs using a `Set`.
+The key part of the code is the `useParseSDKToolCallOutputs` hook, which extracts tool call outputs from assistant messages and passes them to the registry’s `parse` method. The registry processes the results and triggers UI updates accordingly. The hook also ensures that each tool call output is parsed only once by keeping track of parsed tool call IDs in a `Set`.
 
 ```ts showLineNumbers copy filename="src/hooks/useParseSDKToolCallOutputs.ts" repository="finom/realtime-kanban" {26}
 import useRegistry from "@/hooks/useRegistry";
@@ -162,4 +162,4 @@ useEffect(() => {
 // ...
 ```
 
-That's it, now you have a fully functional AI text chat interface that can call your back-end functions and update the UI in based on the results, as the procedures return the updated data that includes `id` and `entityType` fields, but also `__isDeleted` field for the soft deletions.
+That’s it: now you have a fully functional AI text chat interface that can call your backend functions and update the UI based on the results. The procedures return updated data that includes `id` and `entityType` fields, as well as the `__isDeleted` field for soft deletions.

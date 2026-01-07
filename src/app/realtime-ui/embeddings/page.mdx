@@ -1,15 +1,15 @@
 # Vector Search via Embedding
 
-As the database entries can be numerous and too large to fit into the prompt directly, we need a way to represent them in a more compact form for AI tools to use. For that, two things are made:
+Because database entries can be numerous and too large to fit into the prompt directly, we need a way to represent them in a more compact form for AI tools to use. To achieve this, we do two things:
 
-1. "Get all" endpoints are excluded from being derived as AI tools by utilizing `@operation.tool({ hidden: true }){:ts}` decorator.
-2. Vector embeddings are generated for each user and task entry when they're created or updated using OpenAI embeddings model and stored in the database using [pgvector](https://github.com/pgvector/pgvector) and described as `Unsupported("vector(1536)")` type in the Prisma schema under `embedding` column for each model. See [Database](./database) article for more details.
+1. “Get all” endpoints are excluded from being derived as AI tools by using the `@operation.tool({ hidden: true }){:ts}` decorator.
+2. Vector embeddings are generated for each user and task entry when they are created or updated. These embeddings use an OpenAI embeddings model and are stored in the database using [pgvector](https://github.com/pgvector/pgvector), described as `Unsupported("vector(1536)")` in the Prisma schema under the `embedding` column for each model. See the [Database](./database) article for more details.
 
-The `EmbeddingService` class implements the logic of generating embeddings and performing vector search using pgvector extension in Postgres, implementing two main methods:
-- `generateEntityEmbedding` - generates embedding for a given entity based on its string fields and updates the database entry with the generated vector.
-- `vectorSearch` - performs vector search for a given query string and returns the most similar entries based on the stored embeddings.
+The `EmbeddingService` class implements the logic of generating embeddings and performing vector search using the pgvector extension in Postgres, exposing two main methods:
+- `generateEntityEmbedding` – generates an embedding for a given entity based on its string fields and updates the database entry with the generated vector.
+- `vectorSearch` – performs vector search for a given query string and returns the most similar entries based on the stored embeddings.
 
-Both methods are entity-type agnostic and can work both with `user` and `task` entity types.
+Both methods are entity-type agnostic and work with both `user` and `task` entity types.
 
 ```ts showLineNumbers copy filename="src/modules/embedding/EmbeddingService.ts" repository="finom/realtime-kanban"
 import { embed } from "ai";

@@ -7,9 +7,9 @@
     </picture>
   </a>
   <br>
-  <strong>Structured API Layer for Next.js</strong>
+  <strong>Back-end Framework for Next.js App Router</strong>
   <br />
-  <a href="https://vovk.dev/about">About Vovk.ts</a>
+  <a href="https://vovk.dev/">Documentation</a>
   &nbsp;
   <a href="https://vovk.dev/quick-install">Quick Start</a>
   &nbsp;

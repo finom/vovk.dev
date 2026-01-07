@@ -8,6 +8,8 @@ import { Suspense } from 'react';
   [View on examples.vovk.dev »](https://examples.vovk.dev/jsonlines)
 </div>
 
+## Overview
+
 Vovk.ts includes first‑class support for the [JSON Lines](https://jsonlines.org/) format, a convenient way to implement “one request—many responses.” JSON Lines is another output type that uses the `iteration` validation field and produces the `application/jsonl` content type if the client sends an `Accept: application/jsonl` header. If the `Accept` header doesn’t include `application/jsonl`, the output is returned as `text/plain` so it’s viewable when the endpoint URL is opened directly in a browser.
 
 The use cases for JSON Lines include:
@@ -19,6 +21,10 @@ The use cases for JSON Lines include:
 > [!IMPORTANT]
 >
 > Because the response size is not known in advance, JSON Lines responses cannot be compressed with Gzip, Brotli, or other algorithms. Keep this in mind for large responses.
+
+## Creating a JSON Lines Generator Procedure
+
+To create a JSON Lines procedure, define a procedure as a generator or async generator function. Each yielded object is serialized to JSON and sent as a separate line in the response.
 
 ```ts showLineNumbers copy
 import { z } from 'zod';
@@ -32,7 +38,7 @@ export default class StreamController {
     iteration: z.object({
       message: z.string(),
     }),
-    async handle() {
+    async *handle() {
       const tokens: VovkIteration<typeof StreamController.getJSONLines>[] = [
         { message: 'Hello,' },
         { message: ' World' },
@@ -64,7 +70,7 @@ export default class StreamController {
     iteration: z.object({
       message: z.string(),
     }),
-    async *handle() {
+    *handle() {
       yield* StreamService.getJSONLines();
     },
   });
@@ -93,7 +99,7 @@ export default class StreamService {
 }
 ```
 
-On the client side, the JSON Lines output can be consumed using [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterators](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator), allowing you to process each line as it arrives:
+On the client side, the JSON Lines output can be consumed using [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterators](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator), to process each line as it arrives:
 
 ```ts showLineNumbers copy
 import { StreamRPC } from 'vovk-client';
@@ -170,57 +176,77 @@ for await (const part of completion) {
 
 [View full example on examples.vovk.dev »](https://examples.vovk.dev/openai)
 
-<a name="jsonlinesresponse" />
-## `JSONLinesResponse` Class
+<a name="jsonlinesresponder" />
+## `JSONLinesResponder` Class
 
-If generators aren’t suitable for JSON streaming in a particular case, use the `JSONLinesResponse` class, which inherits from `Response` and uses `TransformStream#readable` as the response body. This lower‑level API is used internally to implement the generator logic described above.
+`JSONLinesResponder` class is a lower-level API that works behind the scenes of the generator-based approach described above. It gives more control over the streaming logic, allowing to send messages manually. It constructs `ReadableStream` internally that's used as the response body.
 
-A service method in this case is implemented as a regular function that accepts a `JSONLinesResponse` instance as a pointer to send messages manually.
+```ts showLineNumbers copy
+const responder = new JSONLinesResponder<IterationType>(req);
+```
 
-Here's what the streaming service might look like:
+```ts showLineNumbers copy
+const responder = new JSONLinesResponder<IterationType>(req, ({ readableStream, headers }) => new Response(readableStream, { headers }));
+```
+
+The constructor accepts two optional parameters:
+
+- `request?: Request | null` – The incoming request object. If provided, it checks for `Accept: application/jsonl` header to create `headers` record for the response with `Content-Type: application/jsonl`. If not provided or the header is missing, it defaults to `text/plain`.
+- `getResponse?: (responder: JSONLinesResponder<T>) => Response` – A function that allows to construct a custom `Response` object. Allows to set custom headers or other response options. If not provided, `Response` is created internally with default headers.
+
+The responder instance provides the following members:
+
+- `send(item: T): Promise<void>` – Sends a JSON line to the client. The item is validated (if `iteration` is present), serialized to JSON and followed by a newline character.
+- `close(): void` – Closes the response stream, indicating that no more data will be sent.
+- `throw(err: Error): void` – Sends an error message to the client and closes the stream.
+- `response: Response` – The underlying `Response` object that will be returned from the Next.js route handler.
+- `headers: Record<string, string>` – The `content-type` for the response.
+- `readableStream: ReadableStream<Uint8Array>` – The readable stream used as the response body.
+
+With `JSONLinesResponder` a service method is implemented as a regular function (not a generator) that accepts a `JSONLinesResponder` instance as a pointer to send messages manually.
 
 ```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts"
-import type { JSONLinesResponse, VovkIteration } from 'vovk';
+import type { JSONLinesResponder, VovkIteration } from 'vovk';
 import type StreamController from './StreamController';
 
 export type Token = VovkIteration<typeof StreamController.streamTokens>
 
 export default class StreamService {
-  static async streamTokens(resp: JSONLinesResponse<Token>) {
+  static async streamTokens(responder: JSONLinesResponder<Token>) {
     const tokens: Token[] = [{ message: 'Hello,' }, { message: ' World' }, { message: '!' }];
 
     for (const token of tokens) {
       await new Promise((resolve) => setTimeout(resolve, 300));
-      resp.send(token);
+      await responder.send(token);
     }
 
-    resp.close();
+    responder.close();
   }
 }
 ```
 
-As you can see, tokens are sent with `JSONLinesResponse#send`, and when the stream completes, close it with `JSONLinesResponse#close`.
+Tokens are sent with `JSONLinesResponder#send`, and when the stream completes, close it with `JSONLinesResponder#close`.
 
-The controller class returns an instance of `JSONLinesResponse`, and the streaming is performed in a floating Promise above the `return` statement.
+The controller class returns an instance of `JSONLinesResponder`, and the streaming is performed in a floating Promise above the `return` statement.
 
 ```ts showLineNumbers copy
-import { prefix, get, JSONLinesResponse, type VovkRequest } from 'vovk';
+import { prefix, get, JSONLinesResponder, type VovkRequest } from 'vovk';
 import StreamService, { type Token } from './StreamService';
 
 @prefix('stream')
 export default class StreamController {
   @get('tokens')
   static async streamTokens(req: Request) {
-    const resp = new JSONLinesResponse<Token>(req);
+    const responder = new JSONLinesResponder<Token>(req);
 
-    void StreamService.streamTokens(resp);
+    void StreamService.streamTokens(responder);
 
-    return resp;
+    return responder;
   }
 }
 ```
 
-The `JSONLinesResponse` class also provides a `throw` method that safely closes the stream and causes the client to rethrow the received error.
+The `JSONLinesResponder` class also provides a `throw` method that safely closes the stream and causes the client to rethrow the received error.
 
 ```ts showLineNumbers copy
 await resp.throw(new Error('Stream error'));
@@ -239,7 +265,7 @@ But what if you don’t know which chunk will arrive first, second, and so on? I
 
 Let's say you have two functions that return data after some random delay: `getUsers` and `getTasks`, implemented as static methods of a service class. In a real application, these could be API calls or queries to different databases.
 
-With the help of the [JSONLinesResponse class](#jsonlinesresponse), we can create a simple service method that looks like this:
+With the help of the [JSONLinesResponder class](#jsonlinesresponder), we can create a simple service method that looks like this:
 
 ```ts showLineNumbers copy
 // ...
@@ -259,7 +285,7 @@ void Promise.all([
 The full implementation of the service module looks like this:
 
 ```ts showLineNumbers copy filename="src/modules/progressive/ProgressiveService.ts" repository="finom/vovk-examples"
-import { JSONLinesResponse, type VovkIteration } from 'vovk';
+import type { JSONLinesResponder, VovkIteration } from 'vovk';
 import type ProgressiveController from './ProgressiveController.ts';
 
 export default class ProgressiveService {
@@ -286,33 +312,33 @@ export default class ProgressiveService {
   }
 
   static streamProgressiveResponse(
-    resp: JSONLinesResponse<VovkIteration<typeof ProgressiveController.streamProgressiveResponse>>
+    responder: JSONLinesResponder<VovkIteration<typeof ProgressiveController.streamProgressiveResponse>>
   ) {
     return Promise.all([
-      this.getUsers().then((users) => resp.send({ users })),
-      this.getTasks().then((tasks) => resp.send({ tasks })),
+      this.getUsers().then((users) => responder.send({ users })),
+      this.getTasks().then((tasks) => responder.send({ tasks })),
     ])
-      .then(resp.close)
-      .catch(resp.throw);
+      .then(responder.close)
+      .catch(responder.throw);
   }
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-examples/blob/main/src/modules/progressive/ProgressiveService.ts)*
 
-On the controller side, instantiate `JSONLinesResponse`, pass it to the service method, and return it as the response.
+On the controller side, instantiate `JSONLinesResponder`, pass it to the service method, and return it as the response.
 
 ```ts showLineNumbers copy
 // ...
-const response = new JSONLinesResponse(req);
-void ProgressiveService.streamProgressiveResponse(response);
-return response;
+const responder = new JSONLinesResponder<IterationType>(req);
+void ProgressiveService.streamProgressiveResponse(responder);
+return responder;
 // ...
 ```
 
 The full controller implementation with typing and validation looks like this:
 
 ```ts showLineNumbers copy filename="src/modules/progressive/ProgressiveController.ts" repository="finom/vovk-examples"
-import { procedure, get, JSONLinesResponse, prefix, type VovkIteration } from 'vovk';
+import { procedure, get, JSONLinesResponder, prefix, type VovkIteration } from 'vovk';
 import { z } from 'zod';
 import ProgressiveService from './ProgressiveService.ts';
 
@@ -341,13 +367,11 @@ export default class ProgressiveController {
       }),
     ]),
     async handle(req) {
-      const response = new JSONLinesResponse<VovkIteration<typeof ProgressiveController.streamProgressiveResponse>>(
-        req
-      );
+      const responder = new JSONLinesResponder<VovkIteration<typeof ProgressiveController.streamProgressiveResponse>>(req);
 
-      void ProgressiveService.streamProgressiveResponse(response);
+      void ProgressiveService.streamProgressiveResponse(responder);
 
-      return response;
+      return responder;
     },
   });
 }

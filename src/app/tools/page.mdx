@@ -3,7 +3,7 @@
 Controllers as well as generated RPC/API modules can be converted into AI tools for LLM function calling, using `deriveTools` utility. This makes your back-end functionality accessible to AI models (including MCP clients) with minimum code. The function accepts `modules` record with 
 
 - Controllers for same-context execution to be used on back-end.
-- Modules generated from controllers for HTTP calls or be used on front-end (see [Realtime UI](/realtime-ui)) or other environments that support `fetch`.
+- RPC modules generated from controllers for HTTP calls or be used on front-end or other environments that support `fetch`.
 - Third-party OpenAPI-based modules (called [OpenAPI mixins](/mixins) in this documentation), enabling to combine back-end functionality with external APIs in a single agent.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
@@ -21,7 +21,10 @@ const { tools, toolsByName } = deriveTools({
 console.log('Derived tools:', tools); // [{ name, description, parameters, execute }, ...]
 ```
 
-The function returns an array of `tools` and a `toolsByName` object for easy access by tool name. Each tool implements `VovkTool` type and includes the `name`, `description`, `parameters` (JSON Schema), and `execute` function (+ some extra properties, such as `type: "function"`, `outputSchema`, `inputSchemas`, when available).
+The function returns an array of `tools` and a `toolsByName` object for easy access by tool name. Each tool implements `VovkTool` type and includes the `name`, `description`, `parameters` (JSON Schema), and `execute` function + some extra properties, such as:
+- `type: "function"{:ts}` - always set to `"function"`.
+- `outputSchema?: StandardSchemaV1 & StandardJSONSchemaV1{:ts}` - equals to the procedure's `output` schema, when available.
+- `inputSchemas: Record<'query' | 'body' | 'params', StandardSchemaV1 & StandardJSONSchemaV1>{:ts}` - key-value schemas of procedure's `body`, `query`, and `params`, when available.
 
 `deriveTools` distinguishes between RPC modules and controllers by checking for the `isRPC` property on each module method. If `isRPC: true` is present, the method is treated as an RPC method that performs an HTTP request. Otherwise, it is treated as a controller method that exposes `fn` (see [`fn` page](/fn)) that is called in the current context without HTTP.
 
@@ -29,11 +32,11 @@ The function returns an array of `tools` and a `toolsByName` object for easy acc
 
 The `deriveTools` function accepts an options object with the following properties:
 
-- `modules: Record<string, object>` - a record of modules (RPC/API modules or controllers) to derive tools from.
-- `onExecute?: (tool: VovkTool, result: unknown) => void` - optional callback invoked when a tool's `execute` function completes successfully.
-- `onError?: (tool: VovkTool, error: Error) => void` - optional callback invoked when a tool's `execute` function throws an error.
-- `toModelOutput?: ToModelOutputFn<TInput, TOutput, TFormattedOutput>` - optional function to format the output returned to the LLM. Can be set to a custom function or one of the built-in formatters, defined in `ToModelOutput` object, exported from `vovk`, such as `ToModelOutput.MCP` for MCP formatting and `ToModelOutput.DEFAULT` that's used by default when `toModelOutput` is not provided.
-- `meta?: Record<string, unknown>` - optional metadata passed to each controller/RPC method. The meta can be read on the back end using [req.vovk.meta](/req-vovk). When passed to a controller procedure, it's merged with procedure-level meta normally. When passed to an RPC method, it's available as `xMetaHeader` key.
+- `modules: Record<string, object>{:ts}` - a record of modules (RPC/API modules or controllers) to derive tools from.
+- `onExecute?: (tool: VovkTool, result: unknown) => void{:ts}` - optional callback invoked when a tool's `execute` function completes successfully.
+- `onError?: (tool: VovkTool, error: Error) => void{:ts}` - optional callback invoked when a tool's `execute` function throws an error.
+- `toModelOutput?: ToModelOutputFn<TInput, TOutput, TFormattedOutput>{:ts}` - optional function to format the output returned to the LLM. Can be set to a custom function or one of the built-in formatters, defined in `ToModelOutput` object, exported from `vovk`, such as `ToModelOutput.MCP` for MCP formatting and `ToModelOutput.DEFAULT` that's used by default when `toModelOutput` is not provided.
+- `meta?: Record<string, unknown>{:ts}` - optional metadata passed to each controller/RPC method. The meta can be read on the back end using [req.vovk.meta](/req-vovk). When passed to a controller procedure, it's merged with procedure-level meta normally. When passed to an RPC method, it's available as `xMetaHeader` key.
 
 ## Custom Operation Attributes with `x-tool` or `@operation.tool` Decorator
 
@@ -440,7 +443,43 @@ export default function Page() {
 
 ### MCP Handler Example
 
-Coming soon...
+With [mcp-handler](https://www.npmjs.com/package/mcp-handler) package, you can create an MCP-compatible API route that exposes derived tools from your controllers or RPC modules.
+
+By writing this documentation, **mcp-handler** supports Zod schemas only, so `inputSchemas`, provided by the tool, needs to be casted as `z.ZodTypeAny` in order to satisfy TypeScript. If another validation library is used, you can convert `parameters.properties` to Zod schemas manually using [`z.fromJSONSchema()`](https://zod.dev/json-schema?id=zfromjsonschema).
+
+```ts showLineNumbers copy filename="src/app/api/mcp/route.ts"
+import { createMcpHandler } from "mcp-handler";
+import { deriveTools, ToModelOutput } from "vovk";
+import z from "zod";
+import UserController from "@/modules/user/UserController";
+
+const { tools } = deriveTools({
+  modules: { UserController },
+  toModelOutput: ToModelOutput.MCP,
+});
+
+const handler = createMcpHandler(
+  (server) => {
+    tools.forEach(({ title, name, execute, description, inputSchemas }) => {
+      server.registerTool(
+        name,
+        {
+          title,
+          description,
+          inputSchema: inputSchemas as Partial<
+            Record<"body" | "query" | "params", z.ZodTypeAny>
+          >,
+        },
+        execute,
+      );
+    });
+  },
+  {},
+  { basePath: "/api" },
+);
+
+export { handler as GET, handler as POST };
+```
 
 ## Roadmap
 

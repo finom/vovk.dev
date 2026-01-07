@@ -53,7 +53,7 @@ const meta = {
   new: <code className="nextra-code">vovk new</code>,
   '#etc': separator('Reference'),
   packages: 'Packages',
-  'api-ref': 'API Reference 🚧',
+  'api-ref': 'API Reference',
 } satisfies MetaRecord;
 
 export default meta;

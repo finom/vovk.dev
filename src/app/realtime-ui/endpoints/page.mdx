@@ -1,13 +1,12 @@
-
 import { Tabs } from 'nextra/components';
 
 # Setting Up API Endpoints
 
-The article describes how to set up API endpoints/procedures for `User` and `Task` entities with full CRUD operations. The OpenAPI documentation generated from the procedures, described below, can be explored [here](https://kanban.vovk.dev/openapi).
+This article describes how to set up API endpoints/procedures for `User` and `Task` entities with full CRUD operations. The OpenAPI documentation generated from these procedures can be explored [here](https://kanban.vovk.dev/openapi).
 
 ## Preparations
 
-For the sake of shorter code, we create a reusable constant `BASE_FIELDS` that is going to be used to omit `id`, `entityType`, `createdAt` and `updatedAt` fields from the Zod models, but also `BASE_KEYS` array that contains the keys of these fields to use with `lodash.omit`. This will help us to build proper create/update Zod models and omit these fields from entity objects when we need to create input objects.
+For the sake of shorter code, we create a reusable constant `BASE_FIELDS` that is used to omit `id`, `entityType`, `createdAt`, and `updatedAt` fields from the Zod models, and a `BASE_KEYS` array that contains the keys of these fields for use with `lodash.omit`. This helps us build proper create/update Zod models and omit these fields from entity objects when we need to construct input objects.
 
 ```ts showLineNumbers copy filename="src/constants.ts"
 import type { BaseEntity } from './types';
@@ -22,7 +21,7 @@ export const BASE_FIELDS = {
 export const BASE_KEYS = Object.keys(BASE_FIELDS) as (keyof BaseEntity)[];
 ```
 
-For example, here's how the `UpdateUserSchema` can be created by omitting the base fields from the generated `UserSchema`:
+For example, here’s how the `UpdateUserSchema` can be created by omitting the base fields from the generated `UserSchema`:
 
 ```ts showLineNumbers copy
 import { UserSchema } from '@schemas/index';
@@ -33,21 +32,20 @@ const UpdateUserSchema = UserSchema.omit(BASE_FIELDS); // fullName and email fie
 
 ## Implementing Controllers and Services
 
-The controllers are going to declare full CRUD operations for `User` and `Task` entities, implemented as follows:
+The controllers declare full CRUD operations for `User` and `Task` entities, implemented as follows:
 
-- Each method is decorated with [@operation](/openapi) decorator that describes the operation, including `summary`, `description`.
-- Each method is created with [procedure](/procedure) function that implements request validation and schema emission.
-- Each method uses `sessionGuard` decorator to protect the endpoints, as described in the [authentication](./authentication) article.
-- The "get all" endpoints use `x-tool['hidden']` operation option implemented with `@operation.tool()` decorator to exclude them from being used as tools by AI. The tools are going to use search endpoints that use OpenAI Embeddings instead to simulate more realistic scenarios.
+- Each method is decorated with the [@operation](/openapi) decorator that describes the operation, including `summary` and `description`.
+- Each method is created with the [procedure](/procedure) function that implements request validation and schema emission.
+- Each method uses the `sessionGuard` decorator to protect the endpoints, as described in the [Authentication](./authentication) article.
+- The “get all” endpoints use the `x-tool['hidden']` operation option implemented with the `@operation.tool()` decorator to exclude them from being used as AI tools. Instead, the tools use search endpoints that rely on OpenAI Embeddings to simulate more realistic scenarios.
 
-The services implement the actual business logic for each procedure, including database operations and vector generation and search via OpenAI embeddings.
+The services implement the actual business logic for each procedure, including database operations and vector generation/search via OpenAI embeddings.
 
-- Database requests are invoked using `DatabaseService.prisma` where the `prisma` property is a normal Prisma client instance with [extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions). This will be explained in more details in the [Database Polling](./polling) article.
-  - Deletion operations return `__isDeleted` property to help the front-end to reconcile the state properly for soft deletions (see [State](./state) page). The property is added by the Prisma client extension when `DatabaseService.prisma.xxx.delete` methods are invoked.
-  - In order to trigger database events on task deletions, tasks are deleted explicitly, even though we have `ON DELETE CASCADE` set up in the database schema.
-- Creations and updates are followed by `EmbeddingService.generateEntityEmbedding` calls and the search endpoints use `EmbeddingService.vectorSearch` function to perform vector search using OpenAI embeddings and pgvector, for more details see the [Embeddings](./embeddings) article.
-- The controller procedures use [req.vovk](/req-vovk) to access request data such as `params`, `query`, and `body`, as we want to be able to call these methods directly from the code (not only through HTTP requests) via [fn](/fn) interface for SSR/PPR and AI tools execution.
-
+- Database requests are invoked using `DatabaseService.prisma`, where the `prisma` property is a regular Prisma client instance with [extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions). This is explained in more detail in the [Database Polling](./polling) article.
+  - Deletion operations return the `__isDeleted` property to help the frontend reconcile state properly for soft deletions (see the [State](./state) page). The property is added by a Prisma client extension when `DatabaseService.prisma.xxx.delete` methods are invoked.
+  - To trigger database events on task deletions, tasks are deleted explicitly, even though `ON DELETE CASCADE` is configured at the database level.
+- Creations and updates are followed by `EmbeddingService.generateEntityEmbedding` calls, and the search endpoints use `EmbeddingService.vectorSearch` to perform vector search using OpenAI embeddings and pgvector. For details, see the [Embeddings](./embeddings) article.
+- The controller procedures use [req.vovk](/req-vovk) to access request data such as `params`, `query`, and `body`, because we want to call these methods directly from code (not only through HTTP requests) via the [fn](/fn) interface for SSR/PPR and AI tool execution.
 
 <Tabs items={['UserController.ts', 'UserService.ts', 'TaskController.ts', 'TaskService.ts']}>
 <Tabs.Tab>

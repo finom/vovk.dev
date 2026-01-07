@@ -18,8 +18,8 @@ const meta = {
   authentication: 'Basic Authentication and Authorization (Password Protection)',
   '#ai': separator('AI Integration'),
   'text-ai': 'Text AI Chat Integration with AI SDK and AI Elements',
-  'voice-ai': 'Realtime API with WebRTC',
-  'mcp': 'MCP with mcp-handler 🚧',
+  'voice-ai': 'OpenAI Realtime API with WebRTC',
+  'mcp': 'MCP Server with mcp-handler',
   'telegram': 'Telegram Bot with OpenAPI Mixins',
 } as const satisfies MetaRecord;
 

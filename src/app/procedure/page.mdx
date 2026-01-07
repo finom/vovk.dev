@@ -229,14 +229,13 @@ const schema = UserController.updateUser.schema;
 
 The `schema` property exposes the method schema, mirroring the RPC method schema. It’s typically used with `fn` to build [AI tools](/tools) that invoke handlers without HTTP.
 
-### `models`
+### `definition`
 
 ```ts showLineNumbers copy
-const bodyModel = UserController.updateUser.models.body;
+const bodyModel = UserController.updateUser.definition.body;
 ```
 
-The `models` property is available only on server-side methods, but not on the RPC methods. It lets you access the original validation models used by the handler.
-
+The `definition` property is available only on server-side methods, but not on the RPC methods. It lets you access the original procedure definition.
 
 ## Service
 

@@ -2,7 +2,7 @@ import AppAlike from '../AppAlike';
 
 # Entity-driven state normalization with Zustand registry
 
-Entity-driven state normalization is the most effecient way to manage application state in complex applications that deal with a lot of interconnected data. Instead of passing raw data to components, or storing responses as-is in the state, it's better to extract entities from the data and store them in a centralized registry. This way, components can subscribe to specific entities by their IDs, and when an entity is updated, all components that use it are going to be updated automatically.
+Entity-driven state normalization is the most efficient way to manage application state in complex apps that deal with a lot of interconnected data. Instead of passing raw data to components or storing responses as-is in state, it’s better to extract entities from the data and store them in a centralized registry. Components can then subscribe to specific entities by their IDs; when an entity is updated, all components that use it are updated automatically.
 
 <AppAlike />
 
@@ -24,7 +24,7 @@ const users = useRegistry(
 );
 ```
 
-The implementation explained below also considers soft deletions, where deleted entities are marked as non-enumerable without actually removing them from the state, preventing errors in components that might still reference them.
+The implementation explained below also considers soft deletions, where deleted entities are marked as non-enumerable without actually removing them from the state. This prevents errors in components that might still reference them.
 
 ```ts showLineNumbers copy
 const users = useRegistry(
@@ -32,16 +32,15 @@ const users = useRegistry(
 );
 ```
 
-
 ## Implementing `useRegistry` hook
 
-The application state is going to be normalized and store entities in a dictionary by their IDs. The registry is going to have a `parse` method that accepts any data and extracts entities from it, storing them in the registry. The method is going to be used to process all incoming data from the server, so that all components that use this data are going to be updated automatically.
+The application state is normalized and stores entities in a dictionary by their IDs. The registry exposes a `parse` method that accepts any data and extracts entities from it, storing them in the registry. This method is used to process all incoming data from the server so that all components using this data are updated automatically.
 
 ```ts showLineNumbers copy
 useRegistry.getState().parse(data);
 ```
 
-For type safety, let's create a `BaseEntity` interface that describes common shape of all entities in the database. Each database entity will have `id`, `createdAt`, `updatedAt`, and `entityType` fields, where `id` and `entityType` are used to identify the entity in the registry.
+For type safety, let’s create a `BaseEntity` interface that describes the common shape of all entities in the database. Each database entity will have `id`, `createdAt`, `updatedAt`, and `entityType` fields, where `id` and `entityType` are used to identify the entity in the registry.
 
 ```ts showLineNumbers copy filename="src/types.ts"
 import { EntityType } from '@prisma/client';
@@ -54,9 +53,9 @@ export interface BaseEntity {
 }
 ```
 
-`useRegistry` hook, made with Zustand library, implements `Registry` interface that describes the shape of the registry state: `parse` method and the entity maps such as `user` and `task`.
+The `useRegistry` hook, built with the Zustand library, implements a `Registry` interface that describes the shape of the registry state: the `parse` method and entity maps such as `user` and `task`.
 
-The types for `UserType` and `TaskType` are imported from the generated schema files, based on the Prisma models. For more defails, see the [Database](./database) article.
+The types for `UserType` and `TaskType` are imported from generated schema files based on the Prisma models. For more details, see the [Database](./database) article.
 
 ```ts showLineNumbers copy filename="src/hooks/useRegistry.ts" repository="finom/realtime-kanban"
 import { EntityType } from "@prisma/client";
@@ -139,7 +138,7 @@ export default useRegistry;
 
 ## `getEntitiesFromData` function explained
 
-`getEntitiesFromData` is a recursive function that extracts entities from any data structure based on the presence of `entityType` and `id` properties. For each discovered `entityType`, it builds a record whose keys are entity IDs and whose values are the entity objects themselves. Let's say the server returns the following response:
+`getEntitiesFromData` is a recursive function that extracts entities from any data structure based on the presence of `entityType` and `id` properties. For each discovered `entityType`, it builds a record whose keys are entity IDs and whose values are the entity objects themselves. Let’s say the server returns the following response:
 
 ```json {6,10,16,20}
 {
@@ -183,16 +182,15 @@ The function walks through the entire structure and produces a normalized interm
 }
 ```
 
-
 ## `parse` method explained
 
-`parse` method that accepts any data, extracts entities from it and stores them in the registry. Instead of simply extending the state with new entities, we're using `Object.getOwnPropertyDescriptors` to get the property descriptors of the existing entities. This way we can check if the entity already exists in the state and if it does, we can compare it with the new entity using `fast-deep-equal` library. If the entities are equal, we don't update the state, otherwise we create a new property descriptor with the updated entity. This way we can avoid unnecessary re-renders of the components that use this entity.
+The `parse` method accepts any data, extracts entities from it, and stores them in the registry. Instead of simply extending the state with new entities, it uses `Object.getOwnPropertyDescriptors` to get the property descriptors of the existing entities. This allows us to check whether an entity already exists in state and, if it does, compare it with the new entity using the [fast-deep-equal](https://www.npmjs.com/package/fast-deep-equal) library. If the entities are equal, we don’t update state; otherwise, we create a new property descriptor with the updated entity. This helps avoid unnecessary re-renders of components that consume this entity.
 
 ### Soft deletions via `__isDeleted` property
 
-The `__isDeleted` property is used to mark entities as deleted without actually removing them from the state, avoiding errors in components that might still reference them. Once `__isDeleted` is received as part of the entity, the property descriptor is marked as non-enumerable, so it won't be included in `Object.values` or `Object.keys` calls or using `{...spread}` syntax, making the entity effectively invisible to the components. 
+The `__isDeleted` property is used to mark entities as deleted without actually removing them from the state, which avoids errors in components that might still reference them. Once `__isDeleted` is received as part of an entity, the property descriptor is marked as non-enumerable, so it won’t be included in `Object.values` or `Object.keys` calls or in `{ ...spread }` operations, making the entity effectively invisible to most consumers.
 
-In other words, in order to soft-delete an entity, the server needs to send an object like this:
+In other words, to soft-delete an entity, the server needs to send an object like this:
 
 ```json
 {
@@ -204,7 +202,7 @@ In other words, in order to soft-delete an entity, the server needs to send an o
 
 ---
 
-That's it. Each time when the data is received from from any source, it needs to go thru the `parse` method of the registry, and all components that reference the data by ID are going to be updated automatically. 
+That’s it. Each time data is received from any source, it should go through the registry’s `parse` method, and all components that reference that data by ID are updated automatically.
 
 ```ts showLineNumbers copy
 import { useRegistry } from "@/registry";
@@ -215,4 +213,4 @@ const data = await resp.json();
 useRegistry.getState().parse(data);
 ```
 
-In order to make it automatic, we'll create a custom fetcher that calls the `parse` method for each response, as described in the [next article](./fetcher).
+To make this automatic, we’ll create a custom fetcher that calls the `parse` method for each response, as described in the [next article](./fetcher).

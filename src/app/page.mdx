@@ -1,7 +1,8 @@
 import { FileTree } from 'nextra/components';
 
-
-<img src="/vovk-logo.svg" alt="Vovk.ts Logo" className='dark:invert mx-auto clear-both'/>
+<center className='clear-both mt-10'>
+# Vovk.ts — Back-end Framework for Next.js App Router
+</center>
 
 <div className="flex justify-center gap-2 mt-6 mb-8">
   <a href="https://github.com/finom/vovk">
@@ -24,10 +25,7 @@ import { FileTree } from 'nextra/components';
   </a>
 </div>
 
-# Vovk.ts — Structured API Layer for Next.js
-
-
-Vovk.ts is a **Next.js App Router–native back-end framework** that turns Route Handlers into a structured API layer (Controller → Service → Repository), with **first-class schema emission** and **code generation** for type-safe clients, docs, and AI tools.
+Vovk.ts is a **Next.js App Router–native back-end meta-framework** that turns Route Handlers into a structured API layer (Controller → Service → Repository), with **first-class schema emission** and **code generation** for type-safe clients, docs, and AI tools.
 
 ## Get Started
 
@@ -182,7 +180,7 @@ Vovk.ts can derive tool definitions from controllers or generated modules—so a
 import { UserRPC } from 'vovk-client';
 
 const { tools } = deriveTools({ modules: { UserRPC } });
-console.log(tools); // [{ name, description, parameters, execute }]
+console.log(tools); // [{ name, description, parameters, execute }, ...]
 ```
 
 **Related**

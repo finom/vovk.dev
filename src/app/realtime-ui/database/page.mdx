@@ -1,10 +1,10 @@
 # Designing the Database with Prisma and Zod Generator
 
-The [application state normalization](./state) relies on the ability to extract entities from data structure returned by the server, based on the presence of `entityType` and `id` properties. Therefore, the database schema should be designed in a way that each table includes `entityType` column with a fixed value representing the entity type.
+[Application state normalization](./state) relies on the ability to extract entities from data structures returned by the server, based on the presence of `entityType` and `id` properties. Therefore, the database schema should be designed so that each table includes an `entityType` column with a fixed value representing the entity type.
 
-In the database we're going to have two tables: `User` and `Task`, so the `entityType` column will be set to either `user` or `task` lower-cased entity names in singular form - respectively, utilizing `EntityType` enum. Each table will have this column with a default value (ideally, it should be read-only).
+In the database we’re going to have two tables: `User` and `Task`. The `entityType` column will be set to either `user` or `task`—lowercased entity names in singular form—via the `EntityType` enum. Each table has this column with a default value (ideally, this column should be read-only).
 
-We're also going to use [prisma-zod-generator](https://www.npmjs.com/package/prisma-zod-generator?activeTab=readme) to generate Zod schemas from our Prisma models. This will help us to define Zod models automatically and make our server-side code much shorter.
+We’re also going to use [prisma-zod-generator](https://www.npmjs.com/package/prisma-zod-generator?activeTab=readme) to generate Zod schemas from our Prisma models. This allows us to define Zod models automatically and keeps our server-side code concise.
 
 ```ts showLineNumbers copy filename="prisma/schema.prisma" repository="finom/realtime-kanban"
 // This is your Prisma schema file,
@@ -84,13 +84,13 @@ enum TaskStatus {
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/prisma/schema.prisma)*
 
-Notice the triple slashes comments. As React components and other app logic is going to work with entity IDs, we need to distinguish between IDs of different entity types for type safety in React components and other places. For that [branded](https://zod.dev/api?id=branded-types) types is the best way to achieve this. 
+Notice the triple-slash comments. Because React components and other app logic work with entity IDs, we need to distinguish IDs of different entity types for type safety in React components and other places. For that, [branded](https://zod.dev/api?id=branded-types) types are a good fit.
 
-We're also using literal types for `entityType` columns and define `examples` and `descriptions` for better OpenAPI documentation generation and for [AI tools](/tools).
+We’re also using literal types for `entityType` columns and defining `examples` and `descriptions` for better OpenAPI documentation generation and for [AI tools](/tools).
 
-That's it. Each time when you invoke `npx prisma generate`, the Zod schemas are going to be generated automatically at `prisma/generated/schemas` folder with all the necessary type specifics. 
+That’s it. Each time you run `npx prisma generate`, the Zod schemas are generated automatically in the `prisma/generated/schemas` folder with all the necessary type information. 
 
-For easier access to the generated schemas, we also add path mapping to the `tsconfig.json`:
+For easier access to the generated schemas, we add a path mapping to `tsconfig.json`:
 
 ```json filename="tsconfig.json"
 {

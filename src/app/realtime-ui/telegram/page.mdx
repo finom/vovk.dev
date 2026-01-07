@@ -1,13 +1,12 @@
-
 # Telegram Bot with OpenAPI Mixins
 
-A combination of three features, such as [State Normalization](./state), [Database Polling](./polling) and [Tool derivation](/tools) enables RealTime database and UI updates from any third-party source of changes: API calls, MCP clients, bots, interactions by other users, etc.
+A combination of three features—[State Normalization](./state), [Database Polling](./polling), and [Tool derivation](/tools)—enables real-time database and UI updates from any third-party source of changes: API calls, MCP clients, bots, interactions by other users, and so on.
 
-As a proof of concept, this article will briefly describe the Telegram bot integration, that allows users to create tasks and assign them to team members by sending text or voice messages to the bot.
+As a proof of concept, this article briefly describes the Telegram bot integration, which allows users to create tasks and assign them to team members by sending text or voice messages to the bot.
 
-## Relegram API Mixin
+## Telegram API Mixin
 
-The Telegram API library is implemented with [OpenAPI mixins](/mixins) and used as a module with hard-coded name `TelegramAPI` in the `telegram` pseudo-segment.
+The Telegram API library is implemented with [OpenAPI mixins](/mixins) and used as a module with a hard-coded name `TelegramAPI` in the `telegram` pseudo-segment.
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
 // @ts-check
@@ -35,7 +34,7 @@ const config = {
 export default config;
 ```
 
-After running `vovk dev` or `vovk generate`, the `TelegramAPI` module will be available for import from the generated client library.
+After running `vovk dev` or `vovk generate`, the `TelegramAPI` module is available for import from the generated client library.
 
 ```ts
 import { TelegramAPI } from 'vovk-client';
@@ -49,7 +48,7 @@ await TelegramAPI.sendMessage({
 });
 ```
 
-As the Telegram bot API requires authentication via bot token in the URL, the API module can be recreated with `withDefaults` method to set the `apiRoot` permanently.
+Because the Telegram Bot API requires authentication via the bot token in the URL, the API module can be recreated with the `withDefaults` method to set the `apiRoot` permanently.
 
 ```ts
 import { TelegramAPI as TelegramRawAPI } from 'vovk-client';
@@ -61,7 +60,7 @@ const TelegramAPI = TelegramRawAPI.withDefaults({
 
 ## Segment, Controller and Procedure
 
-We're going to create a new segment called `bots`, that will contain a controller `TelegramController` under `TelegramBot` key. The segment isn't going to emit any schema as it's not needed on the client side by setting `emitSchema: false` option in the `initSegment` call. Since the schema is not emitted, the key name of the controller can be set to any string.
+We’re going to create a new segment called `bots` that contains a `TelegramController` under the `TelegramBot` key. The segment isn’t going to emit any schema, as it’s not needed on the client side; this is configured by setting `emitSchema: false` in the `initSegment` call. Because the schema is not emitted, the controller key name can be any string.
 
 ```ts showLineNumbers copy filename="src/app/api/bots/[[...vovk]]/route.ts" repository="finom/realtime-kanban"
 import TelegramController from "../../../../modules/telegram/TelegramController";
@@ -81,7 +80,7 @@ export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/app/api/bots/[[...vovk]]/route.ts)*
 
-The `TelegramController` class is going to contain a single `handle` procedure, implementing `/api/bots/telegram/bot` endpoint, that will be called by Telegram webhook on each incoming message.
+The `TelegramController` class contains a single `handle` procedure, implementing the `/api/bots/telegram/bot` endpoint, which is called by the Telegram webhook for each incoming message.
 
 ```ts showLineNumbers copy filename="src/modules/telegram/TelegramController.ts" repository="finom/realtime-kanban"
 import { post, prefix } from "vovk";
@@ -97,7 +96,7 @@ export default class TelegramController {
 
 ## Service
 
-The `TelegramService` class contains the main logic of handling incoming messages, generating AI responses with Vercel AI SDK, updating the database via derived tools, and sending text or voice messages back to the user.
+The `TelegramService` class contains the main logic for handling incoming messages, generating AI responses with the Vercel AI SDK, updating the database via derived tools, and sending text or voice messages back to the user.
 
 ```ts showLineNumbers copy filename="src/modules/telegram/TelegramService.ts"
 // ...
@@ -170,6 +169,6 @@ export default class TelegramService {
 }
 ```
 
-You can explore the full implementation of `TelegramService` in the [GitHub repository](https://github.com/finom/realtime-kanban/blob/main/src/modules/telegram/TelegramService.ts), as it's too long to fit here.
+You can explore the full implementation of `TelegramService` in the [GitHub repository](https://github.com/finom/realtime-kanban/blob/main/src/modules/telegram/TelegramService.ts), as it’s too long to fit here.
 
-Now the app is ready to receive incoming messages from Telegram users, process them with AI, update the database and UI, and respond back to the users.
+Now the app is ready to receive incoming messages from Telegram users, process them with AI, update the database and UI, and respond back to users.

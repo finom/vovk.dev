@@ -1,11 +1,10 @@
-
 # Setting up the `fetcher`
 
-The next piece of the puzzle is to create a `fetcher` function  that is going to be used by the application to request data from the server. You can find more details about it at [imports](/imports#fetcher) article.
+The next piece of the puzzle is to create a `fetcher` function that the application will use to request data from the server. You can find more details about it in the [imports](/imports#fetcher) article.
 
-The fetcher is going to implement `transformResponse` function that is going to process all incoming data, passing it to the `parse` method of the registry. 
+The fetcher is going to implement a `transformResponse` function that processes all incoming data by passing it to the registry’s `parse` method. 
 
-In the simplest form, when we expect JSON responses only, the function is going to look like this:
+In the simplest form, when we expect JSON responses only, the function looks like this:
 
 ```ts showLineNumbers copy filename="src/lib/fetcher.ts"
 import { createFetcher } from "vovk";
@@ -20,7 +19,7 @@ export const fetcher = createFetcher({
 });
 ```
 
-On each RPC method call, the `transformResponse` function is going to be invoked with the response data, which is then passed to the `parse` method of the registry.
+On each RPC method call, the `transformResponse` function is invoked with the response data, which is then passed to the registry’s `parse` method.
 
 ```ts showLineNumbers copy
 import { UserRPC } from "vovk-client";
@@ -28,9 +27,26 @@ import { UserRPC } from "vovk-client";
 const users = await UserRPC.getUsers(); // transformResponse is called internally
 ```
 
-As our app is also going to support [JSONLines](/jsonlines) responses for streaming data, we're going to enhance the function a bit with another `if` check.
+This also works with React Query, where `useQuery` doesn't require to read the `data` property anymore:
 
-It's also good to have an option to bypass the registry for specific requests, so we're going to add `bypassRegistry` option to the fetcher config. It's declared as `createFetcher` generic parameter and used as an otpion of the second argument of `transformResponse` function. It can be used as follows: `await UserRPC.getUsers({ bypassRegistry: true }){:ts}`. The same way you can add more options in the future if needed.
+```ts showLineNumbers copy
+import { useQuery } from "@tanstack/react-query";
+import { UserRPC } from "vovk-client";
+
+// ...
+useQuery({
+  queryKey: UserRPC.getUsers.queryKey(),
+  queryFn: () => UserRPC.getUsers(),
+})
+// ...
+const users = useRegistry(
+  useShallow((state) => userIds.map((id) => state.user[id])),
+);
+```
+
+Because our app also supports [JSONLines](/jsonlines) responses for streaming data, we’re going to enhance the function a bit with another `if` check.
+
+It’s also useful to have an option to bypass the registry for specific requests, so we’re going to add a `bypassRegistry` option to the fetcher config. It’s declared as a `createFetcher` generic parameter and used as an option in the second argument of `transformResponse`. It can be used as follows: `await UserRPC.getUsers({ bypassRegistry: true }){:ts}`. You can extend this options object over time if needed.
 
 ```ts showLineNumbers copy filename="src/lib/fetcher.ts" repository="finom/realtime-kanban"
 import { createFetcher, HttpStatus } from "vovk";
@@ -65,7 +81,7 @@ export const fetcher = createFetcher<{ bypassRegistry?: boolean }>({
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/lib/fetcher.ts)*
 
-Declare the fetcher in the [config](/config). It will replace the default `fetcher` imported by the generated [client](/typescript).
+Declare the fetcher in the [config](/config). It replaces the default `fetcher` imported by the generated [client](/typescript).
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
 // @ts-check
@@ -82,43 +98,4 @@ const config = {
 export default config;
 ```
 
-That's it. From now on, each request is going to be processed by the registry `parse` method, and manual response handling is not required anymore. Here is a rough example:
-
-```ts showLineNumbers copy
-import { useShallow } from "zustand/shallow";
-import { useQuery } from "@tanstack/react-query";
-import { UserRPC } from "vovk-client";
-import { useRegistry } from "@/registry";
-import { UserType } from "../../prisma/generated/schemas/models/User.schema";
-
-interface Props {
-  userIds: UserType["id"][]; // an array of branded user IDs
-}
-
-const UsersExample = ({ userIds }: Props) => {
-  // request the data somewhere in the app
-  useQuery({
-    queryKey: UserRPC.getUsers.queryKey(),
-    queryFn: () => UserRPC.getUsers(),
-  });
-
-  // retrieve users from the registry
-  const users = useRegistry(
-    useShallow((state) => userIds.map((id) => state.user[id])),
-  );
-
-  return <div>
-    <ul>
-      {users.map((user) => (
-        <li key={user.id}>{user.fullName}</li>
-      ))}
-    </ul>
-  </div>;
-};
-
-export default UsersExample;
-```
-
-As you can see `useQuery` invocation doesn't require to read `data` property anymore, as the response is processed by the registry automatically. The invocation of `UserRPC.getUsers()` or any other RPC method (with `useQuery` or without) can be placed anywhere in the app, and all components that use user data are going to be updated automatically.
-
-
+That’s it. From now on, each request is processed by the registry’s `parse` method, and manual response handling is not required.
