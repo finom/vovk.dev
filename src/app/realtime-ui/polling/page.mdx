@@ -4,7 +4,7 @@ import { PollExample } from '@/components/vovk-examples';
 
 # Realtime Database Polling
 
-[State normalization](./state), a custom [fetcher](./fetcher), and the corresponding backend implementation keep the UI updated while the user interacts with the app by making HTTP requests. The implementation also covers AI features such as [Text Chat AI](./text-ai) and [Voice AI](/realtime-ui/voice-ai), explained in later articles. The rule of thumb is that data should always be processed by the entity registry.
+[State normalization](./state), a custom [fetcher](./fetcher), and the corresponding backend implementation keep the UI updated while the user interacts with the app by making HTTP requests. The implementation also covers AI features such as [Text Chat AI](./text-ai) and [Voice AI](./voice-ai), explained in later articles. The rule of thumb is that data should always be processed by the entity registry.
 
 But what if the database is changed by other users or third-party services? How do we keep the UI in sync with backend data in real time? One way is to implement database polling powered by [JSONLines](/jsonlines). The server sends updates to clients whenever the database changes, and the client reconnects automatically when the connection is closed.
 

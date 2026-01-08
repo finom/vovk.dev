@@ -44,6 +44,30 @@ This command scaffolds **UserController.ts** and **UserService.ts** from built-i
 npx vovk new controller service user
 ```
 
+```ts filename="src/modules/user/UserController.ts"
+import { procedure, prefix, get, put, post, del, operation } from 'vovk';
+import { z } from 'zod';
+import UserService from './UserService';
+
+@prefix('users')
+export default class UserController {
+  // ...
+  @operation({
+    summary: 'Get single user',
+  })
+  @get('{id}')
+  static getSingleUser = procedure({
+    params: z.object({
+      id: z.string(),
+    }),
+    handle(_req, { id }) {
+      return UserService.getSingleUser(id);
+    },
+  });
+  // ...
+}
+```
+
 **More info:**
 
 - [vovk new](/new)

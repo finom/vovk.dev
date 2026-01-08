@@ -43,7 +43,11 @@ const meta = {
   },
   'hello-world': '"Hello World!"',
   multitenant: 'Multitenancy Tutorial',
-  'realtime-ui': { title: 'Realtime UI', theme: { collapsed: true, copyPage: true } },
+  'realtime-ui': {
+    title: 'Realtime UI',
+    display: 'hidden',
+    theme: { collapsed: true, copyPage: true },
+  },
   '#cli': separator('CLI & Configuration'),
   config: 'Config File',
   dev: <code className="nextra-code">vovk dev</code>,

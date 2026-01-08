@@ -360,15 +360,7 @@ export default config;
 ```
 
 ```ts showLineNumbers copy
-import { PetstoreAPI, type Mixins as PetstoreMixins } from '@/lib/client/petstore';
-import { GithubIssuesAPI, type Mixins as GithubMixins } from '@/lib/client/github';
+import { PetstoreAPI } from '@/lib/client/petstore';
+import { GithubIssuesAPI } from '@/lib/client/github';
 // ...
-```
-
-This approach also generates an alternative OAS document that includes [Scalar](https://scalar.com/)-compatible code samples.
-
-```ts showLineNumbers copy
-import { openapi as petstoreOpenAPI } from '@/lib/client/petstore/openapi';
-import { openapi as githubOpenAPI } from '@/lib/client/github/openapi';
-console.log(petstoreOpenAPI, githubOpenAPI);
 ```

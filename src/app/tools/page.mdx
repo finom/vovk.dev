@@ -286,7 +286,7 @@ const { tools } = deriveTools({
 
 You can create standalone tools that are not derived from controllers or RPC modules by implementing the `VovkTool` interface directly. `createTool` is a small utility that covers cases when you want to create custom tools that don't map to existing back-end functionality and would be useful if you use LLM APIs directly, without 3rd-party libraries. 
 
-An example case would be using [OpenAI Realtime API](https://platform.openai.com/docs/guides/realtime) that, by the time of writing, isn't supported by Vercel AI SDK. For more details, see [Realtime UI](/realtime-ui) articles.
+An example case would be using [OpenAI Realtime API](https://platform.openai.com/docs/guides/realtime) that, by the time of writing, isn't supported by Vercel AI SDK.
 
 `createTool` accepts the following options, some of which are similar to `deriveTools` options:
 
