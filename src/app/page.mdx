@@ -43,7 +43,6 @@ Vovk.ts is a **Next.js App Router–native back-end meta-framework** that turns 
 
 Define endpoints once (as real Next.js handlers), and Vovk.ts **derives schema artifacts** to **generate type-safe clients**, **publish docs**, and **build AI tools**—without writing and maintaining a separate contract layer.
 
-
 ## Vovk.ts is a great fit if you
 
 - Use Next.js App Router and want to stay native to it
@@ -57,7 +56,7 @@ Define endpoints once (as real Next.js handlers), and Vovk.ts **derives schema a
 - Need runtime access to original schema (JSON Schema is available, though)
 - Prefer contract-first API design
 
-## See it in a real project
+## See it in the Hello World example
 
 If you want a concrete reference, the ["Hello World" example](/hello-world) shows Vovk.ts doing all of this in one app:
 
@@ -106,7 +105,7 @@ export default class UserController {
 - [Next.js Route Handlers](https://nextjs.org/docs/app/getting-started/route-handlers)
 - [Procedure](/procedure)
 
-## Standards-based validation (Zod, Valibot, ArkType)
+## Standard Schema–compatible validation (Zod, Valibot, ArkType)
 
 Vovk.ts supports validation libraries that implement [Standard Schema](https://standardschema.dev/schema) + [Standard JSON Schema](https://standardschema.dev/json-schema):
 
@@ -139,7 +138,7 @@ Each segment emits schema to **`.vovk-schema/`**:
 **Related**
 - [Schema](/schema)
 
-## Runtime vs Toolchain (so “thin wrapper” doesn’t undersell it)
+## Runtime vs Toolchain
 
 Vovk.ts is split by design:
 

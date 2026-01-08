@@ -30,7 +30,10 @@ Run performance tests via:
 npm run perf-test
 ```
 
-Perf suite also runs in CI: [GitHub Actions](https://github.com/finom/vovk-perf-test/actions).
+Perf suite also runs in CI: [GitHub Actions](https://github.com/finom/vovk-perf-test/actions). CI runs on
+GitHub-hosted runners, so numbers are slower than local M4 Pro runs—request-overhead medians are typically
+~7.0–8.7× slower (e.g. ~9–11.5 µs vs ~1.3 µs), and cold-start medians ~3.7–4.9× slower (e.g. ~22 µs vs ~5 µs
+for 1 controller). The scaling trend (O(1) request overhead, O(n) cold start) still holds.
 
 ## Overview
 
@@ -53,6 +56,7 @@ Example controller (N = 1) used in the request-overhead tests:
 
 ```ts showLineNumbers copy filename="src/modules/one/a/AController.ts" repository="finom/vovk-perf-test"
 import { procedure, prefix, get, post, operation } from "vovk";
+import z from "zod";
 
 @prefix("a")
 export default class AController {
@@ -71,8 +75,10 @@ export default class AController {
   })
   @post("{id}")
   static createA = procedure({
-    handle: (_req, params: any) => {
-      return { post: true, id: params.id };
+    disableServerSideValidation: ["params"],
+    params: z.object({ id: z.string() }),
+    handle: (_req, { id }) => {
+      return { post: true, id };
     },
   });
 }
@@ -189,7 +195,7 @@ Key takeaways:
 
 ## Practical guidance
 
-- For high-performance workloads: split the app into multiple [segments](/segment) (e.g., serverless functions built with Next.js route.ts files).
+- For high-performance workloads: split the app into multiple [segments](/segment) (e.g., serverless functions built with Next.js route.ts files), each with a manageable number of endpoints (up to 1,000).
 - In theory, with careful segment management and adequate hardware, a single Next.js/Vovk.ts app can host up to ~1,000,000 endpoints. Validate this in your environment; practical limits will be memory, bundle size, cold start budgets, and platform quotas.
 
 ---
