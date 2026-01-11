@@ -8,25 +8,33 @@ Controllers as well as generated RPC/API modules can be converted into AI tools 
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { deriveTools } from 'vovk';
-import { TaskRPC } from 'vovk-client';
+import { TaskRPC, PetstoreAPI } from 'vovk-client';
 import UserController from '@/modules/user/UserController';
 
 const { tools, toolsByName } = deriveTools({
   modules: {
     UserController,
     TaskRPC,
+    PetstoreAPI,
   },
 });
 
 console.log('Derived tools:', tools); // [{ name, description, parameters, execute }, ...]
 ```
 
-The function returns an array of `tools` and a `toolsByName` object for easy access by tool name. Each tool implements `VovkTool` type and includes the `name`, `description`, `parameters` (JSON Schema), and `execute` function + some extra properties, such as:
-- `type: "function"{:ts}` - always set to `"function"`.
-- `outputSchema?: StandardSchemaV1 & StandardJSONSchemaV1{:ts}` - equals to the procedure's `output` schema, when available.
-- `inputSchemas: Record<'query' | 'body' | 'params', StandardSchemaV1 & StandardJSONSchemaV1>{:ts}` - key-value schemas of procedure's `body`, `query`, and `params`, when available.
+The function returns an array of `tools` and a `toolsByName` object for easy access by tool name. Each tool implements `VovkTool` type and includes:
 
-`deriveTools` distinguishes between RPC modules and controllers by checking for the `isRPC` property on each module method. If `isRPC: true` is present, the method is treated as an RPC method that performs an HTTP request. Otherwise, it is treated as a controller method that exposes `fn` (see [`fn` page](/fn)) that is called in the current context without HTTP.
+- `name: string{:ts}` - the name of the tool, derived from the module and method names as `${moduleName}_${handlerName}` (can be overridden with `x-tool.name`, see below).
+- `description: string{:ts}` - the description of the tool, derived concatenating `summary` and `description` from OpenAPI operation (can be overridden with `x-tool.description`, see below).
+- `parameters: JSONSchema{:ts}` - the JSON Schema of the tool input, derived from procedure's `body`, `query`, and `params` schemas.
+- `execute: (input: Record<string, unknown>) => Promise<unknown>{:ts}` - the function to execute the tool logic. For RPC modules, it performs an HTTP request; for controllers, it calls the `fn` method to execute in the current context without HTTP.
+
+Additional properties available on each tool:
+
+- `type: "function"{:ts}` - always set to `"function"`.
+- `title?: string{:ts}` - optional title for the tool. Used mainly for MCPs, derived from OpenAPI `summary` or `x-tool.title` if available.
+- `outputSchema?: StandardSchemaV1 & StandardJSONSchemaV1{:ts}` - equals to the procedure's `output` schema, when available.
+- `inputSchemas: Partial<Record<'query' | 'body' | 'params', StandardSchemaV1 & StandardJSONSchemaV1>>{:ts}` - key-value schemas of procedure's `body`, `query`, and `params`, when available.
 
 ## `deriveTools` Options
 
@@ -35,7 +43,9 @@ The `deriveTools` function accepts an options object with the following properti
 - `modules: Record<string, object>{:ts}` - a record of modules (RPC/API modules or controllers) to derive tools from.
 - `onExecute?: (tool: VovkTool, result: unknown) => void{:ts}` - optional callback invoked when a tool's `execute` function completes successfully.
 - `onError?: (tool: VovkTool, error: Error) => void{:ts}` - optional callback invoked when a tool's `execute` function throws an error.
-- `toModelOutput?: ToModelOutputFn<TInput, TOutput, TFormattedOutput>{:ts}` - optional function to format the output returned to the LLM. Can be set to a custom function or one of the built-in formatters, defined in `ToModelOutput` object, exported from `vovk`, such as `ToModelOutput.MCP` for MCP formatting and `ToModelOutput.DEFAULT` that's used by default when `toModelOutput` is not provided.
+- `toModelOutput?: ToModelOutputFn<TInput, TOutput, TFormattedOutput>{:ts}` - optional function to format the output returned to the LLM. Can be set to a custom function or one of the built-in formatters, defined in `ToModelOutput` object, exported from `vovk`, such as 
+  - `ToModelOutput.MCP` for MCP formatting.
+  - `ToModelOutput.DEFAULT` that's used by default when `toModelOutput` is not provided.
 - `meta?: Record<string, unknown>{:ts}` - optional metadata passed to each controller/RPC method. The meta can be read on the back end using [req.vovk.meta](/req-vovk). When passed to a controller procedure, it's merged with procedure-level meta normally. When passed to an RPC method, it's available as `xMetaHeader` key.
 
 ## Custom Operation Attributes with `x-tool` or `@operation.tool` Decorator
@@ -332,6 +342,8 @@ const allTools = [...derivedTools, sumNumbers];
 ```
 
 The `sumNumbers` tool can now be used like any other derived tool with `name`, `description`, `parameters`, and `execute` function, but also mirrors `inputSchema` and `outputSchema`.
+
+Note that a derived tool includes `inputSchemas` as a record of procedure input, while standalone tool provides `inputSchema`.
 
 ## Examples
 

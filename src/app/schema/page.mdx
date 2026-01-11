@@ -156,7 +156,6 @@ Example of a segment schema file:
           // HTTP method
           "httpMethod": "POST",
           // Validation for "body", "query", "params", "output" and "iteration"
-          // Can contain any custom data, at this case it's JSON schema emitted by "vovk-zod"
           "validation": {
             "body": {
               "type": "object",
@@ -209,7 +208,13 @@ Example of a segment schema file:
           "operationObject": {
             "summary": "Hello world",
             "description": "Hello world",
-            "x-tool-description": "Hello world" // custom description for an LLM tool
+            // Custom field for AI tools generation
+            "x-tool": { 
+              "name": "getHello", // custom name for an AI tool
+              "title": "Get Hello", // custom title for an AI tool
+              "description": "Hello world" // custom description for an AI tool
+              "hidden": false // whether to hide the tool from AI tool generation
+            } 
           },
           // Custom data that can be defined by a custom decorator
           "misc": {

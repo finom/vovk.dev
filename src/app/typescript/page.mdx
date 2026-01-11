@@ -75,7 +75,7 @@ Behind the scenes the RPC module is created by an internal function `createRPC` 
 
 ```ts showLineNumbers copy
 import type { VovkFetcher } from "vovk";
-import { createRPC } from "vovk";
+import { createRPC } from "vovk/createRPC";
 import { schema } from "./schema";
 
 import type { Controllers as Controllers0 } from "../../app/api/[[...vovk]]/route.ts";
@@ -83,8 +83,8 @@ import type { Controllers as Controllers0 } from "../../app/api/[[...vovk]]/rout
 // The arguments are: schema, segmentName, controllerName, fetcher and options
 export const UserRPC = createRPC<
   Controllers0["UserRPC"],
-  typeof import("vovk").fetcher extends VovkFetcher<infer U> ? U : never
->(schema, "", "UserRPC", import("vovk"), {
+  typeof import("vovk/fetcher").fetcher extends VovkFetcher<infer U> ? U : never
+>(schema, "", "UserRPC", import("vovk/fetcher"), {
   validateOnClient: import("vovk-ajv"),
 });
 ```

@@ -41,7 +41,15 @@ See the [JSON Lines](/jsonlines) documentation for more details.
 
 ### `toDownloadResponse`
 
-Utility for constructing a `Response` that returns binary content (for example, audio, images, or arbitrary files) with appropriate headers. It can be used directly in controllers and is also compatible with MCP tool output formatting when returning `Response` objects.
+Utility for constructing a `Response` that returns file/binary content with appropriate headers (e.g. `Content-Type`, `Content-Disposition`). It can be used directly in controllers and is also compatible with MCP tool output formatting when returning `Response` objects.
+
+**Arguments:**
+
+- `content: Blob | File | ArrayBuffer | Uint8Array | ReadableStream<Uint8Array> | string{:ts}` — file content/body.
+- `opts?:{:ts}`
+  - `filename?: string{:ts}` — if provided, sets `Content-Disposition: attachment; filename=...`.
+  - `type?: string{:ts}` — overrides the response `Content-Type` (e.g. `audio/mpeg`, `text/csv`, `application/pdf`).
+  - `headers?: Record<string, string>{:ts}` — extra headers to merge into the response.
 
 Example (serving audio):
 
@@ -51,7 +59,11 @@ import { get, toDownloadResponse } from 'vovk';
 export default class MediaController {
   @get('audio')
   static getAudio() {
-    return toDownloadResponse(buffer, { contentType: 'audio/mpeg' });
+    return toDownloadResponse(buffer, {
+      filename: 'track.mp3',
+      type: 'audio/mpeg',
+      headers: { 'x-hello': 'world' },
+    });
   }
 }
 ```
@@ -186,7 +198,7 @@ Function that creates a data-fetching layer for the RPC client. It is used by de
 
 ### `createFetcher`
 
-Function that creates a custom fetcher for the RPC client. It accepts a generic type parameter that defines additional options for the resulting RPC methods. The function returns a `fetcher` function that will be used in `createRPC`.
+Function that creates a custom fetcher for the RPC client. It accepts a generic type parameter that defines additional options for the resulting RPC methods. The function returns a `fetcher` function that will be used to build the client.
 
 ```ts showLineNumbers copy filename="./src/lib/fetcher.ts"
 import { createFetcher } from 'vovk';
@@ -227,7 +239,16 @@ See the [fetcher docs](/imports#fetcher).
 
 ### `controllersToStaticParams`
 
-Function that generates an API surface at build time instead of on-demand at request time. It accepts a record of controllers and an optional slug that is used to build the static API path. The function returns an array of static parameters that can be consumed by `generateStaticParams`.
+Function that generates an API surface at build time (static params) instead of on-demand at request time. Intended for usage with Next.js `generateStaticParams()` in `[[...slug]]/route.ts`.
+
+**Arguments:**
+
+- `controllers: Record<string, Function>{:ts}` — record of controllers to scan for `@get(...)` routes (including `staticParams` variants).
+- `slugName = 'vovk'{:ts}` — *(optional)* the name of your Optional Catch‑all Segment param (the folder name in `[[...<slugName>]]`). Use this when your segment is not `[[...vovk]]`.
+
+**Returns:**
+
+- `Array<Record<string, string[]>>{:ts}` — an array of params objects consumable by `generateStaticParams()` (e.g. `{ vovk: ['hello', 'greeting.json'] }`).
 
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 // ...
@@ -240,11 +261,26 @@ export function generateStaticParams() {
 export const { GET } = initSegment({ controllers });
 ```
 
+If you use a custom slug folder like `src/app/api/[[...custom]]/route.ts`, pass it as the second argument:
+
+```ts showLineNumbers copy
+export function generateStaticParams() {
+  return controllersToStaticParams(controllers, 'custom');
+}
+```
+
 See the [segment](/segment) documentation for more details.
 
 ### `multitenant`
 
 A [Next.js proxy](https://nextjs.org/docs/app/api-reference/file-conventions/proxy) utility that routes subdomains to specific [segments](/segment).
+
+**Returns:**
+
+- `action: 'rewrite' | 'redirect' | null` — what the proxy should do.
+- `destination?: string` — destination URL for `rewrite`/`redirect` actions.
+- `message: string` — explanation/debug info about the routing decision.
+- `subdomains: Record<string, string> | null` — wildcard subdomains extracted from the request host.
 
 ```ts showLineNumbers copy filename="src/proxy.ts"
 // ... proxy ...
@@ -256,6 +292,8 @@ const { action, destination, message, subdomains } = multitenant({
     // ...
   },
 });
+
+console.log({ action, destination, message, subdomains });
 // ...
 ```
 
@@ -582,13 +620,3 @@ See the [fetcher docs](/imports#fetcher) for more information.
 Function type that represents the client-side validation function created by [createValidateOnClient](#createvalidateonclient).
 
 See the [client-side validation docs](/imports#validateonclient) for more details.
-
-## System Members (Advanced)
-
-### `createRPC`
-
-> [!WARNING]
->
-> This API is experimental and may change in future versions without a major release.
-
-Function that creates an RPC module from the [schema](/schema) and types inferred from controllers. It is imported by the generated TypeScript, ESM, and CJS files.

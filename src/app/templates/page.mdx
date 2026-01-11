@@ -89,7 +89,7 @@ The available options:
 <a name="extends" />
 ### `extends?: string`
 
-Specifies the name of the built-in template this definition extends. Use `extends` to inherit and override options, such as `segmentedConfig.outDir`.
+Specifies the name of the built-in template this definition extends. Use `extends` to inherit and override options, such as `segmentedClient.outDir`.
 
 <a name="templatePath" />
 ### `templatePath?: string`
@@ -118,21 +118,6 @@ Overrides `outputConfig` in the root [config](/config#outputconfig). Use this to
 
 ## Built-in Templates
 
-### `rs`
-
-Renders the [Rust](/rust) client package that includes both source code and Cargo files.
-
-- `requires` [rsSrc](#rssrc) and [rsPkg](#rspkg) templates.
-- Defines a `composedClient` option to set the output directory to `dist_rust`.
-- `extends` [rsSrc](#rssrc) and [rsPkg](#rspkg) templates.
-
-### `py`
-
-Renders the Python client package that includes both source code and setup files.
-
-- `requires` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
-- Defines a `composedClient` option to set the output directory to `dist_python`.
-- `extends` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
 
 ### `ts`
 
@@ -229,12 +214,28 @@ Generates types and [schema](/schema) for [OpenAPI mixins](/mixins) when they ar
 
 - `templatePath` is `vovk-cli/client-templates/mixins/`.
 
+### `rs`
+
+Renders the [Rust](/rust) client package that includes both source code and Cargo files.
+
+- `requires` [rsSrc](#rssrc) and [rsPkg](#rspkg) templates.
+- Defines a `composedClient` option to set the output directory to `dist_rust`.
+- `extends` [rsSrc](#rssrc) and [rsPkg](#rspkg) templates.
+
 ### `rsSrc`
 
 Renders [Rust](/rust) client source code files, such as `lib.rs`, `http_request.rs`, etc.
 
 - `templatePath` is `vovk-rust/client-templates/rsSrc/`.
 - `requires` [schemaJson](#schemajson) template to include the full schema in the generated code.
+
+### `py`
+
+Renders the Python client package that includes both source code and setup files.
+
+- `requires` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
+- Defines a `composedClient` option to set the output directory to `dist_python`.
+- `extends` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
 
 ### `rsPkg`
 
@@ -248,6 +249,22 @@ Renders `Cargo.toml` and `README.md` files for the Rust client.
 Renders the `README.md` file for the Rust client. Works similarly to the [readme](#readme) template.
 
 - `templatePath` is `vovk-rust/client-templates/rsReadme/`.
+
+### `pySrc`
+
+Renders [Python](/python) client source code files, such as `__init__.py`, `http_request.py`, etc.
+- `templatePath` is `vovk-python/client-templates/pySrc/`.
+- `requires` [schemaJson](#schemajson) template to include the full schema in the generated code.
+
+### `pyPkg`
+Renders `setup.py`, `pyproject.toml`, and `README.md` files for the Python client.
+- `templatePath` is `vovk-python/client-templates/pyPkg/`.
+- `requires` [pyReadme](#pyreadme) template to include the README file in the package.
+
+### `pyReadme`
+Renders the `README.md` file for the Python client. Works similarly to the [readme](#readme) template.
+- `templatePath` is `vovk-python/client-templates/pyReadme/`.
+
 
 ## Roadmap
 

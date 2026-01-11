@@ -196,7 +196,7 @@ The constructor accepts two optional parameters:
 
 The responder instance provides the following members:
 
-- `send(item: T): Promise<void>` – Sends a JSON line to the client. The item is validated (if `iteration` is present), serialized to JSON and followed by a newline character.
+- `send(item: T): Promise<void>` – Sends a JSON line to the client. The item is validated (if `iteration` is present; by default only the first item is validated unless `validateEachIteration: true` is set), serialized to JSON and followed by a newline character.
 - `close(): void` – Closes the response stream, indicating that no more data will be sent.
 - `throw(err: Error): void` – Sends an error message to the client and closes the stream.
 - `response: Response` – The underlying `Response` object that will be returned from the Next.js route handler.

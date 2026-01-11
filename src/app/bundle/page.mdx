@@ -30,7 +30,7 @@ Options:
 
 ---
 
-The [composed](/composed) [TypeScript Client](/typescript) library can be bundled and published to NPM with pre-filled `package.json` and `README.md` files using the `bundle` command after setting up `bundle.build` function in the [config](/config) file.
+The [composed](/composed) [TypeScript Client](/typescript) library can be bundled and published to NPM as a zero-dependency package with pre-filled `package.json` and `README.md` files using the `bundle` command after setting up `bundle.build` function in the [config](/config) file.
 
 ```sh npm2yarn copy
 npx vovk bundle
@@ -131,7 +131,7 @@ const config = {
         hash: false,
         fixedExtension: true,
         clean: true,
-        tsconfig: './tsconfig.bundle.json', // see Troubleshooting section
+        noExternal: ['vovk/createRPC', 'vovk/fetcher', 'vovk-ajv'],
     },
     // ...
   },
@@ -139,7 +139,7 @@ const config = {
 export default config;
 ```
 
-The resulting bundled package will have the following structure:
+The resulting bundled package will have the following structure (some extra chunks are omitted for brevity):
 
 <FileTree>
   <FileTree.Folder name="dist" defaultOpen>
@@ -151,53 +151,6 @@ The resulting bundled package will have the following structure:
     <FileTree.File name="index.d.mts" />
   </FileTree.Folder>
 </FileTree>
-
-### Troubleshooting
-
-In some TypeScript module configuration cases, you might encounter the following errors when `vovk bundle` is executed:
-
-```
-[UNLOADABLE_DEPENDENCY] Error: Could not load lib/internal/methods/object.ts - No such file or directory (os error 2).
-```
-
-or
-
-```
-[plugin rolldown-plugin-dts:generate]
-RollupError: tmp_prebundle/index.ts(17,14): error TS2742: The inferred type of 'XxxRPC' cannot be named without a reference to '../node_modules/vovk/mjs/client/types'. This is likely not portable. A type annotation is necessary.
-```
-
-It is recommended to create a separate `tsconfig.bundle.json` file for tsdown, optionally extending the root `tsconfig.json`:
-
-```ts showLineNumbers copy filename="vovk.config.mjs" {8}
-/** @type {import('vovk').VovkConfig} */
-const config = {
-  bundle: {
-    build: async ({ entry, outDir }) => {
-      const { build } = await import('tsdown');
-      await build({
-        // ...
-        tsconfig: './tsconfig.bundle.json',
-      });
-    },
-    // ...
-  },
-};
-export default config;
-```
-
-Setting `moduleResolution` to `bundler` fixes the first error, and setting `paths` to the `vovk/*` module fixes the second error:
-
-```ts showLineNumbers copy filename="tsconfig.bundle.json" {3,5}
-{
-  "compilerOptions": {
-    "moduleResolution": "bundler",
-    "paths": {
-      "vovk/*": ["./node_modules/vovk/*"],
-    },
-  }
-}
-```
 
 ## Using the Bundled Package
 

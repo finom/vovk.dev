@@ -180,24 +180,6 @@ type Output = VovkOutput<typeof UserController.updateUser>; // { success: boolea
 type Iteration = VovkIteration<typeof StreamController.streamItems>; // { item: boolean }
 ```
 
-> [!IMPORTANT]
-> 
-> Procedure return type and output type are independent to avoid self-inference issues. For stricter type safety, use `satisfies VovkOutput<T>{:ts}` or `satisfies VovkIteration<T>{:ts}` to refer to the output/iteration types.
-> ```ts showLineNumbers copy
-> import { get, type VovkOutput } from 'vovk';
-> import { z } from 'zod';
-> 
-> export default class UserController {
->  @get()
->  static updateUser = procedure({
->    output: z.object({ success: z.boolean() }),
->    async handle(req, params) {
->      return { success: true } satisfies VovkOutput<typeof UserController.updateUser>;
->    },
->  });
->}
->```
-
 ## Return/Yield Inference
 
 `VovkReturnType<T>` and `VovkYieldType<T>` infer the actual return or yield type of methods when input is not validated. These types cannot be used for self-references in services, as they cause “implicit any” TypeScript errors.

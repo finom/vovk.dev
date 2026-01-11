@@ -41,7 +41,8 @@ Vovk.ts is a **Next.js App Router–native back-end meta-framework** that turns 
 
 ## What you get (in one sentence)
 
-Define endpoints once (as real Next.js handlers), and Vovk.ts **derives schema artifacts** to **generate type-safe clients**, **publish docs**, and **build AI tools**—without writing and maintaining a separate contract layer.
+Define endpoints once (as real Next.js handlers), and Vovk.ts **emits schema artifacts** to **generate type-safe clients**, **publish docs**, **build AI tools**, and **mix in third-party OpenAPI schemas**—without writing and maintaining a separate contract layer.
+
 
 ## Vovk.ts is a great fit if you
 
@@ -63,7 +64,7 @@ If you want a concrete reference, the ["Hello World" example](/hello-world) show
 - Zod-validated inputs/outputs (with OpenAPI-friendly metadata)
 - JSONLines streaming endpoints
 - Segmented and composed TypeScript clients
-- Generated OpenAPI served by a segment and rendered via Scalar
+- Generated OpenAPI rendered via Scalar
 - Bundling/publishing and multi-language clients (TypeScript + Rust + Python)
 
 <div hidden>
@@ -111,6 +112,20 @@ Vovk.ts supports validation libraries that implement [Standard Schema](https://s
 
 That includes libraries like **Zod**, **Valibot**, and **ArkType**. As more libraries adopt these standards, they can be supported without inventing a new integration per library.
 
+## Segments: split your back-end like your routes
+
+Vovk.ts uses Next.js routing to add a back-end hierarchy level called [segments](/segment). Each segment can be configured independently and compiles into its own serverless function.
+
+```ts filename="route.ts"
+// ...
+const controllers = { UserRPC: UserController };
+export type Controllers = typeof controllers;
+export const { GET, POST } = initSegment({ controllers });
+```
+
+**Related**
+- [Segment](/segment)
+
 ## Schema emission (a feature, not a compromise)
 
 Many teams avoid emitting schema artifacts for different reasons: some prefer **inference-only** approaches (no explicit schema artifact), while others prefer **contract-first** approaches (like ts-rest) where the schema lives in a dedicated contract module. Vovk.ts takes a different route:
@@ -138,15 +153,7 @@ Each segment emits schema to **`.vovk-schema/`**:
 **Related**
 - [Schema](/schema)
 
-## Runtime vs Toolchain
 
-Vovk.ts is split by design:
-
-- **`vovk` (runtime)**: decorators, `procedure`, routing helpers, `deriveTools`—the code you ship.
-- **`vovk-cli` (toolchain)**: codegen, mixins, documentation generation, bundling/publishing—dev-only automation.
-- **`vovk-client` (optional)**: re-exported composed client for easy import.
-
-This keeps production dependencies small while still offering a full “API platform” workflow.
 
 ## RPC modules via code generation
 
@@ -162,22 +169,18 @@ const user = await UserRPC.getUser({ params: { id: '123' } });
 
 **Related**
 - [TypeScript Client](/typescript)
-- [Composed Clients](/composed)
-- [Segmented Clients](/segmented)
+- [Composed Mode](/composed)
+- [Segmented Mode](/segmented)
 
-## Segments: split your back-end like your routes
+## Runtime vs Toolchain (so “thin wrapper” doesn’t undersell it)
 
-Vovk.ts uses Next.js routing to add a back-end hierarchy level called [segments](/segment). Each segment can be configured independently and compiles into its own serverless function.
+Vovk.ts is split by design:
 
-```ts filename="route.ts"
-// ...
-const controllers = { UserRPC: UserController };
-export type Controllers = typeof controllers;
-export const { GET, POST } = initSegment({ controllers });
-```
+- **`vovk` (runtime)**: decorators, `procedure`, routing helpers, `deriveTools`—the code you ship.
+- **`vovk-cli` (toolchain)**: codegen, mixins, documentation generation, bundling/publishing—dev-only automation.
+- **`vovk-client` (optional)**: re-exported composed client for easy import.
 
-**Related**
-- [Segment](/segment)
+This keeps production dependencies small while still offering a full “API platform” workflow.
 
 ## AI tools from your real API
 
@@ -196,9 +199,9 @@ console.log(tools); // [{ name, description, parameters, execute }, ...]
 Convert OpenAPI 3.x schemas into modules that match the same calling convention as Vovk.ts RPC modules—then combine them in one client/tooling pipeline.
 
 ```ts
-import { PetStoreAPI } from 'vovk-client';
+import { PetstoreAPI } from 'vovk-client';
 
-const pet = await PetStoreAPI.getPetById({ params: { petId: 1 } });
+const pet = await PetstoreAPI.getPetById({ params: { petId: 1 } });
 ```
 
 **Related**

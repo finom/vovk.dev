@@ -143,7 +143,7 @@ bench.add("No-op decorators for 1 classes", async () => {
       summary: "Create",
     })
     @noopDecorator("{id}")
-    static create = (_req: unknown, params: any) => {
+    static create = () => {
       return null;
     };
   }
@@ -195,8 +195,8 @@ Key takeaways:
 
 ## Practical guidance
 
-- For high-performance workloads: split the app into multiple [segments](/segment) (e.g., serverless functions built with Next.js route.ts files), each with a manageable number of endpoints (up to 1,000).
-- In theory, with careful segment management and adequate hardware, a single Next.js/Vovk.ts app can host up to ~1,000,000 endpoints. Validate this in your environment; practical limits will be memory, bundle size, cold start budgets, and platform quotas.
+- For high-performance workloads: split the app into multiple [segments](/segment) (e.g., serverless functions built with Next.js route.ts files), each with a manageable number of procedures (up to 1,000).
+- In theory, with careful segment management and adequate hardware, a single Next.js/Vovk.ts app can host up to ~100,000 procedures. Validate this in your environment; practical limits will be memory, bundle size, cold start budgets, and platform quotas.
 
 ---
 

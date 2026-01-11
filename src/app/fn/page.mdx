@@ -6,7 +6,7 @@ Let's say you have the following controller class:
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { z } from 'zod';
-import { procedure, prefix, post, operation } from 'vovk';
+import { procedure, prefix, get, operation } from 'vovk';
 import UserService from './UserService';
 
 @prefix('users')
@@ -15,29 +15,12 @@ export default class UserController {
     summary: 'Update user',
     description: 'Update user by ID with Zod validation',
   })
-  @post('{id}')
-  static updateUser = procedure({
-    body: z
-      .object({
-        name: z.string().describe('User full name'),
-        age: z.number().min(0).max(120).describe('User age'),
-        email: z.email().describe('User email'),
-      })
-      .describe('User object'),
+  @get('{id}')
+  static getUser = procedure({
     params: z.object({
-      id: z.uuid().describe('User ID'),
+      id: z.string().uuid(),
     }),
-    output: z
-      .object({
-        success: z.boolean().describe('Success status'),
-        id: z.uuid().describe('User ID'),
-      })
-      .describe('Response object'),
     async handle(req) {
-      const body = await req.vovk.body();
-      const params = req.vovk.params();
-      const meta = req.vovk.meta<{ hello: string; xMetaHeader: { hello: string } }>();
-
       // ...
     },
   });
@@ -49,18 +32,13 @@ When it's compiled to an RPC module, the HTTP request can be performed like this
 ```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
 
-const response = await UserRPC.updateUser({
+const user = await UserRPC.getUser({
   params: { id: '69' },
-  body: {
-    name: 'John Doe',
-    age: 30,
-    email: 'john.doe@example.com',
-  },
   disableClientValidation: true, // disables client-side validation
   meta: { hello: 'world' }, // available as xMetaHeader metadata
 });
 
-console.log('Response:', response);
+console.log('User:', user);
 ```
 
 But the `fn` method allows you to call the procedures directly, in the current evaluation context, without performing an HTTP request:
@@ -68,41 +46,36 @@ But the `fn` method allows you to call the procedures directly, in the current e
 ```ts showLineNumbers copy
 import UserController from '@/modules/user/UserController';
 
-const response = await UserController.getUser.fn({
+const user = await UserController.getUser.fn({
   params: { id: '69' },
-  body: {
-    name: 'John Doe',
-    age: 30,
-    email: 'john.doe@example.com',
-  },
-  disableClientValidation: true, // disables client-side validation
+  disableClientValidation: true, // disables validation
   meta: { hello: 'world' }, // available as root metadata
 });
 
-console.log('Response:', response);
+console.log('User:', user);
 ```
 
-This will invoke `UserController.updateUser` like a normal function, performing validation before executing the handler.
+This will invoke `UserController.getUser` like a normal function, performing validation before executing the handler.
 
 There are several core use cases for local procedures:
 
-**For SSR, SSG, PPR, etc.**: You can use the method as a server-side function, allowing you to call it from server-side code without performing an HTTP request.
+**For SSR, SSG, PPR, etc.**: You can use the method in a server component.
 
 ```tsx showLineNumbers copy filename="src/app/user/page.tsx"
 import UserController from '@/modules/user/UserController';
 
 export default async function UserPage() {
-  const response = await UserController.getUser.fn({
+  const user = await UserController.getUser.fn({
     params: { id: '69' },
   });
 
   return (
-    <p>Response: {JSON.stringify(response)}</p>
+    <p>User: {JSON.stringify(user)}</p>
   );
 }
 ```
 
-**For LLM [function calling](/tools)**: Each procedure can be used as a "module" for LLM function calling, implemented with the `deriveTools` utility to call procedures in the current context without performing HTTP requests.
+**For [AI tool execution](/tools)**: controllers that define procedures with `procedure()` can be passed as a "module" to the `deriveTools` utility to call procedures in the current context without performing HTTP requests.
 
 ```ts showLineNumbers copy
 import { deriveTools } from 'vovk';
@@ -117,9 +90,9 @@ console.log(tools); // [{ name, description, parameters, execute }, ...]
 <a name="rules"></a>
 ## Rules of Locally Called Procedures
 
-`fn` functions do not imitate the `Request` object but partially implement the `VovkRequest` object by exposing only the custom `vovk` property with `async vovk.body()`, `vovk.query()`, `vovk.params()`, and `vovk.meta()`. In other words, properties such as `req.url` or `req.headers` are not defined in the local procedure context. A suitable `req` signature looks like `Pick<VovkRequest<TBody, TQuery, TParams>, 'vovk'>{:ts}`.
+`fn` functions do not imitate the `Request` object but partially implement the `VovkRequest` interface by exposing only the custom `vovk` property with `async vovk.body()`, `vovk.query()`, `vovk.params()`, and `vovk.meta()`. In other words, properties such as `req.url` or `req.headers` are not defined in the local procedure context. A suitable `req` signature looks like `Pick<VovkRequest<TBody, TQuery, TParams>, 'vovk'>{:ts}`.
 
-To ensure that the implemented HTTP handler can also be called with `fn`, you can use object destructuring when defining the handler to use only the `vovk` property:
+To ensure that the implemented HTTP handler can also be called with `fn`, you can use request object destructuring when defining the handler to use only the `vovk` property:
 
 ```ts showLineNumbers copy {16}
 export default class UserController {

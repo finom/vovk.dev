@@ -130,7 +130,7 @@ export default class UserController {
 <a name="procedure"></a>
 ## `procedure` Function
 
-The `procedure` function is a higher-level abstraction for defining procedures with built-in validation support. It allows you to specify validation schemas for the request body, query parameters, and path parameters using libraries that support both [Standard Schema](https://standardschema.dev/schema) and [Standard JSON Schema
+The `procedure` function is a higher-level abstraction for defining procedures with built-in validation support. It allows to specify validation schemas for the request body, query parameters, and path parameters using libraries that support both [Standard Schema](https://standardschema.dev/schema) and [Standard JSON Schema
 ](https://standardschema.dev/json-schema) interfaces, such as [Zod](https://zod.dev/), [Valibot](https://valibot.com/), and [Arktype](https://arktype.io/). The function accepts `handle` method that contains the actual logic for processing the pre-typed request object.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
@@ -144,15 +144,36 @@ export default class UserController {
     params: z.object({ id: z.uuid() }),
     body: z.object({ email: z.email() }),
     query: z.object({ notify: z.enum(['email', 'push', 'none']) }),
+    output: z.object({ success: z.boolean() }),
     async handle(req, { id }) {
-      const body = await req.json();
+      const { email } = await req.json();
       const notify = req.nextUrl.searchParams.get('notify');
       // ...
-      return updatedUser;
     },
   });
 }
 ```
+
+> [!IMPORTANT]
+> 
+> Procedure return type and output type are intentionally independent—this enables services to infer their types directly from procedures without circular reference problems. See [Service](#service) for the pattern this unlocks. For stricter type checking, use `satisfies VovkOutput<T>{:ts}` or `satisfies VovkIteration<T>{:ts}` on your return values.
+> ```ts showLineNumbers copy
+> import { procedure, get, type VovkOutput } from 'vovk';
+> import { z } from 'zod';
+> 
+> export default class UserController {
+>  @get()
+>  static getUser = procedure({
+>    // ...
+>    output: z.object(/* ... */),
+>    async handle(req, params) {
+>      // ...
+>      return updatedUser satisfies VovkOutput<typeof UserController.getUser>;
+>    },
+>  });
+>}
+>```
+
 
 ### `procedure` Options
 
@@ -241,7 +262,7 @@ The `definition` property is available only on server-side methods, but not on t
 
 A service is a part of Controller–Service–Repository pattern and separates business logic from request handlers. It keeps controllers focused on HTTP concerns, while the service encapsulates the business logic and data manipulation.
 
-Like controllers, services are often written as static classes with static methods, but they do not require decorators or any special structure. The static‑class style is simply a convention—you can instead use instantiated classes, standalone functions, or plain objects.
+Like controllers, services are often written as static classes with static methods, but they do not require decorators or any special structure. The static‑class style is simply a convention—you can instead use instantiated classes, standalone functions, or plain objects. This pattern also does **not** require dependency injection (DI): services can be plain modules you import and call directly.
 
 Let's say you have the following controller class:
 
@@ -261,12 +282,7 @@ export default class UserController {
     body: z.object({ /* ... */ })
     params: z.object({ /* ... */ }),
     query: z.object({ /* ... */ }),
-    output: z
-      .object({
-        success: z.boolean().describe('Success status'),
-        id: z.uuid().describe('User ID'),
-      })
-      .describe('Response object'),
+    output: z.object({ /* ... */ }),
     async handle(req) {
       const body = await req.vovk.body();
       const query = req.vovk.query();
@@ -380,7 +396,7 @@ import { procedure, post, prefix } from 'vovk';
 
 export default class UserController {
   @post()
-      static createUser = procedure({
+  static createUser = procedure({
     isForm: true,
     body: z.object({
       tags: z.union([z.array(z.string()), z.string()]),
