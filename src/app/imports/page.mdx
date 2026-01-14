@@ -2,11 +2,11 @@
 
 You can customize the generated TypeScript client by replacing imports of lower-level libraries. Do this via the `outputConfig.imports` object in the [config](/config) file, which can specify a [fetcher](#fetcher) and [validateOnClient](#validateonclient).
 
-By default, when **vovk-ajv** (described below) is used for client-side validation, an `index.mjs` file generating the `UserRPC` module might look like:
+By default, when **vovk-ajv** (described below) is used for client-side validation, an `index.js` file generating the `UserRPC` module might look like:
 
-```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.mjs"
+```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.js"
 import { createRPC } from 'vovk/createRPC';
-import { schema } from './schema.cjs';
+import { schema } from './schema.js';
 
 export const UserRPC = createRPC(schema, '', 'UserRPC', import('vovk/fetcher'), {
   validateOnClient: import('vovk-ajv'),
@@ -29,9 +29,9 @@ const config = {
 export default config;
 ```
 
-The generated `index.mjs` uses these imports and resolves relative paths:
+The generated `index.js` uses these imports and resolves relative paths:
 
-```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.mjs"
+```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.js"
 import { createRPC } from 'vovk/createRPC';
 
 export const UserRPC = createRPC(schema, '', 'UserRPC', import('../../src/lib/fetcher'), {

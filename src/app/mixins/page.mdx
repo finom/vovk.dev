@@ -319,9 +319,9 @@ export default config;
 
 ### Composed Client
 
-#### `mjs` + `cjs` (default)
+#### `js` (default)
 
-By default, the [composed client](/composed) uses [mjs](/templates#mjs) and [cjs](/templates#cjs) templates to generate both ESM and CJS clients. They are emitted to `node_modules/.vovk-client` and importable as the **vovk-client** package.
+By default, the [composed client](/composed) uses the [js](/templates#js) template to generate an ESM client. It is emitted to `node_modules/.vovk-client` and importable as the **vovk-client** package.
 
 ```ts showLineNumbers copy
 import { PetstoreAPI, GithubIssuesAPI } from 'vovk-client';
@@ -348,7 +348,7 @@ The [ts](/templates#ts) template generates an uncompiled TypeScript client that 
 /** @type {import('vovk').VovkConfig} */
 const config = {
   composedClient: {
-    fromTemplates: ['ts'], // use 'ts' instead of 'mjs' and 'cjs'
+    fromTemplates: ['ts'], // use 'ts' instead of 'js'
     outDir: './src/lib/client', // emit to your codebase
     prettifyClient: true, // prettify the output
   },

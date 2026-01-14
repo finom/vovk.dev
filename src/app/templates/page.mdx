@@ -125,17 +125,11 @@ Used as the default template for the [segmented client](/segmented). Renders Typ
 
 - `requires` [tsBase](#tsbase), [openapiTs](#openapits).
 
-### `cjs`
+### `js`
 
-Used as one of the default templates (the other one is [mjs](#mjs)) for the [composed client](/composed). Renders CommonJS code.
+Used as a default template for the [composed client](/composed). Renders ES Module code.
 
-- `requires` [cjsBase](#cjsbase), [openapiCjs](#openapicjs).
-
-### `mjs`
-
-Used as one of the default templates (the other one is [cjs](#cjs)) for the [composed client](/composed). Renders ES Module code.
-
-- `requires` [mjsBase](#mjsbase), [openapiCjs](#openapicjs).
+- `requires` [jsBase](#jsbase), [openapiJs](#openapijs).
 
 ### `tsBase`
 
@@ -144,19 +138,12 @@ Used as the default template for the [bundle](/bundle) as it doesn't include `op
 - `templatePath` is `vovk-cli/client-templates/tsBase/`.
 - `requires` [schemaTs](#schemats), [mixins](#mixins) (the last one is used conditionally if [OpenAPI mixins](/mixins) are used).
 
-### `cjsBase`
-
-Renders CommonJS code.
-
-- `templatePath` is `vovk-cli/client-templates/cjsBase/`.
-- `requires` [schemaCjs](#schemacjs), [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
-
-### `mjsBase`
+### `jsBase`
 
 Renders ES Module code.
 
-- `templatePath` is `vovk-cli/client-templates/mjsBase/`.
-- `requires` [schemaCjs](#schemacjs), [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
+- `templatePath` is `vovk-cli/client-templates/jsBase/`.
+- `requires` [schemaJs](#schemajs), [mixins](#mixins) (the last one is used conditionally if OpenAPI mixins are used).
 
 ### `schemaTs`
 
@@ -164,11 +151,11 @@ Renders the `schema.ts` file that imports the schema of available segments from 
 
 - `templatePath` is `vovk-cli/client-templates/schemaTs/`.
 
-### `schemaCjs`
+### `schemaJs`
 
-Renders the `schema.cjs` and `schema.d.cts` files that import the schema of available segments from the `.vovk-schema/` folder and re-export it as a CommonJS module.
+Renders the `schema.js` and `schema.d.ts` files that import the schema of available segments from the `.vovk-schema/` folder and re-export it as an ES Module.
 
-- `templatePath` is `vovk-cli/client-templates/schemaCjs/`.
+- `templatePath` is `vovk-cli/client-templates/schemaJs/`.
 
 ### `schemaJson`
 
@@ -183,11 +170,11 @@ Renders the `openapi.ts` file that re-exports the OpenAPI schema located in the 
 - `templatePath` is `vovk-cli/client-templates/openapiTs/`.
 - `requires` [openapiJson](#openapijson) template to import the OpenAPI schema in the generated code.
 
-### `openapiCjs`
+### `openapiJs`
 
-Renders the `openapi.cjs` and `openapi.d.cts` files that re-export the OpenAPI schema located in the `openapi.json` file (provided by the [openapiJson](#openapijson) template) in the same folder.
+Renders the `openapi.js` and `openapi.d.ts` files that re-export the OpenAPI schema located in the `openapi.json` file (provided by the [openapiJson](#openapijson) template) in the same folder.
 
-- `templatePath` is `vovk-cli/client-templates/openapiCjs/`.
+- `templatePath` is `vovk-cli/client-templates/openapiJs/`.
 - `requires` [openapiJson](#openapijson) template to import the OpenAPI schema in the generated code.
 
 ### `openapiJson`
@@ -229,14 +216,6 @@ Renders [Rust](/rust) client source code files, such as `lib.rs`, `http_request.
 - `templatePath` is `vovk-rust/client-templates/rsSrc/`.
 - `requires` [schemaJson](#schemajson) template to include the full schema in the generated code.
 
-### `py`
-
-Renders the Python client package that includes both source code and setup files.
-
-- `requires` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
-- Defines a `composedClient` option to set the output directory to `dist_python`.
-- `extends` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
-
 ### `rsPkg`
 
 Renders `Cargo.toml` and `README.md` files for the Rust client.
@@ -249,6 +228,14 @@ Renders `Cargo.toml` and `README.md` files for the Rust client.
 Renders the `README.md` file for the Rust client. Works similarly to the [readme](#readme) template.
 
 - `templatePath` is `vovk-rust/client-templates/rsReadme/`.
+
+### `py`
+
+Renders the Python client package that includes both source code and setup files.
+
+- `requires` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
+- Defines a `composedClient` option to set the output directory to `dist_python`.
+- `extends` [pySrc](#pysrc) and [pyPkg](#pypkg) templates.
 
 ### `pySrc`
 

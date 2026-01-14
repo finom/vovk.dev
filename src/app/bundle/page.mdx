@@ -30,15 +30,11 @@ Options:
 
 ---
 
-The [composed](/composed) [TypeScript Client](/typescript) library can be bundled and published to NPM as a zero-dependency package with pre-filled `package.json` and `README.md` files using the `bundle` command after setting up `bundle.build` function in the [config](/config) file.
+The [composed](/composed) [TypeScript Client](/typescript) library can be bundled and published to NPM as a zero-dependency package with pre-filled `package.json` and `README.md` files by using the `bundle` command after you configure the `bundle.build` function in the [config](/config) file.
 
-```sh npm2yarn copy
-npx vovk bundle
-```
+This feature is library-agnostic, so you can use any bundler you prefer, including one invoked via the `child_process` module. At the moment, [tsdown](https://tsdown.dev/) is the only bundler that has been tested with Vovk.ts. If you use a different bundler, please share your experience on [GitHub Discussions](https://github.com/finom/vovk/discussions).
 
-The feature is library-agnostic, allowing you to plug in your preferred bundler of your choice, including one that's invoked via `child_process` module. By the time being, [tsdown](https://tsdown.dev/) is the only bundler that has been tested with Vovk.ts. If you're using a different bundler, please share your experience on [GitHub Discussions](https://github.com/finom/vovk/discussions).
-
-Internally, the bundling is performed by executing the following steps:
+Internally, bundling runs the following steps:
 
 1. It generates a client into the `tmp_prebundle` directory (configured with `bundle.prebundleOutDir: string{:ts}`) using the [tsBase](/templates#tsbase) template.
 2. Calls `bundle.build` function to bundle the generated client to the `dist` directory (configured with `bundle.outDir: string{:ts}`).
@@ -53,7 +49,7 @@ npm publish dist
 
 ## Configuring the `bundle`
 
-The bundling can be configured by adding the `bundle` object in the [config](/config) file:
+You can configure bundling by adding a `bundle` object to the [config](/config) file:
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -103,21 +99,21 @@ export default config;
 
 ### `build` function (required)
 
-The `build` function is an asynchronous function that takes an object with `entry` (index.ts file), `outDir`, and `prebundleDir`, resolved as absolute paths.
+The `build` function is an asynchronous function that receives an object with `entry` (the `index.ts` file), `outDir`, and `prebundleDir`, all resolved as absolute paths.
 
 ### `prebundleOutDir` or `--prebundle-out` flag
 
-The `prebundleOutDir` is the directory where the TypeScript client will be generated before bundling. It defaults to `tmp_prebundle`.
+The `prebundleOutDir` is the directory in which the TypeScript client will be generated before bundling. It defaults to `tmp_prebundle`.
 
 ### `keepPrebundleDir` or `--keep-prebundle-dir` flag
 
-If set to `true`, the `prebundleOutDir` will not be deleted after bundling. This can be useful for debugging or other purposes. Defaults to `false`.
+If set to `true`, the `prebundleOutDir` will not be deleted after bundling. This can be useful for debugging or other purposes. The default is `false`.
 
 ### `outputConfig`
 
 The `outputConfig` object accepts and overrides the same options as the [outputConfig](/config#outputconfig) at the root of the [config](/config) file.
 
-For proper generation the `outputConfig` should provide `origin` option but also `package` that includes entry point configuration: `main`, `types`, and `exports` that can be set according to the bundler output.
+For correct generation, the `outputConfig` should provide an `origin` option as well as a `package` field that includes entry point configuration: `main`, `types`, and `exports`, which should be set according to the bundler output.
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
 const config = {
@@ -140,7 +136,7 @@ const config = {
 };
 ```
 
-You might also want to include other exports in the generated `index.ts` file using the `reExports` option:
+You can also include additional exports in the generated `index.ts` file using the `reExports` option:
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
 const config = {
@@ -155,7 +151,7 @@ const config = {
 };
 ```
 
-I order to keep the bundle size minimal, consider disabling client-side validation by setting `validateOnClient` to `null` in the `imports` option:
+In order to keep the bundle size minimal, consider disabling client-side validation by setting `validateOnClient` to `null` in the `imports` option:
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
 const config = {
@@ -188,25 +184,23 @@ const config = {
       const { build } = await import('tsdown');
       await build({
         entry,
-        dts: {
-          resolve: [/^(?!next($|\/))/],
-        },
-        format: "esm",
+        dts: true,
+        format: 'esm',
         hash: false,
         fixedExtension: true,
         clean: true,
         outDir,
-        platform: "neutral",
-        outExtensions: () => ({ js: ".js", dts: ".d.ts" }),
+        platform: 'neutral',
+        outExtensions: () => ({ js: '.js', dts: '.d.ts' }),
         outputOptions: {
           inlineDynamicImports: true,
         },
         inputOptions: {
           resolve: {
-            mainFields: ["module", "main"],
+            mainFields: ['module', 'main'],
           },
         },
-        noExternal: ["vovk/**"],
+        noExternal: ['!next/**'],
       });
     },
     // ...
@@ -226,7 +220,7 @@ With the configuration above, the resulting bundled package will have the follow
   </FileTree.Folder>
 </FileTree>
 
-The full configuration with `origin`, `package`, no client-side validation might look like this:
+The full configuration with `origin`, `package`, and no client-side validation might look like this:
 
 ```ts showLineNumbers copy filename="vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -236,25 +230,23 @@ const config = {
       const { build } = await import('tsdown');
       await build({
         entry,
-        dts: {
-          resolve: [/^(?!next($|\/))/],
-        },
-        format: "esm",
+        dts: true,
+        format: 'esm',
         hash: false,
         fixedExtension: true,
         clean: true,
         outDir,
-        platform: "neutral",
-        outExtensions: () => ({ js: ".js", dts: ".d.ts" }),
+        platform: 'neutral',
+        outExtensions: () => ({ js: '.js', dts: '.d.ts' }),
         outputOptions: {
           inlineDynamicImports: true,
         },
         inputOptions: {
           resolve: {
-            mainFields: ["module", "main"],
+            mainFields: ['module', 'main'],
           },
         },
-        noExternal: ["vovk/**"],
+        noExternal: ['!next/**'],
       });
     },
     outputConfig: {
@@ -278,19 +270,17 @@ const config = {
 export default config;
 ```
 
-If you prefer to keep client-side validation, and avoid having third-party dependencues, you can set `noExternal` tsdown option to `["vovk/**", "vovk-ajv", "ajv/**", "ajv-errors", "ajv-formats/**"]{:ts}`.
-
 For different tsdown configurations, please refer to the [tsdown documentation](https://tsdown.dev/reference/api/Interface.UserConfig).
 
 ## Using the Bundled Package
 
-After publishing the bundled package to NPM, it can be installed and used in other projects like any other NPM package:
+After publishing the bundled package to NPM, you can install and use it in other projects like any other NPM package:
 
 ```sh npm2yarn copy
 npm install my-api-bundle
 ```
 
-And imported in your TypeScript code:
+And import it in your TypeScript code:
 
 ```ts showLineNumbers copy
 import { UserRPC } from 'my-api-bundle';
@@ -300,9 +290,9 @@ await UserRPC.getUser({
 });
 ```
 
-All features described in the [TypeScript](/typescript) article are available to the bundled RPC modules.
+All features described in the [TypeScript](/typescript) article remain available to the bundled RPC modules.
 
-[Schema](/schema) is available under `schema` import as well as a property for every method individually:
+The [Schema](/schema) is available via the `schema` import, as well as a property on every method individually:
 
 ```ts showLineNumbers copy
 import { schema, UserRPC } from 'my-api-bundle';
@@ -311,11 +301,11 @@ console.log(schema.segments[''].controllers.UserRPC.handlers.getUser.validation.
 console.log(UserRPC.getUser.schema.validation.params);
 ```
 
-Note that the `openapi` object that's usually available in the **vovk-client/openapi** isn't bundled as it will bloat the package size. The `schema` module usually available in **vovk-client/schema** also isn't present in order to keep the bundle flow simple by using only a single entry point.
+Note that the `openapi` object that is usually available from **vovk-client/openapi** is not bundled, as it would significantly increase the package size. The `schema` module that is usually available from **vovk-client/schema** is also omitted to keep the bundling flow simple by using only a single entry point.
 
 ---
 
-The bundle methods can be used as [AI tools](/tools) that will invoke corresponding HTTP endpoints when called.
+The bundled methods can be used as [AI tools](/tools) that will invoke the corresponding HTTP endpoints when called:
 
 ```ts showLineNumbers copy
 import { UserRPC } from 'my-api-bundle';
@@ -328,4 +318,5 @@ const { tools } = deriveTools({
 
 ## Roadmap
 
-- ✨ Segmented bundle - create separate bundles for each segment.
+- 🐞 Type inference from `NextResponse` outputs is not available without the **next** package installed (see [proposal](https://github.com/vercel/next.js/discussions/88542)). For dynamic response headers, use the `Response` class instead, with manual type casting.
+- ✨ Segmented bundle — create separate bundles for each segment.

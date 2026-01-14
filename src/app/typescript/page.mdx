@@ -424,7 +424,7 @@ import { schema } from '@/client/admin/index.ts';
 
 The TypeScript RPC client is generated from the following templates:
 
-- [cjs](/templates#cjs), [mjs](/templates#mjs) - compiled CJS and ESM modules with TypeScript definitions; used by default in the [composed client](/composed);
+- [js](/templates#js) - compiled ESM modules with TypeScript definitions; used by default in the [composed client](/composed);
 - [ts](/templates#ts) - uncompiled TypeScript module with type definitions; used by default in the [segmented client](/segmented);
 - [mixins](/templates#mixins) - `.d.ts` types and `.json` files generated when [OpenAPI mixins](/mixins) are used;
 - [readme](/templates#readme), [packageJson](/templates#packagejson) - `README.md` with RPC documentation and `package.json` suitable for publishing the generated library as an NPM package.
