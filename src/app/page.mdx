@@ -22,10 +22,10 @@ Vovk.ts
     <img alt="License" src="https://img.shields.io/github/license/finom/vovk" />
   </a>
   <a href="https://www.npmjs.com/package/vovk">
-    <img alt="NPM Version" src="https://img.shields.io/npm/v/vovk?label=vovk" />
+    <img alt="Runtime NPM Version" src="https://img.shields.io/npm/v/vovk?label=vovk" />
   </a>
   <a href="https://www.npmjs.com/package/vovk-cli">
-    <img alt="NPM Version" src="https://img.shields.io/npm/v/vovk-cli?label=vovk-cli" />
+    <img alt="CLI NPM Version" src="https://img.shields.io/npm/v/vovk-cli?label=vovk-cli" />
   </a>
   <a href="https://github.com/finom/vovk/issues" hidden>
     <img alt="GitHub Issues" src="https://img.shields.io/github/issues/finom/vovk" />
@@ -109,13 +109,7 @@ export default class UserController {
 - [Next.js Route Handlers](https://nextjs.org/docs/app/getting-started/route-handlers)
 - [Procedure](/procedure)
 
-## Standard Schema–compatible validation (Zod, Valibot, ArkType)
-
-Vovk.ts supports validation libraries that implement [Standard Schema](https://standardschema.dev/schema) + [Standard JSON Schema](https://standardschema.dev/json-schema):
-
-That includes libraries like **Zod**, **Valibot**, and **ArkType**. As more libraries adopt these standards, they can be supported without inventing a new integration per library.
-
-## Segments: split your back-end like your routes
+## Segments: split your back-end into independent units
 
 Vovk.ts uses Next.js routing to add a back-end hierarchy level called [segments](/segment). Each segment can be configured independently and compiles into its own serverless function.
 
@@ -128,6 +122,12 @@ export const { GET, POST } = initSegment({ controllers });
 
 **Related**
 - [Segment](/segment)
+
+## Standard Schema–compatible validation (Zod, Valibot, ArkType)
+
+Vovk.ts supports validation libraries that implement [Standard Schema](https://standardschema.dev/schema) + [Standard JSON Schema](https://standardschema.dev/json-schema):
+
+That includes libraries like **Zod**, **Valibot**, and **ArkType**. As more libraries adopt these standards, they can be supported without inventing a new integration per library.
 
 ## Schema emission (a feature, not a compromise)
 
@@ -175,7 +175,7 @@ const user = await UserRPC.getUser({ params: { id: '123' } });
 - [Composed Mode](/composed)
 - [Segmented Mode](/segmented)
 
-## Runtime vs Toolchain (so “thin wrapper” doesn’t undersell it)
+## Runtime and toolchain separation
 
 Vovk.ts is split by design:
 

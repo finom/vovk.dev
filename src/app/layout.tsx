@@ -8,6 +8,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vovk.dev'),
+  manifest: '/site.webmanifest',
   title: {
     default: 'Vovk.ts - Back-end Framework for Next.js App Router',
     template: '%s | Vovk.ts - Back-end Framework for Next.js App Router',
@@ -22,6 +23,9 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/favicon.ico', sizes: '48x48' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       {
         media: '(prefers-color-scheme: light)',
         url: '/icon.svg',
@@ -33,6 +37,7 @@ export const metadata: Metadata = {
         href: '/icon-white.svg',
       },
     ],
+    apple: '/apple-touch-icon.png',
   },
 };
 
