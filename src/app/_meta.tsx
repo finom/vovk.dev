@@ -51,7 +51,7 @@ const meta = {
   '#cli': separator('CLI & Configuration'),
   config: 'Config File',
   dev: <code className="nextra-code">vovk dev</code>,
-  bundle: <code className="nextra-code">vovk bundle</code>,
+  bundle: <code className="nextra-code">vovk bundle 🧪</code>,
   generate: <code className="nextra-code">vovk generate</code>,
   init: <code className="nextra-code">vovk init</code>,
   new: <code className="nextra-code">vovk new</code>,

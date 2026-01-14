@@ -52,7 +52,7 @@ Then open [http://localhost:3000](http://localhost:3000).
 - [JSONLines](/jsonlines) streaming.
 - [Type inference](/inference) between service and controller layers.
 - `useQuery` / `useMutation` usage with [`queryKey`](/typescript#querykey).
-- TypeScript client [bundle](/bundle) published on [npm](https://npmjs.com/package/vovk-hello-world).
+- TypeScript client [bundle](/bundle) published on [npm](https://npmjs.com/package/vovk-hello-world) (see [bundlephobia](https://bundlephobia.com/package/vovk-hello-world)).
 - Experimental [Rust](/rust) and [Python](/python) clients published on [crates.io](https://crates.io/crates/vovk_hello_world) / [PyPI](https://pypi.org/project/vovk-hello-world/).
 - [OpenAPI spec](/openapi) served from a [static segment](/segment/introduction) and rendered via [Scalar](https://scalar.com/).
 
@@ -481,10 +481,10 @@ export default StreamDemo;
 
 The app is [configured](/config) to:
 
-- Client-side validation via Ajv, the primary client-side validation library, described in the [customization](/imports) article.
+- Validate on client-side via Ajv, the primary client-side validation library, described in the [customization](/imports) article (disabled for the bundle to keep it lightweight).
 - Generate [Rust](/rust) and [Python](/python) code when running [vovk dev](/dev) or [vovk generate](/generate).
 - Demonstrate the [segmented client](/segmented), generating RPC modules per [segment](/segment).
-- Generate clients and [bundle](/bundle) with an explicit `origin`:
+- Generate clients and [bundle](/bundle) with `package` field and an explicit `origin`:
   - Python and Rust clients: use `https://hello-world.vovk.dev`.
   - TypeScript Bundle: use `https://hello-world.vovk.dev`.
   - Composed TypeScript client:
@@ -492,6 +492,8 @@ The app is [configured](/config) to:
     - In production: use an empty origin (requests are relative to the current origin).
   - Segmented client: use an empty origin (requests are relative to the current origin).
 
+<Tabs items={['vovk.config.js', 'package.json']}>
+<Tabs.Tab>
 ```ts showLineNumbers copy filename="vovk.config.js" repository="finom/vovk-hello-world"
 // @ts-check
 
@@ -528,7 +530,7 @@ const config = {
     },
   },
   composedClient: {
-    fromTemplates: ["mjs", "cjs", "py", "rs"],
+    fromTemplates: ["js", "py", "rs"],
     // enabled: true,
     // outDir: "./node_modules/.vovk-client",
     outputConfig: {
@@ -547,19 +549,45 @@ const config = {
     // prettifyClient: true,
   },
   bundle: {
-    outputConfig: { origin: PROD_ORIGIN },
+    outputConfig: {
+      origin: PROD_ORIGIN,
+      imports: { validateOnClient: null },
+      package: {
+        type: 'module',
+        main: './index.js',
+        types: './index.d.ts',
+        exports: {
+          '.': {
+            default: './index.js',
+            types: './index.d.ts',
+          },
+        },
+      },
+    },
     keepPrebundleDir: true,
     build: async ({ entry, outDir }) => {
       const { build } = await import("tsdown");
       await build({
-        entry,
-        dts: true,
-        format: ["cjs", "esm"],
+        entry: { index: entry },
+        dts: {
+          resolve: [/^(?!next($|\/))/],
+        },
+        format: "esm",
         hash: false,
         fixedExtension: true,
         clean: true,
         outDir,
-        tsconfig: "./tsconfig.bundle.json",
+        platform: "neutral",
+        outExtensions: () => ({ js: ".js", dts: ".d.ts" }),
+        outputOptions: {
+          inlineDynamicImports: true,
+        },
+        inputOptions: {
+          resolve: {
+            mainFields: ["module", "main"],
+          },
+        },
+        noExternal: ["vovk/**"],
       });
     },
   },
@@ -580,6 +608,85 @@ const config = {
 module.exports = config;
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/vovk.config.js)*
+</Tabs.Tab>
+<Tabs.Tab>
+The original package.json is used to populate metadata (`repository`, `homepage`, `bugs` etc) in the package files listed below.
+```json showLineNumbers copy  repository="finom/vovk-hello-world" filename="package.json"
+{
+  "name": "vovk-hello-world",
+  "version": "0.0.84",
+  "description": "A \"Hello World!\" app built with Next.js, Vovk.ts and Zod. For details, visit https://vovk.dev/hello-world",
+  "scripts": {
+    "dev": "vovk dev --next-dev",
+    "prebuild": "vovk generate",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test:node": "node --experimental-strip-types --test --test-concurrency=1",
+    "test:python": "python3 -m pip install -q -r test/python/requirements.txt && python3 -m unittest discover -s test/python -p '*_test.py'",
+    "test:rust": "RUST_BACKTRACE=full RUST_TEST_THREADS=1 cargo test --manifest-path ./test/rust/Cargo.toml --tests -- --nocapture --show-output",
+    "pretest": "next build",
+    "test": "concurrently 'next start' \"sleep 10 && printf '\\n\\033[1;96mNode tests\\033[0m\\n' && npm run test:node && printf '\\n\\033[1;96mPython tests\\033[0m\\n' && npm run test:python && printf '\\n\\033[1;96mRust tests\\033[0m\\n' && npm run test:rust\" --kill-others --success first",
+    "publish:node": "npm publish ./dist",
+    "publish:rust": "cargo publish --manifest-path dist_rust/Cargo.toml --allow-dirty",
+    "publish:python": "python3 -m build ./dist_python --wheel --sdist && python3 -m twine upload ./dist_python/dist/*",
+    "git-tag": "git add . && git commit -m \"chore: release v$(node -p \"require('./package.json').version\")\" && git tag v$(node -p \"require('./package.json').version\")",
+    "check-uncommitted": "git diff --quiet && git diff --cached --quiet || (echo '❌ Uncommitted changes!' && exit 1)",
+    "postversion": "vovk generate && vovk bundle && npm run publish:node && npm run publish:rust && npm run publish:python && npm run git-tag",
+    "patch": "npm run check-uncommitted && npm version patch --no-git-tag-version"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finom/vovk-hello-world.git"
+  },
+  "homepage": "https://vovk.dev/hello-world",
+  "bugs": {
+    "url": "https://github.com/finom/vovk-hello-world/issues"
+  },
+  "author": "Andrey Gubanov",
+  "keywords": [
+    "vovk",
+    "openapi",
+    "zod",
+    "api"
+  ],
+  "dependencies": {
+    "@scalar/api-reference-react": "^0.8.21",
+    "@standard-schema/spec": "^1.1.0",
+    "@tanstack/react-query": "^5.90.16",
+    "ajv": "^8.17.1",
+    "ajv-errors": "^3.0.0",
+    "next": "^16.1.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "vovk": "^3.0.0-beta.127",
+    "vovk-ajv": "^0.0.0-beta.21",
+    "vovk-client": "^0.0.4-beta.22",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "^25",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.1",
+    "postcss": "^8",
+    "tailwindcss": "^4.1.18",
+    "tsdown": "^0.19.0",
+    "typescript": "^5",
+    "vovk-cli": "^0.0.1-beta.84",
+    "vovk-hello-world": "^0.0.75",
+    "vovk-python": "^0.0.1-beta.11",
+    "vovk-rust": "^0.0.1-beta.13"
+  }
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/package.json)*
+</Tabs.Tab>
+</Tabs>
 
 ## OpenAPI Specification
 
@@ -644,7 +751,7 @@ This example also demonstrates how to quickly produce distributable packages pub
 
 1. Verifies a clean working tree.
 2. Bumps the patch version.
-3. Triggers `postversion` to regenerate clients, bundle TypeScript, publish all packages, and create a commit + tag.
+3. Triggers `postversion` to regenerate clients, bundle TypeScript, create package files and README files, publish all packages, and create a commit + tag.
 
 ```json
 "scripts": {
@@ -659,7 +766,7 @@ This example also demonstrates how to quickly produce distributable packages pub
 }
 ```
 
-The `README.md` files are also updated with the latest examples and descriptions. IFrames below are rendered from the READMEs by Github Pages.
+The `README.md` files are updated with the latest examples and descriptions. IFrames below are rendered from the READMEs by Github Pages.
 
 <Tabs items={['TypeScript', 'Rust', 'Python']}>
   <Tabs.Tab>
@@ -672,6 +779,135 @@ The `README.md` files are also updated with the latest examples and descriptions
     <IFrame src="https://finom.github.io/vovk-hello-world/dist_python/" width="100%" height="1200px"></IFrame>
   </Tabs.Tab>
 </Tabs>
+
+The generated package files:
+
+<Tabs items={['package.json', 'Cargo.toml', 'pyproject.toml']}>
+  <Tabs.Tab>
+```json showLineNumbers copy filename="dist/package.json" repository="finom/vovk-hello-world"
+{
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "default": "./index.js",
+      "types": "./index.d.ts"
+    }
+  },
+  "name": "vovk-hello-world",
+  "version": "0.0.84",
+  "description": "A \"Hello World!\" app built with Next.js, Vovk.ts and Zod. For details, visit https://vovk.dev/hello-world",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/finom/vovk-hello-world.git"
+  },
+  "homepage": "https://vovk.dev/hello-world",
+  "bugs": {
+    "url": "https://github.com/finom/vovk-hello-world/issues"
+  },
+  "author": "Andrey Gubanov",
+  "keywords": [
+    "vovk",
+    "openapi",
+    "zod",
+    "api"
+  ]
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/dist/package.json)*
+  </Tabs.Tab>
+  <Tabs.Tab>
+```toml showLineNumbers copy filename="dist_rust/Cargo.toml" repository="finom/vovk-hello-world"
+# Generated by vovk-cli v0.0.1-beta.84 at 2026-01-14T12:54:52.133Z
+
+[package]
+name = "vovk_hello_world"
+version = "0.0.84"
+edition = "2021"
+description = 'A "Hello World!" app built with Next.js, Vovk.ts and Zod. For details, visit https://vovk.dev/hello-world'
+license = "MIT"
+repository = "https://github.com/finom/vovk-hello-world.git"
+homepage = "https://vovk.dev/hello-world"
+authors = [ "Andrey Gubanov" ]
+keywords = [ "vovk", "openapi", "zod", "api" ]
+
+[package.metadata.package]
+bugs = "https://github.com/finom/vovk-hello-world/issues"
+
+[dependencies]
+serde_json = "1.0"
+futures-util = "0.3"
+jsonschema = "0.17"
+urlencoding = "2.1"
+once_cell = "1.17"
+
+  [dependencies.serde]
+  version = "1.0"
+  features = [ "derive" ]
+
+  [dependencies.reqwest]
+  version = "0.12"
+  features = [ "json", "multipart", "stream" ]
+
+  [dependencies.tokio]
+  version = "1"
+  features = [ "macros", "rt-multi-thread", "io-util" ]
+
+  [dependencies.tokio-util]
+  version = "0.7"
+  features = [ "codec" ]
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/dist_rust/Cargo.toml)*
+  </Tabs.Tab>
+  <Tabs.Tab>
+```toml showLineNumbers copy filename="dist_python/pyproject.toml" repository="finom/vovk-hello-world"
+# Generated by vovk-cli v0.0.1-beta.84 at 2026-01-14T12:54:52.131Z
+
+[build-system]
+requires = [ "hatchling" ]
+build-backend = "hatchling.build"
+
+[project]
+name = "vovk_hello_world"
+version = "0.0.84"
+description = 'A "Hello World!" app built with Next.js, Vovk.ts and Zod. For details, visit https://vovk.dev/hello-world'
+requires-python = ">=3.8"
+keywords = [ "vovk", "openapi", "zod", "api" ]
+dependencies = [ "requests", "jsonschema", "rfc3987", "urllib3==1.26.15" ]
+readme = "README.md"
+
+  [project.license]
+  text = "MIT"
+
+  [[project.authors]]
+  name = "Andrey Gubanov"
+
+  [project.optional-dependencies]
+  dev = [ "types-requests", "types-jsonschema" ]
+
+  [project.urls]
+  Homepage = "https://vovk.dev/hello-world"
+  Source = "https://github.com/finom/vovk-hello-world.git"
+  Issues = "https://github.com/finom/vovk-hello-world/issues"
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/dist_python/pyproject.toml)*
+  </Tabs.Tab>
+</Tabs>
+
 
 ## Tests
 

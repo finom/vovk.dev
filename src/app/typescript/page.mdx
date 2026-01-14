@@ -74,7 +74,7 @@ const updatedUser = await resp.json();
 Behind the scenes the RPC module is created by an internal function `createRPC` and uses default imports or imports defined in the [vovk.config](/config) file. See [imports customization](/imports) for details.
 
 ```ts showLineNumbers copy
-import type { VovkFetcher } from "vovk";
+import type { VovkFetcher } from "vovk/fetcher";
 import { createRPC } from "vovk/createRPC";
 import { schema } from "./schema";
 
@@ -157,7 +157,7 @@ const [user, response] = await UserRPC.updateUser({
   query: {
     /* ... */
   },
-  transform: (data, response) => [data, response],
+  transform: (data, response) => [data, response] as const,
 });
 
 response satisfies Response;

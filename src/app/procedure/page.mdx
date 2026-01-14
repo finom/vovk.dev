@@ -3,7 +3,7 @@ import { VovkNewDynamic } from './VovkNewDynamic';
 
 # Controller & Procedure
 
-Procedure in Vovk.ts defines a RESTful API endpoint handler. It's implemented as a **static method** of a class, called "controller", decorated with an HTTP method decorator like `@get()`, `@post()`, `@del()`, `@put()`, `@patch()`. A procedure is a wrapper around Next.js API route handler that accepts `NextRequest` object and parameters defined in the route path.
+Procedure in Vovk.ts defines a RESTful API endpoint handler. It's implemented as a **static method** of a class, called "controller", decorated with an HTTP method decorator like `@get()`, `@post()`, `@del()`, `@put()`, `@patch()`. A procedure is a wrapper around Next.js API route handler that accepts [NextRequest](https://nextjs.org/docs/app/api-reference/functions/next-request) object and parameters defined in the route path.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { get, put, prefix } from 'vovk';
@@ -105,7 +105,7 @@ Alternatively, use `req.headers` from the [Web Request API](https://developer.mo
 
 ## `VovkRequest` Type
 
-`VovkRequest` tweaks the standard `NextRequest` type by adding generics for request body (`json` method) and query (`searchParams` property) parameters. This allows you to define the expected types for these parts of the request, enabling type-safe access within your procedure.
+`VovkRequest` mirrors the `NextRequest` type by adding generics for request body (`json` method) and query (`searchParams` property) parameters. This allows you to define the expected types for these parts of the request, enabling type-safe access within procedure.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { put, prefix, type VovkRequest } from 'vovk';
@@ -126,6 +126,8 @@ export default class UserController {
   }
 }
 ```
+
+`VovkRequest` extends `Request` but doesn't extend `NextRequest` in order to keep the **vovk** package independent of **next** package. However, it replicates useful `NextRequest` properties such as `cookies` (with `get`, `getAll`, `set`, `delete`, `has`, `clear` methods) and `nextUrl` (with `basePath`, `buildId`, `pathname`, `search`, and typed `searchParams`).
 
 <a name="procedure"></a>
 ## `procedure` Function
@@ -219,7 +221,7 @@ Handlers created with `procedure` function gain extra capabilities.
 
 ### `fn`
 
-The `fn` property lets you call the controller procedure directly without making an HTTP request. It mirrors the generated RPC handler signature and accepts the same parameters.
+The `fn` property lets you call the controller procedure directly without making an HTTP request for SSR/PPR etc. It mirrors the generated RPC handler signature and accepts the same parameters.
 
 ```ts showLineNumbers copy
 const result = await UserController.updateUser.fn({
@@ -441,4 +443,4 @@ export default class UserController {
 }
 ```
 
-Note that client-side validation does not currently support the OpenAPI‑compatible `format: "binary"`, and file size, type, etc., are not validated on the client side.
+Note that client-side validation does not fully support the OpenAPI‑compatible `format: "binary"`, and file size, type, etc., are not validated on the client side.

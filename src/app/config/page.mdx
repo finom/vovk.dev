@@ -121,7 +121,7 @@ npx vovk new state segment/thing # creates src/modules/segment/thing/ThingState.
 <a name="libs" />
 ### `libs: object`
 
-A conventional place to define configuration for libraries used by the client—or any configuration you want exposed to the client. For example, it can define localization for **vovk-ajv** - the primary client-side validation library, described at the [customization](/imports) article.
+A conventional place to define configuration for libraries used by the client—or any configuration you want exposed to the client. For example, it can define options for **vovk-ajv** - the primary client-side validation library, described at the [customization](/imports) article.
 
 ```js filename="/vovk.config.mjs"
 /** @type {import('vovk').VovkConfig} */
@@ -133,7 +133,7 @@ const config = {
       options: {
         strict: false,
       },
-      localize: 'de',
+      target: 'draft-2020-12', // auto-detected by default
     },
   },
 };
@@ -146,8 +146,8 @@ If `"libs"` is present in [exposeConfigKeys](#exposeConfigKeys), it is emitted t
 ```ts showLineNumbers copy
 import { schema, UserRPC } from 'vovk-client';
 
-console.log(schema.meta.config.libs.ajv.options.strict); // false
-console.log(UserRPC.updateUser.fullSchema.meta.config.libs.ajv.localize); // 'de'
+console.log(schema.meta.config.libs.ajv.options.strict);
+console.log(UserRPC.updateUser.fullSchema.meta.config.libs.ajv.target);
 ```
 
 <a name="outputconfig" />

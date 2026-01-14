@@ -1,6 +1,6 @@
 import { FileTree } from 'nextra/components';
 
-# TypeScript Bundle
+# TypeScript Bundle (Experimental)
 
 ```sh filename="Quick CLI Ref"
 $ npx vovk bundle --help
@@ -78,6 +78,16 @@ const config = {
         // modifies package.json content
         // by default uses values from the root package.json
         name: 'my-api-bundle',
+        // entry point configuration
+        type: 'module',
+        main: './index.js',
+        types: './index.d.ts',
+        exports: {
+          '.': {
+            default: './index.js',
+            types: './index.d.ts',
+          },
+        },
       },
       readme: {}, // modifies README.md content
       samples: {}, // modifies README.md samples content
@@ -107,6 +117,59 @@ If set to `true`, the `prebundleOutDir` will not be deleted after bundling. This
 
 The `outputConfig` object accepts and overrides the same options as the [outputConfig](/config#outputconfig) at the root of the [config](/config) file.
 
+For proper generation the `outputConfig` should provide `origin` option but also `package` that includes entry point configuration: `main`, `types`, and `exports` that can be set according to the bundler output.
+
+```ts showLineNumbers copy filename="vovk.config.mjs"
+const config = {
+  // ...
+  bundle: {
+    outputConfig: {
+      origin: 'https://example.com',
+      package: {
+        main: './index.js',
+        types: './index.d.ts',
+        exports: {
+          '.': {
+            default: './index.js',
+            types: './index.d.ts',
+          },
+        },
+      },
+    },
+  },
+};
+```
+
+You might also want to include other exports in the generated `index.ts` file using the `reExports` option:
+
+```ts showLineNumbers copy filename="vovk.config.mjs"
+const config = {
+  // ...
+  bundle: {
+    outputConfig: {
+      reExports: {
+        'doSomething': './src/utils',
+      },
+    },
+  },
+};
+```
+
+I order to keep the bundle size minimal, consider disabling client-side validation by setting `validateOnClient` to `null` in the `imports` option:
+
+```ts showLineNumbers copy filename="vovk.config.mjs"
+const config = {
+  // ...
+  bundle: {
+    outputConfig: {
+      imports: {
+        validateOnClient: null,
+      },
+    },
+  },
+};
+```
+
 ## Bundling with tsdown
 
 Install `tsdown` as a development dependency:
@@ -125,13 +188,26 @@ const config = {
       const { build } = await import('tsdown');
       await build({
         entry,
-        outDir,
-        dts: true,
-        format: ['cjs', 'esm'],
+        dts: {
+          resolve: [/^(?!next($|\/))/],
+        },
+        format: "esm",
         hash: false,
         fixedExtension: true,
         clean: true,
-        noExternal: ['vovk/createRPC', 'vovk/fetcher', 'vovk-ajv'],
+        outDir,
+        platform: "neutral",
+        outExtensions: () => ({ js: ".js", dts: ".d.ts" }),
+        outputOptions: {
+          inlineDynamicImports: true,
+        },
+        inputOptions: {
+          resolve: {
+            mainFields: ["module", "main"],
+          },
+        },
+        noExternal: ["vovk/**"],
+      });
     },
     // ...
   },
@@ -139,18 +215,72 @@ const config = {
 export default config;
 ```
 
-The resulting bundled package will have the following structure (some extra chunks are omitted for brevity):
+With the configuration above, the resulting bundled package will have the following structure:
 
 <FileTree>
   <FileTree.Folder name="dist" defaultOpen>
     <FileTree.File name="package.json" />
     <FileTree.File name="README.md" />
-    <FileTree.File name="index.cjs" />
-    <FileTree.File name="index.d.cts" />
-    <FileTree.File name="index.mjs" />
-    <FileTree.File name="index.d.mts" />
+    <FileTree.File name="index.js" />
+    <FileTree.File name="index.d.ts" />
   </FileTree.Folder>
 </FileTree>
+
+The full configuration with `origin`, `package`, no client-side validation might look like this:
+
+```ts showLineNumbers copy filename="vovk.config.mjs"
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  bundle: {
+    build: async ({ entry, outDir }) => {
+      const { build } = await import('tsdown');
+      await build({
+        entry,
+        dts: {
+          resolve: [/^(?!next($|\/))/],
+        },
+        format: "esm",
+        hash: false,
+        fixedExtension: true,
+        clean: true,
+        outDir,
+        platform: "neutral",
+        outExtensions: () => ({ js: ".js", dts: ".d.ts" }),
+        outputOptions: {
+          inlineDynamicImports: true,
+        },
+        inputOptions: {
+          resolve: {
+            mainFields: ["module", "main"],
+          },
+        },
+        noExternal: ["vovk/**"],
+      });
+    },
+    outputConfig: {
+      origin: 'https://example.com',
+      package: {
+        main: './index.js',
+        types: './index.d.ts',
+        exports: {
+          '.': {
+            default: './index.js',
+            types: './index.d.ts',
+          },
+        },
+      },
+      imports: {
+        validateOnClient: null,
+      },
+    },
+  },
+};
+export default config;
+```
+
+If you prefer to keep client-side validation, and avoid having third-party dependencues, you can set `noExternal` tsdown option to `["vovk/**", "vovk-ajv", "ajv/**", "ajv-errors", "ajv-formats/**"]{:ts}`.
+
+For different tsdown configurations, please refer to the [tsdown documentation](https://tsdown.dev/reference/api/Interface.UserConfig).
 
 ## Using the Bundled Package
 
@@ -170,7 +300,7 @@ await UserRPC.getUser({
 });
 ```
 
-All features described in the [TypeScript](/typescript) article are available to the bundled RPC modules, including client-side validation, [custom options](/imports#fetcher), `queryKey` method and more.
+All features described in the [TypeScript](/typescript) article are available to the bundled RPC modules.
 
 [Schema](/schema) is available under `schema` import as well as a property for every method individually:
 
@@ -185,7 +315,7 @@ Note that the `openapi` object that's usually available in the **vovk-client/ope
 
 ---
 
-The bundle methods can be used as [LLM tools](/tools) that will invoke corresponding HTTP endpoints when called.
+The bundle methods can be used as [AI tools](/tools) that will invoke corresponding HTTP endpoints when called.
 
 ```ts showLineNumbers copy
 import { UserRPC } from 'my-api-bundle';

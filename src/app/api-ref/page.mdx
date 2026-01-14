@@ -504,7 +504,9 @@ See [inference](/inference).
 
 ### `VovkRequest`
 
-Extends the Next.js built-in `NextRequest` to provide better typing for `.json()`, `.nextUrl.searchParams`, and a `vovk` property with advanced input retrieval helpers.
+Mirrors the Next.js built-in `NextRequest` to provide better typing for `.json()`, `.nextUrl.searchParams`, and a `vovk` property with advanced input retrieval helpers.
+
+`VovkRequest` doesn't extend `NextRequest` directly in order to keep the **vovk** package independent of **next** package.
 
 See the [procedure](/procedure) and [req.vovk](/req-vovk) documentation for more information.
 
