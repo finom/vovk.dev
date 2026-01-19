@@ -272,6 +272,8 @@ export default config;
 
 For different tsdown configurations, please refer to the [tsdown documentation](https://tsdown.dev/reference/api/Interface.UserConfig).
 
+
+
 ## Using the Bundled Package
 
 After publishing the bundled package to NPM, you can install and use it in other projects like any other NPM package:
@@ -316,7 +318,7 @@ const { tools } = deriveTools({
 });
 ```
 
-## Roadmap
+## Roadmap/bugs
 
 - 🐞 Type inference from `NextResponse` outputs is not available without the **next** package installed (see [proposal](https://github.com/vercel/next.js/discussions/88542)). For dynamic response headers, use the `Response` class instead, with manual type casting.
 - ✨ Segmented bundle — create separate bundles for each segment.

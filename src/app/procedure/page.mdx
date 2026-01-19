@@ -127,7 +127,7 @@ export default class UserController {
 }
 ```
 
-`VovkRequest` extends `Request` but doesn't extend `NextRequest` in order to keep the **vovk** package independent of **next** package. However, it replicates useful `NextRequest` properties such as `cookies` (with `get`, `getAll`, `set`, `delete`, `has`, `clear` methods) and `nextUrl` (with `basePath`, `buildId`, `pathname`, `search`, and typed `searchParams`).
+`VovkRequest` extends `Request` but doesn't extend `NextRequest` in order to keep the **vovk** package independent of **next** package. However, it replicates the documented `NextRequest` properties such as `cookies` (with `get`, `getAll`, `set`, `delete`, `has`, `clear` methods) and `nextUrl` (with `basePath`, `buildId`, `pathname`, `search`, and typed `searchParams`).
 
 <a name="procedure"></a>
 ## `procedure` Function

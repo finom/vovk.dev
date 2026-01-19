@@ -14,10 +14,18 @@ npx create-next-app my-app --ts --app --src-dir
 cd my-app
 ```
 
-## Install vovk and vovk-client
+## Install vovk, vovk-client and vovk-cli
+
+- `vovk` is the core/runtime library.
+- `vovk-client` re-exports the generated TypeScript client (optional). 
+- `vovk-cli` is the command-line interface for Vovk.ts (development dependency). 
 
 ```sh npm2yarn copy
 npm i vovk vovk-client
+```
+
+```sh npm2yarn copy
+npm i -D vovk-cli
 ```
 
 **More info:**

@@ -455,7 +455,7 @@ export default function Page() {
 
 ### MCP Handler Example
 
-With [mcp-handler](https://www.npmjs.com/package/mcp-handler) package, you can create an MCP-compatible API route that exposes derived tools from your controllers or RPC modules.
+With [mcp-handler](https://www.npmjs.com/package/mcp-handler) package, you can create an MCP-compatible API route that is going to control the back-end functionality exposed to MCP clients.
 
 By writing this documentation, **mcp-handler** supports Zod schemas only, so `inputSchemas`, provided by the tool, needs to be casted as `z.ZodTypeAny` in order to satisfy TypeScript. If another validation library is used, you can convert `parameters.properties` to Zod schemas manually using [`z.fromJSONSchema()`](https://zod.dev/json-schema?id=zfromjsonschema).
 

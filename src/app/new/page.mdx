@@ -122,7 +122,7 @@ const config = {
 export default config;
 ```
 
-`npx vovk new controller state user` creates **UserController.ts** and **UserService.ts** in **/src/modules/user** and updates the root segment with the new controller.
+`npx vovk new controller state user` creates **UserController.ts** and **UserState.ts** in **/src/modules/user** and updates the root segment with the new controller.
 
 ### Built-in Module Templates
 
@@ -418,8 +418,6 @@ export default class UserCartController {
 </Tabs.Tab>
 
 <Tabs.Tab>
-The corresponding service:
-
 ```ts showLineNumbers copy filename="src/modules/userCart/UserCartService.ts"
 import type { VovkBody, VovkParams } from 'vovk';
 import type UserCartController from './UserCartController.ts';

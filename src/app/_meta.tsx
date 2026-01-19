@@ -13,7 +13,7 @@ const meta = {
   index: 'About Vovk.ts',
   'quick-install': 'Quick Start',
   'manual-install': 'Manual Install',
-  performance: 'Overhead Performance',
+  performance: 'Route Performance Overhead',
   '#essentials': separator('Essentials'),
   segment: 'Segment',
   procedure: 'Controller & Procedure',
