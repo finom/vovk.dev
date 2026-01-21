@@ -117,9 +117,9 @@ The iterable (represented as `stream` above), besides `Symbol.asyncIterator`, `S
 - `asPromise`: A promise that resolves with an array of all emitted values when the stream completes.
 - `onIterate`: Registers a callback for each iteration.
 - `abortController`: An `AbortController` instance to abort the stream. When the stream is closed with `abortController.abort()`, it throws an `AbortError` on the stream reader that can be caught on the client side via error `cause` property.
-- `abortWithoutError`: A method to abort the stream without throwing an error on the stream reader. This is useful when you want to stop processing the stream gracefully.
+- `abortSilently`: A method to abort the stream without throwing an error on the stream reader. This is useful when you want to stop processing the stream gracefully.
 
-The `using` statement ensures the stream is aborted with `stream.abortWithoutError('Stream disposed')` when it goes out of scope.
+The `using` statement ensures the stream is aborted with `stream.abortSilently('Stream disposed')` when it goes out of scope.
 
 ```ts showLineNumbers copy
 console.log('Response status:', stream.status);
@@ -127,7 +127,7 @@ stream.onIterate((item) => {
   console.log('Iterated item:', item);
 });
 if (someCondition) {
-  stream.abortWithoutError();
+  stream.abortSilently();
 }
 console.log('All messages:', await stream.asPromise());
 ```
