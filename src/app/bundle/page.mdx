@@ -168,10 +168,15 @@ const config = {
 
 ## Bundling with tsdown
 
+> [!IMPORTANT]
+>
+> As tsdown is still a relatively new bundler, its API may introduce breaking changes between minor versions. The configuration below has been tested and validated with **tsdown@0.19.0**. If you encounter issues after upgrading, please pin this version until compatibility with newer releases is confirmed.
+
+
 Install `tsdown` as a development dependency:
 
 ```sh npm2yarn copy
-npm install --save-dev tsdown
+npm install --save-dev tsdown@0.19.0
 ```
 
 Add the following `build` function to the `bundle` object in the [config](/config) file:
