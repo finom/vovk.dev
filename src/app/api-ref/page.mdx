@@ -413,7 +413,7 @@ Key options (all optional, except `handle`):
 - `body`, `query`, `params` — input validation schemas.
 - `output` — output validation schema for JSON responses.
 - `iteration` — item schema for JSON Lines streaming responses.
-- `isForm` — treat the request body as `FormData` on the server and in client typings.
+- `contentType` — set a custom `Content-Type` (string or an array of strings) for the response to enable non-JSON responses.
 - `disableServerSideValidation` — disable server-side validation (boolean or granular by parts).
 - `skipSchemaEmission` — skip JSON Schema emission (boolean or granular by parts).
 - `validateEachIteration` — validate each streamed item (iteration), not just the first one.

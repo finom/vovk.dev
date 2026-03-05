@@ -23,7 +23,7 @@ The validation models, accepted by the [procedure](/procedure) are converted to 
 
 - `params` → `parameters` with `in: "path"`
 - `query` → `parameters` with `in: "query"`
-- `body` → `requestBody` with the `application/json` content type (`isForm` changes it to `multipart/form-data`)
+- `body` → `requestBody` with the `application/json` (or custom `contentType`) content type
 - `output` → `responses` with status `200` and `application/json` content type
 - `iteration` → `responses` with status `200` and `application/jsonl` content type
 

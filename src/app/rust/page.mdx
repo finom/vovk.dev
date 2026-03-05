@@ -1,6 +1,9 @@
 import { FileTree, Tabs } from 'nextra/components';
 
-# Rust Client (Experimental)
+# Rust Client
+
+> [!WARNING]
+> The Rust client library is experimental and may contain bugs. Use with caution.
 
 The Rust client can be generated with `vovk generate` using the [rs](/templates#rs) or [rsSrc](/templates#rssrc) template.
 
@@ -435,6 +438,7 @@ export default class StreamController {
   })
   @get("tokens")
   static streamTokens = procedure({
+    validateEachIteration: true,
     iteration: z
       .object({
         message: z.string().meta({ description: "Message from the token" }),
@@ -578,4 +582,5 @@ pub async fn consume_stream() -> Result<(), Box<dyn std::error::Error>> {
 ## Roadmap/bugs
 
 - 🐞 Allow circular $refs with [OpenAPI mixins](/mixins).
+- 🐞 Support `text/plain` and `application/octet-stream` in body parameters.
 - ✨ Generate importable types for named schemas defined in `components/schemas`.

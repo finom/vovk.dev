@@ -95,26 +95,6 @@ export default class UserController {
 }
 ```
 
-## `async req.vovk.form()`
-
-The `req.vovk.form` function returns the request `FormData` serialized into an object. It’s a type‑safe alternative to `req.formData()` that reads form data and uses `Object.fromEntries(formData.entries())` to convert it into a plain object. The generic argument defines the shape of the form data.
-
-```ts showLineNumbers copy
-interface Data {
-  foo: string;
-  bar: string;
-  file: File;
-}
-
-const formDataObject = await req.vovk.form<Data>();
-
-// the same as
-// const body = await req.formData();
-// const formDataObject = Object.fromEntries(body.entries()) as Data;
-```
-
-When [`procedure`](./procedure) function is used with the `isForm` option, `req.vovk.form` is typed automatically—no generic is required.
-
 ## `req.vovk.meta()`
 
 Custom metadata is accessible through the `vovk.meta` method in the procedure and in [custom decorators](/decorator).
