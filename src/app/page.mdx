@@ -44,8 +44,7 @@ Vovk.ts is a **Next.js App Router–native back-end meta-framework** that turns 
 
 ## What you get (in one sentence)
 
-Define endpoints once (as real Next.js handlers), and Vovk.ts **emits schema artifacts** to **generate type-safe clients**, **publish docs**, **build AI tools**, and **mix in third-party OpenAPI schemas**—without writing and maintaining a separate contract layer.
-
+Define endpoints once (as real Next.js handlers), and Vovk.ts **emits schema artifacts** to **generate type-safe clients**, **publish docs**, **build AI tools**, and **mix in third-party OpenAPI schemas**—without writing files for contract layer.
 
 ## Vovk.ts is a great fit if you
 
@@ -57,8 +56,7 @@ Define endpoints once (as real Next.js handlers), and Vovk.ts **emits schema art
 ## It’s probably not for you if you:
 
 - Don’t use Next.js
-- Need runtime access to original schema (JSON Schema is available, though)
-- Prefer contract-first API design
+- Need runtime access to original schema (JSON Schema is available, though; contracts can still be moved to a separate file if you want)
 
 ## See it in the Hello World example
 
@@ -131,9 +129,7 @@ That includes libraries like **Zod**, **Valibot**, and **ArkType**. As more libr
 
 ## Schema emission (a feature, not a compromise)
 
-Many teams avoid emitting schema artifacts for different reasons: some prefer **inference-only** approaches (no explicit schema artifact), while others prefer **contract-first** approaches (like ts-rest) where the schema lives in a dedicated contract module. Vovk.ts takes a different route:
-
-- **Your handlers are the source of truth** (no separate contract file to keep in sync).
+- **Your handlers are the source of truth**.
 - Schema is **derived** from what you already wrote.
 - Schema is a **build artifact**: the runtime stays lean, while tooling (clients/docs/AI) gets a stable interface.
 - Validation stays flexible: the input/output schemas come from libraries implementing **Standard Schema / Standard JSON Schema**.
