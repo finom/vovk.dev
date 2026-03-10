@@ -135,7 +135,7 @@ export default class UserController {
 The `procedure` function is a higher-level abstraction for defining procedures with built-in validation support. It allows to specify validation schemas for the request body, query parameters, and path parameters using libraries that support both [Standard Schema](https://standardschema.dev/schema) and [Standard JSON Schema
 ](https://standardschema.dev/json-schema) interfaces, such as [Zod](https://zod.dev/), [Valibot](https://valibot.com/), and [Arktype](https://arktype.io/). 
 
-The function returns an object with `.handle()` method that accepts an async function that processes the request after validation succeeds. It receives a type-enhanced `NextRequest{:ts}` as `VovkRequest<TBody, TQuery, TParams>{:ts}` and the `params: TParams{:ts}` value as the second argument.
+The function returns an object with `.handle()` method that accepts an async function that processes the request after validation succeeds. It receives a type-enhanced `Request{:ts}` as `VovkRequest<TBody, TQuery, TParams>{:ts}` and the `params: TParams{:ts}` value as the second argument.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { procedure, prefix, put } from 'vovk';
@@ -157,6 +157,8 @@ export default class UserController {
 }
 ```
 
+If `.handle()` is not provided, the procedure will throw Not Implemented (501) error.
+
 ### `procedure` Options
 
 #### `body`, `query`, and `params`
@@ -172,7 +174,7 @@ Use `output` and `iteration` to provide output validation schemas. `output` is f
 `contentType` specifies the expected `Content-Type` for the request body. It can be a string or an array of strings. It affects several areas of the procedure:
 
 - **Client-side `body` typing** — The RPC method's `body` type is inferred based on the content type (e.g. `FormData{:ts}` for form data, `string{:ts}` for text types, `File | ArrayBuffer | Uint8Array | Blob{:ts}` for binary types).
-- **Server-side body parsing** — [`req.vovk.body()`](/req-vovk#body) automatically parses the request body into the appropriate shape (parsed object, `FormData{:ts}`, `string{:ts}`, or `File{:ts}`) based on the incoming `Content-Type` header.
+- **Server-side body parsing** — [`req.vovk.body()`](/req-vovk#body) automatically parses the request body into the appropriate shape (parsed JSON object, parsed `FormData{:ts}`, `string{:ts}`, or `File{:ts}`) based on the incoming `Content-Type` header.
 - **415 enforcement** — When `contentType` is set, requests that arrive without a matching `Content-Type` header receive a `415 Unsupported Media Type` error.
 - **Wildcard matching** — Supports wildcard patterns such as `'video/*'{:ts}`, `'image/*'{:ts}`, or `'*/*'{:ts}` to accept a range of media types.
 
