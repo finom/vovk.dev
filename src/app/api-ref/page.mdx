@@ -405,11 +405,32 @@ For more details on client-side validation, see the [customization](/imports) pa
 
 ### `procedure`
 
-Higher-level helper for defining procedures that adds validation and schema emission on top of a controller handler.
+Higher-level helper for defining procedures that adds validation and schema emission on top of a controller handler. The procedure returns `.handle(req, params)` that is used to define the endpoint handler.
 
-Key options (all optional, except `handle`):
+```ts showLineNumbers copy
+import { procedure } from 'vovk';
 
-- `handle(req, params)` — handler executed after validation.
+export default class UserController {
+  static createUser = procedure({
+    body: z.object({
+      name: z.string(),
+      email: z.string().email(),
+    }),
+    output: z.object({
+      id: z.string(),
+      name: z.string(),
+      email: z.string().email(),
+    }),
+  }).handle((req) => {
+    // ...
+  });
+}
+```
+
+If `.handle()` is not called, the procedure will throw Not Implemented error.
+
+`procedure` options:
+
 - `body`, `query`, `params` — input validation schemas.
 - `output` — output validation schema for JSON responses.
 - `iteration` — item schema for JSON Lines streaming responses.

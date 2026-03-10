@@ -16,7 +16,7 @@ const meta = {
   performance: 'Route Performance Overhead',
   '#essentials': separator('Essentials'),
   segment: 'Segment',
-  procedure: 'Controller & Procedure',
+  procedure: 'Controller & Procedure 🚧',
   schema: 'Schema',
   response: 'Response & Errors',
   'req-vovk': 'req.vovk Interface',

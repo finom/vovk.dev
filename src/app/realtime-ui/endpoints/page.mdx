@@ -70,8 +70,7 @@ export default class UserController {
   @sessionGuard()
   static getUsers = procedure({
     output: UserSchema.array(),
-    handle: UserService.getUsers,
-  });
+  }).handle(UserService.getUsers);
 
   @operation({
     summary: "Find users by ID, full name, or email",
@@ -88,8 +87,7 @@ export default class UserController {
       }),
     }),
     output: UserSchema.array(),
-    handle: ({ vovk }) => UserService.findUsers(vovk.query().search),
-  });
+  }).handle(async ({ vovk }) => UserService.findUsers(vovk.query().search));
 
   @operation({
     summary: "Create user",
@@ -100,8 +98,7 @@ export default class UserController {
   static createUser = procedure({
     body: UserSchema.omit(BASE_FIELDS),
     output: UserSchema,
-    handle: async ({ vovk }) => UserService.createUser(await vovk.body()),
-  });
+  }).handle(async ({ vovk }) => UserService.createUser(await vovk.body()));
 
   @operation({
     summary: "Update user",
@@ -114,9 +111,9 @@ export default class UserController {
     body: UserSchema.omit(BASE_FIELDS).partial(),
     params: UserSchema.pick({ id: true }),
     output: UserSchema,
-    handle: async ({ vovk }) =>
-      UserService.updateUser(vovk.params().id, await vovk.body()),
-  });
+  }).handle(async ({ vovk }) =>
+    UserService.updateUser(vovk.params().id, await vovk.body()),
+  );
 
   @operation({
     summary: "Delete user",
@@ -132,15 +129,14 @@ export default class UserController {
         .extend({ __isDeleted: z.literal(true) })
         .array(),
     }),
-    handle: async ({ vovk }) => UserService.deleteUser(vovk.params().id),
-  });
+  }).handle(async ({ vovk }) => UserService.deleteUser(vovk.params().id));
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserService.ts" repository="finom/realtime-kanban"
-import type { VovkBody, VovkParams } from "vovk";
+import type { VovkBody, VovkOutput, VovkParams } from "vovk";
 import type { UserType } from "@schemas/models/User.schema";
 import type { TaskType } from "@schemas/models/Task.schema";
 import type UserController from "./UserController";
@@ -150,7 +146,7 @@ import EmbeddingService from "../embedding/EmbeddingService";
 import TaskService from "../task/TaskService";
 
 export default class UserService {
-  static getUsers = () => DatabaseService.prisma.user.findMany();
+  static getUsers = () => DatabaseService.prisma.user.findMany() as Promise<UserType[]>;
 
   static findUsers = (search: string) =>
     EmbeddingService.vectorSearch<UserType>(EntityType.user, search);
@@ -169,7 +165,7 @@ export default class UserService {
       user.entityType,
       user.id as UserType["id"],
     );
-    return user;
+    return user as UserType;
   };
 
   static updateUser = async (
@@ -183,7 +179,7 @@ export default class UserService {
 
     await EmbeddingService.generateEntityEmbedding(user.entityType, id);
 
-    return user;
+    return user as UserType;
   };
 
   static deleteUser = async (
@@ -211,7 +207,7 @@ export default class UserService {
         where: { id },
         select: { id: true, entityType: true },
       }),
-    );
+    ) as VovkOutput<typeof UserController.deleteUser>;
   };
 }
 ```
@@ -239,8 +235,7 @@ export default class TaskController {
   @sessionGuard()
   static getTasks = procedure({
     output: TaskSchema.array(),
-    handle: TaskService.getTasks,
-  });
+  }).handle(TaskService.getTasks);
 
   @operation({
     summary: "Find tasks by ID, title or description",
@@ -257,8 +252,7 @@ export default class TaskController {
       }),
     }),
     output: TaskSchema.array(),
-    handle: async ({ vovk }) => TaskService.findTasks(vovk.query().search),
-  });
+  }).handle(async ({ vovk }) => TaskService.findTasks(vovk.query().search));
 
   @operation({
     summary: "Get tasks assigned to a specific user",
@@ -269,9 +263,9 @@ export default class TaskController {
   static getTasksByUserId = procedure({
     params: z.object({ userId: UserSchema.shape.id }),
     output: TaskSchema.array(),
-    handle: async ({ vovk }) =>
-      TaskService.getTasksByUserId(vovk.params().userId),
-  });
+  }).handle(async ({ vovk }) =>
+    TaskService.getTasksByUserId(vovk.params().userId),
+  );
 
   @operation({
     summary: "Create a new task",
@@ -283,8 +277,7 @@ export default class TaskController {
   static createTask = procedure({
     body: TaskSchema.omit(BASE_FIELDS),
     output: TaskSchema,
-    handle: async ({ vovk }) => TaskService.createTask(await vovk.body()),
-  });
+  }).handle(async ({ vovk }) => TaskService.createTask(await vovk.body()));
 
   @operation({
     summary: "Update task",
@@ -297,9 +290,9 @@ export default class TaskController {
     body: TaskSchema.omit(BASE_FIELDS).partial(),
     params: TaskSchema.pick({ id: true }),
     output: TaskSchema,
-    handle: async ({ vovk }) =>
-      TaskService.updateTask(vovk.params().id, await vovk.body()),
-  });
+  }).handle(async ({ vovk }) =>
+    TaskService.updateTask(vovk.params().id, await vovk.body()),
+  );
 
   @operation({
     summary: "Delete task",
@@ -312,15 +305,14 @@ export default class TaskController {
     output: TaskSchema.partial().extend({
       __isDeleted: z.literal(true),
     }),
-    handle: async ({ vovk }) => TaskService.deleteTask(vovk.params().id),
-  });
+  }).handle(async ({ vovk }) => TaskService.deleteTask(vovk.params().id));
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/TaskController.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/task/TaskService.ts" repository="finom/realtime-kanban"
-import type { VovkBody, VovkParams } from "vovk";
+import type { VovkBody, VovkOutput, VovkParams } from "vovk";
 import type { TaskType } from "@schemas/models/Task.schema";
 import type { UserType } from "@schemas/models/User.schema";
 import type TaskController from "./TaskController";
@@ -329,7 +321,7 @@ import DatabaseService from "../database/DatabaseService";
 import EmbeddingService from "../embedding/EmbeddingService";
 
 export default class TaskService {
-  static getTasks = () => DatabaseService.prisma.task.findMany();
+  static getTasks = () => DatabaseService.prisma.task.findMany() as Promise<TaskType[]>;
 
   static findTasks = (search: string) =>
     EmbeddingService.vectorSearch<TaskType>(EntityType.task, search);
@@ -337,7 +329,7 @@ export default class TaskService {
   static getTasksByUserId = (userId: UserType["id"]) =>
     DatabaseService.prisma.task.findMany({
       where: { userId },
-    });
+    }) as Promise<TaskType[]>;
 
   static createTask = async (
     data: VovkBody<typeof TaskController.createTask>,
@@ -349,7 +341,7 @@ export default class TaskService {
       task.id as TaskType["id"],
     );
 
-    return task;
+    return task as TaskType;
   };
 
   static updateTask = async (
@@ -363,7 +355,7 @@ export default class TaskService {
 
     await EmbeddingService.generateEntityEmbedding(task.entityType, id);
 
-    return task;
+    return task as TaskType;
   };
 
   static deleteTask = (
@@ -372,7 +364,8 @@ export default class TaskService {
     DatabaseService.prisma.task.delete({
       where: { id },
       select: { id: true, entityType: true },
-    });
+    // TODO: __isDeleted incompatibility
+    }) as unknown as Promise<VovkOutput<typeof TaskController.deleteTask>>;
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/TaskService.ts)*

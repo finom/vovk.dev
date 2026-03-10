@@ -209,14 +209,12 @@ export default class <%= vars.ModuleName %> {
       summary: 'Get <%= t.theThings %>',
     })
     @get()
-    static get<%= t.TheThings %> = procedure({
-        handle() {
-            <% if(t.withService) { %>
-            return <%= vars.ServiceName %>.get<%= t.TheThings %>();
-            <% } else { %>
-            return { message: 'TODO: get <%= t.theThings %>' };
-            <% } %>
-        }
+    static get<%= t.TheThings %> = procedure().handle(() => {
+        <% if(t.withService) { %>
+        return <%= vars.ServiceName %>.get<%= t.TheThings %>();
+        <% } else { %>
+        return { message: 'TODO: get <%= t.theThings %>' };
+        <% } %>
     });
 
     @operation({
@@ -225,13 +223,12 @@ export default class <%= vars.ModuleName %> {
     @get('{id}')
     static getSingle<%= t.TheThing %> = procedure({
         params: type({ id: type('string') }),
-        handle(_req, { id }) {
-            <% if(t.withService) { %>
-            return <%= vars.ServiceName %>.getSingle<%= t.TheThing %>(id);
-            <% } else { %>
-            return { message: 'TODO: get single <%= t.theThing %>', id };
-            <% } %>
-        }
+    }).handle((_req, { id }) => {
+        <% if(t.withService) { %>
+        return <%= vars.ServiceName %>.getSingle<%= t.TheThing %>(id);
+        <% } else { %>
+        return { message: 'TODO: get single <%= t.theThing %>', id };
+        <% } %>
     });
 
     @operation({
@@ -241,14 +238,13 @@ export default class <%= vars.ModuleName %> {
     static update<%= t.TheThing %> = procedure({
         body: type({ todo: type('true') }),
         params: type({ id: type('string') }),
-        async handle(req, { id }) {
-            const body = await req.json();
-            <% if(t.withService) { %>
-            return <%= vars.ServiceName %>.update<%= t.TheThing %>(id, body);
-            <% } else { %>
-            return { message: `TODO: update <%= t.theThing %>`, id, body };
-            <% } %>
-        }
+    }).handle(async (req, { id }) => {
+        const body = await req.json();
+        <% if(t.withService) { %>
+        return <%= vars.ServiceName %>.update<%= t.TheThing %>(id, body);
+        <% } else { %>
+        return { message: `TODO: update <%= t.theThing %>`, id, body };
+        <% } %>
     });
 
     @operation({
@@ -257,14 +253,13 @@ export default class <%= vars.ModuleName %> {
     @post()
     static create<%= t.TheThing %> = procedure({
         body: type({ todo: type('true') }),
-        async handle(req) {
-            const body = await req.json();
-            <% if(t.withService) { %>
-            return <%= vars.ServiceName %>.create<%= t.TheThing %>(body);
-            <% } else { %>
-            return { message: `TODO: create <%= t.theThing %>`, body };
-            <% } %>
-        }
+    }).handle(async (req) => {
+        const body = await req.json();
+        <% if(t.withService) { %>
+        return <%= vars.ServiceName %>.create<%= t.TheThing %>(body);
+        <% } else { %>
+        return { message: `TODO: create <%= t.theThing %>`, body };
+        <% } %>
     });
 
     @operation({
@@ -273,14 +268,12 @@ export default class <%= vars.ModuleName %> {
     @del('{id}')
     static delete<%= t.TheThing %> = procedure({
         params: type({ id: type('string') }),
-        handle(_req, params) {
-            const { id } = params;
-            <% if(t.withService) { %>
-            return <%= vars.ServiceName %>.delete<%= t.TheThing %>(id);
-            <% } else { %>
-            return { message: `TODO: delete <%= t.theThing %>`, id };
-            <% } %>
-        }
+    }).handle((_req, { id }) => {
+        <% if(t.withService) { %>
+        return <%= vars.ServiceName %>.delete<%= t.TheThing %>(id);
+        <% } else { %>
+        return { message: `TODO: delete <%= t.theThing %>`, id };
+        <% } %>
     });
 }
 ```
@@ -364,21 +357,18 @@ export default class UserCartController {
     summary: 'Get userCarts',
   })
   @get()
-  static getUserCarts = procedure({
-    handle() {
-      return UserCartService.getUserCarts();
-    },
-  }); 
+  static getUserCarts = procedure().handle(() => {
+    return UserCartService.getUserCarts();
+  });
   @operation({
     summary: 'Get single userCart',
   })
   @get('{id}')
   static getSingleUserCart = procedure({
     params: type({ id: type('string') }),
-    handle(_req, { id }) {
-      return UserCartService.getSingleUserCart(id);
-    },
-  }); 
+  }).handle((_req, { id }) => {
+    return UserCartService.getSingleUserCart(id);
+  });
   @operation({
     summary: 'Update userCart',
   })
@@ -386,10 +376,9 @@ export default class UserCartController {
   static updateUserCart = procedure({
     body: type({ todo: type('true') }),
     params: type({ id: type('string') }),
-    async handle(req, { id }) {
-      const body = await req.json();
-      return UserCartService.updateUserCart(id, body);
-    },
+  }).handle(async (req, { id }) => {
+    const body = await req.json();
+    return UserCartService.updateUserCart(id, body);
   });
   @operation({
     summary: 'Create userCart',
@@ -397,10 +386,9 @@ export default class UserCartController {
   @post()
   static createUserCart = procedure({
     body: type({ todo: type('true') }),
-    async handle(req) {
-      const body = await req.json();
-      return UserCartService.createUserCart(body);
-    },
+  }).handle(async (req) => {
+    const body = await req.json();
+    return UserCartService.createUserCart(body);
   });
   @operation({
     summary: 'Delete userCart',
@@ -408,10 +396,8 @@ export default class UserCartController {
   @del('{id}')
   static deleteUserCart = procedure({
     params: type({ id: type('string') }),
-    handle(_req, params) {
-      const { id } = params;
-      return UserCartService.deleteUserCart(id);
-    },
+  }).handle((_req, { id }) => {
+    return UserCartService.deleteUserCart(id);
   });
 }
 ```

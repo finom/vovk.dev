@@ -20,9 +20,8 @@ export default class UserController {
     params: z.object({
       id: z.string().uuid(),
     }),
-    async handle(req) {
-      // ...
-    },
+  }).handle((req) => {
+    // ...
   });
 }
 ```
@@ -110,13 +109,12 @@ export default class UserController {
     output: z.object({
       /* ... */
     }),
-    async handle({ vovk }) {
-      const body = await vovk.body();
-      const query = vovk.query();
-      const params = vovk.params();
-      const meta = vovk.meta<{ hello: string }>();
-      // ...
-    },
+  }).handle(({ vovk }) => {
+    const body = await vovk.body();
+    const query = vovk.query();
+    const params = vovk.params();
+    const meta = vovk.meta<{ hello: string }>();
+    // ...
   });
 }
 ```

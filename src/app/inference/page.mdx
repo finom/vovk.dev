@@ -85,9 +85,8 @@ export default class UserController {
     query: z.object({ id: z.string() }),
     params: z.object({ param: z.string() }),
     body: z.object({ email: z.string().email() }),
-    async handle(req, params) {
-      // ...
-    },
+  }).handle((req, params) => {
+    // ...
   });
 }
 ```
@@ -138,9 +137,8 @@ export default class UserController {
   @get()
   static updateUser = procedure({
     output: z.object({ success: z.boolean() }),
-    async handle(req, params) {
-      return { success: true };
-    },
+  }).handle(async (req, params) => {
+    return { success: true };
   });
 }
 ```
@@ -155,10 +153,9 @@ export default class StreamController {
   @get()
   static streamItems = procedure({
     iteration: z.object({ item: z.boolean() }),
-    async *handle(req, params) {
-      yield { item: true };
-      yield { item: true };
-    },
+  }).handle(function *(req, params) {
+    yield { item: true };
+    yield { item: true };
   });
 }
 ```

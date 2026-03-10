@@ -60,9 +60,8 @@ export default class UserController {
     params: z.object({
       id: z.string(),
     }),
-    handle(_req, { id }) {
-      return UserService.getSingleUser(id);
-    },
+  }).handle(async (_req, { id }) => {
+    return UserService.getSingleUser(id);
   });
   // ...
 }

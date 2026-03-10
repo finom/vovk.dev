@@ -38,20 +38,19 @@ export default class StreamController {
     iteration: z.object({
       message: z.string(),
     }),
-    async *handle() {
-      const tokens: VovkIteration<typeof StreamController.getJSONLines>[] = [
-        { message: 'Hello,' },
-        { message: ' World' },
-        { message: ' from' },
-        { message: ' Stream' },
-        { message: '!' },
-      ];
+  }).handle(async function*() {
+    const tokens: VovkIteration<typeof StreamController.getJSONLines>[] = [
+      { message: 'Hello,' },
+      { message: ' World' },
+      { message: ' from' },
+      { message: ' Stream' },
+      { message: '!' },
+    ];
 
-      for (const token of tokens) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        yield token;
-      }
-    },
+    for (const token of tokens) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      yield token;
+    }
   });
 }
 ```
@@ -70,9 +69,8 @@ export default class StreamController {
     iteration: z.object({
       message: z.string(),
     }),
-    *handle() {
-      yield* StreamService.getJSONLines();
-    },
+  }).handle(function *() {
+    yield* StreamService.getJSONLines();
   });
 }
 ```
@@ -366,14 +364,13 @@ export default class ProgressiveController {
         ),
       }),
     ]),
-    async handle(req) {
-      const responder = new JSONLinesResponder<VovkIteration<typeof ProgressiveController.streamProgressiveResponse>>(req);
+  }).handle(async (req) => {
+    const responder = new JSONLinesResponder<VovkIteration<typeof ProgressiveController.streamProgressiveResponse>>(req);
 
-      void ProgressiveService.streamProgressiveResponse(responder);
+    void ProgressiveService.streamProgressiveResponse(responder);
 
-      return responder;
-    },
-  });
+    return responder;
+  })
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-examples/blob/main/src/modules/progressive/ProgressiveController.ts)*
