@@ -118,9 +118,7 @@ bench.add("Cold start for 1 controllers", async () => {
       summary: "Create",
     })
     @post("{id}")
-    static create = procedure({
-      handle: () => null,
-    });
+    static create = procedure().handle(() => null);
   }
 
   controllers["One0Controller"] = One0Controller;

@@ -42,7 +42,7 @@ import { UserRPC } from 'vovk-client';
 const updatedUser = await UserRPC.updateUser({
   params: { id: '69' },
   query: { notify: 'push' },
-  body: { ...userData },
+  body: userData,
 });
 ```
 
@@ -133,7 +133,9 @@ export default class UserController {
 ## `procedure` Function
 
 The `procedure` function is a higher-level abstraction for defining procedures with built-in validation support. It allows to specify validation schemas for the request body, query parameters, and path parameters using libraries that support both [Standard Schema](https://standardschema.dev/schema) and [Standard JSON Schema
-](https://standardschema.dev/json-schema) interfaces, such as [Zod](https://zod.dev/), [Valibot](https://valibot.com/), and [Arktype](https://arktype.io/). The function accepts `handle` method that contains the actual logic for processing the pre-typed request object.
+](https://standardschema.dev/json-schema) interfaces, such as [Zod](https://zod.dev/), [Valibot](https://valibot.com/), and [Arktype](https://arktype.io/). 
+
+The function returns an object with `.handle()` method that accepts an async function that processes the request after validation succeeds. It receives a type-enhanced `NextRequest{:ts}` as `VovkRequest<TBody, TQuery, TParams>{:ts}` and the `params: TParams{:ts}` value as the second argument.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
 import { procedure, prefix, put } from 'vovk';
@@ -147,35 +149,13 @@ export default class UserController {
     body: z.object({ email: z.email() }),
     query: z.object({ notify: z.enum(['email', 'push', 'none']) }),
     output: z.object({ success: z.boolean() }),
-    async handle(req, { id }) {
-      const { email } = await req.json();
-      const notify = req.nextUrl.searchParams.get('notify');
-      // ...
-    },
+  }).handle(async (req, { id }) => {
+    const { email } = await req.json();
+    const notify = req.nextUrl.searchParams.get('notify');
+    // ...
   });
 }
 ```
-
-> [!IMPORTANT]
-> 
-> Procedure return type and output type are intentionally independent—this enables services to infer their types directly from procedures without circular reference problems. See [Service](#service) for the pattern this unlocks. For stricter type checking, use `satisfies VovkOutput<T>{:ts}` or `satisfies VovkIteration<T>{:ts}` on your return values.
-> ```ts showLineNumbers copy
-> import { procedure, get, type VovkOutput } from 'vovk';
-> import { z } from 'zod';
-> 
-> export default class UserController {
->  @get()
->  static getUser = procedure({
->    // ...
->    output: z.object(/* ... */),
->    async handle(req, params) {
->      // ...
->      return updatedUser satisfies VovkOutput<typeof UserController.getUser>;
->    },
->  });
->}
->```
-
 
 ### `procedure` Options
 
@@ -197,10 +177,6 @@ Use `output` and `iteration` to provide output validation schemas. `output` is f
 - **Wildcard matching** — Supports wildcard patterns such as `'video/*'{:ts}`, `'image/*'{:ts}`, or `'*/*'{:ts}` to accept a range of media types.
 
 See [Content Type](#content-type) for a full breakdown of supported types, body parsing behaviour, and examples.
-
-#### `handle`
-
-`handle` is the controller function executed after validation succeeds. It receives a type-enhanced `NextRequest{:ts}` as `VovkRequest<TBody, TQuery, TParams>{:ts}` and the `params: TParams{:ts}` value as the second argument.
 
 #### `disableServerSideValidation`
 
@@ -292,13 +268,12 @@ export default class UserController {
     params: z.object({ /* ... */ }),
     query: z.object({ /* ... */ }),
     output: z.object({ /* ... */ }),
-    async handle(req) {
-      const body = await req.vovk.body();
-      const query = req.vovk.query();
-      const params = req.vovk.params();
+  }).handle(async (req) => {
+    const body = await req.vovk.body();
+    const query = req.vovk.query();
+    const params = req.vovk.params();
 
-      return UserService.updateUser(body, query, params);
-    },
+    return UserService.updateUser(body, query, params);
   });
 }
 ```
@@ -360,10 +335,9 @@ export default class UserController {
       email: z.string().email(),
       name: z.string(),
     }),
-    async handle(req) {
-      const { email, name } = await req.vovk.body(); // { email: string; name: string }
-      // ...
-    },
+  }).handle(async (req) => {
+    const { email, name } = await req.vovk.body(); // { email: string; name: string }
+    // ...
   });
 }
 ```
@@ -385,11 +359,10 @@ export default class UserController {
       email: z.string().email(),
       name: z.string().min(2).max(100),
     }),
-    async handle(req) {
-      const { email, name } = await req.vovk.body(); // { email: string; name: string }
-      // or use req.formData() for the raw FormData instance
-      // ...
-    },
+  }).handle(async (req) => {
+    const { email, name } = await req.vovk.body(); // { email: string; name: string }
+    // or use req.formData() for the raw FormData instance
+    // ...
   });
 }
 ```
@@ -423,9 +396,9 @@ export default class UserController {
     body: z.object({
       tags: z.union([z.array(z.string()), z.string()]),
     }),
-    async handle(req) {
-      const { tags } = await req.vovk.body(); // string | string[]
-    },
+  }).handle(async (req) => {
+    const { tags } = await req.vovk.body(); // string | string[]
+    // ...
   });
 }
 ```
@@ -443,10 +416,9 @@ export default class UserController {
     body: z.object({
       files: z.union([z.array(z.file()), z.file()]),
     }),
-    async handle(req) {
-      const { files } = await req.vovk.body(); // File | File[]
-      // ...
-    },
+  }).handle(async (req) => {
+    const { files } = await req.vovk.body(); // File | File[]
+    // ...
   });
 }
 ```
@@ -469,11 +441,10 @@ export default class UserController {
       username: z.string(),
       password: z.string(),
     }),
-    async handle(req) {
-      const { username, password } = await req.vovk.body();
-      // ...
-    },
-  });
+  }).handle(async (req) => {
+    const { username, password } = await req.vovk.body();
+    // ...
+  }); 
 }
 ```
 
@@ -488,10 +459,9 @@ export default class UserController {
   @post()
   static importXml = procedure({
     contentType: 'application/xml',
-    async handle(req) {
-      const xmlString = await req.vovk.body(); // string
-      // ...
-    },
+  }).handle(async (req) => {
+    const xmlString = await req.vovk.body(); // string
+    // ...
   });
 }
 ```
@@ -507,11 +477,10 @@ export default class UserController {
   @post()
   static uploadImage = procedure({
     contentType: 'image/*',
-    async handle(req) {
-      const file = await req.vovk.body(); // File
-      // or use req.blob() for raw Blob access
-      // ...
-    },
+  }).handle(async (req) => {
+    const file = await req.vovk.body(); // File
+    // or use req.blob() for raw Blob access
+    // ...
   });
 }
 ```
@@ -539,10 +508,9 @@ export default class UserController {
   static importData = procedure({
     contentType: ['application/json', 'text/csv'],
     body: z.object({ items: z.array(z.string()) }),
-    async handle(req) {
-      const body = await req.vovk.body(); // parsed object or string, depending on the request
-      // ...
-    },
+  }).handle(async (req) => {
+    const body = await req.vovk.body(); // parsed object or string, depending on the request
+    // ...
   });
 }
 ```

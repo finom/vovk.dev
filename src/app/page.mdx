@@ -96,9 +96,8 @@ export default class UserController {
     params: z.object({
       id: z.string().uuid(),
     }),
-    handle: async (req, { id }) => {
-      // ...
-    },
+  }).handle(async (req, { id }) => {
+    // ...
   });
 }
 ```
