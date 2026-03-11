@@ -35,6 +35,6 @@
     "src/app/isolated-client/page.mdx",
     "src/app/progressive/page.mdx",
     ".next/dev/types/**/*.ts"
-  ],
+, "src/app/blog/announcement/page.mdx"  ],
   "exclude": ["node_modules"]
 }

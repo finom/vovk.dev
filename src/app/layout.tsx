@@ -1,5 +1,5 @@
 import { Footer, Layout, Link, Navbar } from 'nextra-theme-docs';
-import { Head } from 'nextra/components';
+import { Banner, Head } from 'nextra/components';
 import { getPageMap } from 'nextra/page-map';
 import 'nextra-theme-docs/style.css';
 import '@/globals.css';
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     type: 'website',
     description:
-      'Vovk.ts is a conceptual back-end meta-framework created on top of the Next.js App Router. Built for efficiency and an unprecedented developer experience.',
+      'Vovk.ts is a conceptual back-end meta-framework created on top of the Next.js App Router',
   },
   icons: {
     icon: [
@@ -56,10 +56,20 @@ const footer = (
       <Link href="https://github.com/finom" className="ml-1">
         Andrey Gubanov
       </Link>
+      <div className="text-xs opacity-60">
+        Logo by{' '}
+        <Link href="https://icooon-mono.com/license/" target="_blank">
+          Icooon Mono
+        </Link>
+        {' '}(temporary, pending custom design)
+      </div>
     </div>
-    <Link href="https://github.com/sponsors/finom" target="_blank" className="ml-2 block">
-      Sponsor
-    </Link>
+    <div className="flex gap-4 items-center">
+      
+      <Link href="https://github.com/sponsors/finom" target="_blank" className="block">
+        Sponsor
+      </Link>
+    </div>
   </Footer>
 );
 
@@ -79,6 +89,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* Your additional tags should be passed as `children` of `<Head>` element */}
       </Head>
       <body>
+        <Banner storageKey="initial-announcement">
+        <a href="/blog/announcement" target="_blank">
+          🐺 Vovk.ts is released. Read the blog post →
+        </a>
+      </Banner>
         <Layout
           // banner={banner}
           navbar={navbar}
@@ -87,6 +102,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           footer={footer}
           // ... Your additional layout options
         >
+          
           {children}
         </Layout>
       </body>

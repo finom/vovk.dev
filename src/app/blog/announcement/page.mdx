@@ -1,0 +1,112 @@
+---
+title: "Announcement - Vovk.ts Blog"
+description: "Latest news and updates about Vovk.ts."
+---
+
+# Vovk.ts Announcement
+
+Over almost 3 years I've been working on a project that started as an attempt to bring NestJS experience to Next.js API routes. While making a couple announcements along the way, I felt that the project was still not ready for a big reveal. Today, I'm excited to announce a new back-end framework that is native to Next.js App Router: **Vovk.ts**.
+
+Conceptually, it collects all the best ideas from the ecosystem, inspired from giants like NestJS, tRPC, and ts-rest, and others, and combines them into a single, cohesive framework.
+
+The goals I set while building Vovk.ts were:
+
+- Minimum exported members - so you don't get overwhelmed by a large API surface.
+- Combine RPC-like experience with RESTful semantics, following Controller-Service-Repository Pattern with in-service type inference.
+- Procedure definition set in-place - no separate contract files or DTO classes to maintain, to define procedures with validation and type inference in the same place.
+- Integration with AI - make procedures to be executable via LLM function calling.
+- And of course DX - as I'm being a programmer for more than 20 years, I love coding, and simple and intuitive APIs/CLIs bring me joy and aesthetic pleasure.
+
+Working on a large project like this given me a lot of insights:
+
+- I didn't know that I don't know TypeScript
+- I've got to remove much more code than currently exists in the project
+- I removed a lot of features that I thought would be cool, but ended up being unnecessary
+
+## Core features
+
+- In-place ("contract-less") procedure definition with validation and type inference and Controller-Service pattern with in-service type inference, mentioned above.
+- AI tool derivation from controllers and RPC/API modules: you can feed the tools to an LLMs and it will be able to call your back-end code with correct parameters, without you having to write any additional glue code. - The tool derivation can also power MCP servers, created with a few lines of code, supporting text, JSON, image and audio outputs.
+- The procedures can be executed in the same context (for SSR/PPR) or through generated clients (HTTP).
+- Back-end segmentation with Next.js App Router: each `route.ts` is a separate "back-end". The codegen can generate a single client for the whole back-end, or per-segment clients.
+- Full OpenAPI support. The OpenAPI spec includes Scalar-compatible code samples that can be directly copied to your codebase.
+- As the framework includes built-in codegen, it supports code generation from third-party OpenAPI specs, giving your unified type-safe client for your own and third-party APIs.
+- Experimental Rust and Python client generation. Why not? 
+
+
+## What it looks like
+
+Controller + decorator:
+
+```ts
+export default class UserController {
+  @get('{id}')
+  static async getUser(req: NextRequest, { id }: { id: string }) {
+    // ...
+  }
+}
+```
+
+With `procedure` you validate and type inputs in-place:
+
+```ts
+export default class UserController {
+  @get('{id}')
+  static getUser = procedure({
+    params: z.object({
+      id: z.string().uuid(),
+    })
+  }).handle(async (req, { id }) => {
+    // ...
+  });
+}
+```
+
+Procedures can use services that infer parameter types from the controller method signature:
+
+```ts
+import type { VovkParams } from 'vovk';
+import type UserController from './UserController';
+
+export class UserService {
+  static async getUserById(id: VovkParams<typeof UserController.getUser>['id']) {
+    // ...
+  }
+}
+```
+
+```ts
+import UserService from './UserService';
+
+export default class UserController {
+  @get('{id}')
+  static getUser = procedure({ /*...*/ }).handle(async (req, { id }) => {
+    return UserService.getUserById(id);
+  });
+}
+```
+
+Codegen emits `fetch`-powered client:
+
+```ts
+import { UserRPC, PetstoreAPI } from 'vovk-client';
+
+const user = await UserRPC.getUser({ params: { id: '123' } });
+const pet = await PetstoreAPI.getPetById({ params: { petId: 1 } });
+```
+
+Controllers (current context execution), RPC/API modules (HTTP calls) can be used to derive AI tools:
+
+```ts
+const { tools } = deriveTools({ modules: { UserRPC, TaskController, PetstoreAPI } });
+console.log(tools); // [{ name, description, parameters, execute }, ...]
+```
+
+Procedures can be executed locally for SSR/PPR:
+
+```ts
+await UserController.getUser.fn({ params: { id: '123' } });
+```
+
+
+I hope you find Vovk.ts useful and enjoyable to work with. You can check out the [GitHub repo](https://github.com/finom/vovk) for more details.

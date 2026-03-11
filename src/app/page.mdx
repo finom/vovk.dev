@@ -73,7 +73,7 @@ Services hold business logic separately. No decorators, just plain classes:
 
 ```ts
 export default class UserService {
-  static async getUser(id: string) {
+  static async getUser(id: VovkParams<typeof UserController.getUser>['id']) {
     return prisma.user.findUnique({ where: { id } });
   }
 }
@@ -100,7 +100,7 @@ const { tools } = deriveTools({ modules: { UserRPC, TaskController } });
 
 ### Segments
 
-Every group of controllers lives in a [segment](/segment) — a Next.js catch-all route that compiles into its own serverless function. Segments are configured independently: different middleware, different auth, different deployment characteristics.
+Every group of controllers lives in a [segment](/segment) — a Next.js catch-all route that compiles into its own serverless function. Segments are configured independently.
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
 const controllers = { UserRPC: UserController };
@@ -128,7 +128,7 @@ Handlers are the source of truth. Vovk.ts derives schema from the code you alrea
 
 Controllers compile into RPC modules with a consistent `{ params, query, body }` call signature. Generate a single [composed client](/composed) or [per-segment clients](/segmented). See [TypeScript Client](/typescript).
 
-Direct type mapping between server and client code gives you jump-to-definition and JSDoc on hover over generated RPC methods. See [Schema](/schema).
+Direct type mapping between server and client code gives you jump-to-definition and JSDoc on hover over generated RPC methods.
 
 
 ### Validation

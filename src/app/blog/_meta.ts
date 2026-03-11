@@ -5,13 +5,13 @@ const meta = {
       breadcrumb: true,
     },
   },
-  /* 'vovk-3-0': {
-    title: 'Vovk.ts 3',
+  announcement: {
+    title: 'Vovk.ts - Announcement',
     theme: {
       sidebar: false,
       breadcrumb: true,
     },
-  }, */
+  },
 };
 
 export default meta;
