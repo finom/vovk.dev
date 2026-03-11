@@ -46,7 +46,7 @@ The `deriveTools` function accepts an options object with the following properti
 - `toModelOutput?: ToModelOutputFn<TInput, TOutput, TFormattedOutput>{:ts}` - optional function to format the output returned to the LLM. Can be set to a custom function or one of the built-in formatters, defined in `ToModelOutput` object, exported from `vovk`, such as 
   - `ToModelOutput.MCP` for MCP formatting.
   - `ToModelOutput.DEFAULT` that's used by default when `toModelOutput` is not provided.
-- `meta?: Record<string, unknown>{:ts}` - optional metadata passed to each controller/RPC method. The meta can be read on the back end using [req.vovk.meta](/req-vovk). When passed to a controller procedure, it's merged with procedure-level meta normally. When passed to an RPC method, it's available as `xMetaHeader` key.
+- `meta?: Record<string, unknown>{:ts}` - optional metadata passed to each controller/RPC method. The meta can be read on the back end using [req.vovk.meta](/procedure#req-vovk-meta). When passed to a controller procedure, it's merged with procedure-level meta normally. When passed to an RPC method, it's available as `xMetaHeader` key.
 
 ## Custom Operation Attributes with `x-tool` or `@operation.tool` Decorator
 
@@ -213,7 +213,7 @@ When the tool is executed with `ToModelOutput.MCP` formatter, the output will be
 
 ### `annotations`
 
-Annotations can be added to the output by setting a special metadata key `mcpOutput` using [req.vovk.meta](/req-vovk) function. This approach makes sure that if the procedure used as an endpoint, the response will not be affected.
+Annotations can be added to the output by setting a special metadata key `mcpOutput` using [req.vovk.meta](/procedure#req-vovk-meta) function. This approach makes sure that if the procedure used as an endpoint, the response will not be affected.
 
 ```ts showLineNumbers copy
 export default class AnnotatedController {

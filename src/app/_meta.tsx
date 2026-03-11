@@ -18,7 +18,6 @@ const meta = {
   procedure: 'Controller & Procedure',
   schema: 'Schema',
   response: 'Response & Errors',
-  'req-vovk': 'req.vovk Interface',
   decorator: 'Custom Decorators',
   fn: 'Calling Procedures Locally',
   jsonlines: 'JSON Lines',

@@ -4,7 +4,7 @@ Decorators extend the functionality of procedures. Use them to implement crossâ€
 
 `createDecorator` is a higherâ€‘order function that produces a decorator factory (a function that returns a decorator) for controller class methods. It accepts a middleware function with the following parameters:
 
-- `request`, which extends `VovkRequest`. It provides [req.vovk.meta](/req-vovk) to get and set metadata for sharing data between decorators and the route handler.
+- `request`, which extends `VovkRequest`. It provides [req.vovk.meta](/procedure#req-vovk-meta) to get and set metadata for sharing data between decorators and the route handler.
 - `next`, a function you call (and return) to invoke subsequent decorators or the route handler.
 - Additional arguments passed through the decorator factory.
 
