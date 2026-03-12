@@ -89,13 +89,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* Your additional tags should be passed as `children` of `<Head>` element */}
       </Head>
       <body>
-        <Banner storageKey="initial-announcement">
-        <a href="/blog/announcement" target="_blank">
-          🐺 Vovk.ts is released. Read the blog post →
-        </a>
-      </Banner>
+        
         <Layout
-          // banner={banner}
+          banner={<Banner storageKey="initial-announcement">
+          <Link href="/blog/announcement" className='text-primary font-medium no-underline'>
+            🐺 Vovk.ts is released. Read the blog post →
+          </Link>
+        </Banner>}
           navbar={navbar}
           pageMap={await getPageMap()}
           docsRepositoryBase="https://github.com/finom/vovk.dev/tree/main"
