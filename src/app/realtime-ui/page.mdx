@@ -11,3 +11,24 @@ import meta, { icons } from './_meta';
 This series walks through **Realtime Kanban** — the reference app that implements it — showing how users, bots, AI agents, and MCP clients can all update the board in real time with almost zero extra code.
 
 <DocIndexCards meta={meta} icons={icons} hrefPrefix="realtime-ui" />
+
+
+## See it in action
+
+### AI agent managing the board via MCP
+
+Claude connects to the Kanban board through an [MCP server](./mcp) and creates, moves, and deletes cards autonomously.
+
+<video src="/video/kanban_mcp.mp4" type="video/mp4" className='mt-4' controls autoPlay loop />
+
+### Multi-user collaboration with live polling
+
+Multiple users edit the same board simultaneously — changes propagate in real time through [database polling](./polling) and [normalized state](./state).
+
+<video src="/video/kanban_polling.mp4" type="video/mp4" className='mt-4' controls autoPlay loop />
+
+### Chat-driven board updates with function calling
+
+A built-in [text chat interface](./text-ai) lets users manage cards through natural language, powered by OpenAI function calling.
+
+<video src="/video/kanban_text_chat.mp4" type="video/mp4" className='mt-4' controls autoPlay loop />

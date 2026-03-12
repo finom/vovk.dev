@@ -50,9 +50,10 @@ const meta: MetaRecord = {
   'hello-world': '"Hello World!"',
   multitenant: 'Multitenancy Tutorial',
   'realtime-ui': {
-    title: 'Realtime UI',
+    title: '🤖 Realtime UI',
     theme: {
       collapsed: true,
+      copyPage: true,
     }
   },
   '#etc': separator('Reference'),
