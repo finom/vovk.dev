@@ -87,6 +87,32 @@ import { UserRPC } from 'vovk-client';
 const user = await UserRPC.getUser({ params: { id: '123' } });
 ```
 
+Procedures can run directly on the server for SSR/PPR, skipping the HTTP round-trip:
+
+```ts
+const user = await UserController.getUser.fn({ params: { id: '123' } });
+```
+
+Endpoints can yield JSON Lines for real-time streaming:
+
+```ts
+export default class StreamController {
+  @post('completions')
+  static streamTokens = procedure({
+    iteration: z.object({ message: z.string() }),
+  }).handle(async function* () {
+    yield* StreamService.getTokens();
+  });
+}
+```
+
+```ts
+using stream = await StreamRPC.streamTokens();
+for await (const { message } of stream) {
+  console.log(message);
+}
+```
+
 Controllers and generated modules can be exposed as AI tools:
 
 ```ts
@@ -176,37 +202,11 @@ Each tool has `name`, `description`, `parameters` (JSON Schema), and an `execute
 
 ### Streaming
 
-Endpoints can yield JSON Lines for real-time responses:
-
-```ts
-export default class StreamController {
-  @post('completions')
-  static streamTokens = procedure({
-    iteration: z.object({ message: z.string() }),
-  }).handle(async function* () {
-    yield* StreamService.getTokens();
-  });
-}
-```
-
-```ts
-using stream = await StreamRPC.streamTokens();
-for await (const { message } of stream) {
-  console.log(message);
-}
-```
-
-See [JSON Lines](/jsonlines).
+Endpoints can yield JSON Lines for real-time responses. See [JSON Lines](/jsonlines).
 
 ### Local procedure calls
 
-Procedures can run directly on the server for SSR/PPR, skipping the HTTP round-trip:
-
-```ts
-const user = await UserController.getUser.fn({ params: { id: '123' } });
-```
-
-See [Calling Procedures Locally](/fn).
+Procedures can run directly on the server for SSR/PPR, skipping the HTTP round-trip. See [Calling Procedures Locally](/fn).
 
 ### Docs and publishing
 
@@ -223,6 +223,7 @@ See [Generate Command](/generate) · [Bundle Command](/bundle) · [Python Client
 | **`vovk`** | Runtime — decorators, `procedure`, routing, `deriveTools` | production |
 | **`vovk-cli`** | Toolchain — codegen, mixins, docs, bundling | dev |
 | **`vovk-client`** | Re-exported composed client | optional |
+| **`vovk-ajv`** | Client-side validation with AJV | optional |
 
 See [Packages](/packages).
 

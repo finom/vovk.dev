@@ -23,7 +23,7 @@ const meta = {
   jsonlines: 'JSON Lines',
   inference: 'Type Inference',
   openapi: 'OpenAPI Specification',
-  tools: 'Deriving AI Tools',
+  tools: '🤖 Deriving AI Tools',
   '#codegen': separator('TypeScript RPC Codegen'),
   typescript: 'TypeScript Client',
   imports: 'Customizing the Client',

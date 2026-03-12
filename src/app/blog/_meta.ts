@@ -6,7 +6,7 @@ const meta = {
     },
   },
   announcement: {
-    title: 'Vovk.ts - Announcement',
+    title: 'Introducing Vovk.ts — A Back-End Framework Native to Next.js',
     theme: {
       sidebar: false,
       breadcrumb: true,
