@@ -4,6 +4,8 @@ import Image from "next/image";
 
 [Database Polling](./polling) and [State Normalization](./state) are set up, so the app is ready to accept changes made by external systems. Let’s now set up the MCP server to allow MCP clients to interact with our application.
 
+<video src="/video/kanban_mcp.mp4" type="video/mp4" className='mt-4' controls autoPlay loop />
+
 The tools, as usual, are derived from the controllers using the `deriveTools` function from the `vovk` package. For more details, see [Deriving AI Tools](/tools).
 
 ```ts filename="src/app/api/mcp/route.ts" repository="finom/realtime-kanban"
@@ -52,6 +54,7 @@ const authorizedHandler = (req: Request) => {
       { status: 401 },
     );
   }
+
   return handler(req);
 };
 
