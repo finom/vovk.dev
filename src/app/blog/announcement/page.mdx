@@ -31,7 +31,7 @@ I've been writing code for over 20 years, and clean, intuitive APIs still bring 
 
 **[Local procedure execution](/fn).** Every procedure exposes a `.fn()` method that runs in the current context — no HTTP round-trip. This unlocks SSR, PPR, background jobs, and AI agent execution, all using the same handler logic.
 
-**[Back-end segmentation](/segment).** Each `route.ts` compiles into a separate serverless function. You can configure per-segment runtimes, timeouts, and bundle boundaries ❌. The codegen can produce a single composed client or independent per-segment clients, so you control exactly what code ships where.
+**[Back-end segmentation](/segment).** Each `route.ts` compiles into a separate serverless function. You can assign each segment its own runtime (Node.js or Edge) and `maxDuration`, and since each `route.ts` compiles independently, only the code it imports ends up in that function's bundle. The codegen can produce a single composed client or independent per-segment clients, so you control exactly what code ships where.
 
 **[First-class JSON Lines streaming](/jsonlines).** Stream data with `async function*` generators on the server and consume on the client with disposable async iterators. Ideal for LLM token streaming and progressive data loading.
 
@@ -119,9 +119,9 @@ await UserController.getUser.fn({ params: { id: '123' } });
 
 ## What makes it different
 
-Existing tools each solve part of the problem. tRPC gives you type-safe clients but no OpenAPI and no multi-language support ❌. ts-rest requires a shared contract layer. NestJS runs its own HTTP server and doesn't fit the serverless model natively. Vovk.ts sits at the intersection:
+Existing tools each solve part of the problem. tRPC gives you type-safe clients but no OpenAPI. ts-rest requires a shared contract layer. NestJS runs its own HTTP server and doesn't fit the serverless model natively. Vovk.ts sits at the intersection:
 
-- **Your code is the spec.** Define once, generate everywhere — TypeScript clients, OpenAPI docs, AI tools, Python and Rust SDKs ❌.
+- **Your code is the spec.** Define once, generate everywhere — TypeScript clients, OpenAPI docs, AI tools, Python and Rust clients.
 - **Next.js native.** No separate server process. Every segment is a serverless function with full App Router support, including Edge Runtime.
 - **Zero glue code for AI.** The same procedures that power your API are directly callable by LLM agents and MCP servers.
 
@@ -131,10 +131,3 @@ Check out the [documentation](/quick-install) to get up and running, or jump str
 
 
 
----
-
-Look at the text I marked with ❌, I want either clarification or rephrasing to make it clearer personally for me.
-
--  timeouts and bundle boundaries - what do you mean? what does timeout means? how do you set bundle boundaries?
-- no multi-language support - I don't think someone does actually care about that, this is a feature of my framework with questionable use case, just a bonus
-- Python and Rust SDKs - why do you call it SDKs? it's just a client, right?  as far as I know SDK stands for a kit, but there is just a single client file with some types, so it doesn't feel like a kit to me.
