@@ -2,7 +2,7 @@ import type { MetaRecord } from 'nextra';
 
 const separator = (title: string) => ({ type: 'separator', title });
 
-const meta = {
+const meta: MetaRecord = {
   blog: {
     title: 'Blog',
     href: '/blog',
@@ -51,10 +51,13 @@ const meta = {
   multitenant: 'Multitenancy Tutorial',
   'realtime-ui': {
     title: 'Realtime UI',
+    theme: {
+      collapsed: true,
+    }
   },
   '#etc': separator('Reference'),
   packages: 'Packages',
   'api-ref': 'API Reference',
-} satisfies MetaRecord;
+};
 
 export default meta;
