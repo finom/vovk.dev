@@ -17,18 +17,18 @@ This series walks through **Realtime Kanban** — the reference app that impleme
 
 ### AI agent managing the board via MCP
 
-Claude connects to the Kanban board through an [MCP server](./mcp) and creates, moves, and deletes cards autonomously.
+Claude connects to the Kanban board through an [MCP server](/realtime-ui/mcp) and creates, moves, and deletes cards autonomously.
 
 <video src="/video/kanban_mcp.mp4" type="video/mp4" className='mt-4' controls autoPlay loop />
 
 ### Multi-user collaboration with live polling
 
-Multiple users edit the same board simultaneously — changes propagate in real time through [database polling](./polling) and [normalized state](./state).
+Multiple users edit the same board simultaneously — changes propagate in real time through [database polling](/realtime-ui/polling) and [normalized state](/realtime-ui/state).
 
 <video src="/video/kanban_polling.mp4" type="video/mp4" className='mt-4' controls autoPlay loop />
 
 ### Chat-driven board updates with function calling
 
-A built-in [text chat interface](./text-ai) lets users manage cards through natural language, powered by OpenAI function calling.
+A built-in [text chat interface](/realtime-ui/text-ai) lets users manage cards through natural language, powered by OpenAI function calling.
 
 <video src="/video/kanban_text_chat.mp4" type="video/mp4" className='mt-4' controls autoPlay loop />

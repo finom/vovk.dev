@@ -1,6 +1,9 @@
 import Image from 'next/image';
+import { Youtube } from '../../../components/Youtube';
 
 # Realtime UI Overview
+
+<Youtube src="https://www.youtube.com/embed/lQ-F6U_1niw" className='mt-2' />
 
 This series walks through **Realtime Kanban**, a full‑stack reference app that demonstrates a **Realtime UI** architecture. The app behaves like a standard web application, but it’s also designed to be operated by **AI agents** via text or voice, and by **MCP clients**—including navigation and workflow automation—while keeping both front‑end and back‑end code short and easy to follow.
 
@@ -8,6 +11,8 @@ This series walks through **Realtime Kanban**, a full‑stack reference app that
 
 <Image src="/screenshots/kanban-dark.png" alt="Realtime Kanban Screenshot" width={2102} height={1916} className="hidden dark:block" />
 <Image src="/screenshots/kanban-light.png" alt="Realtime Kanban Screenshot" width={2104} height={1920} className="block dark:hidden" />
+
+The app is intentionally minimal—just **Users** and **Tasks**—with lightweight features like password protection instead of full auth management. This makes it easy to reproduce, study, and adapt for your own projects.
 
 Key building blocks:
 

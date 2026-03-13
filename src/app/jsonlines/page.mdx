@@ -397,6 +397,8 @@ usersPromise.then(console.log).catch(console.error);
 tasksPromise.then(console.log).catch(console.error);
 ```
 
+---
+
 Behind the scenes, `progressive` returns a [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) that implements a `get` trap to return a promise for each accessed property.
 
 - When a new JSON line arrives, the corresponding promise resolves with that data.

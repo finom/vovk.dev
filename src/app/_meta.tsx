@@ -3,6 +3,11 @@ import type { MetaRecord } from 'nextra';
 const separator = (title: string) => ({ type: 'separator', title });
 
 const meta: MetaRecord = {
+  'realtime-ui-link': {
+    title: '🤖 Realtime UI',
+    href: '/realtime-ui',
+    type: 'page',
+  },
   blog: {
     title: 'Blog',
     href: '/blog',

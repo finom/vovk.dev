@@ -8,7 +8,7 @@ In the simplest form, when we expect JSON responses only, the function looks lik
 
 ```ts showLineNumbers copy filename="src/lib/fetcher.ts"
 import { createFetcher } from "vovk";
-import { useRegistry } from "@/registry";
+import { useRegistry } from "@/hooks/useRegistry";
 
 export const fetcher = createFetcher({
   transformResponse: (data) => {

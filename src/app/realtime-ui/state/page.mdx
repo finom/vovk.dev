@@ -205,7 +205,7 @@ In other words, to soft-delete an entity, the server needs to send an object lik
 That’s it. Each time data is received from any source, it should go through the registry’s `parse` method, and all components that reference that data by ID are updated automatically.
 
 ```ts showLineNumbers copy
-import { useRegistry } from "@/registry";
+import { useRegistry } from "@/hooks/useRegistry";
 
 const resp = await fetch('/api/some-endpoint');
 const data = await resp.json();
