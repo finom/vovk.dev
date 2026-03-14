@@ -1,1 +1,1 @@
-Vovk.ts - back-end for Next.js
+Back-end Framework for Next.js App Router

@@ -27,17 +27,17 @@ I've been writing code for over 20 years, and clean, intuitive APIs still bring 
 
 **Auto-generated, type-safe RPC clients.** The CLI emits a `fetch`-powered TypeScript client that mirrors your controllers exactly. Jump-to-definition, JSDoc hover, and optional client-side Ajv validation all work out of the box.
 
-**[AI tool derivation](/tools).** Call `deriveTools()` with your controllers or RPC modules and get back a set of LLM-callable tools — complete with names, descriptions, and JSON Schema parameters. The same mechanism powers [MCP servers](/tools#mcp) with support for text, JSON, image, and audio outputs, all in a few lines of code.
-
-**[Local procedure execution](/fn).** Every procedure exposes a `.fn()` method that runs in the current context — no HTTP round-trip. This unlocks SSR, PPR, background jobs, and AI agent execution, all using the same handler logic.
+**[Full OpenAPI support](/openapi).** Procedures automatically emit an OpenAPI 3.1 specification with [Scalar](https://scalar.com/)-compatible code samples.
 
 **[Back-end segmentation](/segment).** Each `route.ts` compiles into a separate serverless function. You can assign each segment its own runtime (Node.js or Edge) and `maxDuration`, and since each `route.ts` compiles independently, only the code it imports ends up in that function's bundle. The codegen can produce a single composed client or independent per-segment clients, so you control exactly what code ships where.
 
+**[Local procedure execution](/fn).** Every procedure exposes a `.fn()` method that runs in the current context — no HTTP round-trip. This unlocks SSR, PPR, background jobs, and AI agent execution, all using the same handler logic.
+
 **[First-class JSON Lines streaming](/jsonlines).** Stream data with `async function*` generators on the server and consume on the client with disposable async iterators. Ideal for LLM token streaming and progressive data loading.
 
-**[Full OpenAPI support](/openapi).** Procedures automatically emit an OpenAPI 3.x specification with [Scalar](https://scalar.com/)-compatible code samples.
-
 **[Third-party API integration](/mixins).** Import external OpenAPI specs as "mixins" and get the same type-safe client interface for third-party APIs. Your own back-end and external services live side by side in a single, unified client.
+
+**[AI tool derivation](/tools).** Call `deriveTools()` with your controllers or RPC modules and get back a set of LLM-callable tools — complete with names, descriptions, and JSON Schema parameters. The same mechanism powers [MCP servers](/tools#mcp) with support for text, JSON, image, and audio outputs, all in a few lines of code.
 
 **Multi-language client generation (experimental).** Beyond TypeScript, the codegen can produce clients in [Python](/python) and [Rust](/rust) — complete with typed models and client-side validation.
 
@@ -119,11 +119,13 @@ await UserController.getUser.fn({ params: { id: '123' } });
 
 ## What makes it different
 
-Existing tools each solve part of the problem. tRPC gives you type-safe clients but no OpenAPI. ts-rest requires a shared contract layer. NestJS runs its own HTTP server and doesn't fit the serverless model natively. Vovk.ts sits at the intersection:
+If you want type-safe clients, REST compliance, OpenAPI generation, serverless deployment, and multi-language support from a single Next.js codebase — no existing tool gives you all of that. tRPC gives you type-safe clients but uses a proprietary protocol — no REST semantics, no OpenAPI. ts-rest brings back REST and OpenAPI but requires a separate shared contract you maintain alongside your handlers. NestJS offers a mature controller–service architecture but runs its own HTTP server, outside the Next.js deployment model.
 
-- **Your code is the spec.** Define once, generate everywhere — TypeScript clients, OpenAPI docs, AI tools, Python and Rust clients.
-- **Next.js native.** No separate server process. Every segment is a serverless function with full App Router support, including Edge Runtime.
-- **Zero glue code for AI.** The same procedures that power your API are directly callable by LLM agents and MCP servers.
+Vovk.ts sits where these capabilities converge — without their trade-offs:
+
+- **Type-safe, REST-compliant, contract-free.** Controllers are the single source of truth. Validation schemas live next to handlers — no separate contract files, no DTOs, no schema drift. The generated client is fully typed, and the underlying API is standard REST with a complete OpenAPI 3.x spec.
+- **Next.js native.** No separate server process, no custom runtime. Every segment compiles into its own serverless function with full App Router support — Edge Runtime, ISR, streaming, and per-segment configuration all just work.
+- **One codebase, every output.** The same controller definitions generate TypeScript clients, OpenAPI documentation, Python and Rust clients, and LLM-callable tool definitions with MCP server support. Define your API once; reach every consumer — browsers, mobile apps, backend services, AI agents — from a single source.
 
 ## Get started
 
