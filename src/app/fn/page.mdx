@@ -89,7 +89,7 @@ console.log(tools); // [{ name, description, parameters, execute }, ...]
 <a name="rules"></a>
 ## Rules of Locally Called Procedures
 
-`fn` functions do not imitate the `Request` object but partially implement the `VovkRequest` interface by exposing only the custom `vovk` property with `async vovk.body()`, `vovk.query()`, `vovk.params()`, and `vovk.meta()`. In other words, properties such as `req.url` or `req.headers` are not defined in the local procedure context. A suitable `req` signature looks like `Pick<VovkRequest<TBody, TQuery, TParams>, 'vovk'>{:ts}`.
+`fn` functions do not imitate the `Request` object but partially implement the `VovkRequest` interface by exposing only the [custom `vovk` property](/procedure#req-vovk) with `async vovk.body()`, `vovk.query()`, `vovk.params()`, and `vovk.meta()`. In other words, properties such as `req.url` or `req.headers` are not defined in the local procedure context. A suitable `req` signature looks like `Pick<VovkRequest<TBody, TQuery, TParams>, 'vovk'>{:ts}`.
 
 To ensure that the implemented HTTP handler can also be called with `fn`, you can use request object destructuring when defining the handler to use only the `vovk` property:
 
@@ -109,7 +109,7 @@ export default class UserController {
     output: z.object({
       /* ... */
     }),
-  }).handle(({ vovk }) => {
+  }).handle(async ({ vovk }) => {
     const body = await vovk.body();
     const query = vovk.query();
     const params = vovk.params();
@@ -164,20 +164,22 @@ const myDecorator = createDecorator(async ({ vovk }, next) => {
 
 An HTTP decorator such as `@get`, `@post`, etc., is not required for a local procedure to work. The only requirement is to use the `procedure` function to create the procedure.
 
-```ts showLineNumbers copy filename="src/modules/user/UserHandlers.ts"
+```ts showLineNumbers copy filename="src/modules/user/UserProcedures.ts"
 import { z } from 'zod';
 import { procedure } from 'vovk';
 
-export default class UserHandlers {
+export default class UserProcedures {
   static updateUser = procedure({
     body: z.object({
       /* ... */
     }),
     // ...
+  }).handle(({ vovk }) => {
+    // ...
   });
 }
 
-UserHandlers.updateUser.fn({
+UserProcedures.updateUser.fn({
   /* ... */
 });
 ```
@@ -186,11 +188,11 @@ When a static class is implemented this way, it behaves like a "validated servic
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts" {7}
 import { prefix, post } from 'vovk';
-import UserHandlers from './UserHandlers';
+import UserProcedures from './UserProcedures';
 
 @prefix('users')
 export default class UserController {
   @post('{id}')
-  static updateUser = UserHandlers.updateUser.bind(UserHandlers);
+  static updateUser = UserProcedures.updateUser.bind(UserProcedures);
 }
 ```

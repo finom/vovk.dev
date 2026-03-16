@@ -92,7 +92,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         
         <Layout
           banner={<Banner storageKey="initial-announcement">
-          <Link href="/blog/announcement" className='text-primary font-medium no-underline'>
+          <Link href="/blog/announcement" className='text-white font-medium no-underline'>
             🐺 Vovk.ts is released. Read the blog post →
           </Link>
         </Banner>}
