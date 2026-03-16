@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { UrlObject } from 'url';
+import type { UrlObject } from 'node:url';
 
 const IFrame = (props: React.IframeHTMLAttributes<HTMLIFrameElement>) => {
   return (

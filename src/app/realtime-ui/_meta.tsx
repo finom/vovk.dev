@@ -19,8 +19,8 @@ const meta = {
   '#ai': separator('AI Integration'),
   'text-ai': 'Text AI Chat Integration with AI SDK and AI Elements',
   'voice-ai': 'OpenAI Realtime API with WebRTC',
-  'mcp': 'MCP Server with mcp-handler',
-  'telegram': 'Telegram Bot with OpenAPI Mixins',
+  mcp: 'MCP Server with mcp-handler',
+  telegram: 'Telegram Bot with OpenAPI Mixins',
 } as const satisfies MetaRecord;
 
 export const icons: Omit<Record<keyof typeof meta, string>, `#${string}`> = {
@@ -36,8 +36,8 @@ export const icons: Omit<Record<keyof typeof meta, string>, `#${string}`> = {
   'voice-ai': '🎙️',
   polling: '🔄',
   authentication: '🔐',
-  'mcp': '🔌',
-  'telegram': '📨',
+  mcp: '🔌',
+  telegram: '📨',
 };
 
 export default meta;

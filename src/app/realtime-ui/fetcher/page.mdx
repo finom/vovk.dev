@@ -49,8 +49,8 @@ Because our app also supports [JSONLines](/jsonlines) responses for streaming da
 It’s also useful to have an option to bypass the registry for specific requests, so we’re going to add a `bypassRegistry` option to the fetcher config. It’s declared as a `createFetcher` generic parameter and used as an option in the second argument of `transformResponse`. It can be used as follows: `await UserRPC.getUsers({ bypassRegistry: true }){:ts}`. You can extend this options object over time if needed.
 
 ```ts showLineNumbers copy filename="src/lib/fetcher.ts" repository="finom/realtime-kanban"
-import { createFetcher, HttpStatus } from "vovk";
-import useRegistry from "@/hooks/useRegistry";
+import { createFetcher, HttpStatus } from 'vovk';
+import useRegistry from '@/hooks/useRegistry';
 
 export const fetcher = createFetcher<{ bypassRegistry?: boolean }>({
   transformResponse: async (data, { bypassRegistry }) => {
@@ -60,10 +60,10 @@ export const fetcher = createFetcher<{ bypassRegistry?: boolean }>({
     const state = useRegistry.getState();
     if (
       data &&
-      typeof data === "object" &&
+      typeof data === 'object' &&
       Symbol.asyncIterator in data &&
-      "onIterate" in data &&
-      typeof data.onIterate === "function"
+      'onIterate' in data &&
+      typeof data.onIterate === 'function'
     ) {
       data.onIterate(state.parse); // handle each item in the async iterable
       return data;
@@ -74,7 +74,7 @@ export const fetcher = createFetcher<{ bypassRegistry?: boolean }>({
   },
   onError: (error) => {
     if (error.statusCode === HttpStatus.UNAUTHORIZED) {
-      document.location.href = "/login";
+      document.location.href = '/login';
     }
   },
 });

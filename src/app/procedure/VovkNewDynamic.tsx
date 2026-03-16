@@ -26,7 +26,7 @@ export const VovkNewDynamic = () => {
   const [segmentName, setSegmentName] = useState('admin');
   const [withService, setWithService] = useState(false);
   const [shortenSyntax, setShortenSyntax] = useState(false);
-  const command = `vovk ${!shortenSyntax ? 'new controller' : 'n c'} ${withService ? (!shortenSyntax ? 'service ' : 's ') : ''}${segmentName ? segmentName + '/' : ''}${entityName || 'thing'}`;
+  const command = `vovk ${!shortenSyntax ? 'new controller' : 'n c'} ${withService ? (!shortenSyntax ? 'service ' : 's ') : ''}${segmentName ? `${segmentName}/` : ''}${entityName || 'thing'}`;
 
   const comment = `Create a new controller ${withService ? 'and service ' : ''}${segmentName ? `for the "${segmentName}" segment` : 'for the root segment'}`;
   return (

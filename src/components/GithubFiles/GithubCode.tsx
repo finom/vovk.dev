@@ -18,8 +18,8 @@ const GithubCode = ({ githubFiles, owner, repo, ghRef, highlightLines, cutLines 
   return (
     <div className={`bg-code rounded-lg mt-4`} id={id}>
       <GithubTabs githubFiles={githubFiles} owner={owner} repo={repo} ghRef={ghRef} id={id} />
-      {githubFiles.map(({ content }, i) => (
-        <div key={i} className={`h-full github-tab-content ${i ? 'hidden' : ''}`} id={`tab-${id}-${i}`}>
+      {githubFiles.map(({ content, path }, i) => (
+        <div key={path} className={`h-full github-tab-content ${i ? 'hidden' : ''}`} id={`tab-${id}-${i}`}>
           <CodeBlock lineNumbers highlightLines={highlightLines} cutLines={cutLines}>
             {content.trim()}
           </CodeBlock>
@@ -40,6 +40,7 @@ const GithubCode = ({ githubFiles, owner, repo, ghRef, highlightLines, cutLines 
               height="1em"
               className="x:inline x:align-baseline x:shrink-0"
             >
+              <title>View on GitHub</title>
               <path d="M7 17L17 7"></path>
               <path d="M7 7h10v10"></path>
             </svg>

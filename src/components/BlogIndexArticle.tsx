@@ -11,7 +11,7 @@ const BlogIndexArticle = ({ href, title, description, date }: Props) => {
   return (
     <div className="mb-10">
       <Link
-        // @ts-ignore
+        // @ts-expect-error
         href={href}
         style={{ color: 'inherit', textDecoration: 'none' }}
         className="block font-semibold mt-8 text-2xl"
@@ -22,7 +22,7 @@ const BlogIndexArticle = ({ href, title, description, date }: Props) => {
         {description}{' '}
         <span className="block mt-2 text-sm">
           <Link
-            // @ts-ignore
+            // @ts-expect-error
             href={href}
           >
             {'Read more →'}

@@ -7,14 +7,14 @@ The authentication flow is a simplified version of the solution provided in the 
 The DAL file exports the `verifySession` function, which is invoked in [page.tsx](https://github.com/finom/realtime-kanban/blob/main/src/app/page.tsx) and redirects the user to the login page if the session is invalid.
 
 ```ts showLineNumbers copy filename="src/lib/dal.ts" repository="finom/realtime-kanban"
-import { cookies } from "next/headers";
-import { cache } from "react";
-import { redirect } from "next/navigation";
-import crypto from "crypto";
-import { decrypt } from "./session";
+import crypto from 'node:crypto';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { cache } from 'react';
+import { decrypt } from './session';
 
 const getSession = async () => {
-  const cookie = (await cookies()).get("session")?.value;
+  const cookie = (await cookies()).get('session')?.value;
   const session = await decrypt(cookie);
 
   return session;
@@ -24,15 +24,15 @@ export const isLoggedIn = async () => {
   if (!process.env.PASSWORD) return true;
   const session = await getSession();
   const userId = crypto
-    .createHash("md5")
+    .createHash('md5')
     .update(process.env.PASSWORD)
-    .digest("hex");
+    .digest('hex');
   return session?.userId === userId;
 };
 
 export const verifySession = cache(async () => {
   if (!(await isLoggedIn())) {
-    redirect("/login");
+    redirect('/login');
   }
 });
 ```
@@ -49,12 +49,12 @@ export default async function Home() {
 It also exports the `isLoggedIn` function, which is used by the `sessionGuard` [decorator](/decorator) to check if the user is logged in when invoking procedures.
 
 ```ts showLineNumbers copy filename="src/decorators/sessionGuard.ts" repository="finom/realtime-kanban"
-import { createDecorator, HttpException, HttpStatus } from "vovk";
-import { isLoggedIn } from "@/lib/dal";
+import { createDecorator, HttpException, HttpStatus } from 'vovk';
+import { isLoggedIn } from '@/lib/dal';
 
 export const sessionGuard = createDecorator(async (req, next) => {
-  if (typeof req.url !== "undefined" && !(await isLoggedIn())) {
-    throw new HttpException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+  if (typeof req.url !== 'undefined' && !(await isLoggedIn())) {
+    throw new HttpException(HttpStatus.UNAUTHORIZED, 'Unauthorized');
   }
   return next();
 });

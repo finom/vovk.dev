@@ -12,6 +12,7 @@ const VovkLogo = ({ width, className }: Props) => (
     height={(width / 320) * 92}
     viewBox="0 0 320 92"
   >
+    <title>Vovk.ts</title>
     <desc>Created with Fabric.js 5.3.0</desc>
     <defs></defs>
     <g transform="matrix(0.1737995768 0 0 0.1737995768 39.8512941892 44.8611051276)" id="k3p4mJoS6tEew0Q_1_q7m">

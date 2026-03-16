@@ -73,23 +73,23 @@ The service method infers parameter types from the procedure, returning the serv
 <Tabs items={['UserController.ts', 'UserService.ts', 'route.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/vovk-hello-world"
-import { z } from "zod";
-import { procedure, prefix, post, operation } from "vovk";
-import UserService from "./UserService";
+import { operation, post, prefix, procedure } from 'vovk';
+import { z } from 'zod';
+import UserService from './UserService';
 
-@prefix("users")
+@prefix('users')
 export default class UserController {
   @operation({
-    summary: "Update user",
-    description: "Update user by ID",
+    summary: 'Update user',
+    description: 'Update user by ID',
   })
-  @post("{id}")
+  @post('{id}')
   static updateUser = procedure({
     body: z
       .object({
         email: z.email().meta({
-          description: "User email",
-          examples: ["john@example.com", "jane@example.com"],
+          description: 'User email',
+          examples: ['john@example.com', 'jane@example.com'],
         }),
         profile: z
           .object({
@@ -97,49 +97,49 @@ export default class UserController {
               .string()
               .min(2)
               .meta({
-                description: "User full name",
-                examples: ["John Doe", "Jane Smith"],
+                description: 'User full name',
+                examples: ['John Doe', 'Jane Smith'],
               }),
             age: z
               .int()
               .min(16)
               .max(120)
-              .meta({ description: "User age", examples: [25, 30] }),
+              .meta({ description: 'User age', examples: [25, 30] }),
           })
-          .meta({ description: "User profile object" }),
+          .meta({ description: 'User profile object' }),
       })
-      .meta({ description: "User data object" }),
+      .meta({ description: 'User data object' }),
     params: z
       .object({
         id: z.uuid().meta({
-          description: "User ID",
-          examples: ["123e4567-e89b-12d3-a456-426614174000"],
+          description: 'User ID',
+          examples: ['123e4567-e89b-12d3-a456-426614174000'],
         }),
       })
       .meta({
-        description: "Path parameters",
+        description: 'Path parameters',
       }),
     query: z
       .object({
         notify: z
-          .enum(["email", "push", "none"])
-          .meta({ description: "Notification type" }),
+          .enum(['email', 'push', 'none'])
+          .meta({ description: 'Notification type' }),
       })
       .meta({
-        description: "Query parameters",
+        description: 'Query parameters',
       }),
     output: z
       .object({
-        success: z.boolean().meta({ description: "Success status" }),
-        id: z.uuid().meta({ description: "User ID" }),
-        notify: z.enum(["email", "push", "none"]).meta({
-          description: "Notification type",
+        success: z.boolean().meta({ description: 'Success status' }),
+        id: z.uuid().meta({ description: 'User ID' }),
+        notify: z.enum(['email', 'push', 'none']).meta({
+          description: 'Notification type',
         }),
       })
-      .meta({ description: "Response object" }),
+      .meta({ description: 'Response object' }),
   }).handle(async (req, { id }) => {
     const body = await req.json();
-    const notify = req.nextUrl.searchParams.get("notify");
+    const notify = req.nextUrl.searchParams.get('notify');
 
     return UserService.updateUser(id, body, notify);
   });
@@ -149,19 +149,19 @@ export default class UserController {
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserService.ts" repository="finom/vovk-hello-world"
-import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from "vovk";
-import type UserController from "./UserController";
+import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from 'vovk';
+import type UserController from './UserController';
 
 export default class UserService {
   static updateUser = (
-    id: VovkParams<typeof UserController.updateUser>["id"],
+    id: VovkParams<typeof UserController.updateUser>['id'],
     body: VovkBody<typeof UserController.updateUser>,
-    notify: VovkQuery<typeof UserController.updateUser>["notify"],
+    notify: VovkQuery<typeof UserController.updateUser>['notify'],
   ) => {
     console.log(
       id satisfies string,
       body satisfies { email: string; profile: { name: string; age: number } },
-      notify satisfies "email" | "push" | "none",
+      notify satisfies 'email' | 'push' | 'none',
     );
     return {
       id,
@@ -176,11 +176,11 @@ export default class UserService {
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"  
-import { initSegment } from "vovk";
-import UserController from "../../../modules/user/UserController";
-import StreamController from "../../../modules/stream/StreamController";
+import { initSegment } from 'vovk';
+import StreamController from '../../../modules/stream/StreamController';
+import UserController from '../../../modules/user/UserController';
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 const controllers = {
   UserRPC: UserController,
@@ -206,25 +206,25 @@ export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
 <Tabs items={['StreamController.ts', 'StreamService.ts', 'route.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/stream/StreamController.ts" repository="finom/vovk-hello-world"
-import { procedure, prefix, get, operation } from "vovk";
-import { z } from "zod";
-import StreamService from "./StreamService";
+import { get, operation, prefix, procedure } from 'vovk';
+import { z } from 'zod';
+import StreamService from './StreamService';
 
-@prefix("streams")
+@prefix('streams')
 export default class StreamController {
   @operation({
-    summary: "Stream tokens",
-    description: "Stream tokens to the client",
+    summary: 'Stream tokens',
+    description: 'Stream tokens to the client',
   })
-  @get("tokens")
+  @get('tokens')
   static streamTokens = procedure({
     validateEachIteration: true,
     iteration: z
       .object({
-        message: z.string().meta({ description: "Message from the token" }),
+        message: z.string().meta({ description: 'Message from the token' }),
       })
       .meta({
-        description: "Streamed token object",
+        description: 'Streamed token object',
       }),
   }).handle(async function* () {
     yield* StreamService.streamTokens();
@@ -235,13 +235,13 @@ export default class StreamController {
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts" repository="finom/vovk-hello-world"
-import type { VovkIteration } from "vovk";
-import type StreamController from "./StreamController";
+import type { VovkIteration } from 'vovk';
+import type StreamController from './StreamController';
 
 export default class StreamService {
   static async *streamTokens() {
     const tokens: VovkIteration<typeof StreamController.streamTokens>[] =
-      "Vovk.ts is a RESTful back-end meta-framework with RPC, built on top of the Next.js App Router. This text is a JSONLines stream demo."
+      'Vovk.ts is a RESTful back-end meta-framework with RPC, built on top of the Next.js App Router. This text is a JSONLines stream demo.'
         .match(/[^\s-]+-?(?:\s+)?/g)
         ?.map((message) => ({ message })) || [];
 
@@ -257,11 +257,11 @@ export default class StreamService {
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"  
-import { initSegment } from "vovk";
-import UserController from "../../../modules/user/UserController";
-import StreamController from "../../../modules/stream/StreamController";
+import { initSegment } from 'vovk';
+import StreamController from '../../../modules/stream/StreamController';
+import UserController from '../../../modules/user/UserController';
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 const controllers = {
   UserRPC: UserController,
@@ -287,10 +287,10 @@ The demo uses [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/re
 <Tabs items={['index.tsx', 'UserFormDemo.tsx', 'StreamDemo.tsx']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/components/Demo/index.tsx" repository="finom/vovk-hello-world"
-"use client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import StreamDemo from "./StreamDemo";
-import UserFormDemo from "./UserFormDemo";
+'use client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import StreamDemo from './StreamDemo';
+import UserFormDemo from './UserFormDemo';
 
 const queryClient = new QueryClient();
 
@@ -315,22 +315,23 @@ export default Demo;
 </Tabs.Tab>
 <Tabs.Tab>
 ```tsx showLineNumbers copy filename="src/components/Demo/UserFormDemo.tsx" repository="finom/vovk-hello-world"
-"use client";
-import React, { useState } from "react";
-import type { VovkQuery } from "vovk";
-import { useMutation } from "@tanstack/react-query";
-import { UserRPC } from "../../client/root"; // segmented client
+'use client';
+import { useMutation } from '@tanstack/react-query';
+import type React from 'react';
+import { useState } from 'react';
+import type { VovkQuery } from 'vovk';
+import { UserRPC } from '../../client/root'; // segmented client
 
 const UserFormDemo = () => {
   const [disableClientValidation, setDisableClientValidation] = useState(false);
-  const [name, setName] = useState("John Doe");
+  const [name, setName] = useState('John Doe');
   const [age, setAge] = useState(35);
-  const [email, setEmail] = useState("john@example.com");
-  const [id, setId] = useState("a937629d-e8f6-4b1e-a819-7669358650a0");
+  const [email, setEmail] = useState('john@example.com');
+  const [id, setId] = useState('a937629d-e8f6-4b1e-a819-7669358650a0');
   const [notify, setNotify] = useState<
-    VovkQuery<typeof UserRPC.updateUser>["notify"]
+    VovkQuery<typeof UserRPC.updateUser>['notify']
   >(
-    "sms" as "email", // intentionally use an invalid value
+    'sms' as 'email', // intentionally use an invalid value
   );
 
   const updateUserMutation = useMutation({
@@ -357,8 +358,9 @@ const UserFormDemo = () => {
     <form onSubmit={handleSubmit}>
       <h3>Body</h3>
       <div>
-        <label>User email</label>
+        <label htmlFor="email">User email</label>
         <input
+          id="email"
           name="email"
           placeholder="john@example.com"
           value={email}
@@ -366,8 +368,9 @@ const UserFormDemo = () => {
         />
       </div>
       <div>
-        <label>User full name</label>
+        <label htmlFor="name">User full name</label>
         <input
+          id="name"
           name="name"
           type="text"
           placeholder="John Doe"
@@ -376,8 +379,9 @@ const UserFormDemo = () => {
         />
       </div>
       <div>
-        <label>User age</label>
+        <label htmlFor="age">User age</label>
         <input
+          id="age"
           name="age"
           type="number"
           placeholder="35"
@@ -388,8 +392,9 @@ const UserFormDemo = () => {
 
       <h3>Params</h3>
       <div>
-        <label>User ID</label>
+        <label htmlFor="id">User ID</label>
         <input
+          id="id"
           name="id"
           type="text"
           placeholder="123e4567-e89b-12d3-a456-426614174000"
@@ -399,12 +404,13 @@ const UserFormDemo = () => {
       </div>
       <h3>Query</h3>
       <div>
-        <label>Notification type</label>
+        <label htmlFor="notify">Notification type</label>
         <select
+          id="notify"
           name="notify"
           value={notify}
           onChange={(e) =>
-            setNotify(e.target.value as "email" | "push" | "none")
+            setNotify(e.target.value as 'email' | 'push' | 'none')
           }
         >
           <option value="none">None</option>
@@ -419,13 +425,13 @@ const UserFormDemo = () => {
           type="checkbox"
           onChange={({ target }) => setDisableClientValidation(target.checked)}
           checked={disableClientValidation}
-        />{" "}
+        />{' '}
         Disable client-side input validation
       </label>
       <button type="submit">Submit</button>
       {(updateUserMutation.data || updateUserMutation.error) && (
         <output>
-          <strong>Response:</strong>{" "}
+          <strong>Response:</strong>{' '}
           {updateUserMutation.error ? (
             <div className="text-red-500">
               {updateUserMutation.error.message}
@@ -447,12 +453,12 @@ export default UserFormDemo;
 </Tabs.Tab>
 <Tabs.Tab>
 ```tsx showLineNumbers copy filename="src/components/Demo/StreamDemo.tsx" repository="finom/vovk-hello-world"
-"use client";
+'use client';
 import {
-  useQuery,
   experimental_streamedQuery as streamedQuery,
-} from "@tanstack/react-query";
-import { StreamRPC } from "../../client/root"; // segmented client, just for demo
+  useQuery,
+} from '@tanstack/react-query';
+import { StreamRPC } from '../../client/root'; // segmented client, just for demo
 
 const StreamDemo = () => {
   const { data, refetch } = useQuery({
@@ -463,6 +469,8 @@ const StreamDemo = () => {
   });
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: ignore for refetch demo
+    // biome-ignore lint/a11y/useKeyWithClickEvents: ignore for refetch demo
     <div className="h-20 cursor-pointer" onClick={() => refetch()}>
       {data?.map((token, index) => (
         <span key={index}>{token.message}</span>
@@ -496,14 +504,14 @@ The app is [configured](/config) to:
 ```ts showLineNumbers copy filename="vovk.config.js" repository="finom/vovk-hello-world"
 // @ts-check
 
-const PROD_ORIGIN = "https://hello-world.vovk.dev";
+const PROD_ORIGIN = 'https://hello-world.vovk.dev';
 // Commented lines indicate default values
 /** @type {import('vovk').VovkConfig} */
 const config = {
-  logLevel: "debug",
+  logLevel: 'debug',
   outputConfig: {
     imports: {
-      validateOnClient: "vovk-ajv",
+      validateOnClient: 'vovk-ajv',
     },
     openAPIObject: {
       info: {
@@ -511,30 +519,30 @@ const config = {
         description:
           'API for "Hello World" app hosted at https://hello-world.vovk.dev/. Source code is available on Github https://github.com/finom/vovk-hello-world. For more information about this app, visit the documentation page https://vovk.dev/hello-world.',
         license: {
-          name: "MIT",
-          url: "https://opensource.org/licenses/MIT",
+          name: 'MIT',
+          url: 'https://opensource.org/licenses/MIT',
         },
-        version: "1.0.0",
+        version: '1.0.0',
       },
       servers: [
         {
-          url: "https://hello-world.vovk.dev",
-          description: "Production",
+          url: 'https://hello-world.vovk.dev',
+          description: 'Production',
         },
         {
-          url: "http://localhost:3000",
-          description: "Localhost",
+          url: 'http://localhost:3000',
+          description: 'Localhost',
         },
       ],
     },
   },
   composedClient: {
-    fromTemplates: ["js", "py", "rs"],
+    fromTemplates: ['js', 'py', 'rs'],
     // enabled: true,
     // outDir: "./node_modules/.vovk-client",
     outputConfig: {
       origin:
-        process.env.NODE_ENV === "production"
+        process.env.NODE_ENV === 'production'
           ? null
           : `http://localhost:${process.env.PORT ?? 3000}`,
     },
@@ -565,23 +573,23 @@ const config = {
     },
     keepPrebundleDir: true,
     build: async ({ entry, outDir }) => {
-      const { build } = await import("tsdown");
+      const { build } = await import('tsdown');
       await build({
         entry,
         dts: true,
-        format: "esm",
+        format: 'esm',
         hash: false,
         fixedExtension: true,
         clean: true,
         outDir,
-        platform: "neutral",
-        outExtensions: () => ({ js: ".js", dts: ".d.ts" }),
+        platform: 'neutral',
+        outExtensions: () => ({ js: '.js', dts: '.d.ts' }),
         outputOptions: {
           inlineDynamicImports: true,
         },
         inputOptions: {
           resolve: {
-            mainFields: ["module", "main"],
+            mainFields: ['module', 'main'],
           },
         },
         noExternal: ['!next/**'],
@@ -590,12 +598,12 @@ const config = {
   },
   clientTemplateDefs: {
     py: {
-      extends: "py",
+      extends: 'py',
       outputConfig: { origin: PROD_ORIGIN },
       // composedClient: { outDir: "./dist_python" },
     },
     rs: {
-      extends: "rs",
+      extends: 'rs',
       outputConfig: { origin: PROD_ORIGIN },
       // composedClient: { outDir: "./dist_rust" },
     },
@@ -618,7 +626,7 @@ The original package.json is used to populate metadata (`repository`, `homepage`
     "prebuild": "vovk generate",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "biome check",
     "test:node": "node --experimental-strip-types --test --test-concurrency=1",
     "test:python": "python3 -m pip install -q -r test/python/requirements.txt && python3 -m unittest discover -s test/python -p '*_test.py'",
     "test:rust": "RUST_BACKTRACE=full RUST_TEST_THREADS=1 cargo test --manifest-path ./test/rust/Cargo.toml --tests -- --nocapture --show-output",
@@ -649,7 +657,7 @@ The original package.json is used to populate metadata (`repository`, `homepage`
     "api"
   ],
   "dependencies": {
-    "@scalar/api-reference-react": "^0.9.3",
+    "@scalar/api-reference-react": "^0.9.9",
     "@standard-schema/spec": "^1.1.0",
     "@tanstack/react-query": "^5.90.21",
     "ajv": "^8.18.0",
@@ -657,27 +665,25 @@ The original package.json is used to populate metadata (`repository`, `homepage`
     "next": "^16.1.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "vovk": "^3.0.0-beta.143",
-    "vovk-ajv": "^0.0.0-beta.24",
-    "vovk-client": "^0.0.4-beta.25",
+    "vovk": "^3.0.0",
+    "vovk-ajv": "^0.0.2",
+    "vovk-client": "^1.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
+    "@biomejs/biome": "^2.4.7",
     "@tailwindcss/postcss": "^4.2.1",
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^10",
-    "eslint-config-next": "16.1.6",
     "postcss": "^8",
     "tailwindcss": "^4.2.1",
     "tsdown": "^0.20.0-beta.3",
     "typescript": "^5",
-    "vovk-cli": "^0.0.1-beta.87",
-    "vovk-hello-world": "^0.0.87",
-    "vovk-python": "^0.0.1-beta.14",
-    "vovk-rust": "^0.0.1-beta.16"
+    "vovk-cli": "^0.0.1",
+    "vovk-hello-world": "^0.0.88",
+    "vovk-python": "^0.0.1",
+    "vovk-rust": "^0.0.1"
   }
 }
 ```
@@ -692,15 +698,15 @@ The [OpenAPI specification](https://hello-world.vovk.dev/api/static/openapi.json
 <Tabs items={['OpenApiController.ts', 'route.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/static/openapi/OpenApiController.ts" repository="finom/vovk-hello-world"
-import { get, operation } from "vovk";
-import { openapi } from "vovk-client/openapi";
+import { get, operation } from 'vovk';
+import { openapi } from 'vovk-client/openapi';
 
 export default class OpenApiController {
   @operation({
-    summary: "OpenAPI spec",
+    summary: 'OpenAPI spec',
     description: 'Get the OpenAPI spec for the "Hello World" app API',
   })
-  @get("openapi.json", { cors: true })
+  @get('openapi.json', { cors: true })
   static getSpec = () => openapi;
 }
 ```
@@ -708,8 +714,8 @@ export default class OpenApiController {
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/app/api/static/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"  
-import { initSegment, controllersToStaticParams } from "vovk";
-import OpenApiController from "../../../../modules/static/openapi/OpenApiController";
+import { controllersToStaticParams, initSegment } from 'vovk';
+import OpenApiController from '../../../../modules/static/openapi/OpenApiController';
 
 const controllers = {
   OpenApiRPC: OpenApiController,
@@ -720,7 +726,7 @@ export function generateStaticParams() {
   return controllersToStaticParams(controllers);
 }
 export const { GET, OPTIONS } = initSegment({
-  segmentName: "static",
+  segmentName: 'static',
   emitSchema: true,
   controllers,
 });

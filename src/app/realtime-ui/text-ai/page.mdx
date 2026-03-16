@@ -4,7 +4,7 @@ In the previous articles, we set up the backend and frontend to automatically sy
 
 We’re going to set up a text AI chat via the [AI SDK](https://ai-sdk.dev/), adding function-calling capabilities and deriving AI tools from the backend controllers via the [deriveTools](/tools) function.
 
-<video src="/video/kanban_text_chat.mp4" type="video/mp4" className='mt-4' controls autoPlay loop />
+<video src="/video/kanban_text_chat.mp4" type="video/mp4" className='mt-4' controls loop />
 
 ## Backend Setup
 
@@ -13,7 +13,7 @@ For the backend setup, we need to create a procedure powered by the AI SDK, addi
 Because the procedures already follow the [rules of locally called procedures](/fn#rules)—their handlers use only the `vovk` property of the request, for example `async ({ vovk }) => UserService.createUser(await vovk.body()){:ts}` (see the [API Endpoints](./endpoints) page)—we can use the `deriveTools` function to create AI tools from the controllers and call them in the current backend context without performing HTTP requests.
 
 ```ts showLineNumbers copy filename="src/modules/ai/AiSdkController.ts" repository="finom/realtime-kanban"  {26-31,37-46}
-import { deriveTools, post, prefix, operation, type VovkRequest } from "vovk";
+import { openai } from '@ai-sdk/openai';
 import {
   convertToModelMessages,
   jsonSchema,
@@ -21,20 +21,20 @@ import {
   streamText,
   tool,
   type UIMessage,
-} from "ai";
-import { openai } from "@ai-sdk/openai";
-import { sessionGuard } from "@/decorators/sessionGuard";
-import UserController from "../user/UserController";
-import TaskController from "../task/TaskController";
+} from 'ai';
+import { deriveTools, operation, post, prefix, type VovkRequest } from 'vovk';
+import { sessionGuard } from '@/decorators/sessionGuard';
+import TaskController from '../task/TaskController';
+import UserController from '../user/UserController';
 
-@prefix("ai-sdk")
+@prefix('ai-sdk')
 export default class AiSdkController {
   @operation({
-    summary: "Function Calling",
+    summary: 'Function Calling',
     description:
-      "Uses [@ai-sdk/openai](https://www.npmjs.com/package/@ai-sdk/openai) and ai packages to call UserController and TaskController functions based on the provided messages.",
+      'Uses [@ai-sdk/openai](https://www.npmjs.com/package/@ai-sdk/openai) and ai packages to call UserController and TaskController functions based on the provided messages.',
   })
-  @post("function-calling")
+  @post('function-calling')
   @sessionGuard()
   static async functionCalling(req: VovkRequest<{ messages: UIMessage[] }>) {
     const { messages } = await req.json();
@@ -46,8 +46,8 @@ export default class AiSdkController {
     });
 
     return streamText({
-      model: openai("gpt-5"),
-      system: "You execute functions sequentially, one by one.",
+      model: openai('gpt-5'),
+      system: 'You execute functions sequentially, one by one.',
       messages: await convertToModelMessages(messages),
       tools: Object.fromEntries(
         tools.map(({ name, execute, description, parameters }) => [
@@ -60,10 +60,10 @@ export default class AiSdkController {
         ]),
       ),
       stopWhen: stepCountIs(16),
-      onError: (e) => console.error("streamText error", e),
+      onError: (e) => console.error('streamText error', e),
       onFinish: ({ finishReason, toolCalls }) => {
-        if (finishReason === "tool-calls") {
-          console.log("Tool calls finished", toolCalls);
+        if (finishReason === 'tool-calls') {
+          console.log('Tool calls finished', toolCalls);
         }
       },
     }).toUIMessageStreamResponse();
@@ -122,9 +122,9 @@ export function ExpandableChatDemo() {
 The key part of the code is the `useParseSDKToolCallOutputs` hook, which extracts tool call outputs from assistant messages and passes them to the registry’s `parse` method. The registry processes the results and triggers UI updates accordingly. The hook also ensures that each tool call output is parsed only once by keeping track of parsed tool call IDs in a `Set`.
 
 ```ts showLineNumbers copy filename="src/hooks/useParseSDKToolCallOutputs.ts" repository="finom/realtime-kanban" {26}
-import useRegistry from "@/hooks/useRegistry";
-import { ToolUIPart, UIMessage } from "ai";
-import { useEffect, useRef } from "react";
+import type { ToolUIPart, UIMessage } from 'ai';
+import { useEffect, useRef } from 'react';
+import useRegistry from '@/hooks/useRegistry';
 
 export default function useParseSDKToolCallOutputs(messages: UIMessage[]) {
   const parsedToolCallIdsSetRef = useRef<Set<string>>(new Set());
@@ -133,18 +133,18 @@ export default function useParseSDKToolCallOutputs(messages: UIMessage[]) {
     const partsToParse = messages.flatMap((msg) =>
       msg.parts.filter((part) => {
         return (
-          msg.role === "assistant" &&
-          part.type.startsWith("tool-") &&
-          (part as ToolUIPart).state === "output-available" &&
-          "toolCallId" in part &&
+          msg.role === 'assistant' &&
+          part.type.startsWith('tool-') &&
+          (part as ToolUIPart).state === 'output-available' &&
+          'toolCallId' in part &&
           !parsedToolCallIdsSetRef.current.has(part.toolCallId)
         );
       }),
     ) as ToolUIPart[];
 
-    partsToParse.forEach((part) =>
-      parsedToolCallIdsSetRef.current.add(part.toolCallId),
-    );
+    partsToParse.forEach((part) => {
+      parsedToolCallIdsSetRef.current.add(part.toolCallId);
+    });
 
     if (partsToParse.length) {
       useRegistry.getState().parse(partsToParse.map((part) => part.output));

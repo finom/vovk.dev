@@ -18,8 +18,7 @@ export const metadata: Metadata = {
     siteName: 'Vovk.ts',
     locale: 'en_US',
     type: 'website',
-    description:
-      'Vovk.ts is a conceptual back-end meta-framework created on top of the Next.js App Router',
+    description: 'Vovk.ts is a conceptual back-end meta-framework created on top of the Next.js App Router',
   },
   icons: {
     icon: [
@@ -60,12 +59,11 @@ const footer = (
         Logo by{' '}
         <Link href="https://icooon-mono.com/license/" target="_blank">
           Icooon Mono
-        </Link>
-        {' '}(temporary, pending custom design)
+        </Link>{' '}
+        (temporary, pending custom design)
       </div>
     </div>
     <div className="flex gap-4 items-center">
-      
       <Link href="https://github.com/sponsors/finom" target="_blank" className="block">
         Sponsor
       </Link>
@@ -89,20 +87,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* Your additional tags should be passed as `children` of `<Head>` element */}
       </Head>
       <body>
-        
         <Layout
-          banner={<Banner storageKey="initial-announcement">
-          <Link href="/blog/announcement" className='text-white font-medium no-underline'>
-            🐺 Vovk.ts is released. Read the blog post →
-          </Link>
-        </Banner>}
+          banner={
+            <Banner storageKey="initial-announcement">
+              <Link href="/blog/announcement" className="text-white font-medium no-underline">
+                🐺 Vovk.ts is released. Read the blog post →
+              </Link>
+            </Banner>
+          }
           navbar={navbar}
           pageMap={await getPageMap()}
           docsRepositoryBase="https://github.com/finom/vovk.dev/tree/main"
           footer={footer}
           // ... Your additional layout options
         >
-          
           {children}
         </Layout>
       </body>

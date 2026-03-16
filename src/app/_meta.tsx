@@ -39,7 +39,7 @@ const meta: MetaRecord = {
   python: 'Python Client 🧪',
   rust: 'Rust Client 🧪',
   templates: 'Codegen Templates Reference',
-  
+
   '#cli': separator('CLI & Configuration'),
   config: 'Config File',
   dev: <code className="nextra-code">vovk dev</code>,
@@ -59,7 +59,7 @@ const meta: MetaRecord = {
     theme: {
       collapsed: true,
       copyPage: true,
-    }
+    },
   },
   '#etc': separator('Reference'),
   packages: 'Packages',

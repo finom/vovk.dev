@@ -1,6 +1,8 @@
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: ignore */
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: ignore */
 'use client';
 import { useState } from 'react';
-import { GithubFile } from '@/types';
+import type { GithubFile } from '@/types';
 
 interface Props {
   githubFiles: GithubFile[];
@@ -24,9 +26,9 @@ const GithubTabs = ({ githubFiles, owner, repo, ghRef, id }: Props) => {
                 : 'text-slate-400 dark:text-[#525975] border-transparent'
             }`}
             onClick={() => {
-              document
-                .querySelectorAll(`#${id} .github-tab-content`)
-                .forEach((el) => el.classList[el.id === `tab-${id}-${i}` ? 'remove' : 'add']('hidden'));
+              document.querySelectorAll(`#${id} .github-tab-content`).forEach((el) => {
+                el.classList[el.id === `tab-${id}-${i}` ? 'remove' : 'add']('hidden');
+              });
               setActiveIndex(i);
             }}
           >
@@ -37,6 +39,7 @@ const GithubTabs = ({ githubFiles, owner, repo, ghRef, id }: Props) => {
             href={`https://github.com/${owner}/${repo}/tree/${ghRef}/${path}`}
             target="_blank"
             title="View on GitHub"
+            rel="noopener"
           >
             <svg
               width="16"
@@ -46,6 +49,7 @@ const GithubTabs = ({ githubFiles, owner, repo, ghRef, id }: Props) => {
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
+              <title>View on GitHub</title>
               <path
                 d="M14 11.9976C14 9.5059 11.683 7 8.85714 7C8.52241 7 7.41904 7.00001 7.14286 7.00001C4.30254 7.00001 2 9.23752 2 11.9976C2 14.376 3.70973 16.3664 6 16.8714C6.36756 16.9525 6.75006 16.9952 7.14286 16.9952"
                 stroke="currentColor"

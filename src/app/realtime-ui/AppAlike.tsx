@@ -14,15 +14,19 @@ const AppAlike = () => {
         <div className="border-r border-gray-200 dark:border-gray-800 p-4 flex items-end min-w-40">👤 {fullName}</div>
         <div className="p-4 flex-1">
           <h1 className="font-bold text-2xl mb-4">Update your profile, {fullName}!</h1>
-          <label className="block">Full name</label>
+          <label htmlFor="fullName" className="block">
+            Full name
+          </label>
           <input
             type="text"
+            id="fullName"
             placeholder="Full name"
             value={fullNameInput}
             onChange={(e) => setFullNameInput(e.target.value)}
             className="border border-gray-300 dark:border-gray-700 rounded p-2 my-2 w-64"
           />
           <button
+            type="button"
             className="bg-blue-600 text-white px-4 py-2 rounded mt-4 block cursor-pointer"
             onClick={() => setFullName(fullNameInput)}
           >

@@ -313,8 +313,8 @@ export default class ProgressiveService {
     responder: JSONLinesResponder<VovkIteration<typeof ProgressiveController.streamProgressiveResponse>>
   ) {
     return Promise.all([
-      this.getUsers().then((users) => responder.send({ users })),
-      this.getTasks().then((tasks) => responder.send({ tasks })),
+      ProgressiveService.getUsers().then((users) => responder.send({ users })),
+      ProgressiveService.getTasks().then((tasks) => responder.send({ tasks })),
     ])
       .then(responder.close)
       .catch(responder.throw);
@@ -365,12 +365,14 @@ export default class ProgressiveController {
       }),
     ]),
   }).handle(async (req) => {
-    const responder = new JSONLinesResponder<VovkIteration<typeof ProgressiveController.streamProgressiveResponse>>(req);
+    const responder = new JSONLinesResponder<VovkIteration<typeof ProgressiveController.streamProgressiveResponse>>(
+      req
+    );
 
     void ProgressiveService.streamProgressiveResponse(responder);
 
     return responder;
-  })
+  });
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-examples/blob/main/src/modules/progressive/ProgressiveController.ts)*

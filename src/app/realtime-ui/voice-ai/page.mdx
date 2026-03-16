@@ -9,52 +9,51 @@ Since we're going to use WebRTC, audio data is sent and received directly betwee
 On the backend, we're going to create a session endpoint implemented using the official OpenAI article [Realtime API with WebRTC](https://platform.openai.com/docs/guides/realtime-webrtc). The endpoint accepts the SDP offer from the client and a voice-selection query parameter, then returns the SDP answer from the OpenAI Realtime API.
 
 ```ts showLineNumbers copy filename="src/modules/realtime/RealtimeController.ts" repository="finom/realtime-kanban"
-import { procedure, prefix, post, HttpException, HttpStatus } from "vovk";
-import { z } from "zod";
-import { sessionGuard } from "@/decorators/sessionGuard";
+import { HttpException, HttpStatus, post, prefix, procedure } from 'vovk';
+import { z } from 'zod';
+import { sessionGuard } from '@/decorators/sessionGuard';
 
-@prefix("realtime")
+@prefix('realtime')
 export default class RealtimeController {
-  @post("session")
+  @post('session')
   @sessionGuard()
   static session = procedure({
     query: z.object({
-      voice: z.enum(["ash", "ballad", "coral", "sage", "verse"]),
+      voice: z.enum(['ash', 'ballad', 'coral', 'sage', 'verse']),
     }),
     body: z.object({ sdp: z.string() }),
     output: z.object({ sdp: z.string() }),
-    
   }).handle(async ({ vovk }) => {
-      const voice = vovk.query().voice;
-      const { sdp: sdpOffer } = await vovk.body();
-      const sessionConfig = JSON.stringify({
-        type: "realtime",
-        model: "gpt-realtime",
-        audio: { output: { voice } },
+    const voice = vovk.query().voice;
+    const { sdp: sdpOffer } = await vovk.body();
+    const sessionConfig = JSON.stringify({
+      type: 'realtime',
+      model: 'gpt-realtime',
+      audio: { output: { voice } },
+    });
+
+    const fd = new FormData();
+    fd.set('sdp', sdpOffer);
+    fd.set('session', sessionConfig);
+
+    try {
+      const r = await fetch('https://api.openai.com/v1/realtime/calls', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: fd,
       });
-
-      const fd = new FormData();
-      fd.set("sdp", sdpOffer);
-      fd.set("session", sessionConfig);
-
-      try {
-        const r = await fetch("https://api.openai.com/v1/realtime/calls", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          },
-          body: fd,
-        });
-        // Send back the SDP we received from the OpenAI REST API
-        const sdp = await r.text();
-        return { sdp };
-      } catch (error) {
-        throw new HttpException(
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          "Failed to generate token. " + String(error),
-        );
-      }
-    })
+      // Send back the SDP we received from the OpenAI REST API
+      const sdp = await r.text();
+      return { sdp };
+    } catch (error) {
+      throw new HttpException(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        `Failed to generate token. ${String(error)}`,
+      );
+    }
+  });
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/realtime/RealtimeController.ts)*
@@ -74,18 +73,18 @@ The crucial parts of the hook are:
 
 The `onmessage` handler also takes care of sending the `response.create` message to make the Realtime API respond, unless the tool execution result contains the `__preventResponseCreate` flag set to `true`, returned from the tool’s `execute` function.
 
-```ts showLineNumbers copy filename="src/hooks/useWebRTCAudioSession.ts" repository="finom/realtime-kanban" {86-131}
-"use client";
-import { useState, useRef, useCallback, useEffect } from "react";
-import { VovkTool } from "vovk";
-import { RealtimeRPC } from "vovk-client";
+```ts showLineNumbers copy filename="src/hooks/useWebRTCAudioSession.ts" repository="finom/realtime-kanban" {87-132}
+'use client';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { VovkTool } from 'vovk';
+import { RealtimeRPC } from 'vovk-client';
 
 /**
  * Hook to manage a real-time session with OpenAI's Realtime endpoints.
  * @example const { isActive, isTalking, handleStartStopClick } = useWebRTCAudioSession(voice, tools);
  */
 export default function useWebRTCAudioSession(
-  voice: "ash" | "ballad" | "coral" | "sage" | "verse",
+  voice: 'ash' | 'ballad' | 'coral' | 'sage' | 'verse',
   tools: VovkTool[],
 ) {
   const audioElement = useRef<HTMLAudioElement | null>(null);
@@ -105,10 +104,11 @@ export default function useWebRTCAudioSession(
     const pc = new RTCPeerConnection();
 
     // Set up to play remote audio from the model
-    audioElement.current = document.createElement("audio");
+    audioElement.current = document.createElement('audio');
     audioElement.current.autoplay = true;
     pc.ontrack = (e) => {
-      audioElement.current!.srcObject = e.streams[0];
+      if (!audioElement.current) return;
+      audioElement.current.srcObject = e.streams[0];
       // Simple audio activity monitor
       try {
         const audioCtx = new AudioContext();
@@ -144,7 +144,7 @@ export default function useWebRTCAudioSession(
     pc.addTrack(ms.getTracks()[0]);
 
     // Set up data channel for sending and receiving events
-    const dc = pc.createDataChannel("oai-events");
+    const dc = pc.createDataChannel('oai-events');
     dcRef.current = dc;
 
     // Start the session using the Session Description Protocol (SDP)
@@ -152,19 +152,19 @@ export default function useWebRTCAudioSession(
     await pc.setLocalDescription(offer);
 
     const { sdp } = await RealtimeRPC.session({
-      body: { sdp: offer.sdp! },
+      body: { sdp: offer.sdp ?? '' },
       query: { voice },
     });
 
     await pc.setRemoteDescription({
-      type: "answer",
+      type: 'answer',
       sdp,
     });
     dc.onopen = () => {
       const sessionUpdate = {
-        type: "session.update",
+        type: 'session.update',
         session: {
-          type: "realtime",
+          type: 'realtime',
           tools: tools.map(({ name, description, parameters, type }) => ({
             name,
             description,
@@ -178,7 +178,7 @@ export default function useWebRTCAudioSession(
     dc.onmessage = async (event) => {
       const msg = JSON.parse(event.data);
       // Handle function call completions
-      if (msg.type === "response.function_call_arguments.done") {
+      if (msg.type === 'response.function_call_arguments.done') {
         const execute = tools.find((tool) => tool.name === msg.name)?.execute;
         if (execute) {
           const args = JSON.parse(msg.arguments);
@@ -188,9 +188,9 @@ export default function useWebRTCAudioSession(
 
           // Respond with function output
           const response = {
-            type: "conversation.item.create",
+            type: 'conversation.item.create',
             item: {
-              type: "function_call_output",
+              type: 'function_call_output',
               call_id: msg.call_id,
               output: JSON.stringify(result),
             },
@@ -199,7 +199,7 @@ export default function useWebRTCAudioSession(
 
           if (!result?.__preventResponseCreate) {
             const responseCreate = {
-              type: "response.create",
+              type: 'response.create',
             };
             dcRef.current?.send(JSON.stringify(responseCreate));
           }
@@ -207,14 +207,16 @@ export default function useWebRTCAudioSession(
       }
     };
     setIsActive(true);
-  }, []);
+  }, [tools, voice]);
 
   const stopSession = useCallback(() => {
     // Close data channel and peer connection
     dcRef.current?.close();
     dcRef.current = null;
     // Stop microphone tracks
-    mcRef.current?.getTracks().forEach((track) => track.stop());
+    mcRef.current?.getTracks().forEach((track) => {
+      track.stop();
+    });
     mcRef.current = null;
     // Close remote audio context
     remoteAudioContextRef.current?.close();
@@ -245,7 +247,7 @@ export default function useWebRTCAudioSession(
   // Cleanup on unmount
   useEffect(() => {
     return () => stopSession();
-  }, []);
+  }, [stopSession]);
 
   return {
     startSession,
@@ -267,85 +269,96 @@ Since the component is mounted in [layout.tsx](https://github.com/finom/realtime
 The client-side tool execution functions are located in the [lib/tools](https://github.com/finom/realtime-kanban/tree/main/src/lib/tools) folder for better organization.
 
 ```ts showLineNumbers copy filename="src/components/RealTimeDemo.tsx" repository="finom/realtime-kanban"
-"use client";
-import { useRouter } from "next/navigation";
-import { TaskRPC, UserRPC } from "vovk-client";
-import { createTool, deriveTools } from "vovk";
-import z from "zod";
-import useWebRTCAudioSession from "@/hooks/useWebRTCAudioSession";
-import { getCurrentTime } from "@/lib/tools/getCurrentTime";
-import { partyMode } from "@/lib/tools/partyMode";
-import { scroll } from "@/lib/tools/scroll";
-import { getVisiblePageSection } from "@/lib/tools/getVisiblePageSection";
-import Floaty from "./Floaty";
+'use client';
+import { useRouter } from 'next/navigation';
+import { createTool, deriveTools } from 'vovk';
+import { TaskRPC, UserRPC } from 'vovk-client';
+import z from 'zod';
+import useWebRTCAudioSession from '@/hooks/useWebRTCAudioSession';
+import { getCurrentTime } from '@/lib/tools/getCurrentTime';
+import { getVisiblePageSection } from '@/lib/tools/getVisiblePageSection';
+import { partyMode } from '@/lib/tools/partyMode';
+import { scroll } from '@/lib/tools/scroll';
+import Floaty from './Floaty';
+import { useMemo } from 'react';
 
 const RealTimeDemo = () => {
   const router = useRouter();
-  const { isActive, isTalking, toggleSession } = useWebRTCAudioSession("ash", [
-    ...deriveTools({
-      modules: { TaskRPC, UserRPC },
-    }).tools,
-    createTool({
-      name: "getCurrentTime",
-      description: "Gets the current time in the user's timezone",
-      outputSchema: z
-        .object({ time: z.string(), timezone: z.string(), message: z.string() })
-        .meta({ description: "Current time info." }),
-      execute: getCurrentTime,
-    }),
-    createTool({
-      name: "partyMode",
-      description: "Triggers a confetti animation on the page",
-      execute: partyMode,
-    }),
-    createTool({
-      name: "navigateTo",
-      description:
-        "Navigates the user to a specified URL within the application.",
-      inputSchema: z.object({
-        url: z
-          .enum(["/", "/openapi"])
-          .meta({ description: "The URL to navigate to." }),
-      }),
-      outputSchema: z
-        .string()
-        .meta({ description: "Navigation confirmation message." }),
-      execute: async ({ url }: { url: string }) => {
-        router.push(url);
-        return `Navigating to ${url}`;
-      },
-    }),
-    createTool({
-      name: "scroll",
-      description: "Scrolls the page up or down.",
-      inputSchema: z.object({
-        direction: z
-          .enum(["up", "down"])
-          .meta({ description: "The direction to scroll" }),
-        px: z.number().optional().meta({
-          description:
-            "The number of pixels to scroll. If not provided, scrolls by one viewport height.",
+  const { isActive, isTalking, toggleSession } = useWebRTCAudioSession(
+    'ash',
+    useMemo(
+      () => [
+        ...deriveTools({
+          modules: { TaskRPC, UserRPC },
+        }).tools,
+        createTool({
+          name: 'getCurrentTime',
+          description: "Gets the current time in the user's timezone",
+          outputSchema: z
+            .object({
+              time: z.string(),
+              timezone: z.string(),
+              message: z.string(),
+            })
+            .meta({ description: 'Current time info.' }),
+          execute: getCurrentTime,
         }),
-      }),
-      outputSchema: z.object({
-        message: z
-          .string()
-          .meta({ description: "Scroll action confirmation message." }),
-        __preventResponseCreate: z
-          .boolean()
-          .meta({ description: "Flag to prevent response creation." }),
-      }),
-      execute: scroll,
-    }),
-    createTool({
-      name: "getVisiblePageSection",
-      description: "Gets the currently visible section of the page",
-      outputSchema: z
-        .string()
-        .meta({ description: "Visible text content from the page." }),
-      execute: getVisiblePageSection,
-    }),
-  ]);
+        createTool({
+          name: 'partyMode',
+          description: 'Triggers a confetti animation on the page',
+          execute: partyMode,
+        }),
+        createTool({
+          name: 'navigateTo',
+          description:
+            'Navigates the user to a specified URL within the application.',
+          inputSchema: z.object({
+            url: z
+              .enum(['/', '/openapi'])
+              .meta({ description: 'The URL to navigate to.' }),
+          }),
+          outputSchema: z
+            .string()
+            .meta({ description: 'Navigation confirmation message.' }),
+          execute: async ({ url }: { url: string }) => {
+            router.push(url);
+            return `Navigating to ${url}`;
+          },
+        }),
+        createTool({
+          name: 'scroll',
+          description: 'Scrolls the page up or down.',
+          inputSchema: z.object({
+            direction: z
+              .enum(['up', 'down'])
+              .meta({ description: 'The direction to scroll' }),
+            px: z.number().optional().meta({
+              description:
+                'The number of pixels to scroll. If not provided, scrolls by one viewport height.',
+            }),
+          }),
+          outputSchema: z.object({
+            message: z
+              .string()
+              .meta({ description: 'Scroll action confirmation message.' }),
+            __preventResponseCreate: z
+              .boolean()
+              .meta({ description: 'Flag to prevent response creation.' }),
+          }),
+          execute: scroll,
+        }),
+        createTool({
+          name: 'getVisiblePageSection',
+          description: 'Gets the currently visible section of the page',
+          outputSchema: z
+            .string()
+            .meta({ description: 'Visible text content from the page.' }),
+          execute: getVisiblePageSection,
+        }),
+      ],
+      [router.push],
+    ),
+  );
 
   return (
     <Floaty

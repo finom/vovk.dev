@@ -55,7 +55,7 @@ Source: test scripts in the vovk-perf-test repository.
 Example controller (N = 1) used in the request-overhead tests:
 
 ```ts showLineNumbers copy filename="src/modules/one/a/AController.ts" repository="finom/vovk-perf-test"
-import { procedure, prefix, get, post, operation } from "vovk";
+import { get, operation, post, prefix, procedure } from "vovk";
 import z from "zod";
 
 @prefix("a")

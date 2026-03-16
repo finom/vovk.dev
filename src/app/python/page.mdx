@@ -102,23 +102,23 @@ A controller like this:
 <Tabs items={['UserController.ts', 'UserService.ts', 'route.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/vovk-hello-world"
-import { z } from "zod";
-import { procedure, prefix, post, operation } from "vovk";
-import UserService from "./UserService";
+import { operation, post, prefix, procedure } from 'vovk';
+import { z } from 'zod';
+import UserService from './UserService';
 
-@prefix("users")
+@prefix('users')
 export default class UserController {
   @operation({
-    summary: "Update user",
-    description: "Update user by ID",
+    summary: 'Update user',
+    description: 'Update user by ID',
   })
-  @post("{id}")
+  @post('{id}')
   static updateUser = procedure({
     body: z
       .object({
         email: z.email().meta({
-          description: "User email",
-          examples: ["john@example.com", "jane@example.com"],
+          description: 'User email',
+          examples: ['john@example.com', 'jane@example.com'],
         }),
         profile: z
           .object({
@@ -126,49 +126,49 @@ export default class UserController {
               .string()
               .min(2)
               .meta({
-                description: "User full name",
-                examples: ["John Doe", "Jane Smith"],
+                description: 'User full name',
+                examples: ['John Doe', 'Jane Smith'],
               }),
             age: z
               .int()
               .min(16)
               .max(120)
-              .meta({ description: "User age", examples: [25, 30] }),
+              .meta({ description: 'User age', examples: [25, 30] }),
           })
-          .meta({ description: "User profile object" }),
+          .meta({ description: 'User profile object' }),
       })
-      .meta({ description: "User data object" }),
+      .meta({ description: 'User data object' }),
     params: z
       .object({
         id: z.uuid().meta({
-          description: "User ID",
-          examples: ["123e4567-e89b-12d3-a456-426614174000"],
+          description: 'User ID',
+          examples: ['123e4567-e89b-12d3-a456-426614174000'],
         }),
       })
       .meta({
-        description: "Path parameters",
+        description: 'Path parameters',
       }),
     query: z
       .object({
         notify: z
-          .enum(["email", "push", "none"])
-          .meta({ description: "Notification type" }),
+          .enum(['email', 'push', 'none'])
+          .meta({ description: 'Notification type' }),
       })
       .meta({
-        description: "Query parameters",
+        description: 'Query parameters',
       }),
     output: z
       .object({
-        success: z.boolean().meta({ description: "Success status" }),
-        id: z.uuid().meta({ description: "User ID" }),
-        notify: z.enum(["email", "push", "none"]).meta({
-          description: "Notification type",
+        success: z.boolean().meta({ description: 'Success status' }),
+        id: z.uuid().meta({ description: 'User ID' }),
+        notify: z.enum(['email', 'push', 'none']).meta({
+          description: 'Notification type',
         }),
       })
-      .meta({ description: "Response object" }),
+      .meta({ description: 'Response object' }),
   }).handle(async (req, { id }) => {
     const body = await req.json();
-    const notify = req.nextUrl.searchParams.get("notify");
+    const notify = req.nextUrl.searchParams.get('notify');
 
     return UserService.updateUser(id, body, notify);
   });
@@ -178,19 +178,19 @@ export default class UserController {
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/user/UserService.ts" repository="finom/vovk-hello-world"
-import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from "vovk";
-import type UserController from "./UserController";
+import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from 'vovk';
+import type UserController from './UserController';
 
 export default class UserService {
   static updateUser = (
-    id: VovkParams<typeof UserController.updateUser>["id"],
+    id: VovkParams<typeof UserController.updateUser>['id'],
     body: VovkBody<typeof UserController.updateUser>,
-    notify: VovkQuery<typeof UserController.updateUser>["notify"],
+    notify: VovkQuery<typeof UserController.updateUser>['notify'],
   ) => {
     console.log(
       id satisfies string,
       body satisfies { email: string; profile: { name: string; age: number } },
-      notify satisfies "email" | "push" | "none",
+      notify satisfies 'email' | 'push' | 'none',
     );
     return {
       id,
@@ -205,11 +205,11 @@ export default class UserService {
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"
-import { initSegment } from "vovk";
-import UserController from "../../../modules/user/UserController";
-import StreamController from "../../../modules/stream/StreamController";
+import { initSegment } from 'vovk';
+import StreamController from '../../../modules/stream/StreamController';
+import UserController from '../../../modules/user/UserController';
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 const controllers = {
   UserRPC: UserController,
@@ -342,25 +342,25 @@ A controller like this:
 <Tabs items={['StreamController.ts', 'StreamService.ts', 'route.ts']}>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/stream/StreamController.ts" repository="finom/vovk-hello-world"
-import { procedure, prefix, get, operation } from "vovk";
-import { z } from "zod";
-import StreamService from "./StreamService";
+import { get, operation, prefix, procedure } from 'vovk';
+import { z } from 'zod';
+import StreamService from './StreamService';
 
-@prefix("streams")
+@prefix('streams')
 export default class StreamController {
   @operation({
-    summary: "Stream tokens",
-    description: "Stream tokens to the client",
+    summary: 'Stream tokens',
+    description: 'Stream tokens to the client',
   })
-  @get("tokens")
+  @get('tokens')
   static streamTokens = procedure({
     validateEachIteration: true,
     iteration: z
       .object({
-        message: z.string().meta({ description: "Message from the token" }),
+        message: z.string().meta({ description: 'Message from the token' }),
       })
       .meta({
-        description: "Streamed token object",
+        description: 'Streamed token object',
       }),
   }).handle(async function* () {
     yield* StreamService.streamTokens();
@@ -371,13 +371,13 @@ export default class StreamController {
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts" repository="finom/vovk-hello-world"
-import type { VovkIteration } from "vovk";
-import type StreamController from "./StreamController";
+import type { VovkIteration } from 'vovk';
+import type StreamController from './StreamController';
 
 export default class StreamService {
   static async *streamTokens() {
     const tokens: VovkIteration<typeof StreamController.streamTokens>[] =
-      "Vovk.ts is a RESTful back-end meta-framework with RPC, built on top of the Next.js App Router. This text is a JSONLines stream demo."
+      'Vovk.ts is a RESTful back-end meta-framework with RPC, built on top of the Next.js App Router. This text is a JSONLines stream demo.'
         .match(/[^\s-]+-?(?:\s+)?/g)
         ?.map((message) => ({ message })) || [];
 
@@ -393,11 +393,11 @@ export default class StreamService {
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"
-import { initSegment } from "vovk";
-import UserController from "../../../modules/user/UserController";
-import StreamController from "../../../modules/stream/StreamController";
+import { initSegment } from 'vovk';
+import StreamController from '../../../modules/stream/StreamController';
+import UserController from '../../../modules/user/UserController';
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 const controllers = {
   UserRPC: UserController,

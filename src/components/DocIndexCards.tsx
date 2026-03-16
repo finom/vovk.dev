@@ -1,6 +1,6 @@
-import { MetaRecord } from 'nextra';
+import type { MetaRecord } from 'nextra';
 import { Cards } from 'nextra/components';
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
 interface Props {
   meta: MetaRecord;
@@ -12,7 +12,7 @@ const DocIndexCards = ({ meta, icons, hrefPrefix }: Props) => {
   return (
     <Cards>
       {Object.entries(meta)
-        .filter(([key, value]) => {
+        .filter(([, value]) => {
           return (
             typeof value === 'string' || (typeof value === 'object' && 'type' in value && value.type !== 'separator')
           );

@@ -63,8 +63,8 @@ const TelegramAPI = TelegramRawAPI.withDefaults({
 We’re going to create a new segment called `bots` that contains a `TelegramController` under the `TelegramBot` key. The segment isn’t going to emit any schema, as it’s not needed on the client side; this is configured by setting `emitSchema: false` in the `initSegment` call. Because the schema is not emitted, the controller key name can be any string.
 
 ```ts showLineNumbers copy filename="src/app/api/bots/[[...vovk]]/route.ts" repository="finom/realtime-kanban"
-import TelegramController from "../../../../modules/telegram/TelegramController";
-import { initSegment } from "vovk";
+import { initSegment } from 'vovk';
+import TelegramController from '../../../../modules/telegram/TelegramController';
 
 const controllers = {
   TelegramBot: TelegramController,
@@ -73,7 +73,7 @@ const controllers = {
 export type Controllers = typeof controllers;
 
 export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
-  segmentName: "bots",
+  segmentName: 'bots',
   emitSchema: false, // Disable schema emission for bot endpoints
   controllers,
 });
@@ -83,12 +83,12 @@ export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
 The `TelegramController` class contains a single `handle` procedure, implementing the `/api/bots/telegram/bot` endpoint, which is called by the Telegram webhook for each incoming message.
 
 ```ts showLineNumbers copy filename="src/modules/telegram/TelegramController.ts" repository="finom/realtime-kanban"
-import { post, prefix } from "vovk";
-import TelegramService from "./TelegramService";
+import { post, prefix } from 'vovk';
+import TelegramService from './TelegramService';
 
-@prefix("telegram")
+@prefix('telegram')
 export default class TelegramController {
-  @post("bot")
+  @post('bot')
   static handle = TelegramService.handle.bind(TelegramService);
 }
 ```
