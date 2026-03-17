@@ -2,6 +2,8 @@
 
 For a JARVIS-like experience, we're going to set up a voice AI interface that uses the OpenAI Realtime API with WebRTC to send and receive audio data in real time. This time, instead of controller methods executed by the AI SDK on the backend, we're going to derive tools from the generated [RPC modules](/typescript) to make authorized requests directly in the browser.
 
+<img src="/diagrams/voice_ai_realtime_flow.svg" alt="Voice AI Realtime Flow" className="mt-4" />
+
 Since we're going to use WebRTC, audio data is sent and received directly between the client and the OpenAI Realtime API, without passing through our backend server. This makes tool execution extremely low-latency.
 
 ## Backend Setup

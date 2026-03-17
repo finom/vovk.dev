@@ -2,6 +2,9 @@
 
 The next piece of the puzzle is to create a `fetcher` function that the application will use to request data from the server. You can find more details about it in the [imports](/imports#fetcher) article.
 
+<img src="/diagrams/user_http_fetcher_flow.svg" alt="User HTTP Fetcher Flow" className="mt-4" />
+
+
 The fetcher is going to implement a `transformResponse` function that processes all incoming data by passing it to the registry’s `parse` method. 
 
 In the simplest form, when we expect JSON responses only, the function looks like this:
