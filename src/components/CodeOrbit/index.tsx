@@ -4,24 +4,28 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 const SNIPPETS = [
+  // TypeScript-related
   { label: "package.json", lang: "json", color: "#cb3837", code: `"name": "vovk-hello-world",\n"main": "./index.js",\n"types": "./index.d.ts"` },
-  { label: "Cargo.toml", lang: "toml", color: "#dea584", code: `[package]\nname = "vovk_hello_world"\nedition = "2021"` },
-  { label: "pyproject.toml", lang: "toml", color: "#3572A5", code: `[project]\nname = "vovk_hello_world"\ndependencies = ["requests"]` },
-  { label: "openapi.json", lang: "json", color: "#85ea2d", code: `"/api/users/{id}": {\n  "post": {\n    "summary": "Update user" }}` },
   { label: "UserService.ts", lang: "ts", color: "#3178c6", code: `body: VovkBody<\n  typeof UserController\n  .updateUser>` },
-  { label: "__init__.py", lang: "python", color: "#FFD43B", code: `def update_user(\n  body: UpdateUserBody,\n) -> UpdateUserOutput:` },
   { label: "client.ts", lang: "ts", color: "#f7df1e", code: `// RPC call over HTTP\nconst res = await\n  UserRPC.updateUser({\n  body, query, params });` },
   { label: "page.tsx", lang: "ts", color: "#61dafb", code: `// SSR: no HTTP round-trip\nconst res = await\n  UserController.updateUser\n  .fn({ body, params });` },
-  { label: "lib.rs", lang: "rust", color: "#f74c00", code: `pub async fn update_user(\n  body: update_user_::body,\n) -> Result<output>` },
-  { label: "README (TS)", lang: "ts", color: "#2d79c7", code: `## UserRPC.updateUser\n> Update user by ID\nawait UserRPC.updateUser({\n  body, query, params });` },
-  { label: "README (RS)", lang: "rust", color: "#c96b30", code: `## user_rpc::update_user\n> Update user by ID\nuser_rpc::update_user(\n  body, query, params)` },
-  { label: "README (PY)", lang: "python", color: "#306998", code: `## UserRPC.update_user\n> Update user by ID\nUserRPC.update_user(\n  body=body, params=params)` },
   { label: "AI Tools", lang: "ts", color: "#10b981", code: `const { tools } =\n  deriveTools({\n  modules: { UserRPC } });` },
   { label: "MCP Server", lang: "ts", color: "#c084fc", code: `server.registerTool(name,\n  { title, inputSchema },\n  execute);` },
+  // OpenAPI
+  { label: "openapi.json", lang: "json", color: "#85ea2d", code: `"/api/users/{id}": {\n  "post": {\n    "summary": "Update user" }}` },
+  // README (TS)
+  { label: "README (TS)", lang: "ts", color: "#2d79c7", code: `## UserRPC.updateUser\n> Update user by ID\nawait UserRPC.updateUser({\n  body, query, params });` },
+  // Python-related
+  { label: "pyproject.toml", lang: "toml", color: "#3572A5", code: `[project]\nname = "vovk_hello_world"\ndependencies = ["requests"]` },
+  { label: "__init__.py", lang: "python", color: "#FFD43B", code: `def update_user(\n  body: UpdateUserBody,\n) -> UpdateUserOutput:` },
+  { label: "README (PY)", lang: "python", color: "#306998", code: `## UserRPC.update_user\n> Update user by ID\nUserRPC.update_user(\n  body=body, params=params)` },
+  // Rust-related
+  { label: "Cargo.toml", lang: "toml", color: "#dea584", code: `[package]\nname = "vovk_hello_world"\nedition = "2021"` },
+  { label: "lib.rs", lang: "rust", color: "#f74c00", code: `pub async fn update_user(\n  body: update_user_::body,\n) -> Result<output>` },
+  { label: "README (RS)", lang: "rust", color: "#c96b30", code: `## user_rpc::update_user\n> Update user by ID\nuser_rpc::update_user(\n  body, query, params)` },
 ];
 
-const PROCEDURE_CODE = `import { post, prefix, procedure,
-  operation } from "vovk";
+const PROCEDURE_CODE = `import { post, prefix, procedure, operation } from "vovk";
 import { z } from "zod";
 
 @prefix("users")
@@ -68,7 +72,8 @@ function syntaxHighlight(code: string, lang: string) {
 const ORBIT_A = 310;
 const ORBIT_B = 160;
 const TILT_RAD = (60 * Math.PI) / 180;
-const ORBIT_SPEED = 0.00012;
+const ORBIT_SPEED = 0.0000972;
+const CROSS_HALF = 0.15;
 
 function getPos(index: number, total: number, time: number) {
   const angle = (index / total) * Math.PI * 2 + time * ORBIT_SPEED;
@@ -80,21 +85,33 @@ function getPos(index: number, total: number, time: number) {
   return { x, y: y + yFloat, z };
 }
 
-function SnipCard({ s, mouse, scale, opacity, blur }: {
+function SnipCard({ s, mouse, scale, opacity, blur, zIndex, crossIntensity = 0 }: {
   s: { label: string; lang: string; color: string; code: string; x: number; y: number };
-  mouse: { x: number; y: number }; scale: number; opacity: number; blur: number;
+  mouse: { x: number; y: number }; scale: number; opacity: number; blur: number; zIndex: number;
+  crossIntensity?: number;
 }) {
+  const filterParts: string[] = [];
+  if (blur > 0.1) filterParts.push(`blur(${blur}px)`);
+  if (crossIntensity > 0.01) filterParts.push(`brightness(${1 + crossIntensity * 0.35})`);
+  const filter = filterParts.length ? filterParts.join(" ") : "none";
+  const glow = crossIntensity > 0.01
+    ? `0 0 ${10 * crossIntensity}px ${s.color}30`
+    : "none";
+
   return (
-    <div style={{
+    <div className="snip-card-wrap" style={{
       position:"absolute",left:"50%",top:"50%",
       transform:`translate(calc(-50% + ${s.x+mouse.x}px),calc(-50% + ${s.y+mouse.y}px)) scale(${scale})`,
-      opacity,filter: blur > 0.1 ? `blur(${blur}px)` : "none",pointerEvents:"auto",
+      opacity, filter, pointerEvents: opacity > 0.05 ? "auto" : "none",
+      zIndex,
     }}>
       <div className="snip-card" style={{
         "--acc":s.color,
-        width:170,background:"rgba(18,18,26,.92)",backdropFilter:"blur(12px)",
-        border:"1px solid rgba(255,255,255,.06)",borderRadius:8,overflow:"hidden",
+        width:170,background:"rgba(18,18,26,.96)",backdropFilter:"blur(12px)",
+        border:`1px solid rgba(255,255,255,${(0.06 + crossIntensity * 0.12).toFixed(3)})`,
+        borderRadius:8,overflow:"hidden",
         cursor:"default",position:"relative",transition:"transform .25s ease,border-color .25s ease",
+        boxShadow: glow,
       } as React.CSSProperties}>
         <div className="snip-card-bar" style={{
           display:"flex",alignItems:"center",gap:6,padding:"5px 10px",
@@ -153,13 +170,8 @@ export function CodeOrbit() {
 
   const highlightedProcedure = useMemo(() => syntaxHighlight(PROCEDURE_CODE, "ts"), []);
 
-  const sorted = useMemo(() => {
-    const items = SNIPPETS.map((s, i) => ({ ...s, i, ...positions[i] }));
-    const depthOf = (item: typeof items[number]) => (item.z + ORBIT_B) / (ORBIT_B * 2);
-    return {
-      back: items.filter(s => depthOf(s) <= 0.5).sort((a, b) => a.z - b.z),
-      front: items.filter(s => depthOf(s) > 0.5).sort((a, b) => a.z - b.z),
-    };
+  const cards = useMemo(() => {
+    return SNIPPETS.map((s, i) => ({ ...s, i, ...positions[i] }));
   }, [positions]);
 
   const particles = useMemo(() => {
@@ -185,7 +197,9 @@ export function CodeOrbit() {
         @keyframes floatP { 0%,100%{opacity:0;transform:translateY(0) scale(.5)} 50%{opacity:1;transform:translateY(-40px) scale(1)} }
         @keyframes pulseR { 0%{transform:translate(-50%,-50%) scale(1);opacity:.15} 100%{transform:translate(-50%,-50%) scale(1.15);opacity:0} }
         .snip-card:hover { border-color: var(--acc) !important; transform: scale(1.08) !important; }
+        .snip-card-wrap { mix-blend-mode: screen; }
         @media (prefers-color-scheme: light) {
+          .snip-card-wrap { mix-blend-mode: multiply; }
           .code-orbit-container { background: transparent !important; }
           .code-orbit-ring { border-color: rgba(0,0,0,.08) !important; }
           .code-orbit-pulse { border-color: rgba(121,83,210,.15) !important; }
@@ -213,24 +227,14 @@ export function CodeOrbit() {
 
       {/* pulse ring */}
       <div className="code-orbit-pulse" style={{
-        position:"absolute",left:"50%",top:"50%",width:374,height:280,
+        position:"absolute",left:"50%",top:"50%",width:414,height:280,
         border:"1px solid rgba(121,83,210,.2)",borderRadius:10,
         animation:"pulseR 3s ease-out infinite",pointerEvents:"none",
       }}/>
 
-      {/* orbiting snippets — back layer (behind central block via DOM order) */}
-      {sorted.back.map((s) => {
-        const dn = (s.z + ORBIT_B) / (ORBIT_B * 2);
-        const scale = 0.65 + dn * 0.55;
-        const crossFade = Math.abs(dn - 0.5) * 2;
-        const opacity = (0.5 + dn * 0.5) * (0.85 + crossFade * 0.15);
-        const blur = (1 - dn) * 0.35;
-        return <SnipCard key={s.label} s={s} mouse={mouse} scale={scale} opacity={opacity} blur={blur} />;
-      })}
-
       {/* central block */}
       <div className="code-orbit-center" style={{
-        position:"relative",width:370,
+        position:"relative",zIndex:100,width:410,
         background:"#12121a",border:"1px solid #1e1e2e",borderRadius:10,
         boxShadow:"0 0 0 1px rgba(255,255,255,.03),0 8px 40px rgba(0,0,0,.5),0 0 120px -20px rgba(121,83,210,.12)",
         overflow:"hidden",transition:"transform .4s cubic-bezier(.23,1,.32,1),box-shadow .4s ease",
@@ -249,15 +253,20 @@ export function CodeOrbit() {
         </pre>
       </div>
 
-      {/* orbiting snippets — front layer (in front of central block via DOM order) */}
-      {sorted.front.map((s) => {
-        const dn = (s.z + ORBIT_B) / (ORBIT_B * 2);
-        const scale = 0.65 + dn * 0.55;
-        const crossFade = Math.abs(dn - 0.5) * 2;
-        const opacity = (0.5 + dn * 0.5) * (0.85 + crossFade * 0.15);
-        const blur = (1 - dn) * 0.35;
-        return <SnipCard key={s.label} s={s} mouse={mouse} scale={scale} opacity={opacity} blur={blur} />;
-      })}
+      {/* orbiting snippets — isolation + screen blend makes z-swaps invisible */}
+      <div style={{ position:"absolute", inset:0, zIndex:101, isolation:"isolate", pointerEvents:"none" }}>
+        {cards.map((s) => {
+          const dn = (s.z + ORBIT_B) / (ORBIT_B * 2);
+          const zIndex = Math.round(dn * 200);
+          const scale = 0.65 + dn * 0.55;
+          const crossFade = Math.abs(dn - 0.5) * 2;
+          const baseOpacity = (0.15 + Math.pow(dn, 3) * 0.85) * (0.9 + crossFade * 0.1);
+          const blur = (1 - dn) * 0.35;
+          const crossIntensity = Math.max(0, 1 - Math.abs(dn - 0.5) / CROSS_HALF);
+          const crossScale = scale * (1 + crossIntensity * 0.04);
+          return <SnipCard key={s.label} s={s} mouse={mouse} scale={crossScale} opacity={baseOpacity} blur={blur} zIndex={zIndex} crossIntensity={crossIntensity} />;
+        })}
+      </div>
 
       {/* particles */}
       {particles.map((p,i) => (

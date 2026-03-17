@@ -34,7 +34,7 @@ const users = useRegistry(
 
 ## Implementing `useRegistry` hook
 
-<img src="/diagrams/entity_registry_pattern.svg" alt="Entity Registry Pattern" className="mt-4" />
+<img src="/diagrams/entity_registry_pattern.svg" alt="Entity Registry Pattern" className="mt-4 dark:invert" />
 
 The application state is normalized and stores entities in a dictionary by their IDs. The registry exposes a `parse` method that accepts any data and extracts entities from it, storing them in the registry. This method is used to process all incoming data from the server so that all components using this data are updated automatically.
 

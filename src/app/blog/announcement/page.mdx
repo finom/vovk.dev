@@ -119,17 +119,12 @@ await UserController.getUser.fn({ params: { id: '123' } });
 
 ## What makes it different
 
-If you want type-safe clients, REST compliance, OpenAPI generation, serverless deployment, and multi-language support from a single Next.js codebase — no existing tool gives you all of that. tRPC gives you type-safe clients but uses a proprietary protocol — no REST semantics, no OpenAPI. ts-rest brings back REST and OpenAPI but requires a separate shared contract you maintain alongside your handlers. NestJS offers a mature controller–service architecture but runs its own HTTP server, outside the Next.js deployment model.
+If you've used tRPC, ts-rest, NestJS, oRPC, Hono, or ElysiaJS, many of the ideas here will feel familiar. Each of those tools does something genuinely well, and the patterns they've established informed many of the design decisions in Vovk.ts.
 
-Vovk.ts sits where these capabilities converge — without their trade-offs:
+Where Vovk.ts carves its own path is in combining these ideas natively within Next.js App Router: the Controller–Service architecture I loved in NestJS, the type-safe clients from tRPC, the REST compliance and OpenAPI generation from ts-rest — without requiring a separate server process, a shared contract layer, or a non-standard wire protocol. On top of that, it adds things I couldn't find elsewhere: per-segment serverless compilation, local procedure execution via `.fn()`, and built-in AI tool derivation for LLM agents and MCP servers.
 
-- **Type-safe, REST-compliant, contract-free.** Controllers are the single source of truth. Validation schemas live next to handlers — no separate contract files, no DTOs, no schema drift. The generated client is fully typed, and the underlying API is standard REST with a complete OpenAPI 3.x spec.
-- **Next.js native.** No separate server process, no custom runtime. Every segment compiles into its own serverless function with full App Router support — Edge Runtime, ISR, streaming, and per-segment configuration all just work.
-- **One codebase, every output.** The same controller definitions generate TypeScript clients, OpenAPI documentation, Python and Rust clients, and LLM-callable tool definitions with MCP server support. Define your API once; reach every consumer — browsers, mobile apps, backend services, AI agents — from a single source.
+It's not the right tool for every situation — if you're not on Next.js, or if you prefer a contract-first workflow, other options will serve you better. But if you're building a structured API layer on top of the App Router and want all of the above from a single source of truth, I think you'll enjoy it. I'd love to hear how your experience compares.
 
 ## Get started
 
 Check out the [documentation](/quick-install) to get up and running, or jump straight into the [GitHub repository](https://github.com/finom/vovk). I hope Vovk.ts makes your work a little more enjoyable — it certainly has been a labor of love to build.
-
-
-

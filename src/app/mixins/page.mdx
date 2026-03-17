@@ -275,6 +275,26 @@ const config = {
 export default config;
 ```
 
+Results in multiple modules with well-structured method names:
+
+```ts showLineNumbers copy
+import { 
+  GithubIssuesAPI, 
+  GithubReposAPI,
+  GithubPullsAPI,
+  GithubActionsAPI,
+  GithubReleasesAPI,
+  GithubUsersAPI
+} from 'vovk-client';
+
+await GithubIssuesAPI.listForOrg({ params: { org: 'octocat' } });
+await GithubReposAPI.removeStatusCheckContexts({ params: { owner: 'octocat', repo: 'Hello-World', branch: 'main' } });
+await GithubPullsAPI.list({ params: { owner: 'octocat', repo: 'Hello-World' } });
+await GithubActionsAPI.listWorkflows({ params: { owner: 'octocat', repo: 'Hello-World' } });
+await GithubReleasesAPI.getLatestRelease({ params: { owner: 'octocat', repo: 'Hello-World' } });
+await GithubUsersAPI.getAuthenticated();
+```
+
 You may also want to loosen `ajv` options, as third-party OAS documents can contain non-standard keywords that cause validation errors.
 
 ```ts showLineNumbers copy filename="vovk.config.js"

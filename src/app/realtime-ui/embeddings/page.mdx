@@ -5,7 +5,7 @@ Because database entries can be numerous and too large to fit into the prompt di
 1. “Get all” endpoints are excluded from being derived as AI tools by using the `@operation.tool({ hidden: true }){:ts}` decorator.
 2. Vector embeddings are generated for each user and task entry when they are created or updated. These embeddings use an OpenAI embeddings model and are stored in the database using [pgvector](https://github.com/pgvector/pgvector), described as `Unsupported("vector(1536)")` in the Prisma schema under the `embedding` column for each model. See the [Database](./database) article for more details.
 
-<img src="/diagrams/embeddings_vector_search.svg" alt="Vector Search via Embedding" className="mt-4" />
+<img src="/diagrams/embeddings_vector_search.svg" alt="Vector Search via Embedding" className="mt-4 dark:invert" />
 
 
 The `EmbeddingService` class implements the logic of generating embeddings and performing vector search using the pgvector extension in Postgres, exposing two main methods:
