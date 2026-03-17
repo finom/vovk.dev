@@ -4,96 +4,146 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 const SNIPPETS = [
-  { label: "client.ts", lang: "ts", color: "#3178c6", code: `const result = await\n  UserController\n  .getById(id);` },
-  { label: "lib.rs", lang: "rust", color: "#dea584", code: `pub async fn get_by_id(\n  id: &str\n) -> Result<User> {` },
-  { label: "client.py", lang: "python", color: "#3572A5", code: `async def get_by_id(\n  self, id: str\n) -> User:` },
-  { label: "README.md", lang: "md", color: "#83b6d0", code: `## getById\nFetches user by ID.\nReturns \`User\` object.` },
-  { label: "Cargo.toml", lang: "toml", color: "#9c4221", code: `[dependencies]\nvovk_client = "0.4"\ntokio = { version = "1" }` },
-  { label: "package.json", lang: "json", color: "#f1e05a", code: `"dependencies": {\n  "vovk-client": "^0.4"\n}` },
-  { label: "pyproject.toml", lang: "toml", color: "#4B8BBE", code: `[project]\nname = "vovk-client"\ndependencies = ["httpx"]` },
-  { label: "AI Tool", lang: "ts", color: "#10b981", code: `tools: [{\n  name: "getById",\n  parameters: UserSchema\n}]` },
-  { label: "types.ts", lang: "ts", color: "#c084fc", code: `export interface User {\n  id: string;\n  name: string;\n}` },
+  { label: "package.json", lang: "json", color: "#cb3837", code: `"name": "vovk-hello-world",\n"main": "./index.js",\n"types": "./index.d.ts"` },
+  { label: "Cargo.toml", lang: "toml", color: "#dea584", code: `[package]\nname = "vovk_hello_world"\nedition = "2021"` },
+  { label: "pyproject.toml", lang: "toml", color: "#3572A5", code: `[project]\nname = "vovk_hello_world"\ndependencies = ["requests"]` },
+  { label: "openapi.json", lang: "json", color: "#85ea2d", code: `"/api/users/{id}": {\n  "post": {\n    "summary": "Update user" }}` },
+  { label: "UserService.ts", lang: "ts", color: "#3178c6", code: `body: VovkBody<\n  typeof UserController\n  .updateUser>` },
+  { label: "__init__.py", lang: "python", color: "#FFD43B", code: `def update_user(\n  body: UpdateUserBody,\n) -> UpdateUserOutput:` },
+  { label: "client.ts", lang: "ts", color: "#f7df1e", code: `// RPC call over HTTP\nconst res = await\n  UserRPC.updateUser({\n  body, query, params });` },
+  { label: "page.tsx", lang: "ts", color: "#61dafb", code: `// SSR: no HTTP round-trip\nconst res = await\n  UserController.updateUser\n  .fn({ body, params });` },
+  { label: "lib.rs", lang: "rust", color: "#f74c00", code: `pub async fn update_user(\n  body: update_user_::body,\n) -> Result<output>` },
+  { label: "README (TS)", lang: "ts", color: "#2d79c7", code: `## UserRPC.updateUser\n> Update user by ID\nawait UserRPC.updateUser({\n  body, query, params });` },
+  { label: "README (RS)", lang: "rust", color: "#c96b30", code: `## user_rpc::update_user\n> Update user by ID\nuser_rpc::update_user(\n  body, query, params)` },
+  { label: "README (PY)", lang: "python", color: "#306998", code: `## UserRPC.update_user\n> Update user by ID\nUserRPC.update_user(\n  body=body, params=params)` },
+  { label: "AI Tools", lang: "ts", color: "#10b981", code: `const { tools } =\n  deriveTools({\n  modules: { UserRPC } });` },
+  { label: "MCP Server", lang: "ts", color: "#c084fc", code: `server.registerTool(name,\n  { title, inputSchema },\n  execute);` },
 ];
 
-const PROCEDURE_CODE = `import { post, procedure } from "vovk";
+const PROCEDURE_CODE = `import { post, prefix, procedure,
+  operation } from "vovk";
 import { z } from "zod";
-import UserService from "./UserService";
 
+@prefix("users")
 export default class UserController {
+  @operation({ summary: "Update user" })
   @post("{id}")
   static updateUser = procedure({
-    params: z.object({ id: z.string() }),
-    body: z.object({ name: z.string() }),
+    body: z.object({
+      email: z.email(),
+      profile: z.object({
+        name: z.string(), age: z.int() }),
+    }),
+    params: z.object({ id: z.uuid() }),
+    query: z.object({
+      notify: z.enum(["email", "push"]) }),
   }).handle(async (req, { id }) => {
-    return UserService.updateUser(id, await req.json());
+    return UserService.updateUser(id);
   });
 }`;
 
-function syntaxHighlight(code, lang) {
+function syntaxHighlight(code: string, lang: string) {
   const keywords = {
-    ts: ["import","from","export","default","class","static","async","const","type","interface","await","return","Promise"],
-    rust: ["pub","async","fn","let","Result","use","impl","struct"],
+    ts: ["import","from","export","default","class","static","async","const","type","interface","await","return","Promise","typeof"],
+    rust: ["pub","async","fn","let","Result","use","impl","struct","mod"],
     python: ["async","def","self","from","import","return","await","class"],
-    md: [], toml: [], json: [],
+    md: ["npm","pip","cargo"], toml: [], json: [],
   };
-  const kws = keywords[lang] || keywords.ts;
+  const kws = keywords[lang as keyof typeof keywords] || keywords.ts;
   let e = code.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   e = e.replace(/"([^"]*)"/g, '<span style="color:#c3e88d">"$1"</span>');
   e = e.replace(/'([^']*)'/g, "<span style=\"color:#c3e88d\">'$1'</span>");
   e = e.replace(/`([^`]*)`/g, '<span style="color:#c3e88d">`$1`</span>');
   kws.forEach((kw) => { e = e.replace(new RegExp(`\\b(${kw})\\b`,"g"), '<span style="color:#c792ea">$1</span>'); });
   e = e.replace(/@(\w+)/g, '<span style="color:#89ddff">@$1</span>');
-  e = e.replace(/\b(User|UserController|UserService|VovkRequest|UserSchema)\b/g, '<span style="color:#ffcb6b;font-style:italic">$1</span>');
+  e = e.replace(/\b(procedure|handle|createRPC|deriveTools|registerTool)\b/g, '<span style="color:#82aaff">$1</span>');
+  e = e.replace(/\b(User|UserRPC|StreamRPC|UserController|UserService|VovkRequest|VovkBody|VovkParams|VovkQuery|VovkOutput|UpdateUserBody|UpdateUserOutput|UserSchema|Body|Query|Params|Output)\b/g, '<span style="color:#ffcb6b;font-style:italic">$1</span>');
   e = e.replace(/##\s(.+)/g, '<span style="color:#82aaff;font-weight:700">## $1</span>');
+  e = e.replace(/^(&gt;\s.+)$/gm, '<span style="color:#546e7a;font-style:italic">$1</span>');
   e = e.replace(/\[([^\]]+)\]/g, '<span style="color:#ff5370">[$1]</span>');
+  e = e.replace(/^(\/\/.*)$/gm, '<span style="color:#546e7a;font-style:italic">$1</span>');
   return e;
 }
 
 const ORBIT_A = 310;
-const ORBIT_B = 150;
+const ORBIT_B = 160;
 const TILT_RAD = (60 * Math.PI) / 180;
+const ORBIT_SPEED = 0.00012;
 
-function getPos(index, total, time) {
-  const speed = 0.0003 + index * 0.00003;
-  const angle = (index / total) * Math.PI * 2 + time * speed;
+function getPos(index: number, total: number, time: number) {
+  const angle = (index / total) * Math.PI * 2 + time * ORBIT_SPEED;
   const x = Math.cos(angle) * ORBIT_A;
   const yFlat = Math.sin(angle) * ORBIT_B;
   const y = yFlat * Math.cos(TILT_RAD);
   const z = yFlat * Math.sin(TILT_RAD);
-  const yFloat = Math.sin((index / total) * Math.PI * 3 + time * 0.001) * 8;
+  const yFloat = Math.sin((index / total) * Math.PI * 3 + time * 0.0005) * 6;
   return { x, y: y + yFloat, z };
 }
 
+function SnipCard({ s, mouse, scale, opacity, blur }: {
+  s: { label: string; lang: string; color: string; code: string; x: number; y: number };
+  mouse: { x: number; y: number }; scale: number; opacity: number; blur: number;
+}) {
+  return (
+    <div style={{
+      position:"absolute",left:"50%",top:"50%",
+      transform:`translate(calc(-50% + ${s.x+mouse.x}px),calc(-50% + ${s.y+mouse.y}px)) scale(${scale})`,
+      opacity,filter: blur > 0.1 ? `blur(${blur}px)` : "none",pointerEvents:"auto",
+    }}>
+      <div className="snip-card" style={{
+        "--acc":s.color,
+        width:170,background:"rgba(18,18,26,.92)",backdropFilter:"blur(12px)",
+        border:"1px solid rgba(255,255,255,.06)",borderRadius:8,overflow:"hidden",
+        cursor:"default",position:"relative",transition:"transform .25s ease,border-color .25s ease",
+      } as React.CSSProperties}>
+        <div className="snip-card-bar" style={{
+          display:"flex",alignItems:"center",gap:6,padding:"5px 10px",
+          fontSize:9,fontWeight:500,color:"#5a5e6e",
+          background:"rgba(255,255,255,.02)",borderBottom:"1px solid rgba(255,255,255,.04)",
+          letterSpacing:.4,textTransform:"uppercase",
+        }}>
+          <span style={{width:5,height:5,borderRadius:"50%",background:s.color,flexShrink:0}}/>
+          {s.label}
+        </div>
+        <pre style={{margin:0,padding:"8px 10px",fontSize:9.5,lineHeight:1.55,color:"#c9cdd6",whiteSpace:"pre",overflow:"hidden"}}>
+          <code dangerouslySetInnerHTML={{__html: syntaxHighlight(s.code,s.lang)}}/>
+        </pre>
+        <div style={{
+          position:"absolute",bottom:-20,left:"50%",transform:"translateX(-50%)",
+          width:80,height:30,borderRadius:"50%",background:s.color,
+          opacity:.08,filter:"blur(16px)",pointerEvents:"none",
+        }}/>
+      </div>
+    </div>
+  );
+}
+
 export function CodeOrbit() {
-  const [isPaused, setIsPaused] = useState(false);
   const [positions, setPositions] = useState(() => SNIPPETS.map((_, i) => getPos(i, SNIPPETS.length, 0)));
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const timeRef = useRef(0);
-  const lastRef = useRef(null);
-  const rafRef = useRef(null);
-  const containerRef = useRef(null);
-  const pausedRef = useRef(isPaused);
+  const lastRef = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => { pausedRef.current = isPaused; }, [isPaused]);
-
-  const loop = useCallback((ts) => {
+  const loop = useCallback((ts: number) => {
     if (lastRef.current === null) lastRef.current = ts;
     const dt = ts - lastRef.current;
     lastRef.current = ts;
-    if (!pausedRef.current) timeRef.current += dt;
+    timeRef.current += dt;
     setPositions(SNIPPETS.map((_, i) => getPos(i, SNIPPETS.length, timeRef.current)));
     rafRef.current = requestAnimationFrame(loop);
   }, []);
 
   useEffect(() => {
     rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
   }, [loop]);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const h = (e) => {
+    const h = (e: MouseEvent) => {
       const r = el.getBoundingClientRect();
       setMouse({ x: (e.clientX - r.left - r.width / 2) * 0.015, y: (e.clientY - r.top - r.height / 2) * 0.015 });
     };
@@ -104,7 +154,12 @@ export function CodeOrbit() {
   const highlightedProcedure = useMemo(() => syntaxHighlight(PROCEDURE_CODE, "ts"), []);
 
   const sorted = useMemo(() => {
-    return SNIPPETS.map((s, i) => ({ ...s, i, ...positions[i] })).sort((a, b) => a.z - b.z);
+    const items = SNIPPETS.map((s, i) => ({ ...s, i, ...positions[i] }));
+    const depthOf = (item: typeof items[number]) => (item.z + ORBIT_B) / (ORBIT_B * 2);
+    return {
+      back: items.filter(s => depthOf(s) <= 0.5).sort((a, b) => a.z - b.z),
+      front: items.filter(s => depthOf(s) > 0.5).sort((a, b) => a.z - b.z),
+    };
   }, [positions]);
 
   const particles = useMemo(() => {
@@ -120,8 +175,8 @@ export function CodeOrbit() {
 
   return (
     <div ref={containerRef} style={{
-      position: "relative", width: "100%", height: 700,
-      background: "#0a0a0f", display: "flex", alignItems: "center", justifyContent: "center",
+      position: "relative", width: "100%", paddingTop: 40, paddingBottom: 40,
+      display: "flex", alignItems: "center", justifyContent: "center",
       overflow: "hidden", fontFamily: "'JetBrains Mono', monospace", userSelect: "none",
     }}>
       <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -130,35 +185,57 @@ export function CodeOrbit() {
         @keyframes floatP { 0%,100%{opacity:0;transform:translateY(0) scale(.5)} 50%{opacity:1;transform:translateY(-40px) scale(1)} }
         @keyframes pulseR { 0%{transform:translate(-50%,-50%) scale(1);opacity:.15} 100%{transform:translate(-50%,-50%) scale(1.15);opacity:0} }
         .snip-card:hover { border-color: var(--acc) !important; transform: scale(1.08) !important; }
+        @media (prefers-color-scheme: light) {
+          .code-orbit-container { background: transparent !important; }
+          .code-orbit-ring { border-color: rgba(0,0,0,.08) !important; }
+          .code-orbit-pulse { border-color: rgba(121,83,210,.15) !important; }
+          .code-orbit-center { background: #ffffff !important; border-color: #e2e2e8 !important; box-shadow: 0 0 0 1px rgba(0,0,0,.04),0 8px 40px rgba(0,0,0,.08),0 0 120px -20px rgba(121,83,210,.08) !important; }
+          .code-orbit-center-bar { background: rgba(0,0,0,.03) !important; border-bottom-color: #e2e2e8 !important; }
+          .code-orbit-center-bar span { color: #8b8fa3 !important; }
+          .code-orbit-center pre { color: #1e1e2e !important; }
+          .snip-card { background: rgba(255,255,255,.95) !important; border-color: rgba(0,0,0,.08) !important; }
+          .snip-card-bar { background: rgba(0,0,0,.02) !important; border-bottom-color: rgba(0,0,0,.06) !important; color: #8b8fa3 !important; }
+          .snip-card pre { color: #1e1e2e !important; }
+        }
       `}</style>
 
       {/* ambient bg */}
       <div style={{ position:"absolute",inset:0,pointerEvents:"none",
-        background:"radial-gradient(ellipse 900px 500px at 50% 50%,rgba(121,83,210,.06) 0%,transparent 70%),radial-gradient(ellipse 400px 400px at 30% 40%,rgba(49,120,198,.04) 0%,transparent 60%),radial-gradient(ellipse 400px 300px at 70% 60%,rgba(16,185,129,.03) 0%,transparent 60%)"
+        background:"radial-gradient(ellipse 100% 100% at 50% 50%,rgba(121,83,210,.05) 0%,rgba(121,83,210,.02) 30%,transparent 60%),radial-gradient(ellipse 80% 80% at 35% 40%,rgba(49,120,198,.03) 0%,transparent 50%),radial-gradient(ellipse 80% 80% at 65% 60%,rgba(16,185,129,.025) 0%,transparent 50%)"
       }}/>
 
       {/* orbit ring hint */}
-      <div style={{
+      <div className="code-orbit-ring" style={{
         position:"absolute",left:"50%",top:"50%",width:ORBIT_A*2,height:ORBIT_B*2,
         transform:"translate(-50%,-50%) rotateX(60deg)",
         border:"1px solid rgba(255,255,255,.035)",borderRadius:"50%",pointerEvents:"none",
       }}/>
 
       {/* pulse ring */}
-      <div style={{
+      <div className="code-orbit-pulse" style={{
         position:"absolute",left:"50%",top:"50%",width:374,height:280,
         border:"1px solid rgba(121,83,210,.2)",borderRadius:10,
-        animation:"pulseR 3s ease-out infinite",pointerEvents:"none",zIndex:9,
+        animation:"pulseR 3s ease-out infinite",pointerEvents:"none",
       }}/>
 
+      {/* orbiting snippets — back layer (behind central block via DOM order) */}
+      {sorted.back.map((s) => {
+        const dn = (s.z + ORBIT_B) / (ORBIT_B * 2);
+        const scale = 0.65 + dn * 0.55;
+        const crossFade = Math.abs(dn - 0.5) * 2;
+        const opacity = (0.5 + dn * 0.5) * (0.85 + crossFade * 0.15);
+        const blur = (1 - dn) * 0.35;
+        return <SnipCard key={s.label} s={s} mouse={mouse} scale={scale} opacity={opacity} blur={blur} />;
+      })}
+
       {/* central block */}
-      <div style={{
-        position:"relative",zIndex:10,width:370,
+      <div className="code-orbit-center" style={{
+        position:"relative",width:370,
         background:"#12121a",border:"1px solid #1e1e2e",borderRadius:10,
         boxShadow:"0 0 0 1px rgba(255,255,255,.03),0 8px 40px rgba(0,0,0,.5),0 0 120px -20px rgba(121,83,210,.12)",
         overflow:"hidden",transition:"transform .4s cubic-bezier(.23,1,.32,1),box-shadow .4s ease",
       }}>
-        <div style={{
+        <div className="code-orbit-center-bar" style={{
           display:"flex",alignItems:"center",gap:6,padding:"10px 14px",
           background:"rgba(255,255,255,.02)",borderBottom:"1px solid #1e1e2e",
         }}>
@@ -167,49 +244,19 @@ export function CodeOrbit() {
           ))}
           <span style={{marginLeft:8,fontSize:11,color:"#5a5e6e",letterSpacing:.3}}>UserController.ts</span>
         </div>
-        <pre style={{margin:0,padding:16,fontSize:11.5,lineHeight:1.65,color:"#c9cdd6",overflow:"hidden"}}>
+        <pre style={{margin:0,padding:16,fontSize:11,lineHeight:1.5,color:"#c9cdd6",overflow:"hidden"}}>
           <code dangerouslySetInnerHTML={{__html:highlightedProcedure}}/>
         </pre>
       </div>
 
-      {/* orbiting snippets */}
-      {sorted.map((s) => {
-        const depthNorm = (s.z + ORBIT_B) / (ORBIT_B * 2);
-        const scale = 0.65 + depthNorm * 0.55;
-        const opacity = 0.4 + depthNorm * 0.6;
-        return (
-          <div key={s.label} style={{
-            position:"absolute",left:"50%",top:"50%",
-            transform:`translate(calc(-50% + ${s.x+mouse.x}px),calc(-50% + ${s.y+mouse.y}px)) scale(${scale})`,
-            zIndex: depthNorm > 0.5 ? 15 : 5,
-            opacity,transition:"opacity .3s ease",pointerEvents:"auto",
-          }}>
-            <div className="snip-card" style={{
-              "--acc":s.color,
-              width:175,background:"rgba(18,18,26,.92)",backdropFilter:"blur(12px)",
-              border:"1px solid rgba(255,255,255,.06)",borderRadius:8,overflow:"hidden",
-              cursor:"default",position:"relative",transition:"transform .25s ease,border-color .25s ease",
-            }}>
-              <div style={{
-                display:"flex",alignItems:"center",gap:6,padding:"5px 10px",
-                fontSize:9,fontWeight:500,color:"#5a5e6e",
-                background:"rgba(255,255,255,.02)",borderBottom:"1px solid rgba(255,255,255,.04)",
-                letterSpacing:.4,textTransform:"uppercase",
-              }}>
-                <span style={{width:5,height:5,borderRadius:"50%",background:s.color,flexShrink:0}}/>
-                {s.label}
-              </div>
-              <pre style={{margin:0,padding:"8px 10px",fontSize:9.5,lineHeight:1.55,color:"#c9cdd6",whiteSpace:"pre",overflow:"hidden"}}>
-                <code dangerouslySetInnerHTML={{__html: syntaxHighlight(s.code,s.lang)}}/>
-              </pre>
-              <div style={{
-                position:"absolute",bottom:-20,left:"50%",transform:"translateX(-50%)",
-                width:80,height:30,borderRadius:"50%",background:s.color,
-                opacity:.08,filter:"blur(16px)",pointerEvents:"none",
-              }}/>
-            </div>
-          </div>
-        );
+      {/* orbiting snippets — front layer (in front of central block via DOM order) */}
+      {sorted.front.map((s) => {
+        const dn = (s.z + ORBIT_B) / (ORBIT_B * 2);
+        const scale = 0.65 + dn * 0.55;
+        const crossFade = Math.abs(dn - 0.5) * 2;
+        const opacity = (0.5 + dn * 0.5) * (0.85 + crossFade * 0.15);
+        const blur = (1 - dn) * 0.35;
+        return <SnipCard key={s.label} s={s} mouse={mouse} scale={scale} opacity={opacity} blur={blur} />;
       })}
 
       {/* particles */}
@@ -220,15 +267,6 @@ export function CodeOrbit() {
           animation:`floatP ${p.dur}s ease-in-out ${p.delay}s infinite`,
         }}/>
       ))}
-
-      <button type="button" onClick={()=>setIsPaused(p=>!p)} style={{
-        position:"absolute",bottom:20,right:20,zIndex:20,
-        background:"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.08)",
-        color:"#5a5e6e",fontFamily:"'JetBrains Mono',monospace",fontSize:10,
-        padding:"6px 12px",borderRadius:6,cursor:"pointer",letterSpacing:.5,textTransform:"uppercase",
-      }}>
-        {isPaused ? "▶ play" : "❚❚ pause"}
-      </button>
     </div>
   );
 }
