@@ -1,10 +1,10 @@
 :HL["/_next/static/chunks/978f1fab870b13d4.css","style"]
 :HL["/_next/static/chunks/6fb2953872011b52.css","style"]
-:HL["/_next/static/chunks/614e4972b1cf6a4a.css","style"]
+:HL["/_next/static/chunks/eaf81d40d28c1c51.css","style"]
 :HL["https://img.shields.io/github/stars/finom/vovk","image"]
 :HL["https://img.shields.io/npm/dm/vovk","image"]
 :HL["https://img.shields.io/github/license/finom/vovk","image"]
 :HL["https://img.shields.io/npm/v/vovk?label=vovk","image"]
 :HL["https://img.shields.io/npm/v/vovk-cli?label=vovk-cli","image"]
 :HL["https://img.shields.io/github/issues/finom/vovk","image"]
-0:{"buildId":"hT2hOLzoin-xigsC-gmgX","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"HdOG8yOOGhq9ov5HggREV","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
