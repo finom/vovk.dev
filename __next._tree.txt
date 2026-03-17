@@ -7,4 +7,4 @@
 :HL["https://img.shields.io/npm/v/vovk?label=vovk","image"]
 :HL["https://img.shields.io/npm/v/vovk-cli?label=vovk-cli","image"]
 :HL["https://img.shields.io/github/issues/finom/vovk","image"]
-0:{"buildId":"T1LiYXH6mIEy_FFFLR6E2","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"fdTj_i9O50W_HG8cEQ4BL","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
