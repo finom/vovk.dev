@@ -31,11 +31,10 @@ export default class UserController {
     body: z.object({
       email: z.email(),
       profile: z.object({
-        name: z.string(), age: z.int() }),
+        name: z.string(), age: z.int() 
+      }),
     }),
     params: z.object({ id: z.uuid() }),
-    query: z.object({
-      notify: z.enum(["email", "push"]) }),
   }).handle(async (req, { id }) => {
     return UserService.updateUser(id);
   });

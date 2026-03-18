@@ -35,53 +35,6 @@ Would love to hear any feedback or questions!
 ---
 ---
 ---
-
-# Vovk.ts Discord
-
-> This is your own community — people here already know what Vovk.ts is. Be celebratory, speak directly, highlight what's changed.
-
----
-
-@everyone
-
-**Vovk.ts is officially released!** 🐺
-
-After nearly three years of development and a few early previews along the way, the framework is ready for a proper introduction. Here's what's shipping:
-
-- In-place procedure validation with Zod, Valibot, or ArkType — no separate contracts
-- Auto-generated type-safe RPC clients with jump-to-definition and JSDoc
-- OpenAPI 3.1 generation with Scalar-compatible docs
-- Per-segment serverless compilation with independent runtime config
-- Local procedure execution via `.fn()` for SSR/PPR/background jobs
-- JSON Lines streaming with `async function*` generators
-- AI tool derivation and MCP server support via `deriveTools()`
-- Third-party API mixins — import external OpenAPI specs as typed client modules
-- Experimental Python and Rust client generation
-- Multitenancy with built-in subdomain routing
-
-📝 Read the full announcement: https://vovk.dev/blog/announcement
-📖 Get started: https://vovk.dev/quick-install
-🐙 GitHub: https://github.com/finom/vovk
-
-If you've been following the project, thank you — your feedback shaped a lot of these decisions. If you're new here, welcome! Feel free to ask anything.
-
----
----
----
-
-# Twitter / X (@vovaborisov or Vovk.ts account)
-
-> Option A: Single tweet (concise, links to blog post)
-
-Vovk.ts is officially released.
-
-A back-end framework native to Next.js App Router — controllers, type-safe RPC clients, OpenAPI specs, and AI tool definitions from a single source of truth.
-
-Nearly 3 years in the making.
-
-📖 https://vovk.dev/blog/announcement
-🐙 https://github.com/finom/vovk
-
 ---
 
 > Option B: Short thread (more detail, better engagement)
@@ -115,6 +68,8 @@ Would love to hear what you think.
 
 
 ----- 
+
+https://claude.ai/chat/c49c7aae-aacc-4895-a05d-603de5f17cf8
 
 A few tactical notes on your materials:
 For Reddit, I'd go with title option 2 — "After ~3 years of work, I'm releasing Vovk.ts..." — it's honest and personal without being clickbait. r/nextjs is allergic to anything that reads like marketing.
