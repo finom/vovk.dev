@@ -1,5 +1,23 @@
 # Три года в одиночку: как я строил бэкенд-фреймворк поверх Next.js и что из этого вышло
 
+<p align="center">
+  <a href="https://vovk.dev">
+    <picture>
+      <source width="300" media="(prefers-color-scheme: dark)" srcset="https://vovk.dev/vovk-logo-white.svg" />
+      <source width="300" media="(prefers-color-scheme: light)" srcset="https://vovk.dev/vovk-logo.svg" />
+      <img width="300" alt="vovk" src="https://vovk.dev/vovk-logo.svg" />
+    </picture>
+  </a>
+  <br />
+  <strong>Back-end Framework для Next.js App Router</strong>
+  <br />
+  <a href="https://vovk.dev/">Документация</a>
+  &nbsp;&nbsp;
+  <a href="https://vovk.dev/quick-install">Быстрый старт</a>
+  &nbsp;&nbsp;
+  <a href="https://vovk.dev/performance">Производительность</a>
+</p>
+
 Почти три года назад я начал проект, который должен был принести структурированный бэкенд в стиле NestJS в Next.js App Router. Сегодня я выпускаю **Vovk.ts** — мета-фреймворк, который превращает Route Handlers в полноценный API-слой с контроллерами, сервисами и процедурами, автоматически генерируя типизированные RPC-клиенты, OpenAPI-спецификации и определения инструментов для LLM.
 
 Но эта статья не столько о фичах (хотя без них не обойтись), сколько о технических задачах, которые пришлось решать по дороге, — и о граблях, на которые я наступил. Если вы когда-либо проектировали библиотеку с нетривиальной системой типов в TypeScript, думаю, некоторые из этих историй вам будут знакомы.
