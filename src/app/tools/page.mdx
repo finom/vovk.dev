@@ -179,7 +179,7 @@ export default class MediaController {
 export default class MediaController {
   @get('from-url')
   static async getAudioFromURL() {
-    return fetch('https://example.com/image.jpg');
+    return fetch('https://example.com/audio.mp3');
   }
 }
 ```
@@ -246,7 +246,7 @@ When the tool is executed with `ToModelOutput.MCP` formatter, the output will in
 }
 ```
 
-Note that `mcpOutput` metadata key can also override other MCP output properties, such as `data`, `text`, `type`, and `mimeType`. This might be useful if you want to customize the MCP output without changing the actual procedure response.
+Note that `mcpOutput` metadata key can also override other MCP output properties, including `content`, `structuredContent`, and `annotations`. This might be useful if you want to customize the MCP output without changing the actual procedure response.
 
 ## Tips 
 

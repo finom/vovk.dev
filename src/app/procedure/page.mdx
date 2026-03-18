@@ -314,7 +314,7 @@ While using built-in `NextRequest` functions like `req.json()` and `req.nextUrl.
 <a name="req-vovk-body"></a>
 ### `async req.vovk.body()`
 
-The `req.vovk.body` function returns the request body parsed as an object. In most cases, it behaves the same as `req.json()`, but returns data modified by the validation library (if any).
+The `req.vovk.body` function returns the request body parsed as an object. In most cases, it behaves the same as `req.json()`, but can also return data based on non-JSON content type set at `procedure` function (see [Content Type](#content-type) for details).
 
 ```ts showLineNumbers copy
 import { post, type VovkRequest } from 'vovk';
@@ -495,7 +495,7 @@ The following table summarises how each content type family maps to client-side 
 
 > [!NOTE]
 >
-> Standard `Request` methods like `req.json()`, `req.text()`, `req.blob()`, and `req.formData()` remain available and work as usual—`contentType` only affects the typed helpers on `req.vovk`.
+> Standard `Request` methods like `req.json()`, `req.text()`, `req.blob()`, and `req.formData()` remain available and work as usual—`contentType` only affects the typed helper on `req.vovk.body()`.
 
 Wildcard patterns such as `'video/*'{:ts}`, `'image/*'{:ts}`, or `'*/*'{:ts}` are supported and match any subtype within that family.
 
@@ -547,7 +547,7 @@ export default class UserController {
 }
 ```
 
-The RPC method's `body` type is inferred as `FormData | Blob{:ts}`:
+The RPC method's `body` type is inferred as `TBody | FormData | Blob{:ts}`, where `TBody` is the type inferred from the validation schema (an object is converted to `FormData` on the client side, based on the content type).
 
 ```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
@@ -561,7 +561,7 @@ await UserRPC.createUser({
 });
 ```
 
-`req.vovk.body()` automatically parses the form data into a plain object (see [`req.vovk` Interface](#req-vovk-interface)). You can also access the raw `FormData{:ts}` instance via `req.formData()`.
+On the server-side `req.vovk.body()` automatically parses the form data into a plain object (see [`req.vovk` Interface](#req-vovk-interface)). You can also access the raw `FormData{:ts}` instance via `req.formData()`.
 
 If the form data can contain one or more values for the same key, use a union of the value type and an array of the value type, because `FormData` doesn't distinguish between single and multiple values.
 
@@ -687,9 +687,9 @@ export default class UserController {
   @post()
   static importData = procedure({
     contentType: ['application/json', 'text/csv'],
-    body: z.object({ items: z.array(z.string()) }),
+    body: z.union([z.object({ items: z.array(z.string()) }), z.string()]),
   }).handle(async (req) => {
-    const body = await req.vovk.body(); // parsed object or string, depending on the request
+    const body = await req.vovk.body(); // { items: string[] } | string
     // ...
   });
 }

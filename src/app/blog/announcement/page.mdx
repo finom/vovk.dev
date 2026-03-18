@@ -121,7 +121,7 @@ await UserController.getUser.fn({ params: { id: '123' } });
 
 If you've used tRPC, ts-rest, NestJS, oRPC, Hono, or ElysiaJS, many of the ideas here will feel familiar. Each of those tools does something genuinely well, and the patterns they've established informed many of the design decisions in Vovk.ts.
 
-Where Vovk.ts carves its own path is in combining these ideas natively within Next.js App Router: the Controller–Service architecture I loved in NestJS, the type-safe clients from tRPC, the REST compliance and OpenAPI generation from ts-rest — without requiring a separate server process, a shared contract layer, or a non-standard wire protocol. On top of that, it adds things I couldn't find elsewhere: per-segment serverless compilation, local procedure execution via `.fn()`, and built-in AI tool derivation for LLM agents and MCP servers.
+Where Vovk.ts carves its own path is in combining these ideas natively within Next.js App Router: the Controller–Service architecture I loved in NestJS, the type-safe clients from tRPC, the REST compliance and OpenAPI generation from ts-rest — without requiring a separate server process, a shared contract layer, or a non-standard wire protocol. On top of that, it adds things I couldn't find elsewhere: local procedure execution via .fn() and built-in AI tool derivation for LLM agents and MCP servers.
 
 It's not the right tool for every situation — if you're not on Next.js, or if you prefer a contract-first workflow, other options will serve you better. But if you're building a structured API layer on top of the App Router and want all of the above from a single source of truth, I think you'll enjoy it. I'd love to hear how your experience compares.
 
