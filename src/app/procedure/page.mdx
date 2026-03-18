@@ -11,7 +11,7 @@ import { get, put, prefix } from 'vovk';
 @prefix('users') // optional prefix for all routes in this controller
 export default class UserController {
   @put('{id}')
-  static getUser(req: NextRequest, { id }: { id: string }) {
+  static async getUser(req: NextRequest, { id }: { id: string }) {
     const data = await req.json();
     // ...
   }
@@ -689,7 +689,7 @@ export default class UserController {
     contentType: ['application/json', 'text/csv'],
     body: z.union([z.object({ items: z.array(z.string()) }), z.string()]),
   }).handle(async (req) => {
-    const body = await req.vovk.body(); // { items: string[] } | string
+    const body = await req.vovk.body(); // parsed object or string, depending on the request
     // ...
   });
 }

@@ -111,3 +111,13 @@ Vovk.ts combines their ideas natively within the App Router, without a separate 
 📝 Full announcement: https://vovk.dev/blog/announcement
 
 Would love to hear what you think.
+
+
+
+----- 
+
+A few tactical notes on your materials:
+For Reddit, I'd go with title option 2 — "After ~3 years of work, I'm releasing Vovk.ts..." — it's honest and personal without being clickbait. r/nextjs is allergic to anything that reads like marketing.
+For LinkedIn, your "lessons learned" framing is excellent — it's the strongest piece in the whole set. The Anders Hejlsberg story and the Copilot syntax discovery are memorable hooks.
+For Habr, the technical depth (TypeScript inference challenges, performance benchmarks, Standard Schema migration) is exactly what the audience rewards. The Thursday timing gives you the full voting window through the weekend.
+For Twitter, definitely use the thread (Option B) over the single tweet — threads get significantly more impressions, and each tweet in the chain is a natural engagement point.

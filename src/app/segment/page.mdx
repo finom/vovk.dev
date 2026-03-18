@@ -163,7 +163,7 @@ export function generateStaticParams() {
 The `@get` decorator accepts an options object. One of the options, `staticParams`, lets you enumerate static parameter combinations to simulate conditional routing. The example below shows a single handler that renders six variants for two parameters: section (`a | b`) and page (`1 | 2 | 3`).
 
 ```ts showLineNumbers copy
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { procedure, prefix, get, operation } from 'vovk';
 
 @prefix('static-params')
