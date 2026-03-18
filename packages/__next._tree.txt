@@ -1,4 +1,14 @@
 :HL["/_next/static/chunks/978f1fab870b13d4.css","style"]
 :HL["/_next/static/chunks/6fb2953872011b52.css","style"]
 :HL["/_next/static/chunks/eaf81d40d28c1c51.css","style"]
-0:{"buildId":"igN0o8cCKo6Tl7acm5PF4","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"packages","paramType":null,"paramKey":"packages","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+:HL["https://img.shields.io/npm/v/vovk","image"]
+:HL["https://img.shields.io/npm/v/vovk-cli","image"]
+:HL["https://img.shields.io/npm/v/vovk-client","image"]
+:HL["https://img.shields.io/npm/v/vovk-ajv","image"]
+:HL["https://img.shields.io/npm/v/vovk-python","image"]
+:HL["https://img.shields.io/npm/v/vovk-rust","image"]
+:HL["https://img.shields.io/npm/v/vovk-examples","image"]
+:HL["https://img.shields.io/npm/v/vovk-hello-world","image"]
+:HL["https://img.shields.io/crates/v/vovk-hello-world.svg","image"]
+:HL["https://badge.fury.io/py/vovk-hello-world.svg","image"]
+0:{"buildId":"gOIs9LHX9grWtBOIniE0W","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"packages","paramType":null,"paramKey":"packages","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
