@@ -1,5 +1,5 @@
 :HL["/_next/static/chunks/978f1fab870b13d4.css","style"]
 :HL["/_next/static/chunks/6fb2953872011b52.css","style"]
-:HL["/_next/static/chunks/e41062d8cfd5a7a2.css","style"]
+:HL["/_next/static/chunks/29143b8fb204d389.css","style"]
 :HL["/diagrams/text_ai_chat_flow.svg","image"]
-0:{"buildId":"LFvc7Vfx_zrqxxJhvqGgl","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"realtime-ui","paramType":null,"paramKey":"realtime-ui","hasRuntimePrefetch":false,"slots":{"children":{"name":"text-ai","paramType":null,"paramKey":"text-ai","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"grcCz74POsdmWRW8QgVIt","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"realtime-ui","paramType":null,"paramKey":"realtime-ui","hasRuntimePrefetch":false,"slots":{"children":{"name":"text-ai","paramType":null,"paramKey":"text-ai","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
