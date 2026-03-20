@@ -2,9 +2,15 @@ import AppAlike from './AppAlike';
 
 # Entity-driven state normalization with Zustand registry
 
-Entity-driven state normalization is the most efficient way to manage application state in complex apps that deal with a lot of interconnected data. Instead of passing raw data to components or storing responses as-is in state, it’s better to extract entities from the data and store them in a centralized registry. Components can then subscribe to specific entities by their IDs; when an entity is updated, all components that use it are updated automatically.
+Entity-driven state normalization is the most efficient way to manage application state in complex apps that deal with a lot of interconnected data. Instead of passing raw data to components or storing responses as-is in state, extracting entities and storing them in a centralized registry gives you a single source of truth, O(1) lookups by ID, and automatic updates everywhere an entity is referenced. Components subscribe to specific entities by their IDs; when an entity is updated, all components that use it re-render automatically.
 
 <AppAlike />
+
+The demo above shows the same user entity rendered in four different places: the header greeting, the sidebar, the page title, and the form input. When you update the name and hit Save, every component reflects the change instantly — because they all read from the same entity in the registry.
+
+Here's how this works under the hood: raw API responses are passed through a `parse` method that recursively extracts entities, normalizes them into flat dictionaries keyed by ID, and merges them into a Zustand store. Components subscribe to specific entities by ID and re-render only when their data changes.
+
+<img src="/diagrams/entity_registry_pattern.svg" alt="Entity Registry Pattern" className="mt-4 dark:invert" />
 
 An item in the registry can be used in any component as follows:
 
@@ -18,23 +24,32 @@ export const UserProfile = ({ userId }: { userId: User['id'] }) => {
 Arrays of entities can be derived by mapping over the IDs:
 
 ```ts showLineNumbers copy
-// ...
-const users = useRegistry(
-  useShallow((state) => userIds.map((id) => state.user[id])),
-);
+export const UserList = ({ userIds }: { userIds: User['id'][] }) => {
+    const users = useRegistry(
+      useShallow((state) => userIds.map((id) => state.user[id])),
+    );
+    return <ul>{users.map((u) => <li key={u.id}>{u.fullName}</li>)}</ul>
+}
 ```
 
 The implementation explained below also considers soft deletions, where deleted entities are marked as non-enumerable without actually removing them from the state. This prevents errors in components that might still reference them.
 
 ```ts showLineNumbers copy
-const users = useRegistry(
-  useShallow(({ user: { ...userReg } }) => userIds.filter((id) => id in userReg).map((id) => userReg[id]))
-);
+export const UserList = ({ userIds }: { userIds: User['id'][] }) => {
+    const users = useRegistry(
+      useShallow(({ user: { ...userReg } }) => userIds.filter((id) => id in userReg).map((id) => userReg[id]))
+    );
+    return <ul>{users.map((u) => <li key={u.id}>{u.fullName}</li>)}</ul>
+}
 ```
 
-## Implementing `useRegistry` hook
+## Prior art and portability
 
-<img src="/diagrams/entity_registry_pattern.svg" alt="Entity Registry Pattern" className="mt-4 dark:invert" />
+The idea of normalizing front-end state into flat entity maps originates from the Redux ecosystem. [`normalizr`](https://github.com/paularmstrong/normalizr) (originally created by Dan Abramov) introduced declarative schema-based normalization of nested JSON, and Redux Toolkit's [`createEntityAdapter`](https://redux-toolkit.js.org/api/createEntityAdapter) later provided built-in CRUD reducers and selectors for normalized state. The approach described here applies the same core principle — flat entity dictionaries keyed by ID — but relies on convention (`id` + `entityType`) instead of upfront schema definitions.
+
+While this article uses [Zustand](https://github.com/pmndrs/zustand), the pattern itself is not tied to it. The core requirements from a state library are: a centralized store that holds plain objects, the ability to update state and trigger selective re-renders, and a subscription mechanism so components only re-render when their specific entity changes. Any library that provides these can host the same registry. Compatible alternatives include [Jotai](https://jotai.org/) (where each entity map could be an atom) and [Valtio](https://valtio.dev/) (using proxy-based reactivity for automatic fine-grained subscriptions). The `getEntitiesFromData` extraction function and the `parse` logic are completely library-agnostic — only the store creation and subscription wiring need to be adapted.
+
+## Implementing `useRegistry` hook
 
 The application state is normalized and stores entities in a dictionary by their IDs. The registry exposes a `parse` method that accepts any data and extracts entities from it, storing them in the registry. This method is used to process all incoming data from the server so that all components using this data are updated automatically.
 
@@ -42,12 +57,17 @@ The application state is normalized and stores entities in a dictionary by their
 useRegistry.getState().parse(data);
 ```
 
-For type safety, let’s create a `BaseEntity` interface that describes the common shape of all entities in the database. Each database entity will have `id`, `createdAt`, `updatedAt`, and `entityType` fields, where `id` and `entityType` are used to identify the entity in the registry.
+### Defining entity types
+
+The pattern relies on a simple contract: every entity in your data has an `id` field and an `entityType` field that identifies what kind of entity it is. In a real project, `EntityType` can be pulled from `@prisma/client`, generated from your schema, or imported from wherever your source of truth lives. Here we list it explicitly for documentation purposes:
 
 ```ts showLineNumbers copy filename="src/types.ts"
-import { EntityType } from '@prisma/client';
+enum EntityType {
+  user = 'user',
+  task = 'task',
+}
 
-export interface BaseEntity {
+interface BaseEntity {
   id: string;
   createdAt: string | Date;
   updatedAt: string | Date;
@@ -55,9 +75,34 @@ export interface BaseEntity {
 }
 ```
 
-The `useRegistry` hook, built with the Zustand library, implements a `Registry` interface that describes the shape of the registry state: the `parse` method and entity maps such as `user` and `task`.
+Entity IDs should be **branded strings** rather than plain `string` types. This prevents accidentally passing a user ID where a task ID is expected — a common source of bugs in apps with many entity types. With Zod, you can define a branded ID schema per entity:
 
-The types for `UserType` and `TaskType` are imported from generated schema files based on the Prisma models. For more details, see the [Database](./database) article.
+```ts showLineNumbers copy
+import { z } from 'zod';
+
+const UserIdSchema = z.string().brand<'user'>();
+const TaskIdSchema = z.string().brand<'task'>();
+
+type UserId = z.infer<typeof UserIdSchema>;   // string & { __brand: 'user' }
+type TaskId = z.infer<typeof TaskIdSchema>;   // string & { __brand: 'task' }
+```
+
+Without Zod, you can achieve the same with a simple TypeScript utility type:
+
+```ts showLineNumbers copy
+type BrandedId<T extends string> = string & { readonly __brand: T };
+
+type UserId = BrandedId<'user'>;
+type TaskId = BrandedId<'task'>;
+```
+
+Either way, your entity interfaces then use the branded type for `id` instead of bare `string`, making it a compile-time error to mix up IDs across entity types.
+
+> In the Realtime UI project, `EntityType` is imported from `@prisma/client` and the entity types (including branded IDs) are generated via a Zod generator, as described in the [Database](./database) article.
+
+### The registry hook
+
+The `useRegistry` hook, built with the Zustand library, implements a `Registry` interface that describes the shape of the registry state: the `parse` method and entity maps such as `user` and `task`.
 
 ```ts showLineNumbers copy filename="src/hooks/useRegistry.ts" repository="finom/realtime-kanban"
 import { EntityType } from '@prisma/client';
@@ -142,7 +187,7 @@ export default useRegistry;
 
 ## `getEntitiesFromData` function explained
 
-`getEntitiesFromData` is a recursive function that extracts entities from any data structure based on the presence of `entityType` and `id` properties. For each discovered `entityType`, it builds a record whose keys are entity IDs and whose values are the entity objects themselves. Let’s say the server returns the following response:
+`getEntitiesFromData` is a recursive function that extracts entities from any data structure based on the presence of `entityType` and `id` properties. For each discovered `entityType`, it builds a record whose keys are entity IDs and whose values are the entity objects themselves. Nested entities (like `user` inside `task`) are extracted alongside their parents in a single pass, so one call normalizes the entire response. Let's say the server returns the following response:
 
 ```json {6,10,16,20}
 {
@@ -188,13 +233,27 @@ The function walks through the entire structure and produces a normalized interm
 
 ## `parse` method explained
 
-The `parse` method accepts any data, extracts entities from it, and stores them in the registry. Instead of simply extending the state with new entities, it uses `Object.getOwnPropertyDescriptors` to get the property descriptors of the existing entities. This allows us to check whether an entity already exists in state and, if it does, compare it with the new entity using the [fast-deep-equal](https://www.npmjs.com/package/fast-deep-equal) library. If the entities are equal, we don’t update state; otherwise, we create a new property descriptor with the updated entity. This helps avoid unnecessary re-renders of components that consume this entity.
+The `parse` method accepts any data, extracts entities from it, and stores them in the registry. Instead of simply extending the state with new entities, it uses `Object.getOwnPropertyDescriptors` to get the property descriptors of the existing entities. This allows us to check whether an entity already exists in state and, if it does, compare it with the new entity using the [fast-deep-equal](https://www.npmjs.com/package/fast-deep-equal) library. If the entities are equal, we don't update state; otherwise, we create a new property descriptor with the updated entity. This helps avoid unnecessary re-renders of components that consume this entity.
 
 ### Soft deletions via `__isDeleted` property
 
-The `__isDeleted` property is used to mark entities as deleted without actually removing them from the state, which avoids errors in components that might still reference them. Once `__isDeleted` is received as part of an entity, the property descriptor is marked as non-enumerable, so it won’t be included in `Object.values` or `Object.keys` calls or in `{ ...spread }` operations, making the entity effectively invisible to most consumers.
+The `__isDeleted` property is used to mark entities as deleted without actually removing them from the state, which avoids errors in components that might still reference them.
 
-In other words, to soft-delete an entity, the server needs to send an object like this:
+The key mechanism here is JavaScript property descriptors. When a property is defined with `enumerable: false`, it becomes invisible to `Object.values`, `Object.keys`, and `{ ...spread }` operations — but it can still be accessed directly by key. This means consumers iterating over entities won't see deleted ones, while components that still hold a reference to the ID won't crash:
+
+```ts showLineNumbers copy
+const obj = Object.defineProperties({}, {
+  'task-1': { value: { id: 'task-1', title: 'Task 1' }, enumerable: true, configurable: true },
+  'task-2': { value: { id: 'task-2', title: 'Task 2' }, enumerable: false, configurable: true },
+});
+
+Object.keys(obj);  // ['task-1'] — task-2 is invisible to iteration
+obj['task-2'];     // { id: 'task-2', title: 'Task 2' } — but still accessible by ID
+```
+
+This approach was chosen over alternatives like maintaining a separate `deletedIds` Set or filtering on a boolean flag because it requires zero awareness from consuming components — they don't need to add any filter logic, the deleted entities simply disappear from enumeration.
+
+Once `__isDeleted` is received as part of an entity, the property descriptor is marked as non-enumerable automatically. To soft-delete an entity, the server needs to send an object like this:
 
 ```json
 {
@@ -206,7 +265,11 @@ In other words, to soft-delete an entity, the server needs to send an object lik
 
 ---
 
-That’s it. Each time data is received from any source, it should go through the registry’s `parse` method, and all components that reference that data by ID are updated automatically.
+## Summary
+
+With this pattern in place you get three things: centralized entity storage with automatic extraction from any response shape, zero-config normalization via `parse` that deduplicates and diff-checks all incoming data, and soft deletes that hide entities from iteration without breaking components that still reference them by ID.
+
+Each time data is received from any source, it goes through the registry's `parse` method, and all components that reference that data by ID are updated automatically.
 
 ```ts showLineNumbers copy
 import { useRegistry } from "@/hooks/useRegistry";
@@ -217,4 +280,4 @@ const data = await resp.json();
 useRegistry.getState().parse(data);
 ```
 
-To make this automatic, we’ll create a custom fetcher that calls the `parse` method for each response, as described in the [next article](./fetcher).
+To make this automatic, we'll create a custom fetcher that calls the `parse` method for each response, as described in the [next article](./fetcher).

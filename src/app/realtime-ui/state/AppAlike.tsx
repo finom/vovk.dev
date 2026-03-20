@@ -11,7 +11,7 @@ const AppAlikeNormal = ({ fullName, setFullName }: { fullName: string; setFullNa
         <div>Welcome on board, {fullName}!</div>
       </div>
       <div className="flex">
-        <div className="border-r border-gray-200 dark:border-gray-800 p-4 flex items-end min-w-40">👤 {fullName}</div>
+        <div className="border-r border-gray-200 dark:border-gray-800 p-4 flex items-end min-w-44">👤 {fullName}</div>
         <div className="p-4 flex-1">
           <h1 className="font-bold text-2xl mb-4">Update your profile, {fullName}!</h1>
           <label htmlFor="fullName" className="block">
@@ -39,7 +39,7 @@ const AppAlikeNormal = ({ fullName, setFullName }: { fullName: string; setFullNa
 };
 
 const AppAlikeWithCode = () => {
-  const [fullName, setFullName] = useState('{user.name}');
+  const [fullName, setFullName] = useState('{user.fullName}');
   const [fullNameInput, setFullNameInput] = useState(fullName);
   return (
     <div className="border dark:border-gray-800 border-gray-200 my-8">
@@ -48,7 +48,7 @@ const AppAlikeWithCode = () => {
         <div>Welcome on board, {fullName}!</div>
       </div>
       <div className="flex">
-        <div className="border-r border-gray-200 dark:border-gray-800 p-4 flex items-end min-w-40">👤 {fullName}</div>
+        <div className="border-r border-gray-200 dark:border-gray-800 p-4 flex items-end min-w-44">👤 {fullName}</div>
         <div className="p-4 flex-1">
           <h1 className="font-bold text-2xl mb-4">Update your profile, {fullName}!</h1>
           <label htmlFor="fullName" className="block">
