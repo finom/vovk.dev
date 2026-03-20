@@ -42,7 +42,7 @@ I'm embarrassed to admit I didn't know his name at the time. When I looked him u
 
 ## The syntax nobody would have designed on purpose
 
-Even after Hejlsberg's fix, I was stuck. The syntax I was using — passing the handler as a property inside the procedure definition — couldn't enforce the return type. The handler could return `any` and TypeScript would silently accept it. I had to put a warning in the docs telling users to manually annotate their return types:
+Even after Hejlsberg's fix, I was stuck. The syntax I was using — passing the handler as a property inside the procedure definition — couldn't enforce the return type. The handler could return anything and TypeScript would silently accept it. I had to put a warning in the docs telling users to manually annotate their return types:
 
 ```ts
 return result satisfies VovkOutput<typeof MyController.myMethod>;

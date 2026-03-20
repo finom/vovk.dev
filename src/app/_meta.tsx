@@ -20,15 +20,43 @@ const meta: MetaRecord = {
   performance: 'Route Performance Overhead',
   '#essentials': separator('Essentials'),
   segment: 'Segment',
+  /*
+  --- Segment ---
+  - Segment Overview
+  - Static Segment
+  */
   procedure: 'Controller & Procedure',
+  /*
+  --- Controller & Procedure ---
+  - Controller & Procedure (Root Endpoint as a hint)
+  - req.vovk Interface
+  - Content Type
+  - Response and Errors
+  - Calling Procedures Locally
+  - JSON Lines
+  - Progressive Responses
+  - Type Inference
+  ?? Schema - Codegen Extras?
+  - Openapi
+  */
   schema: 'Schema',
   response: 'Response & Errors',
   decorator: 'Custom Decorators',
+  /* --- Custom Decorators ---
+  - Custom Decorators Overview
+  - Decorator Examples
+  */
   fn: 'Calling Procedures Locally',
   jsonlines: 'JSON Lines',
   inference: 'Type Inference',
   openapi: 'OpenAPI Specification',
   tools: '🤖 Deriving AI Tools',
+  /* --- Deriving AI Tools ---
+  - Deriving AI Tools Overview
+  - MCP (Model Context Protocol) Output Formatting
+  - Standalone Tools
+  - Examples
+  */
   '#codegen': separator('TypeScript RPC Codegen'),
   typescript: 'TypeScript Client',
   imports: 'Customizing the Client',
@@ -43,7 +71,7 @@ const meta: MetaRecord = {
   '#cli': separator('CLI & Configuration'),
   config: 'Config File',
   dev: <code className="nextra-code">vovk dev</code>,
-  bundle: <code className="nextra-code">vovk bundle 🧪</code>,
+  bundle: <code className="nextra-code">vovk bundle</code>,
   generate: <code className="nextra-code">vovk generate</code>,
   init: <code className="nextra-code">vovk init</code>,
   new: <code className="nextra-code">vovk new</code>,

@@ -1,6 +1,6 @@
 import { FileTree } from 'nextra/components';
 
-# TypeScript Bundle (Experimental)
+# TypeScript Bundle
 
 ```sh filename="Quick CLI Ref"
 $ npx vovk bundle --help
@@ -32,6 +32,8 @@ Options:
 
 The [composed](/composed) [TypeScript Client](/typescript) library can be bundled and published to NPM as a zero-dependency package with pre-filled `package.json` and `README.md` files by using the `bundle` command after you configure the `bundle.build` function in the [config](/config) file.
 
+Check the ["Hello World" page](/hello-world) for a complete bundling example.
+
 This feature is library-agnostic, so you can use any bundler you prefer, including one invoked via the `child_process` module. At the moment, [tsdown](https://tsdown.dev/) is the only bundler that has been tested with Vovk.ts. If you use a different bundler, please share your experience on [GitHub Discussions](https://github.com/finom/vovk/discussions).
 
 Internally, bundling runs the following steps:
@@ -40,6 +42,10 @@ Internally, bundling runs the following steps:
 2. Calls `bundle.build` function to bundle the generated client to the `dist` directory (configured with `bundle.outDir: string{:ts}`).
 3. Generates `package.json` and `README.md` files from the [packageJson](/templates#packagejson) and [readme](/templates#readme) templates.
 4. Deletes the `tmp_prebundle` directory (configured with `bundle.keepPrebundleDir: boolean{:ts}`).
+
+```sh npm2yarn copy
+npx vovk bundle
+```
 
 After bundling, the package can be published to NPM:
 
@@ -166,7 +172,7 @@ const config = {
 };
 ```
 
-## Bundling with tsdown
+## Bundling with tsdown (Experimental)
 
 > [!IMPORTANT]
 >
@@ -326,4 +332,5 @@ const { tools } = deriveTools({
 ## Roadmap/bugs
 
 - 🐞 Type inference from `NextResponse` outputs is not available without the **next** package installed (see [proposal](https://github.com/vercel/next.js/discussions/88542)). For dynamic response headers, use the `Response` class instead, with manual type casting.
+- ✨ Test and document other bundlers, such as **tsup** and **esbuild**.
 - ✨ Segmented bundle — create separate bundles for each segment.
