@@ -18,51 +18,38 @@ const meta: MetaRecord = {
   'quick-install': 'Quick Start',
   'manual-install': 'Manual Install',
   performance: 'Route Performance Overhead',
-  '#essentials': separator('Essentials'),
+  '#segment': separator('Segment'),
   segment: 'Segment',
-  /*
-  --- Segment ---
-  - Segment Overview
-  - Static Segment
-  */
+  'static-segment': 'Static Segment',
+
+  '#procedure': separator('Controller & Procedure'),
   procedure: 'Controller & Procedure',
-  /*
-  --- Controller & Procedure ---
-  - Controller & Procedure (Root Endpoint as a hint)
-  - req.vovk Interface
-  - Content Type
-  - Response and Errors
-  - Calling Procedures Locally
-  - JSON Lines
-  - Progressive Responses
-  - Type Inference
-  ?? Schema - Codegen Extras?
-  - Openapi
-  */
-  schema: 'Schema',
-  response: 'Response & Errors',
-  decorator: 'Custom Decorators',
-  /* --- Custom Decorators ---
-  - Custom Decorators Overview
-  - Decorator Examples
-  */
+  'req-vovk': 'Enhanced Request Object',
   fn: 'Calling Procedures Locally',
+  response: 'Response & Errors',
+  'content-type': 'Content Type',
   jsonlines: 'JSON Lines',
+  progressive: 'Progressive Response',
   inference: 'Type Inference',
   openapi: 'OpenAPI Specification',
-  tools: '🤖 Deriving AI Tools',
-  /* --- Deriving AI Tools ---
-  - Deriving AI Tools Overview
-  - MCP (Model Context Protocol) Output Formatting
-  - Standalone Tools
-  - Examples
-  */
+
+  '#tools': separator('🤖 AI Tools'),
+  tools: 'Deriving AI Tools from Procedures',
+  'tools-mcp': 'MCP Formatting',
+  'tools-standalone': 'Standalone Tools',
+  'tools-examples': 'Examples',
+
+  '#decorators': separator('Decorators'),
+  decorator: 'Custom Decorators',
+  'decorator-examples': 'Decorator Examples', 
+
   '#codegen': separator('TypeScript RPC Codegen'),
   typescript: 'TypeScript Client',
   imports: 'Customizing the Client',
   composed: 'Composed Mode',
   segmented: 'Segmented Mode',
   '#advanced-codegen': separator('Codegen Extras'),
+  schema: 'Schema',
   mixins: 'OpenAPI Mixins',
   python: 'Python Client 🧪',
   rust: 'Rust Client 🧪',

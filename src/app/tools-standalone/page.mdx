@@ -1,0 +1,53 @@
+
+# Standalone Tools
+
+You can create standalone tools that are not [derived](/tools) from controllers or RPC modules by implementing the `VovkTool` interface directly. `createTool` is a small utility that covers cases when you want to create custom tools that don't map to existing back-end functionality and would be useful if you use LLM APIs directly, without 3rd-party libraries. 
+
+An example case would be using [OpenAI Realtime API](https://platform.openai.com/docs/guides/realtime) that, by the time of writing, isn't supported by Vercel AI SDK.
+
+`createTool` accepts the following options, some of which are similar to `deriveTools` options:
+
+- `name: string` - the name of the tool.
+- `title?: string` - optional title for the tool. Used mainly for MCPs.
+- `description: string` - the description of the tool.
+- `toModelOutput?: ToModelOutputFn<TInput, TOutput, TFormattedOutput>` - optional
+- `inputSchema?: StandardSchemaV1 & StandardJSONSchemaV1` - optional input schema for the tool, supports the same libraries as `procedure` function.
+- `outputSchema?: StandardSchemaV1 & StandardJSONSchemaV1` - optional output schema for the tool, supports the same libraries as `procedure` function.
+- `execute: (input: TInput) => Promise<TOutput> | TOutput` - the function to execute the tool logic.
+
+```ts showLineNumbers copy
+import { createTool, ToModelOutput } from 'vovk';
+import { z } from 'zod';
+
+const sumNumbers = createTool({
+  name: 'sum_numbers',
+  title: 'Get Sum of two Numbers',
+  description: 'Returns the sum of two numbers provided as input.',
+  toModelOutput: ToModelOutput.MCP,
+  inputSchema: z.object({
+    a: z.number().description('The first number to sum.'),
+    b: z.number().description('The second number to sum.'),
+  }),
+  outputSchema: z.number().description('The sum of the two numbers.'),
+  execute({ a, b }) {
+    return a + b;
+  },
+});
+
+console.log('Standalone tool:', sumNumbers); // { name, description, parameters, execute, inputSchema, outputSchema }
+```
+
+The standalone tool can be merged with derived tools or used independently.
+
+```ts showLineNumbers copy
+// ...
+const { tools: derivedTools } = deriveTools({
+  modules: { UserController },
+});
+
+const allTools = [...derivedTools, sumNumbers];
+```
+
+The `sumNumbers` tool can now be used like any other derived tool with `name`, `description`, `parameters`, and `execute` function, but also mirrors `inputSchema` and `outputSchema`.
+
+Note that a derived tool includes `inputSchemas` as a record of procedure input, while standalone tool provides `inputSchema`.
