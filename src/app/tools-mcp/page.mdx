@@ -3,6 +3,13 @@
 
 [Derived tools](/tools) can be used as MCP tools with `ToModelOutput.MCP` formatter. It formats the tool output to meet [MCP tool specification](https://modelcontextprotocol.io/specification/2025-11-25/server/tools), supporting the folowing types of outputs: `text`, `image`, `audio`, alongside with meta information, described with `annotations` object.
 
+```ts
+const { tools } = deriveTools({
+  modules: { UserController },
+  toModelOutput: ToModelOutput.MCP,
+});
+```
+
 ## JSON Content
 
 JSON responses (including ones created with `Response` or `NextResponse`) will be formatted as text content with `structuredContent` field.
@@ -144,3 +151,43 @@ When the tool is executed with `ToModelOutput.MCP` formatter, the output will in
 ```
 
 Note that `mcpOutput` metadata key can also override other MCP output properties, including `content`, `structuredContent`, and `annotations`. This might be useful if you want to customize the MCP output without changing the actual procedure response.
+
+## MCP Handler Example
+
+With [mcp-handler](https://www.npmjs.com/package/mcp-handler) package, you can create an MCP-compatible API route that is going to control the back-end functionality exposed to MCP clients.
+
+By writing this documentation, **mcp-handler** supports Zod schemas only, so `inputSchemas`, provided by the tool, needs to be casted as `z.ZodTypeAny` in order to satisfy TypeScript. If another validation library is used, you can convert `parameters.properties` to Zod schemas manually using [`z.fromJSONSchema()`](https://zod.dev/json-schema?id=zfromjsonschema).
+
+```ts showLineNumbers copy filename="src/app/api/mcp/route.ts"
+import { createMcpHandler } from "mcp-handler";
+import { deriveTools, ToModelOutput } from "vovk";
+import z from "zod";
+import UserController from "@/modules/user/UserController";
+
+const { tools } = deriveTools({
+  modules: { UserController },
+  toModelOutput: ToModelOutput.MCP,
+});
+
+const handler = createMcpHandler(
+  (server) => {
+    tools.forEach(({ title, name, execute, description, inputSchemas }) => {
+      server.registerTool(
+        name,
+        {
+          title,
+          description,
+          inputSchema: inputSchemas as Partial<
+            Record<"body" | "query" | "params", z.ZodTypeAny>
+          >,
+        },
+        execute,
+      );
+    });
+  },
+  {},
+  { basePath: "/api" },
+);
+
+export { handler as GET, handler as POST };
+```

@@ -37,7 +37,6 @@ const meta: MetaRecord = {
   tools: 'Deriving AI Tools from Procedures',
   'tools-mcp': 'MCP Formatting',
   'tools-standalone': 'Standalone Tools',
-  'tools-examples': 'Examples',
 
   '#decorators': separator('Decorators'),
   decorator: 'Custom Decorators',
