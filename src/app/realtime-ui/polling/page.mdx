@@ -8,14 +8,11 @@ import { PollExample } from '@/components/vovk-examples';
 
 But what if the database is changed by other users or third-party services? How do we keep the UI in sync with backend data in real time? One way is to implement database polling powered by [JSONLines](/jsonlines). The server sends updates to clients whenever the database changes, and the client reconnects automatically when the connection is closed.
 
-
-
-
 The component below demonstrates a simple polling example that receives incremental updates from the server every second. After 10 updates, the server closes the connection, and the client reconnects automatically. We can use the same approach to receive database updates in real time by having the server send updates whenever the database changes.
 
 <div className="example">
   <PollExample />
-  [View on examples.vovk.dev »](https://examples.vovk.dev/polling)
+  [View Polling example on examples.vovk.dev »](https://examples.vovk.dev/polling)
 </div>
 
 A small delay (up to half a second) is expected due to the CORS preflight. See the Network tab in DevTools for details.

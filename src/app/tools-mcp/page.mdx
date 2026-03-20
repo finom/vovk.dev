@@ -17,9 +17,9 @@ JSON responses (including ones created with `Response` or `NextResponse`) will b
 ```ts showLineNumbers copy
 export default class UserController {
   @get('{id}')
-  static getUser() {
+  static getUser = procedure().handle(async (req, { id }) => {
     return { hello: 'world' };
-  }
+  });
 }
 ```
 
@@ -44,11 +44,11 @@ If procedure returns a `Response` with `Content-Type` header set to `audio/*` or
 ```ts showLineNumbers copy
 export default class MediaController {
   @get('image')
-  static getImage() {
+  static getImage = procedure().handle(() => {
     return new Response(buffer, {
       headers: { 'Content-Type': 'image/png' },
     });
-  };
+  });
 }
 ```
 
@@ -73,18 +73,18 @@ import { toDownloadResponse } from 'vovk';
 
 export default class MediaController {
   @get('audio')
-  static getAudio() {
+  static getAudio = procedure().handle(() => {
     return toDownloadResponse(buffer, { contentType: 'audio/mpeg' });
-  }
+  });
 }
 ```
 
 ```ts showLineNumbers copy
 export default class MediaController {
   @get('from-url')
-  static async getAudioFromURL() {
+  static getAudioFromURL = procedure().handle(() => {
     return fetch('https://example.com/audio.mp3');
-  }
+  });
 }
 ```
 
@@ -95,11 +95,11 @@ If procedure returns a `Response` with `Content-Type` header set to `text/*` or 
 ```ts showLineNumbers copy
 export default class TextController {
   @get('greeting')
-  static getGreeting() {
+  static getGreeting = procedure().handle(() => {
     return new Response('Hello, world!', {
       headers: { 'Content-Type': 'text/plain' },
     });
-  }
+  });
 }
 ```
 
@@ -123,12 +123,12 @@ Annotations can be added to the output by setting a special metadata key `mcpOut
 ```ts showLineNumbers copy
 export default class AnnotatedController {
   @get('annotated-image')
-  static async getAnnotatedImage(req: VovkRequest) {
+  static getAnnotatedImage = procedure().handle((req) => {
     req.vovk.meta({
       mcpOutput: { annotations: { audience: ['user'], priority: 5 } },
     });
     return fetch('https://example.com/image.jpg');
-  }
+  });
 }
 ```
 
@@ -191,3 +191,7 @@ const handler = createMcpHandler(
 
 export { handler as GET, handler as POST };
 ```
+
+---
+
+See [Realtime UI / MCP](/realtime-ui/mcp) for more info.

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://vovk.dev'),
   manifest: '/site.webmanifest',
   title: {
-    default: 'Vovk.ts - SaaS-Ready Back-end Framework for Next.js App Router',
+    default: 'Vovk.ts - Back-end Framework for Next.js App Router',
     template: '%s | Vovk.ts - Back-end Framework for Next.js App Router',
   },
   openGraph: {
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     siteName: 'Vovk.ts',
     locale: 'en_US',
     type: 'website',
-    description: 'A SaaS-ready API layer for Next.js — multi-tenant routing, third-party-ready APIs, and MCP-compatible AI tools from a single codebase.',
+    description: 'One codebase → type-safe clients, OpenAPI, and AI tools',
   },
   icons: {
     icon: [

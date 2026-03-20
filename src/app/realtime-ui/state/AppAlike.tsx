@@ -79,7 +79,7 @@ const AppAlike = () => {
   const [fullName, setFullName] = useState('John Doe');
   const [showCode, setShowCode] = useState(false);
   return (
-    <div onMouseEnter={() => setShowCode(true)} onMouseLeave={() => setShowCode(false)}>
+    <div onMouseEnter={() => setShowCode(true)} onMouseLeave={() => setShowCode(false)} className='overflow-x-auto'>
       {!showCode ? <AppAlikeWithCode /> : <AppAlikeNormal fullName={fullName} setFullName={setFullName} />}
     </div>
   );

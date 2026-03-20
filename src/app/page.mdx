@@ -31,17 +31,25 @@ Vovk.ts
   <a href="https://github.com/finom/vovk/issues" hidden>
     <img alt="GitHub Issues" src="https://img.shields.io/github/issues/finom/vovk" />
   </a>
+  <a href="/context/docs.md">
+    <img alt="Docs Context" src="https://img.shields.io/badge/ai_context-docs.md-white" />
+  </a>
+  <a href="/context/realtime-ui.md">
+    <img alt="Realtime UI Context" src="https://img.shields.io/badge/ai_context-realtime_ui.md-white" />
+  </a>
 </div>
 
 <center>
-A SaaS-ready API layer for Next.js — from early-stage to enterprise. Multi-tenant routing, third-party-ready APIs with generated docs and clients, and MCP-compatible AI tools, all from a single codebase.
+Next.js API layer for SaaS — from MVP to enterprise scale. Multi-tenant routing, third-party-ready APIs with auto-generated docs & type-safe clients, plus MCP-compatible AI tools. All from a single source of truth.
 </center>
 
 <CodeOrbit />
 
 Vovk.ts adds a structured API layer on top of Next.js App Router Route Handlers. Define endpoints once — as controllers with decorators — and the framework emits schema artifacts that generate type-safe clients, OpenAPI docs, and AI tool definitions. No separate contract layer to maintain.
 
-```bash
+Run `init` command in an existing Next.js project to get started.
+
+```bash npm2yarn
 npx vovk-cli@latest init
 ```
 
