@@ -17,7 +17,6 @@ const meta: MetaRecord = {
   index: 'About Vovk.ts',
   'quick-install': 'Quick Start',
   'manual-install': 'Manual Install',
-  performance: 'Route Performance Overhead',
   '#segment': separator('Segment'),
   segment: 'Segment',
   'static-segment': 'Static Segment',
@@ -76,9 +75,11 @@ const meta: MetaRecord = {
       copyPage: true,
     },
   },
-  '#etc': separator('Reference'),
+  '#etc': separator('Deep Dive'),
+  testing: 'Testing',
   packages: 'Packages',
   'api-ref': 'API Reference',
+  performance: 'Route Performance Overhead',
 };
 
 export default meta;
