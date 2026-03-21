@@ -120,7 +120,7 @@ npm i -D concurrently
 - [vovk dev](/dev)
 - [vovk generate](/generate)
 
-## Enable decorators
+## Enable decorators (optional)
 
 In your **tsconfig.json**, set `"experimentalDecorators"` to `true`.
 
@@ -132,6 +132,8 @@ In your **tsconfig.json**, set `"experimentalDecorators"` to `true`.
   }
 }
 ```
+
+This is required only if you want to use decorators in your controllers and procedures. As an alternative you can use `decorate(...)` from the library to achieve the same result without enabling decorators. See [Decorators Overview](/decorator-overview) for details.
 
 ## Create a controller
 

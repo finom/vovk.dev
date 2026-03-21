@@ -4,8 +4,8 @@ description: "Full documentation for the Vovk.ts framework, excluding the Realti
 see_also:
   label: "Realtime UI Context"
   url: https://vovk.dev/context/realtime-ui.md
-chars: 348588
-est_tokens: 87147
+chars: 358716
+est_tokens: 89679
 ---
 
 Page: https://vovk.dev
@@ -1181,6 +1181,48 @@ export default class UserController {
 
 If `.handle()` is not provided, the procedure will throw Not Implemented (501) error.
 
+### Alternative: `compose` Syntax
+
+If you prefer not to use decorators, you can define procedures using the `compose` function. It accepts decorator results and a handler (or procedure) as its last argument. This produces the same result as decorators in terms of functionality, types, and generated RPC modules.
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+import { compose, procedure, prefix, put, operation } from 'vovk';
+import { z } from 'zod';
+
+export default compose(
+  prefix('users'),
+  class UserController {
+    static updateUser = compose(
+      put('{id}'),
+      operation({ summary: 'Update user' }),
+      procedure({
+        params: z.object({ id: z.uuid() }),
+        body: z.object({ email: z.email() }),
+        query: z.object({ notify: z.enum(['email', 'push', 'none']) }),
+        output: z.object({ success: z.boolean() }),
+      }).handle(async (req, { id }) => {
+        const { email } = await req.vovk.body();
+        const notify = req.vovk.query().notify;
+        // ...
+      })
+    );
+  }
+);
+```
+
+The `compose` function applies decorators in the same order as the stacked decorator syntax — the last decorator listed (closest to the handler) is applied first. For handlers without validation, pass a plain async function as the last argument:
+
+```ts showLineNumbers copy
+static listUsers = compose(
+  get(),
+  async (req: VovkRequest) => {
+    // ...
+  }
+);
+```
+
+See the [Decorators Overview](https://vovk.dev/decorator-overview) page for more details on when to use decorators vs `compose`.
+
 ### `procedure` Options
 
 #### `body`, `query`, and `params`
@@ -2257,7 +2299,7 @@ Page: https://vovk.dev/jsonlines
 
 # JSON Lines Streaming
 
-  [View on examples.vovk.dev »](https://examples.vovk.dev/jsonlines)
+  [View JSON Lines example on examples.vovk.dev »](https://examples.vovk.dev/jsonlines)
 
 ## Overview
 
@@ -2506,7 +2548,7 @@ Page: https://vovk.dev/progressive
 
 # Progressive Responses with `progressive` Function
 
-  [View on examples.vovk.dev »](https://examples.vovk.dev/progressive)
+  [View Progressive example on examples.vovk.dev »](https://examples.vovk.dev/progressive)
 
 A common use of the [JSON Lines](https://vovk.dev/jsonlines) format is to sequentially send multiple data chunks in response to a single request. This is useful for long‑running operations, such as LLM completions, where you want to deliver partial results as they become available.
 
@@ -3574,6 +3616,266 @@ Note that a derived tool includes `inputSchemas` as a record of procedure input,
 ---
 
 See [Realtime UI / Voice AI Chat](https://vovk.dev/realtime-ui/voice-ai) for more info.
+
+---
+
+Page: https://vovk.dev/decorator-overview
+
+# Decorators Overview
+
+Vovk.ts uses decorators to attach metadata and behavior to controller methods. This page gives a comprehensive overview of all built-in decorators, the `compose` alternative, and guidance on when to use each approach.
+
+## HTTP Method Decorators
+
+HTTP method decorators define the HTTP method and path for a procedure. They are the only **required** decorator for a procedure to be reachable via HTTP.
+
+| Decorator | HTTP Method |
+|-----------|-------------|
+| `@get()` | GET |
+| `@post()` | POST |
+| `@put()` | PUT |
+| `@patch()` | PATCH |
+| `@del()` | DELETE |
+| `@head()` | HEAD |
+| `@options()` | OPTIONS |
+
+Each accepts an optional path and options object:
+
+```ts showLineNumbers copy
+import { get, prefix } from 'vovk';
+
+@prefix('users')
+export default class UserController {
+  @get('{id}', { cors: true, headers: { 'x-custom': 'value' } })
+  static getUser(req, { id }: { id: string }) {
+    return { id };
+  }
+}
+```
+
+**Options:**
+
+- `cors?: boolean` — adds CORS headers and handles OPTIONS automatically.
+- `headers?: Record<string, string>` — custom response headers.
+- `staticParams?: Record<string, string>[]` — (`@get` only) static params for `generateStaticParams()`.
+
+### Auto-Generated Paths
+
+Every HTTP decorator provides an `.auto()` method that derives the path from the method name in kebab-case:
+
+```ts showLineNumbers copy
+export default class UserController {
+  // creates GET /api/get-all-users
+  @get.auto()
+  static getAllUsers() {
+    return [];
+  }
+}
+```
+
+## Class Decorators
+
+### `@prefix`
+
+Prepends a sub-path to all endpoints in a controller:
+
+```ts showLineNumbers copy
+import { prefix, get } from 'vovk';
+
+@prefix('users')
+export default class UserController {
+  @get('{id}') // => GET /api/users/{id}
+  static getUser() { /* ... */ }
+}
+```
+
+### `@operation`
+
+Attaches [OpenAPI](https://vovk.dev/openapi) metadata to a procedure:
+
+```ts showLineNumbers copy
+import { operation, get } from 'vovk';
+
+export default class UserController {
+  @operation({ summary: 'Get user by ID', description: 'Returns a single user' })
+  @get('{id}')
+  static getUser() { /* ... */ }
+}
+```
+
+Also provides `@operation.error()` for documenting error responses and `@operation.tool()` for [AI tool](https://vovk.dev/tools) metadata.
+
+### `@cloneControllerMetadata`
+
+Copies all metadata from a parent controller to a child class, useful for reusing a controller in multiple [segments](https://vovk.dev/segment):
+
+```ts showLineNumbers copy
+import { prefix, cloneControllerMetadata } from 'vovk';
+import UserController from './UserController';
+
+@cloneControllerMetadata()
+@prefix('v2')
+export default class UserControllerV2 extends UserController {}
+```
+
+## Custom Decorators
+
+Use `createDecorator` to build custom middleware-style decorators for cross-cutting concerns like authentication, logging, or caching. See the [Custom Decorators](https://vovk.dev/decorator) page for full API documentation and the [Decorator Examples](https://vovk.dev/decorator-examples) page for practical patterns.
+
+```ts showLineNumbers copy
+import { createDecorator, get, HttpException, HttpStatus, type VovkRequest } from 'vovk';
+
+const authGuard = createDecorator(async (req: VovkRequest, next) => {
+  const token = req.headers.get('authorization');
+  if (!token) throw new HttpException(HttpStatus.UNAUTHORIZED, 'Missing token');
+  req.vovk.meta({ userId: await verifyToken(token) });
+  return next();
+});
+
+export default class UserController {
+  @get('{id}')
+  @authGuard()
+  static getUser(req: VovkRequest) {
+    const { userId } = req.vovk.meta();
+    // ...
+  }
+}
+```
+
+## `compose` Function
+
+The `compose` function provides an alternative to the stacked decorator syntax. Instead of using `@decorator` annotations, you pass decorator results and a handler to `compose`. This is useful when you want to avoid decorators entirely or need more flexibility in how procedures are defined.
+
+```ts showLineNumbers copy
+import { compose, prefix, get, operation, procedure } from 'vovk';
+import { z } from 'zod';
+
+export default compose(
+  prefix('users'),
+  class UserController {
+    static getUser = compose(
+      get('{id}'),
+      operation({ summary: 'Get user by ID' }),
+      procedure({
+        params: z.object({ id: z.string() }),
+      }).handle(async (req, { id }) => {
+        return { id };
+      })
+    );
+  }
+);
+```
+
+For method-level `compose`, the last argument is always the handler (a `procedure().handle()` result or a plain async function). All preceding arguments are decorator results. For class-level `compose`, the last argument is the class itself.
+
+### With Custom Decorators
+
+Custom decorators created with `createDecorator` work with `compose` as well:
+
+```ts showLineNumbers copy
+static getUser = compose(
+  get('{id}'),
+  authGuard(),
+  async (req: VovkRequest) => {
+    const { userId } = req.vovk.meta();
+    // ...
+  }
+);
+```
+
+### Without Validation
+
+For handlers that don't need validation, pass a plain function:
+
+```ts showLineNumbers copy
+static listUsers = compose(
+  get(),
+  async () => {
+    return [];
+  }
+);
+```
+
+## Decorator Syntax vs `compose`
+
+Both approaches produce identical results in terms of functionality, types, and generated RPC modules. Choose based on your preference and project conventions.
+
+### When to Use Decorators
+
+- You're already using TypeScript decorators in your project.
+- You prefer the visual separation of concerns that stacked decorators provide.
+- You want the most concise syntax for simple procedures.
+
+```ts showLineNumbers copy
+@operation({ summary: 'Get user' })
+@get('{id}')
+@authGuard()
+static getUser = procedure({
+  params: z.object({ id: z.string() }),
+}).handle(async (req, { id }) => {
+  return { id };
+});
+```
+
+### When to Use `compose`
+
+- You want to avoid decorators (`experimentalDecorators` or TC39 Stage 3).
+- You prefer a functional composition style.
+- You want all metadata for a procedure in one expression.
+
+```ts showLineNumbers copy
+export default compose(
+  prefix('users'),
+  class UserController {
+    static getUser = compose(
+      get('{id}'),
+      authGuard(),
+      operation({ summary: 'Get user' }),
+      procedure({
+        params: z.object({ id: z.string() }),
+      }).handle(async (req, { id }) => {
+        return { id };
+      })
+    );
+  }
+);
+```
+
+### `cloneControllerMetadata` with `compose`
+
+Class-level `compose` works with `cloneControllerMetadata` as well:
+
+```ts showLineNumbers copy
+import { compose, prefix, cloneControllerMetadata } from 'vovk';
+import UserController from './UserController';
+
+export default compose(
+  prefix('v2'),
+  cloneControllerMetadata(),
+  class extends UserController {}
+);
+```
+
+### Mixing Both
+
+You can mix decorator and `compose` syntax within the same controller. Note that `@prefix` applies to the whole class:
+
+```ts showLineNumbers copy
+@prefix('users')
+export default class UserController {
+  // Decorator syntax
+  @get()
+  static listUsers = procedure().handle(async () => []);
+
+  // Compose syntax
+  static getUser = compose(
+    get('{id}'),
+    procedure({
+      params: z.object({ id: z.string() }),
+    }).handle(async (req, { id }) => ({ id }))
+  );
+}
+```
 
 ---
 
@@ -9284,6 +9586,45 @@ export default class MyController {
 ```
 
 See the [decorator docs](https://vovk.dev/decorator) for more details.
+
+### `compose`
+
+Combines decorator results and a handler into a single static class field value, providing an alternative to the stacked decorator syntax.
+
+**Arguments:**
+
+- `...decorators: Function[]{:ts}` – one or more decorator results (e.g. `get('path')`, `operation(...)`, `myCustomDecorator(...)`).
+- `handler: Function{:ts}` – the last argument, either a `procedure(...).handle(...)` result or a plain async function.
+
+**Returns:** the handler with decorator metadata attached. Decorators are applied when `initSegment` processes the controller.
+
+```ts showLineNumbers copy
+import { compose, get, operation, procedure } from 'vovk';
+import { z } from 'zod';
+
+export default class UserController {
+  // With procedure validation
+  static getUser = compose(
+    get('{id}'),
+    operation({ summary: 'Get user by ID' }),
+    procedure({
+      params: z.object({ id: z.string() }),
+    }).handle(async (req, { id }) => {
+      return { id };
+    })
+  );
+
+  // Without validation
+  static listUsers = compose(
+    get(),
+    async () => {
+      return [];
+    }
+  );
+}
+```
+
+Decorator application follows the same order as the stacked syntax: the last decorator in the list (closest to the handler) is applied first. See [Decorators Overview](https://vovk.dev/decorator-overview) for guidance on choosing between `compose` and decorator syntax.
 
 ### `fetcher`
 

@@ -4,8 +4,8 @@ description: "Tutorial and reference for building real-time UIs with Vovk.ts."
 see_also:
   label: "Vovk.ts Docs Context"
   url: https://vovk.dev/context/docs.md
-chars: 104011
-est_tokens: 26003
+chars: 104438
+est_tokens: 26110
 ---
 
 Page: https://vovk.dev/realtime-ui
@@ -15,19 +15,27 @@ Page: https://vovk.dev/realtime-ui
 **Realtime UI** is a streaming-first architecture for Next.js that keeps the UI in perfect sync with the back-end using only JSON Lines and Vovk.ts.
 This series walks through **Realtime Kanban** — the reference app that implements it — showing how users, bots, AI agents, and MCP clients can all update the board in real time with almost zero extra code.
 
+AI-friendly context for all articles in this series is available [here](https://vovk.dev/context/realtime-ui.md).
+
 ## See it in action
 
 ### AI agent managing the board via MCP
 
 Claude connects to the Kanban board through an [MCP server](https://vovk.dev/realtime-ui/mcp) and creates, moves, and deletes cards autonomously.
 
+Video: https://vovk.dev/video/kanban_mcp.mp4
+
 ### Multi-user collaboration with live polling
 
 Multiple users edit the same board simultaneously — changes propagate in real time through [database polling](https://vovk.dev/realtime-ui/polling) and [normalized state](https://vovk.dev/realtime-ui/state).
 
+Video: https://vovk.dev/video/kanban_polling.mp4
+
 ### Chat-driven board updates with function calling
 
 A built-in [text chat interface](https://vovk.dev/realtime-ui/text-ai) lets users manage cards through natural language, powered by OpenAI function calling.
+
+Video: https://vovk.dev/video/kanban_text_chat.mp4
 
 ---
 
@@ -1126,13 +1134,15 @@ But what if the database is changed by other users or third-party services? How 
 
 The component below demonstrates a simple polling example that receives incremental updates from the server every second. After 10 updates, the server closes the connection, and the client reconnects automatically. We can use the same approach to receive database updates in real time by having the server send updates whenever the database changes.
 
-  [View on examples.vovk.dev »](https://examples.vovk.dev/polling)
+  [View Polling example on examples.vovk.dev »](https://examples.vovk.dev/polling)
 
 A small delay (up to half a second) is expected due to the CORS preflight. See the Network tab in DevTools for details.
 
 ---
 
 Here's a video demonstration of the polling in action. While it uses different browser tabs to simulate multiple users, the same logic applies to real-time updates from any source, including third-party services.
+
+Video: https://vovk.dev/video/kanban_polling.mp4
 
 ## Redis DB as event bus
 
@@ -1685,6 +1695,8 @@ In the previous articles, we set up the backend and frontend to automatically sy
 ![Text AI Chat Flow](https://vovk.dev/diagrams/text_ai_chat_flow.svg)
 
 We’re going to set up a text AI chat via the [AI SDK](https://ai-sdk.dev/), adding function-calling capabilities and deriving AI tools from the backend controllers via the [deriveTools](https://vovk.dev/tools) function.
+
+Video: https://vovk.dev/video/kanban_text_chat.mp4
 
 ## Backend Setup
 
@@ -2243,6 +2255,8 @@ Page: https://vovk.dev/realtime-ui/mcp
 [Database Polling](./polling) and [State Normalization](./state) are set up, so the app is ready to accept changes made by external systems. Let’s now set up the MCP server to allow MCP clients to interact with our application.
 
 ![MCP Polling Flow](https://vovk.dev/diagrams/mcp_polling_flow.svg)
+
+Video: https://vovk.dev/video/kanban_mcp.mp4
 
 The tools, as usual, are derived from the controllers using the `deriveTools` function from the `vovk` package. For more details, see [Deriving AI Tools](https://vovk.dev/tools).
 

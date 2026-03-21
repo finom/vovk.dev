@@ -39,8 +39,9 @@ const meta: MetaRecord = {
   'tools-standalone': 'Standalone Tools',
 
   '#decorators': separator('Decorators'),
+  'decorator-overview': 'Decorators Overview',
   decorator: 'Custom Decorators',
-  'decorator-examples': 'Decorator Examples', 
+  'decorator-examples': 'Decorator Examples',
 
   '#codegen': separator('TypeScript RPC Codegen'),
   typescript: 'TypeScript Client',
