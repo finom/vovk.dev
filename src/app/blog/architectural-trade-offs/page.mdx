@@ -1,0 +1,133 @@
+---
+title: "Architectural Trade-offs in Vovk.ts"
+description: "An honest look at what you gain — and what you give up — by building your Next.js API layer with Vovk.ts."
+date: "March 21, 2026"
+---
+
+# Architectural Trade-offs in Vovk.ts
+
+Every framework makes opinionated decisions. Some of those decisions unlock powerful capabilities; others introduce constraints you need to understand before committing. This post walks through the key architectural trade-offs in Vovk.ts — what each design choice gives you and what it costs.
+
+## Classes and decorators
+
+Vovk.ts organizes endpoints as static methods of classes, decorated with HTTP method decorators like `@get()` and `@post()`. This pattern comes from NestJS and the Controller-Service-Repository tradition.
+
+```ts
+@prefix('users')
+export default class UserController {
+  @get('{id}')
+  static getUser = procedure({
+    params: z.object({ id: z.string().uuid() }),
+  }).handle(async (req, { id }) => {
+    return UserService.getUserById(id);
+  });
+}
+```
+
+**What you get:**
+
+- Logical grouping of related endpoints in a single class.
+- A clear prefix-to-class mapping — every method in `UserController` lives under `/api/users/`.
+- Decorators stack visually, making it easy to scan what middleware, metadata, and validation a procedure carries.
+- Services separate business logic from HTTP concerns as plain static classes — no DI container, no magic.
+
+**What you give up:**
+
+- **`experimentalDecorators` in practice.** Vovk.ts supports both legacy experimental decorators and TC39 Stage 3 decorators at the code level. However, Next.js currently throws syntax errors when Stage 3 decorators are used, so in practice you need `"experimentalDecorators": true` in tsconfig.json. This is a Next.js toolchain limitation, not a Vovk.ts one, but it affects you all the same. The `decorate()` alternative sidesteps the issue entirely.
+- **Static-only methods.** Controllers use `static` so that generated RPC modules mirror controllers exactly — same class, same method names, just a different argument signature. No instance state, no constructors.
+- **Classes as namespaces.** The classes aren't used in the OOP sense — you never instantiate a controller. They exist to enable decorator syntax, which requires a class target. If that feels like an abuse of `class`, the `decorate()` alternative is there for you.
+
+For projects that want to avoid decorators entirely, Vovk.ts provides the `decorate()` function as an escape hatch. It produces identical runtime behavior and types without requiring `experimentalDecorators`:
+
+```ts
+class UserController {
+  static prefix = 'users';
+
+  static getUser = decorate(
+    get('{id}'),
+    procedure({ params: z.object({ id: z.string().uuid() }) }),
+  ).handle(async (req, { id }) => {
+    return UserService.getUserById(id);
+  });
+}
+```
+
+Both approaches are interchangeable — you can even mix them in the same controller.
+
+## Local execution bypasses `proxy.js`
+
+Every procedure exposes a `.fn()` method for direct server-side invocation — no HTTP round-trip:
+
+```ts
+const user = await UserController.getUser.fn({ params: { id: '123' } });
+```
+
+This is used for SSR, SSG, PPR, AI tool execution, unit testing, and background jobs. It runs the full procedure pipeline including validation and custom decorators.
+
+**What you get:**
+
+- Zero-overhead server-side calls. The procedure runs in the current evaluation context. No serialization, no network, no cold-start penalty.
+- The same handler logic serves both HTTP and local consumers — single source of truth.
+- Works beautifully with `deriveTools()` for AI agent execution where HTTP round-trips would be wasteful.
+
+**What you give up:**
+
+- **No `proxy.js` processing.** In Next.js 15+, `proxy.js` (previously `middleware.js` in earlier versions) runs on every incoming request before it reaches a Route Handler. When you call `.fn()`, the request never goes through the HTTP layer, so `proxy.js` is never invoked. If your `proxy.js` performs authentication checks, rate limiting, geo-routing, or header injection, none of that applies to `.fn()` calls.
+- **No `Request` object.** The `req` parameter inside `.fn()` is not a real `Request`. Properties like `req.url`, `req.headers`, and `req.nextUrl` are `undefined`. Only `req.vovk` (with `.body()`, `.query()`, `.params()`, `.meta()`) is available. If your handler or custom decorator accesses `NextRequest`-specific properties, it will break under `.fn()`.
+You can detect the execution context inside a decorator:
+
+```ts
+const myDecorator = createDecorator((req, next) => {
+  if (typeof req.url === 'undefined') {
+    // Called via .fn() — local context
+  } else {
+    // Called via HTTP — full Request available
+  }
+  return next();
+});
+```
+
+Note that `next/headers` and `next/cookies` still work inside `.fn()` calls — those go through Next.js's async context, not the request object.
+
+## Schema and codegen emission
+
+Vovk.ts derives a JSON schema from your controller code and emits it as a build artifact to `.vovk-schema/`. The CLI then reads that schema to generate type-safe TypeScript clients, OpenAPI specs, and optionally Python and Rust clients.
+
+```
+.vovk-schema/
+  root.json          # root segment schema
+  customer.json      # named segment schema
+  _meta.json         # global metadata
+```
+
+**What you get:**
+
+- **Single source of truth.** You write validation once (Zod, Valibot, or ArkType) next to the handler. Types, client signatures, OpenAPI parameters, and AI tool definitions all flow from that one declaration.
+- **Jump-to-definition.** The generated client maps directly to your controller types, so IDE features like go-to-definition and JSDoc hover work across the client-server boundary.
+- **Optional client-side validation.** The emitted JSON Schema can power Ajv validation on the client, catching bad inputs before they hit the network.
+
+**What you give up:**
+
+- **An extra build step.** You must run `vovk dev` (in dev) or `vovk generate` (before build) to produce the schema and client. If the watcher isn't running, your client code is stale. The `prebuild` script mitigates this for production, but in development you need the watcher alongside `next dev`.
+- **Generated code location.** By default, the TypeScript client is emitted to `node_modules/.vovk-client`, which is invisible to version control. You can customize the output directory and template format (TypeScript or JavaScript) in the config, but either way it's generated code you need to keep in sync.
+- **Schema-dependent features are coupled.** Client-side validation, OpenAPI docs, and AI tool parameters all rely on the emitted JSON Schema. You can disable emission per procedure or per validation type with `skipSchemaEmission`, but any feature that reads the schema loses access when you do.
+
+## No standalone server
+
+Vovk.ts runs inside Next.js App Router. There is no separate server process, no custom HTTP listener, no independent deployment unit.
+
+**What you get:**
+
+- One deployment. Your API, pages, and static assets ship together. No CORS configuration between frontend and backend, no separate CI pipeline for the API.
+- Full access to Next.js features: file-based routing, ISR, PPR, server components, Edge runtime.
+- Serverless-ready. Each segment compiles to its own function with independent `maxDuration` and runtime settings.
+
+**What you give up:**
+
+- **Next.js lock-in.** If you decide to move away from Next.js, your controllers, decorators, and procedure definitions don't transfer. Services (plain classes with no framework imports) do transfer, which is one reason the Controller-Service separation matters.
+- **No WebSocket support.** Next.js Route Handlers don't support persistent connections. If you need real-time bidirectional communication, you need an external service. Vovk.ts offers JSON Lines streaming as a unidirectional alternative.
+- **Shared cold start.** Your API handlers share the Next.js process. A heavy page render and an API call compete for the same resources. Segmentation helps (each segment is its own serverless function), but within a segment, everything is bundled together.
+
+---
+
+None of these trade-offs are bugs — they're consequences of deliberate design decisions. The point of listing them here is to help you evaluate whether Vovk.ts fits _your_ project, not just whether it's a good framework in the abstract. If you're building a structured API layer on Next.js and these constraints are acceptable, the things you get in return — type-safe clients, local execution, AI tool derivation, OpenAPI generation — are hard to find in a single package elsewhere.

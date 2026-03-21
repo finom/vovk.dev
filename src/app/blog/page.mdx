@@ -5,7 +5,15 @@ description: 'Blog'
 
 import BlogIndexArticle from '../../components/BlogIndexArticle';
 
+import { metadata as tradeOffsMetadata } from './architectural-trade-offs/page.mdx';
 import { metadata as v3Metadata } from './announcement/page.mdx';
+
+<BlogIndexArticle
+  title={tradeOffsMetadata.title}
+  description={tradeOffsMetadata.description}
+  date={tradeOffsMetadata.date}
+  href="/blog/architectural-trade-offs"
+/>
 
 <BlogIndexArticle
   title={v3Metadata.title}

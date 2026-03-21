@@ -18,7 +18,7 @@ const meta: MetaRecord = {
   'quick-install': 'Quick Start',
   'manual-install': 'Manual Install',
   '#segment': separator('Segment'),
-  segment: 'Segment',
+  segment: 'Segment Overview',
   'static-segment': 'Static Segment',
 
   '#procedure': separator('Controller & Procedure'),
@@ -76,10 +76,14 @@ const meta: MetaRecord = {
     },
   },
   '#etc': separator('Deep Dive'),
+  'architectural-trade-offs-link': {
+    title: 'Architectural Trade-offs',
+    href: '/blog/architectural-trade-offs',
+  },
   testing: 'Testing',
+  performance: 'Route Performance Overhead',
   packages: 'Packages',
   'api-ref': 'API Reference',
-  performance: 'Route Performance Overhead',
 };
 
 export default meta;
