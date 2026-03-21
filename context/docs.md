@@ -4,8 +4,8 @@ description: "Full documentation for the Vovk.ts framework, excluding the Realti
 see_also:
   label: "Realtime UI Context"
   url: https://vovk.dev/context/realtime-ui.md
-chars: 362743
-est_tokens: 90686
+chars: 362822
+est_tokens: 90706
 ---
 
 Page: https://vovk.dev
@@ -3467,7 +3467,7 @@ export default class UserController {
 **Options:**
 
 - `cors?: boolean` — adds CORS headers and handles OPTIONS automatically.
-- `headers?: Record<string, string>` — custom response headers.
+- `headers?: Record<string, string>` — custom response headers. See [Response Headers](https://vovk.dev/response#headers) for dynamic headers.
 - `staticParams?: Record<string, string>[]` — (`@get` only) static params for `generateStaticParams()`. See [Static Segment](https://vovk.dev/static-segment) for details.
 
 ### Auto-Generated Paths

@@ -9,4 +9,4 @@
 :HL["https://img.shields.io/github/issues/finom/vovk","image"]
 :HL["https://img.shields.io/badge/ai_context-docs.md-white","image"]
 :HL["https://img.shields.io/badge/ai_context-realtime_ui.md-white","image"]
-0:{"buildId":"HNtR82tesTzQf_EvY3SxV","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"bHkpnrwhXIE_cK-4y4KNQ","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
