@@ -4,8 +4,8 @@ description: "Full documentation for the Vovk.ts framework, excluding the Realti
 see_also:
   label: "Realtime UI Context"
   url: https://vovk.dev/context/realtime-ui.md
-chars: 359653
-est_tokens: 89914
+chars: 362743
+est_tokens: 90686
 ---
 
 Page: https://vovk.dev
@@ -602,199 +602,6 @@ Open [http://localhost:3000](http://localhost:3000) to see the result.
 - [TypeScript Client](https://vovk.dev/typescript)
 - [Composed Mode](https://vovk.dev/composed)
 - [Segmented Mode](https://vovk.dev/segmented)
-
----
-
-Page: https://vovk.dev/performance
-
-# Next.js API Route Performance Overhead
-
-## TL;DR
-
-- Goal: measure Vovk.ts overhead over native Next.js route handlers (not HTTP stack).
-- Routing: O(1) across 1–10,000 controllers (20,000 endpoints). Median latency ~1.25–1.33 µs even at 10,000 controllers. Throughput ~745k–800k ops/s/core.
-- Cold start: O(n). ~5.7 ms at 1,000 controllers; ~83 ms at 10,000. About 8–10× the cost of no‑op decorators.
-- Notes: Tinybench on Apple M4 Pro. Next.js runtime cost is out of scope. Compiled from real benchmark output with AI assistance and minor edits. See vovk-perf-test repo for scripts.
-
-## Reproducing the Tests
-
-Clone the repo:
-
-```sh
-git clone https://github.com/finom/vovk-perf-test.git
-cd vovk-perf-test
-```
-
-Install dependencies via:
-
-```sh npm2yarn copy
-npm i
-```
-
-Run performance tests via:
-
-```sh npm2yarn copy
-npm run perf-test
-```
-
-Perf suite also runs in CI: [GitHub Actions](https://github.com/finom/vovk-perf-test/actions). CI runs on
-GitHub-hosted runners, so numbers are slower than local M4 Pro runs—request-overhead medians are typically
-~7.0–8.7× slower (e.g. ~9–11.5 µs vs ~1.3 µs), and cold-start medians ~3.7–4.9× slower (e.g. ~22 µs vs ~5 µs
-for 1 controller). The scaling trend (O(1) request overhead, O(n) cold start) still holds.
-
-## Overview
-
-Vovk.ts sits on top of Next.js API routes and generates handlers via decorators applied to procedures:
-
-```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
-export const { GET, POST } = initSegment({ controllers });
-```
-
-We measure framework overhead in two dimensions:
-
-- Request Overhead: per-request routing/handler overhead.
-- Cold Start Overhead: initialization time for controllers/metadata.
-
-Source: test scripts in the vovk-perf-test repository.
-
-## Request Overhead
-
-Example controller (N = 1) used in the request-overhead tests:
-
-```ts showLineNumbers copy filename="src/modules/one/a/AController.ts" repository="finom/vovk-perf-test"
-import { get, operation, post, prefix, procedure } from "vovk";
-import z from "zod";
-
-@prefix("a")
-export default class AController {
-  @operation({
-    summary: "Get A",
-  })
-  @get()
-  static getA = procedure().handle(() => {
-    return { get: true };
-  });
-
-  @operation({
-    summary: "Create A",
-  })
-  @post("{id}")
-  static createA = procedure({
-    disableServerSideValidation: ["params"],
-    params: z.object({ id: z.string() }),
-  }).handle((_req, { id }) => {
-    return { post: true, id };
-  });
-}
-```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-perf-test/blob/main/src/modules/one/a/AController.ts)*
-
-### Methodology (short)
-
-- Autogenerate N controllers (N ∈ \{1, 10, 100, 1,000, 10,000\}), each exposing:
-  - GET without params.
-  - POST with path param "\{id\}" (pattern match).
-- Minimal handler logic; measure full routing + handler path.
-- Tinybench: 100 ms min per test, nanosecond timing; report median latency/throughput.
-
-### Results
-
-| Controllers | Endpoints | GET Latency (med) | POST Latency (med) | GET Throughput (med ops/s) | POST Throughput (med ops/s) |
-| ----------- | --------- | ----------------- | ------------------ | -------------------------- | --------------------------- |
-| 1           | 2         | 1,250 ns          | 1,250 ns           | 800,000                    | 800,000                     |
-| 10          | 20        | 1,291 ns          | 1,292 ns           | 774,593                    | 773,994                     |
-| 100         | 200       | 1,250 ns          | 1,292 ns           | 800,000                    | 773,994                     |
-| 1,000       | 2,000     | 1,250 ns          | 1,291 ns           | 800,000                    | 774,593                     |
-| 10,000      | 20,000    | 1,292 ns          | 1,333 ns           | 773,994                    | 750,188                     |
-
-Key takeaways:
-
-- O(1) routing: flat latency from 1 to 10,000 controllers.
-- ≈1.3 µs overhead at typical scales; GET≈POST indicates efficient param extraction.
-
-## Cold Start Overhead
-
-Example cold-start benchmark (N = 1) contrasting Vovk.ts vs. no-op decorators:
-
-```ts showLineNumbers copy filename="perf/generated_coldStartPerfTest.ts"
-bench.add("Cold start for 1 controllers", async () => {
-  const controllers: Record<string, Function> = {};
-  @prefix("one/0")
-  class One0Controller {
-    @operation({
-      summary: "Create",
-    })
-    @post("{id}")
-    static create = procedure().handle(() => null);
-  }
-
-  controllers["One0Controller"] = One0Controller;
-
-  initSegment({
-    segmentName: "",
-    emitSchema: true,
-    controllers,
-  });
-});
-
-bench.add("No-op decorators for 1 classes", async () => {
-  const controllers: Record<string, Function> = {};
-  @noopClassDecorator()
-  class One0Controller {
-    @noopDecorator({
-      summary: "Create",
-    })
-    @noopDecorator("{id}")
-    static create = () => {
-      return null;
-    };
-  }
-});
-```
-
-### Methodology (short)
-
-For N ∈ \{1, 10, 100, 1,000, 10,000\} measure:
-
-- App creation, decorator processing, metadata build, and initSegment().
-- Compare to equivalent classes using no‑op decorators to isolate framework work.
-
-Example no‑op decorators:
-
-```ts showLineNumbers copy
-function noopDecorator() {
-  return function (..._args: any[]) {};
-}
-function noopClassDecorator() {
-  return function <T extends new (...a: any[]) => any>(c: T) {
-    return c;
-  };
-}
-```
-
-### Results
-
-| Controllers | Vovk.ts Init Time (med) | No-op Time (med) | Overhead Ratio | Throughput (ops/s) |
-| ----------- | ----------------------- | ---------------- | -------------- | ------------------ |
-| 1           | 5.125 μs                | 0.500 μs         | 10.3x          | 195,122            |
-| 10          | 47.167 μs               | 5.208 μs         | 9.1x           | 21,201             |
-| 100         | 526.416 μs              | 53.541 μs        | 9.8x           | 1,900              |
-| 1,000       | 5,719.333 μs            | 702.896 μs       | 8.1x           | 175                |
-| 10,000      | 82,924.833 μs           | 10,370.729 μs    | 8.0x           | 12                 |
-
-Key takeaways:
-
-- O(n) init: linear growth with a near-constant per-controller cost through 10,000 controllers.
-- Absolute times are small for long-lived services; still acceptable for serverless at typical sizes.
-
-## Practical guidance
-
-- For high-performance workloads: split the app into multiple [segments](https://vovk.dev/segment) (e.g., serverless functions built with Next.js route.ts files), each with a manageable number of procedures (up to 1,000).
-- In theory, with careful segment management and adequate hardware, a single Next.js/Vovk.ts app can host up to ~100,000 procedures. Validate this in your environment; practical limits will be memory, bundle size, cold start budgets, and platform quotas.
-
----
-
-Benchmarks: Tinybench on Node.js; hardware Apple M4 Pro. Numbers can vary by runtime, hardware, and build settings. Scripts/results: https://github.com/finom/vovk-perf-test
 
 ---
 
@@ -3661,7 +3468,7 @@ export default class UserController {
 
 - `cors?: boolean` — adds CORS headers and handles OPTIONS automatically.
 - `headers?: Record<string, string>` — custom response headers.
-- `staticParams?: Record<string, string>[]` — (`@get` only) static params for `generateStaticParams()`.
+- `staticParams?: Record<string, string>[]` — (`@get` only) static params for `generateStaticParams()`. See [Static Segment](https://vovk.dev/static-segment) for details.
 
 ### Auto-Generated Paths
 
@@ -9293,6 +9100,305 @@ Add a wildcard mapping to `/etc/hosts` to support subdomains locally:
 ## Roadmap
 
 - 📝 Cover multi-domain topic.
+
+---
+
+Page: https://vovk.dev/testing
+
+# Testing
+
+Vovk.ts procedures expose an [`.fn` method](https://vovk.dev/fn) that calls the handler directly, skipping the HTTP round-trip. This makes unit testing straightforward — no server required.
+
+## Setup
+
+Any test runner works (Vitest, Jest, Node.js test runner, etc.). Examples below use Vitest.
+
+## Testing with `.fn`
+
+Given a controller:
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+import { z } from 'zod';
+import { procedure, get, post, prefix } from 'vovk';
+
+@prefix('users')
+export default class UserController {
+  @get('{id}')
+  static getUser = procedure({
+    params: z.object({ id: z.string() }),
+    output: z.object({ id: z.string(), name: z.string() }),
+  }).handle(async ({ vovk }) => {
+    const { id } = vovk.params();
+    return { id, name: 'John' };
+  });
+
+  @post()
+  static createUser = procedure({
+    body: z.object({ name: z.string() }),
+    output: z.object({ id: z.string(), name: z.string() }),
+  }).handle(async ({ vovk }) => {
+    const { name } = await vovk.body();
+    return { id: 'new-id', name };
+  });
+}
+```
+
+Test it directly:
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.test.ts"
+import { describe, it, expect } from 'vitest';
+import UserController from './UserController';
+
+describe('UserController', () => {
+  it('gets a user by ID', async () => {
+    const user = await UserController.getUser.fn({
+      params: { id: '42' },
+    });
+
+    expect(user).toEqual({ id: '42', name: 'John' });
+  });
+
+  it('creates a user', async () => {
+    const user = await UserController.createUser.fn({
+      body: { name: 'Alice' },
+    });
+
+    expect(user).toEqual({ id: 'new-id', name: 'Alice' });
+  });
+});
+```
+
+The `.fn` method runs the full procedure pipeline including validation and [decorators](https://vovk.dev/decorator-overview), but without HTTP overhead.
+
+## Testing Validation
+
+Since procedures validate input, you can test that invalid data is rejected:
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.test.ts"
+import { describe, it, expect } from 'vitest';
+import { HttpException } from 'vovk';
+import UserController from './UserController';
+
+describe('UserController validation', () => {
+  it('rejects invalid body', async () => {
+    await expect(
+      UserController.createUser.fn({
+        body: { name: 123 }, // invalid
+      })
+    ).rejects.toThrow(HttpException);
+  });
+});
+```
+
+## Integration Testing with RPC Modules
+
+For end-to-end tests that go through the HTTP layer, use the generated [RPC modules](https://vovk.dev/typescript) against a running dev server:
+
+```ts showLineNumbers copy filename="src/modules/user/UserController.e2e.test.ts"
+import { describe, it, expect } from 'vitest';
+import { UserRPC } from 'vovk-client';
+
+describe('UserController E2E', () => {
+  it('gets a user via HTTP', async () => {
+    const user = await UserRPC.getUser({ params: { id: '42' } });
+
+    expect(user).toEqual({ id: '42', name: 'John' });
+  });
+});
+```
+
+---
+
+Page: https://vovk.dev/performance
+
+# Next.js API Route Performance Overhead
+
+## TL;DR
+
+- Goal: measure Vovk.ts overhead over native Next.js route handlers (not HTTP stack).
+- Routing: O(1) across 1–10,000 controllers (20,000 endpoints). Median latency ~1.25–1.33 µs even at 10,000 controllers. Throughput ~745k–800k ops/s/core.
+- Cold start: O(n). ~5.7 ms at 1,000 controllers; ~83 ms at 10,000. About 8–10× the cost of no‑op decorators.
+- Notes: Tinybench on Apple M4 Pro. Next.js runtime cost is out of scope. Compiled from real benchmark output with AI assistance and minor edits. See vovk-perf-test repo for scripts.
+
+## Reproducing the Tests
+
+Clone the repo:
+
+```sh
+git clone https://github.com/finom/vovk-perf-test.git
+cd vovk-perf-test
+```
+
+Install dependencies via:
+
+```sh npm2yarn copy
+npm i
+```
+
+Run performance tests via:
+
+```sh npm2yarn copy
+npm run perf-test
+```
+
+Perf suite also runs in CI: [GitHub Actions](https://github.com/finom/vovk-perf-test/actions). CI runs on
+GitHub-hosted runners, so numbers are slower than local M4 Pro runs—request-overhead medians are typically
+~7.0–8.7× slower (e.g. ~9–11.5 µs vs ~1.3 µs), and cold-start medians ~3.7–4.9× slower (e.g. ~22 µs vs ~5 µs
+for 1 controller). The scaling trend (O(1) request overhead, O(n) cold start) still holds.
+
+## Overview
+
+Vovk.ts sits on top of Next.js API routes and generates handlers via decorators applied to procedures:
+
+```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
+export const { GET, POST } = initSegment({ controllers });
+```
+
+We measure framework overhead in two dimensions:
+
+- Request Overhead: per-request routing/handler overhead.
+- Cold Start Overhead: initialization time for controllers/metadata.
+
+Source: test scripts in the vovk-perf-test repository.
+
+## Request Overhead
+
+Example controller (N = 1) used in the request-overhead tests:
+
+```ts showLineNumbers copy filename="src/modules/one/a/AController.ts" repository="finom/vovk-perf-test"
+import { get, operation, post, prefix, procedure } from "vovk";
+import z from "zod";
+
+@prefix("a")
+export default class AController {
+  @operation({
+    summary: "Get A",
+  })
+  @get()
+  static getA = procedure().handle(() => {
+    return { get: true };
+  });
+
+  @operation({
+    summary: "Create A",
+  })
+  @post("{id}")
+  static createA = procedure({
+    disableServerSideValidation: ["params"],
+    params: z.object({ id: z.string() }),
+  }).handle((_req, { id }) => {
+    return { post: true, id };
+  });
+}
+```
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-perf-test/blob/main/src/modules/one/a/AController.ts)*
+
+### Methodology (short)
+
+- Autogenerate N controllers (N ∈ \{1, 10, 100, 1,000, 10,000\}), each exposing:
+  - GET without params.
+  - POST with path param "\{id\}" (pattern match).
+- Minimal handler logic; measure full routing + handler path.
+- Tinybench: 100 ms min per test, nanosecond timing; report median latency/throughput.
+
+### Results
+
+| Controllers | Endpoints | GET Latency (med) | POST Latency (med) | GET Throughput (med ops/s) | POST Throughput (med ops/s) |
+| ----------- | --------- | ----------------- | ------------------ | -------------------------- | --------------------------- |
+| 1           | 2         | 1,250 ns          | 1,250 ns           | 800,000                    | 800,000                     |
+| 10          | 20        | 1,291 ns          | 1,292 ns           | 774,593                    | 773,994                     |
+| 100         | 200       | 1,250 ns          | 1,292 ns           | 800,000                    | 773,994                     |
+| 1,000       | 2,000     | 1,250 ns          | 1,291 ns           | 800,000                    | 774,593                     |
+| 10,000      | 20,000    | 1,292 ns          | 1,333 ns           | 773,994                    | 750,188                     |
+
+Key takeaways:
+
+- O(1) routing: flat latency from 1 to 10,000 controllers.
+- ≈1.3 µs overhead at typical scales; GET≈POST indicates efficient param extraction.
+
+## Cold Start Overhead
+
+Example cold-start benchmark (N = 1) contrasting Vovk.ts vs. no-op decorators:
+
+```ts showLineNumbers copy filename="perf/generated_coldStartPerfTest.ts"
+bench.add("Cold start for 1 controllers", async () => {
+  const controllers: Record<string, Function> = {};
+  @prefix("one/0")
+  class One0Controller {
+    @operation({
+      summary: "Create",
+    })
+    @post("{id}")
+    static create = procedure().handle(() => null);
+  }
+
+  controllers["One0Controller"] = One0Controller;
+
+  initSegment({
+    segmentName: "",
+    emitSchema: true,
+    controllers,
+  });
+});
+
+bench.add("No-op decorators for 1 classes", async () => {
+  const controllers: Record<string, Function> = {};
+  @noopClassDecorator()
+  class One0Controller {
+    @noopDecorator({
+      summary: "Create",
+    })
+    @noopDecorator("{id}")
+    static create = () => {
+      return null;
+    };
+  }
+});
+```
+
+### Methodology (short)
+
+For N ∈ \{1, 10, 100, 1,000, 10,000\} measure:
+
+- App creation, decorator processing, metadata build, and initSegment().
+- Compare to equivalent classes using no‑op decorators to isolate framework work.
+
+Example no‑op decorators:
+
+```ts showLineNumbers copy
+function noopDecorator() {
+  return function (..._args: any[]) {};
+}
+function noopClassDecorator() {
+  return function <T extends new (...a: any[]) => any>(c: T) {
+    return c;
+  };
+}
+```
+
+### Results
+
+| Controllers | Vovk.ts Init Time (med) | No-op Time (med) | Overhead Ratio | Throughput (ops/s) |
+| ----------- | ----------------------- | ---------------- | -------------- | ------------------ |
+| 1           | 5.125 μs                | 0.500 μs         | 10.3x          | 195,122            |
+| 10          | 47.167 μs               | 5.208 μs         | 9.1x           | 21,201             |
+| 100         | 526.416 μs              | 53.541 μs        | 9.8x           | 1,900              |
+| 1,000       | 5,719.333 μs            | 702.896 μs       | 8.1x           | 175                |
+| 10,000      | 82,924.833 μs           | 10,370.729 μs    | 8.0x           | 12                 |
+
+Key takeaways:
+
+- O(n) init: linear growth with a near-constant per-controller cost through 10,000 controllers.
+- Absolute times are small for long-lived services; still acceptable for serverless at typical sizes.
+
+## Practical guidance
+
+- For high-performance workloads: split the app into multiple [segments](https://vovk.dev/segment) (e.g., serverless functions built with Next.js route.ts files), each with a manageable number of procedures (up to 1,000).
+- In theory, with careful segment management and adequate hardware, a single Next.js/Vovk.ts app can host up to ~100,000 procedures. Validate this in your environment; practical limits will be memory, bundle size, cold start budgets, and platform quotas.
+
+---
+
+Benchmarks: Tinybench on Node.js; hardware Apple M4 Pro. Numbers can vary by runtime, hardware, and build settings. Scripts/results: https://github.com/finom/vovk-perf-test
 
 ---
 
