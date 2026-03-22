@@ -4,8 +4,8 @@ description: "Tutorial and reference for building real-time UIs with Vovk.ts."
 see_also:
   label: "Vovk.ts Docs Context"
   url: https://vovk.dev/context/docs.md
-chars: 104438
-est_tokens: 26110
+chars: 104686
+est_tokens: 26172
 ---
 
 Page: https://vovk.dev/realtime-ui
@@ -2250,9 +2250,11 @@ With that, you now have a fully functional Realtime Voice AI interface that can 
 
 Page: https://vovk.dev/realtime-ui/mcp
 
-# Setting up MCP server
+# Setting up MCP server with `mcp-handler`
 
 [Database Polling](./polling) and [State Normalization](./state) are set up, so the app is ready to accept changes made by external systems. Let’s now set up the MCP server to allow MCP clients to interact with our application.
+
+As an MCP server, we use the [`mcp-handler`](https://npmjs.com/package/mcp-handler) package, which provides a simple way to create an MCP server in a Next.js API route. The server will expose tools derived from our controllers.
 
 ![MCP Polling Flow](https://vovk.dev/diagrams/mcp_polling_flow.svg)
 
