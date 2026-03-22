@@ -11,4 +11,4 @@
 :HL["https://img.shields.io/npm/v/vovk-hello-world","image"]
 :HL["https://img.shields.io/crates/v/vovk-hello-world.svg","image"]
 :HL["https://badge.fury.io/py/vovk-hello-world.svg","image"]
-0:{"buildId":"N57qwF7S2rJCPqYD7SD_z","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"packages","paramType":null,"paramKey":"packages","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"-7wqrBRXX1Oyh1pkbGGay","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"packages","paramType":null,"paramKey":"packages","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}

@@ -4,8 +4,8 @@ description: "Full documentation for the Vovk.ts framework, excluding the Realti
 see_also:
   label: "Realtime UI Context"
   url: https://vovk.dev/context/realtime-ui.md
-chars: 362822
-est_tokens: 90706
+chars: 363406
+est_tokens: 90852
 ---
 
 Page: https://vovk.dev
@@ -9168,7 +9168,9 @@ describe('UserController', () => {
 });
 ```
 
-The `.fn` method runs the full procedure pipeline including validation and [decorators](https://vovk.dev/decorator-overview), but without HTTP overhead.
+The `.fn` method runs the full procedure pipeline including validation and [decorators](https://vovk.dev/decorator-overview), but without HTTP overhead. This makes it a perfect fit for tests built around mocked or stubbed data — there is no server to start, no network latency, and no cold-start penalty, so test suites complete remarkably fast.
+
+The trade-off is that `.fn()` bypasses `proxy.js` (previously `middleware.js` in earlier Next.js versions). Any logic that lives there — authentication checks, rate limiting, header injection — will not run during `.fn()` calls. If your tests need to exercise that layer, use [integration tests with RPC modules](#integration-testing-with-rpc-modules) against a running dev server instead.
 
 ## Testing Validation
 
