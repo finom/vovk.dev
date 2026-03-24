@@ -3,4 +3,4 @@
 :HL["/_next/static/chunks/236491d49b1e22f6.css","style"]
 :HL["/screenshots/scalar-screenshot-light.png","image"]
 :HL["/screenshots/scalar-screenshot-dark.png","image"]
-0:{"buildId":"gLXDefbPcHrzEiYQve8xq","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"openapi","paramType":null,"paramKey":"openapi","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"II5lYr5rZTYEXjVIidRyv","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"openapi","paramType":null,"paramKey":"openapi","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
