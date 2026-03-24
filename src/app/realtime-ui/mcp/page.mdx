@@ -1,8 +1,10 @@
 import Image from "next/image";
 
-# Setting up MCP server
+# Setting up MCP server with `mcp-handler`
 
 [Database Polling](./polling) and [State Normalization](./state) are set up, so the app is ready to accept changes made by external systems. Let’s now set up the MCP server to allow MCP clients to interact with our application.
+
+As an MCP server, we use the [`mcp-handler`](https://npmjs.com/package/mcp-handler) package, which provides a simple way to create an MCP server in a Next.js API route. The server will expose tools derived from our controllers.
 
 <img src="/diagrams/mcp_polling_flow.svg" alt="MCP Polling Flow" className="mt-4 dark:invert" />
 
