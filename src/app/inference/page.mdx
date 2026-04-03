@@ -5,13 +5,14 @@ Input and output inference is provided by universal types that work for both RPC
 Client-side inference:
 
 ```ts showLineNumbers copy
-import type { VovkBody, VovkQuery, VovkParams, VovkOutput, VovkIteration, VovkReturnType, VovkYieldType } from 'vovk';
+import type { VovkBody, VovkQuery, VovkParams, VovkInput, VovkOutput, VovkIteration, VovkReturnType, VovkYieldType } from 'vovk';
 import { UserRPC, StreamRPC } from 'vovk-client';
 
 // infer input
 type Body = VovkBody<typeof UserRPC.updateUser>;
 type Query = VovkQuery<typeof UserRPC.updateUser>;
 type Params = VovkParams<typeof UserRPC.updateUser>;
+type Input = VovkInput<typeof UserRPC.updateUser>; // { params, query, body }
 
 // infer output
 type Output = VovkOutput<typeof UserRPC.updateUser>;
@@ -25,7 +26,7 @@ type Yield = VovkYieldType<typeof StreamRPC.streamTokens>;
 Server-side inference:
 
 ```ts showLineNumbers copy
-import type { VovkBody, VovkQuery, VovkParams, VovkOutput, VovkIteration, VovkReturnType, VovkYieldType } from 'vovk';
+import type { VovkBody, VovkQuery, VovkParams, VovkInput, VovkOutput, VovkIteration, VovkReturnType, VovkYieldType } from 'vovk';
 import type UserController from './UserController';
 import type StreamController from './StreamController';
 
@@ -33,6 +34,7 @@ import type StreamController from './StreamController';
 type Body = VovkBody<typeof UserController.updateUser>;
 type Query = VovkQuery<typeof UserController.updateUser>;
 type Params = VovkParams<typeof UserController.updateUser>;
+type Input = VovkInput<typeof UserController.updateUser>; // { params, query, body }
 
 // infer output
 type Output = VovkOutput<typeof UserController.updateUser>;
@@ -121,6 +123,28 @@ import type UserController from './UserController';
 type Body = VovkBody<typeof UserController.updateUser>; // { email: string }
 type Query = VovkQuery<typeof UserController.updateUser>; // { id: string }
 type Params = VovkParams<typeof UserController.updateUser>; // { param: string }
+```
+
+## Combined Input Type
+
+`VovkInput<T>` extracts all three input types (`params`, `query`, `body`) into a single object.
+
+```ts showLineNumbers copy
+import type { VovkInput } from 'vovk';
+import type UserController from './UserController';
+
+type Input = VovkInput<typeof UserController.updateUser>;
+// { params: { param: string }; query: { id: string }; body: { email: string } }
+```
+
+It works the same way with RPC modules:
+
+```ts showLineNumbers copy
+import type { VovkInput } from 'vovk';
+import { UserRPC } from 'vovk-client';
+
+type Input = VovkInput<typeof UserRPC.updateUser>;
+// { params: { param: string }; query: { id: string }; body: { email: string } }
 ```
 
 ## Output/Iteration Inference

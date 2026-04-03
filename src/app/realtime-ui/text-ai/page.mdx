@@ -126,9 +126,10 @@ The key part of the code is the `useParseSDKToolCallOutputs` hook, which extract
 ```ts showLineNumbers copy filename="src/hooks/useParseSDKToolCallOutputs.ts" repository="finom/realtime-kanban" {26}
 import type { ToolUIPart, UIMessage } from 'ai';
 import { useEffect, useRef } from 'react';
-import useRegistry from '@/hooks/useRegistry';
+import { useRegistryStore } from '@/hooks/useRegistry';
 
 export default function useParseSDKToolCallOutputs(messages: UIMessage[]) {
+  const store = useRegistryStore();
   const parsedToolCallIdsSetRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -149,9 +150,9 @@ export default function useParseSDKToolCallOutputs(messages: UIMessage[]) {
     });
 
     if (partsToParse.length) {
-      useRegistry.getState().parse(partsToParse.map((part) => part.output));
+      store.getState().parse(partsToParse.map((part) => part.output));
     }
-  }, [messages]);
+  }, [messages, store]);
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useParseSDKToolCallOutputs.ts)*

@@ -54,41 +54,6 @@ class UserController {
 
 Both approaches are interchangeable — you can even mix them in the same controller.
 
-## Local execution bypasses `proxy.js`
-
-Every procedure exposes a `.fn()` method for direct server-side invocation — no HTTP round-trip:
-
-```ts
-const user = await UserController.getUser.fn({ params: { id: '123' } });
-```
-
-This is used for SSR, SSG, PPR, AI tool execution, unit testing, and background jobs. It runs the full procedure pipeline including validation and custom decorators.
-
-**What you get:**
-
-- Zero-overhead server-side calls. The procedure runs in the current evaluation context. No serialization, no network, no cold-start penalty.
-- The same handler logic serves both HTTP and local consumers — single source of truth.
-- Works beautifully with `deriveTools()` for AI agent execution where HTTP round-trips would be wasteful.
-
-**What you give up:**
-
-- **No `proxy.js` processing.** In Next.js 15+, `proxy.js` (previously `middleware.js` in earlier versions) runs on every incoming request before it reaches a Route Handler. When you call `.fn()`, the request never goes through the HTTP layer, so `proxy.js` is never invoked. If your `proxy.js` performs authentication checks, rate limiting, geo-routing, or header injection, none of that applies to `.fn()` calls.
-- **No `Request` object.** The `req` parameter inside `.fn()` is not a real `Request`. Properties like `req.url`, `req.headers`, and `req.nextUrl` are `undefined`. Only `req.vovk` (with `.body()`, `.query()`, `.params()`, `.meta()`) is available. If your handler or custom decorator accesses `NextRequest`-specific properties, it will break under `.fn()`.
-You can detect the execution context inside a decorator:
-
-```ts
-const myDecorator = createDecorator((req, next) => {
-  if (typeof req.url === 'undefined') {
-    // Called via .fn() — local context
-  } else {
-    // Called via HTTP — full Request available
-  }
-  return next();
-});
-```
-
-Note that `next/headers` and `next/cookies` still work inside `.fn()` calls — those go through Next.js's async context, not the request object.
-
 ## Schema and codegen emission
 
 Vovk.ts derives a JSON schema from your controller code and emits it as a build artifact to `.vovk-schema/`. The CLI then reads that schema to generate type-safe TypeScript clients, OpenAPI specs, and optionally Python and Rust clients.

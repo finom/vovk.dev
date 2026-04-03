@@ -541,6 +541,20 @@ type Params = VovkParams<typeof UserRPC.updateUser>;
 
 See [inference](/inference).
 
+### `VovkInput`
+
+Combined input type that extracts `params`, `query`, and `body` from a procedure into a single object. Useful for typing Next.js server action arguments.
+
+```ts showLineNumbers copy
+import type { VovkInput } from 'vovk';
+import type UserController from './UserController';
+
+type Input = VovkInput<typeof UserController.createUser>;
+// { params: VovkParams<...>; query: VovkQuery<...>; body: VovkBody<...> }
+```
+
+See [inference](/inference).
+
 ### `VovkOutput`, `VovkIteration`
 
 Output helpers for validated procedures:

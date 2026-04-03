@@ -24,7 +24,7 @@ const meta: MetaRecord = {
   '#procedure': separator('Controller & Procedure'),
   procedure: 'Controller & Procedure',
   'req-vovk': 'Enhanced Request Object',
-  fn: 'Calling Procedures Locally',
+  fn: 'Local Procedure Call (LPC)',
   response: 'Response & Errors',
   'content-type': 'Content Type',
   jsonlines: 'JSON Lines',
@@ -77,7 +77,7 @@ const meta: MetaRecord = {
   },
   '#etc': separator('Deep Dive'),
   'architectural-trade-offs-link': {
-    title: 'Architectural Trade-offs',
+    title: 'Architectural Trade-offs (blog post)',
     href: '/blog/architectural-trade-offs',
   },
   testing: 'Testing',

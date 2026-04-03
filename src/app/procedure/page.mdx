@@ -249,7 +249,7 @@ Handlers created with `procedure` function gain extra capabilities.
 
 ### `fn`
 
-The `fn` property lets you call the controller procedure directly without making an HTTP request for SSR/PPR etc. It mirrors the generated RPC handler signature and accepts the same parameters.
+The `fn` property lets you call the controller procedure directly without making an HTTP request for SSR/PPR, server actions, etc. It mirrors the generated RPC handler signature and accepts the same parameters.
 
 ```ts showLineNumbers copy
 const result = await UserController.updateUser.fn({

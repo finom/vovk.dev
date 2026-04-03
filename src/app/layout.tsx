@@ -93,13 +93,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </Head>
       <body>
         <Layout
-          banner={
+         /* banner={
             <Banner storageKey="initial-announcement">
               <Link href="/blog/announcement" className="text-white font-medium no-underline">
                 🐺 Vovk.ts is released. Read the blog post →
               </Link>
             </Banner>
-          }
+          } */
           navbar={navbar}
           pageMap={await getPageMap()}
           docsRepositoryBase="https://github.com/finom/vovk.dev/tree/main"

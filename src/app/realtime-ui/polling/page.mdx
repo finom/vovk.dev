@@ -4,7 +4,7 @@ import { PollExample } from '@/components/vovk-examples';
 
 # Realtime Database Polling
 
-[State normalization](./state), a custom [fetcher](./fetcher), and the corresponding backend implementation keep the UI updated while the user interacts with the app by making HTTP requests. The implementation also covers AI features such as [Text Chat AI](./text-ai) and [Voice AI](./voice-ai), explained in later articles. The rule of thumb is that data should always be processed by the entity registry.
+[State normalization](./state) and the corresponding backend implementation keep the UI updated while the user interacts with the app by making HTTP requests. The implementation also covers AI features such as [Text Chat AI](./text-ai) and [Voice AI](./voice-ai), explained in later articles. The rule of thumb is that data should always be processed by the entity registry.
 
 But what if the database is changed by other users or third-party services? How do we keep the UI in sync with backend data in real time? One way is to implement database polling powered by [JSONLines](/jsonlines). The server sends updates to clients whenever the database changes, and the client reconnects automatically when the connection is closed.
 
@@ -418,7 +418,7 @@ export default class DatabasePollController {
 
 ## Client-side logic
 
-On the client side (for example, in a React component), call `DatabasePollRPC.poll()` to receive a stream of database events. As with any [JSONLines](/jsonlines) RPC method, it returns an async iterable that you can consume in a `for await` loop. Because the server may close the connection or a network error may occur, wrap the logic in a retry loop. Since the [fetcher](/imports#fetcher) is already [configured](./fetcher), the loop body can be empty—you do not need to handle data manually.
+On the client side (for example, in a React component), call `DatabasePollRPC.poll()` to receive a stream of database events. As with any [JSONLines](/jsonlines) RPC method, it returns an async iterable that you can consume in a `for await` loop. Because the server may close the connection or a network error may occur, wrap the logic in a retry loop. Since the [fetcher](/imports#fetcher) is already [configured](./state#setting-up-the-fetcher), the loop body can be empty—you do not need to handle data manually.
 
 The frontend code, besides the polling logic, also includes an on/off toggle persisted to `localStorage`, so users can enable or disable polling as needed.
   

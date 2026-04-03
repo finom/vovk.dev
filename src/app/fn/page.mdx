@@ -1,4 +1,4 @@
-# Calling Procedures Locally
+# Local Procedure Call (LPC)
 
 Every procedure created with the [procedure](/procedure) function can be used outside an HTTP request context as a regular function. It exposes an `fn` method that calls the handler directly, partially simulating the signature of an RPC method.
 
@@ -58,7 +58,7 @@ This will invoke `UserController.getUser` like a normal function, performing val
 
 There are several core use cases for local procedures:
 
-**For SSR, SSG, PPR, etc.**: You can use the method in a server component.
+**For SSR, SSG, PPR, and server actions**: You can use the method in a server component:
 
 ```tsx showLineNumbers copy filename="src/app/user/page.tsx"
 import UserController from '@/modules/user/UserController';
@@ -70,6 +70,26 @@ export default async function UserPage() {
 
   return (
     <p>User: {JSON.stringify(user)}</p>
+  );
+}
+```
+
+**For Next.js server actions**: You can use `fn` inside a server action to call the procedure directly from a form submission. Make sure the procedure has `contentType` set to `'multipart/form-data'` to accept `FormData` as the body:
+
+```tsx showLineNumbers copy filename="src/app/user/create/page.tsx"
+import UserController from '@/modules/user/UserController';
+
+export default function CreateUserPage() {
+  async function handleCreate(body: FormData) {
+    'use server';
+    await UserController.createUser.fn({ body });
+  }
+
+  return (
+    <form action={handleCreate}>
+      <input name="name" required />
+      <button type="submit">Create User</button>
+    </form>
   );
 }
 ```

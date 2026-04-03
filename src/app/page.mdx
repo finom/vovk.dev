@@ -102,7 +102,7 @@ import { UserRPC } from 'vovk-client';
 const user = await UserRPC.getUser({ params: { id: '123' } });
 ```
 
-Procedures can run directly on the server for SSR/PPR, skipping the HTTP round-trip:
+Procedures can run directly on the server for SSR/PPR and server actions, skipping the HTTP round-trip:
 
 ```ts
 const user = await UserController.getUser.fn({ params: { id: '123' } });
@@ -221,7 +221,7 @@ Endpoints can yield JSON Lines for real-time responses. See [JSON Lines](/jsonli
 
 ### Local procedure calls
 
-Procedures can run directly on the server for SSR/PPR, skipping the HTTP round-trip. See [Calling Procedures Locally](/fn).
+Procedures can run directly on the server for SSR/PPR and server actions, skipping the HTTP round-trip. See [Calling Procedures Locally](/fn).
 
 ### Docs and publishing
 
