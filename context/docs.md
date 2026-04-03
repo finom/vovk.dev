@@ -4,8 +4,8 @@ description: "Full documentation for the Vovk.ts framework, excluding the Realti
 see_also:
   label: "Realtime UI Context"
   url: https://vovk.dev/context/realtime-ui.md
-chars: 363406
-est_tokens: 90852
+chars: 366205
+est_tokens: 91552
 ---
 
 Page: https://vovk.dev
@@ -73,7 +73,7 @@ import { UserRPC } from 'vovk-client';
 const user = await UserRPC.getUser({ params: { id: '123' } });
 ```
 
-Procedures can run directly on the server for SSR/PPR, skipping the HTTP round-trip:
+Procedures can run directly on the server for SSR/PPR and server actions, skipping the HTTP round-trip:
 
 ```ts
 const user = await UserController.getUser.fn({ params: { id: '123' } });
@@ -188,7 +188,7 @@ Endpoints can yield JSON Lines for real-time responses. See [JSON Lines](https:/
 
 ### Local procedure calls
 
-Procedures can run directly on the server for SSR/PPR, skipping the HTTP round-trip. See [Calling Procedures Locally](https://vovk.dev/fn).
+Procedures can run directly on the server for SSR/PPR and server actions, skipping the HTTP round-trip. See [Calling Procedures Locally](https://vovk.dev/fn).
 
 ### Docs and publishing
 
@@ -1081,7 +1081,7 @@ Handlers created with `procedure` function gain extra capabilities.
 
 ### `fn`
 
-The `fn` property lets you call the controller procedure directly without making an HTTP request for SSR/PPR etc. It mirrors the generated RPC handler signature and accepts the same parameters.
+The `fn` property lets you call the controller procedure directly without making an HTTP request for SSR/PPR, server actions, etc. It mirrors the generated RPC handler signature and accepts the same parameters.
 
 ```ts showLineNumbers copy
 const result = await UserController.updateUser.fn({
@@ -1356,7 +1356,7 @@ This design prevents server‑side metadata from being overwritten by client inp
 
 Page: https://vovk.dev/fn
 
-# Calling Procedures Locally
+# Local Procedure Call (LPC)
 
 Every procedure created with the [procedure](https://vovk.dev/procedure) function can be used outside an HTTP request context as a regular function. It exposes an `fn` method that calls the handler directly, partially simulating the signature of an RPC method.
 
@@ -1416,7 +1416,7 @@ This will invoke `UserController.getUser` like a normal function, performing val
 
 There are several core use cases for local procedures:
 
-**For SSR, SSG, PPR, etc.**: You can use the method in a server component.
+**For SSR, SSG, PPR, and server actions**: You can use the method in a server component:
 
 ```tsx showLineNumbers copy filename="src/app/user/page.tsx"
 import UserController from '@/modules/user/UserController';
@@ -1428,6 +1428,26 @@ export default async function UserPage() {
 
   return (
     <p>User: {JSON.stringify(user)}</p>
+  );
+}
+```
+
+**For Next.js server actions**: You can use `fn` inside a server action to call the procedure directly from a form submission. Make sure the procedure has `contentType` set to `'multipart/form-data'` to accept `FormData` as the body:
+
+```tsx showLineNumbers copy filename="src/app/user/create/page.tsx"
+import UserController from '@/modules/user/UserController';
+
+export default function CreateUserPage() {
+  async function handleCreate(body: FormData) {
+    'use server';
+    await UserController.createUser.fn({ body });
+  }
+
+  return (
+    <form action={handleCreate}>
+      <input name="name" required />
+      <button type="submit">Create User</button>
+    </form>
   );
 }
 ```
@@ -2523,13 +2543,14 @@ Input and output inference is provided by universal types that work for both RPC
 Client-side inference:
 
 ```ts showLineNumbers copy
-import type { VovkBody, VovkQuery, VovkParams, VovkOutput, VovkIteration, VovkReturnType, VovkYieldType } from 'vovk';
+import type { VovkBody, VovkQuery, VovkParams, VovkInput, VovkOutput, VovkIteration, VovkReturnType, VovkYieldType } from 'vovk';
 import { UserRPC, StreamRPC } from 'vovk-client';
 
 // infer input
 type Body = VovkBody<typeof UserRPC.updateUser>;
 type Query = VovkQuery<typeof UserRPC.updateUser>;
 type Params = VovkParams<typeof UserRPC.updateUser>;
+type Input = VovkInput<typeof UserRPC.updateUser>; // { params, query, body }
 
 // infer output
 type Output = VovkOutput<typeof UserRPC.updateUser>;
@@ -2543,7 +2564,7 @@ type Yield = VovkYieldType<typeof StreamRPC.streamTokens>;
 Server-side inference:
 
 ```ts showLineNumbers copy
-import type { VovkBody, VovkQuery, VovkParams, VovkOutput, VovkIteration, VovkReturnType, VovkYieldType } from 'vovk';
+import type { VovkBody, VovkQuery, VovkParams, VovkInput, VovkOutput, VovkIteration, VovkReturnType, VovkYieldType } from 'vovk';
 import type UserController from './UserController';
 import type StreamController from './StreamController';
 
@@ -2551,6 +2572,7 @@ import type StreamController from './StreamController';
 type Body = VovkBody<typeof UserController.updateUser>;
 type Query = VovkQuery<typeof UserController.updateUser>;
 type Params = VovkParams<typeof UserController.updateUser>;
+type Input = VovkInput<typeof UserController.updateUser>; // { params, query, body }
 
 // infer output
 type Output = VovkOutput<typeof UserController.updateUser>;
@@ -2639,6 +2661,28 @@ import type UserController from './UserController';
 type Body = VovkBody<typeof UserController.updateUser>; // { email: string }
 type Query = VovkQuery<typeof UserController.updateUser>; // { id: string }
 type Params = VovkParams<typeof UserController.updateUser>; // { param: string }
+```
+
+## Combined Input Type
+
+`VovkInput<T>` extracts all three input types (`params`, `query`, `body`) into a single object.
+
+```ts showLineNumbers copy
+import type { VovkInput } from 'vovk';
+import type UserController from './UserController';
+
+type Input = VovkInput<typeof UserController.updateUser>;
+// { params: { param: string }; query: { id: string }; body: { email: string } }
+```
+
+It works the same way with RPC modules:
+
+```ts showLineNumbers copy
+import type { VovkInput } from 'vovk';
+import { UserRPC } from 'vovk-client';
+
+type Input = VovkInput<typeof UserRPC.updateUser>;
+// { params: { param: string }; query: { id: string }; body: { email: string } }
 ```
 
 ## Output/Iteration Inference
@@ -4557,6 +4601,24 @@ Called when a request fails. Use it for error messages, logging, or custom handl
 #### `onSuccess(data: unknown, options: T){:ts}`
 
 Called on success. Use it for success messages, logging, or post-processing.
+
+### Event-style callbacks
+
+`onSuccess` and `onError` can also be registered after the fetcher is created. This is useful when callbacks depend on context that isn't available at creation time (e.g. a React context value or a Zustand store reference). Both methods return an unsubscribe function. Multiple callbacks can be registered — they run in order.
+
+```ts showLineNumbers copy
+const unsubSuccess = fetcher.onSuccess((data, { successMessage }) => {
+  console.log('Success:', successMessage);
+});
+
+const unsubError = fetcher.onError((error) => {
+  console.error('Error:', error.message);
+});
+
+// Later, remove the callbacks:
+unsubSuccess();
+unsubError();
+```
 
 ## `validateOnClient`
 
@@ -9107,7 +9169,7 @@ Page: https://vovk.dev/testing
 
 # Testing
 
-Vovk.ts procedures expose an [`.fn` method](https://vovk.dev/fn) that calls the handler directly, skipping the HTTP round-trip. This makes unit testing straightforward — no server required.
+Vovk.ts procedures expose an [`.fn` method](https://vovk.dev/fn) that calls the handler directly, skipping the HTTP round-trip. The same method powers SSR, server actions, and testing. This makes unit testing straightforward — no server required.
 
 ## Setup
 
@@ -10039,6 +10101,20 @@ import { UserRPC } from 'vovk-client';
 type Body = VovkBody<typeof UserRPC.updateUser>;
 type Query = VovkQuery<typeof UserRPC.updateUser>;
 type Params = VovkParams<typeof UserRPC.updateUser>;
+```
+
+See [inference](https://vovk.dev/inference).
+
+### `VovkInput`
+
+Combined input type that extracts `params`, `query`, and `body` from a procedure into a single object. Useful for typing Next.js server action arguments.
+
+```ts showLineNumbers copy
+import type { VovkInput } from 'vovk';
+import type UserController from './UserController';
+
+type Input = VovkInput<typeof UserController.createUser>;
+// { params: VovkParams<...>; query: VovkQuery<...>; body: VovkBody<...> }
 ```
 
 See [inference](https://vovk.dev/inference).

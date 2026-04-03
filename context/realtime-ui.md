@@ -4,8 +4,8 @@ description: "Tutorial and reference for building real-time UIs with Vovk.ts."
 see_also:
   label: "Vovk.ts Docs Context"
   url: https://vovk.dev/context/docs.md
-chars: 104686
-est_tokens: 26172
+chars: 109276
+est_tokens: 27319
 ---
 
 Page: https://vovk.dev/realtime-ui
@@ -191,15 +191,7 @@ The idea of normalizing front-end state into flat entity maps originates from th
 
 While this article uses [Zustand](https://github.com/pmndrs/zustand), the pattern itself is not tied to it. The core requirements from a state library are: a centralized store that holds plain objects, the ability to update state and trigger selective re-renders, and a subscription mechanism so components only re-render when their specific entity changes. Any library that provides these can host the same registry. Compatible alternatives include [Jotai](https://jotai.org/) (where each entity map could be an atom) and [Valtio](https://valtio.dev/) (using proxy-based reactivity for automatic fine-grained subscriptions). The `getEntitiesFromData` extraction function and the `parse` logic are completely library-agnostic — only the store creation and subscription wiring need to be adapted.
 
-## Implementing `useRegistry` hook
-
-The application state is normalized and stores entities in a dictionary by their IDs. The registry exposes a `parse` method that accepts any data and extracts entities from it, storing them in the registry. This method is used to process all incoming data from the server so that all components using this data are updated automatically.
-
-```ts showLineNumbers copy
-useRegistry.getState().parse(data);
-```
-
-### Defining entity types
+## Defining entity types
 
 The pattern relies on a simple contract: every entity in your data has an `id` field and an `entityType` field that identifies what kind of entity it is. In a real project, `EntityType` can be pulled from `@prisma/client`, generated from your schema, or imported from wherever your source of truth lives. Here we list it explicitly for documentation purposes:
 
@@ -211,8 +203,6 @@ enum EntityType {
 
 interface BaseEntity {
   id: string;
-  createdAt: string | Date;
-  updatedAt: string | Date;
   entityType: EntityType;
 }
 ```
@@ -242,16 +232,52 @@ Either way, your entity interfaces then use the branded type for `id` instead of
 
 > In the Realtime UI project, `EntityType` is imported from `@prisma/client` and the entity types (including branded IDs) are generated via a Zod generator, as described in the [Database](./database) article.
 
-### The registry hook
+## Setting up the fetcher
 
-The `useRegistry` hook, built with the Zustand library, implements a `Registry` interface that describes the shape of the registry state: the `parse` method and entity maps such as `user` and `task`.
+Before diving into the registry implementation, let's set up the [fetcher](https://vovk.dev/imports#fetcher) — a function that all generated RPC methods use to make HTTP requests. The fetcher exposes an `onSuccess` event that lets external code hook into every successful response. The registry will subscribe to this event to automatically parse all incoming data.
 
-```ts showLineNumbers copy filename="src/hooks/useRegistry.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/lib/fetcher.ts"
+export const fetcher = createFetcher<{ bypassRegistry?: boolean }>({
+  onError: (error) => {
+    if (error.statusCode === HttpStatus.UNAUTHORIZED) {
+      document.location.href = '/login';
+    }
+  },
+});
+```
+
+The `onError` handler redirects to the login page on authentication failures. The `bypassRegistry` generic parameter adds a type-safe option that callers can pass (e.g. `await UserRPC.getUsers({ bypassRegistry: true }){:ts}`) to skip registry processing for specific requests — useful for cases where you only need the raw response.
+
+Declare the fetcher in the [config](https://vovk.dev/config) so that it replaces the default one imported by the generated [client](https://vovk.dev/typescript):
+
+```ts showLineNumbers copy filename="vovk.config.mjs"
+// @ts-check
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  outputConfig: {
+    imports: {
+      // ...
+      fetcher: './src/lib/fetcher.ts',
+    },
+  },
+};
+
+export default config;
+```
+
+## Implementing the registry
+
+The registry hook is built on Zustand. It defines a `Registry` interface describing the shape of the state — entity maps keyed by `EntityType` and a `parse` method — and exports a `RegistryProvider`, a `useRegistry` selector hook, and a `useRegistryStore` hook for imperative access.
+
+```ts showLineNumbers copy filename="src/hooks/useRegistry.tsx" repository="finom/realtime-kanban"
+'use client';
 import { EntityType } from '@prisma/client';
 import type { TaskType } from '@schemas/models/Task.schema';
 import type { UserType } from '@schemas/models/User.schema';
 import fastDeepEqual from 'fast-deep-equal';
-import { create } from 'zustand';
+import { type ReactNode, createContext, useContext, useRef } from 'react';
+import { type StoreApi, createStore, useStore } from 'zustand';
+import { fetcher } from '@/lib/fetcher';
 import type { BaseEntity } from '../types';
 
 interface Registry {
@@ -260,6 +286,8 @@ interface Registry {
   parse: (data: unknown) => void;
 }
 
+const MAX_DEPTH = 10;
+
 export function getEntitiesFromData(
   data: unknown,
   entities: Partial<{
@@ -267,7 +295,6 @@ export function getEntitiesFromData(
   }> = {},
   depth = 0,
 ) {
-  const MAX_DEPTH = 10;
   if (depth > MAX_DEPTH) return entities as Partial<Omit<Registry, 'parse'>>;
 
   if (Array.isArray(data)) {
@@ -288,47 +315,105 @@ export function getEntitiesFromData(
   return entities as Partial<Omit<Registry, 'parse'>>;
 }
 
-const useRegistry = create<Registry>((set) => ({
-  [EntityType.user]: {},
-  [EntityType.task]: {},
-  parse: (data) => {
-    const entities = getEntitiesFromData(data);
-    set((state) => {
-      const newState: Record<string, unknown> = {};
-      let isChanged = false;
-      Object.entries(entities).forEach(([entityType, entityMap]) => {
-        const type = entityType as EntityType;
-        const descriptors = Object.getOwnPropertyDescriptors(state[type] ?? {});
-        let areDescriptorsChanged = false;
-        Object.values(entityMap).forEach((entity) => {
-          const descriptorValue = descriptors[entity.id]?.value;
-          const value = { ...descriptorValue, ...entity };
-          const isCurrentChanged = !fastDeepEqual(descriptorValue, value);
-          descriptors[entity.id] = isCurrentChanged
-            ? ({
-                value,
-                configurable: true,
-                writable: false,
-                enumerable: !('__isDeleted' in entity),
-              } satisfies PropertyDescriptor)
-            : descriptors[entity.id];
-          areDescriptorsChanged ||= isCurrentChanged;
+function createRegistryStore(initialData: {
+  users?: UserType[];
+  tasks?: TaskType[];
+}) {
+  const initialEntities = getEntitiesFromData(initialData);
+
+  return createStore<Registry>((set) => ({
+    [EntityType.user]: (initialEntities.user ?? {}) as Record<UserType['id'], UserType>,
+    [EntityType.task]: (initialEntities.task ?? {}) as Record<TaskType['id'], TaskType>,
+    parse: (data) => {
+      const entities = getEntitiesFromData(data);
+      set((state) => {
+        const newState: Record<string, unknown> = {};
+        let isChanged = false;
+        Object.entries(entities).forEach(([entityType, entityMap]) => {
+          const type = entityType as EntityType;
+          const descriptors = Object.getOwnPropertyDescriptors(
+            state[type] ?? {},
+          );
+          let areDescriptorsChanged = false;
+          Object.values(entityMap).forEach((entity) => {
+            const descriptorValue = descriptors[entity.id]?.value;
+            const value = { ...descriptorValue, ...entity };
+            const isCurrentChanged = !fastDeepEqual(descriptorValue, value);
+            descriptors[entity.id] = isCurrentChanged
+              ? ({
+                  value,
+                  configurable: true,
+                  writable: false,
+                  enumerable: !('__isDeleted' in entity),
+                } satisfies PropertyDescriptor)
+              : descriptors[entity.id];
+            areDescriptorsChanged ||= isCurrentChanged;
+          });
+          newState[type] = areDescriptorsChanged
+            ? Object.defineProperties({}, descriptors)
+            : state[type];
+          isChanged ||= areDescriptorsChanged;
         });
-        newState[type] = areDescriptorsChanged
-          ? Object.defineProperties({}, descriptors)
-          : state[type];
-        isChanged ||= areDescriptorsChanged;
+        return isChanged ? { ...state, ...newState } : state;
       });
-      return isChanged ? { ...state, ...newState } : state;
+    },
+  }));
+}
+
+const RegistryContext = createContext<StoreApi<Registry> | null>(null);
+
+export function RegistryProvider({
+  initialData,
+  children,
+}: {
+  initialData: { users?: UserType[]; tasks?: TaskType[] };
+  children: ReactNode;
+}) {
+  const storeRef = useRef<StoreApi<Registry> | null>(null);
+  if (!storeRef.current) {
+    storeRef.current = createRegistryStore(initialData);
+    const { parse } = storeRef.current.getState();
+
+    fetcher.onSuccess((data, { bypassRegistry }) => {
+      if (bypassRegistry) return;
+
+      if (
+        data &&
+        typeof data === 'object' &&
+        Symbol.asyncIterator in data &&
+        'onIterate' in data &&
+        typeof data.onIterate === 'function'
+      ) {
+        data.onIterate(parse);
+      }
+
+      parse(data);
     });
-  },
-}));
+  }
 
-export default useRegistry;
+  return (
+    <RegistryContext.Provider value={storeRef.current}>
+      {children}
+    </RegistryContext.Provider>
+  );
+}
+
+export function useRegistryStore() {
+  const store = useContext(RegistryContext);
+  if (!store)
+    throw new Error('useRegistry must be used within RegistryProvider');
+  return store;
+}
+
+export function useRegistry<T>(selector: (state: Registry) => T): T {
+  return useStore(useRegistryStore(), selector);
+}
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useRegistry.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useRegistry.tsx)*
 
-## `getEntitiesFromData` function explained
+Let's break this down piece by piece.
+
+### `getEntitiesFromData` function
 
 `getEntitiesFromData` is a recursive function that extracts entities from any data structure based on the presence of `entityType` and `id` properties. For each discovered `entityType`, it builds a record whose keys are entity IDs and whose values are the entity objects themselves. Nested entities (like `user` inside `task`) are extracted alongside their parents in a single pass, so one call normalizes the entire response. Let's say the server returns the following response:
 
@@ -374,11 +459,34 @@ The function walks through the entire structure and produces a normalized interm
 }
 ```
 
-## `parse` method explained
+### `createRegistryStore` factory
+
+The `createRegistryStore` function accepts initial data (the arrays fetched during SSR) and returns a vanilla Zustand store pre-populated with that data. It uses `getEntitiesFromData` to normalize the initial arrays into entity maps, then passes them directly as the initial state of the store:
+
+```ts showLineNumbers copy
+function createRegistryStore(initialData: {
+  users?: UserType[];
+  tasks?: TaskType[];
+}) {
+  const initialEntities = getEntitiesFromData(initialData);
+
+  return createStore<Registry>((set) => ({
+    [EntityType.user]: (initialEntities.user ?? {}) as Record<UserType['id'], UserType>,
+    [EntityType.task]: (initialEntities.task ?? {}) as Record<TaskType['id'], TaskType>,
+    parse: (data) => {
+      // ...
+    },
+  }));
+}
+```
+
+The key detail here is that the initial data is passed **inline to `createStore`** rather than populated after creation via `parse`. This matters for SSR: Zustand's `useStore` hook relies on `useSyncExternalStore`, which calls `getInitialState()` during server-side rendering. `getInitialState()` returns the state as it was at store creation time — so if you create the store empty and call `parse` afterward, the server render sees empty state and produces empty HTML. By passing the data inline, `getInitialState()` returns the populated state, and SSR produces the correct HTML from the start.
+
+### `parse` method
 
 The `parse` method accepts any data, extracts entities from it, and stores them in the registry. Instead of simply extending the state with new entities, it uses `Object.getOwnPropertyDescriptors` to get the property descriptors of the existing entities. This allows us to check whether an entity already exists in state and, if it does, compare it with the new entity using the [fast-deep-equal](https://www.npmjs.com/package/fast-deep-equal) library. If the entities are equal, we don't update state; otherwise, we create a new property descriptor with the updated entity. This helps avoid unnecessary re-renders of components that consume this entity.
 
-### Soft deletions via `__isDeleted` property
+#### Soft deletions via `__isDeleted` property
 
 The `__isDeleted` property is used to mark entities as deleted without actually removing them from the state, which avoids errors in components that might still reference them.
 
@@ -406,132 +514,110 @@ Once `__isDeleted` is received as part of an entity, the property descriptor is 
 }
 ```
 
+### `RegistryProvider` and SSR
+
+The `RegistryProvider` is the glue between the Zustand store, the fetcher, and the React component tree. It creates the store once (via `useRef`), pre-populated with server-fetched data, and wires up the fetcher's `onSuccess` event so that every subsequent RPC response is automatically parsed into the registry.
+
+```ts showLineNumbers copy
+export function RegistryProvider({ initialData, children }) {
+  const storeRef = useRef(null);
+  if (!storeRef.current) {
+    storeRef.current = createRegistryStore(initialData);
+    const { parse } = storeRef.current.getState();
+
+    fetcher.onSuccess((data, { bypassRegistry }) => {
+      if (bypassRegistry) return;
+
+      if (/* data is an async iterable (JSONLines stream) */) {
+        data.onIterate(parse);
+      }
+
+      parse(data);
+    });
+  }
+
+  return (
+    <RegistryContext.Provider value={storeRef.current}>
+      {children}
+    </RegistryContext.Provider>
+  );
+}
+```
+
+The `fetcher.onSuccess` handler does two things: for regular JSON responses, it calls `parse` directly; for [JSONLines](https://vovk.dev/jsonlines) streaming responses (async iterables), it also registers `parse` as the `onIterate` callback so each streamed chunk is parsed into the registry as it arrives. If `bypassRegistry` was passed as an option to the RPC call, the handler returns early without processing.
+
+`fetcher.onSuccess` (and `fetcher.onError`) return an unsubscribe function that removes the callback. Since the `RegistryProvider` typically wraps the entire app and never unmounts, unsubscribing isn't needed here — but in other contexts (e.g. a component that conditionally listens) you can call the returned function to clean up.
+
+The store creation and the `onSuccess` registration happen synchronously inside the `useRef` initialization — not in `useEffect`. This is safe because `useQuery` and other client-side fetches only fire after mount (in effects), so the handler is guaranteed to be registered before any response arrives.
+
+### `useRegistry` and `useRegistryStore` hooks
+
+The `useRegistry` hook reads the store from context and applies a selector, providing the same API that components would get from a standard Zustand `create` hook:
+
+```ts showLineNumbers copy
+export function useRegistry<T>(selector: (state: Registry) => T): T {
+  return useStore(useRegistryStore(), selector);
+}
+```
+
+For imperative access outside of selectors (for example, calling `parse` from an effect), `useRegistryStore` returns the raw store:
+
+```ts showLineNumbers copy
+const store = useRegistryStore();
+store.getState().parse(data);
+```
+
+## Using the registry with SSR
+
+The server component fetches data using the controller's `.fn()` method (a direct server-side call that bypasses HTTP) and passes it to `RegistryProvider`. Child components select data from the store — no `initialData` props needed:
+
+```tsx showLineNumbers copy filename="src/app/page.tsx"
+export default async function Home() {
+  const [users, tasks] = await Promise.all([
+    UserController.getUsers.fn<UserType[]>(),
+    TaskController.getTasks.fn<TaskType[]>(),
+  ]);
+
+  return (
+    <RegistryProvider initialData={{ users, tasks }}>
+      <AppHeader />
+      <UserList />
+      <UserKanban />
+    </RegistryProvider>
+  );
+}
+```
+
+Components are clean — they select from the registry and fire a `useQuery` to refresh the data on the client:
+
+```tsx showLineNumbers copy filename="src/components/UserList.tsx"
+const UserList = () => {
+  const users = useRegistry(useShallow((state) => Object.values(state.user)));
+
+  useQuery({
+    queryKey: UserRPC.getUsers.queryKey(),
+    queryFn: () => UserRPC.getUsers(),
+  });
+
+  return <ul>{users.map((u) => <li key={u.id}>{u.fullName}</li>)}</ul>;
+};
+```
+
+The data flow is:
+
+1. **SSR**: The server fetches data via `.fn()`, `RegistryProvider` creates a store with that data inline, components render with it — the HTML sent to the client already contains the full UI.
+2. **Hydration**: React hydrates on the client. The store is recreated with the same initial data, producing identical output — no hydration mismatch.
+3. **Client refresh**: `useQuery` fires after mount, calls the RPC method via the fetcher, the `onSuccess` handler calls `parse`, the store updates, and components re-render with fresh data.
+
+This gives you two renders total (SSR data, then fresh data) with no empty-state flicker and no workarounds.
+
 ---
 
 ## Summary
 
-With this pattern in place you get three things: centralized entity storage with automatic extraction from any response shape, zero-config normalization via `parse` that deduplicates and diff-checks all incoming data, and soft deletes that hide entities from iteration without breaking components that still reference them by ID.
+With this pattern in place you get: centralized entity storage with automatic extraction from any response shape, zero-config normalization via `parse` that deduplicates and diff-checks all incoming data, soft deletes that hide entities from iteration without breaking components that still reference them by ID, and SSR support where the store is pre-populated with server-fetched data so the first render already contains the full UI.
 
-Each time data is received from any source, it goes through the registry's `parse` method, and all components that reference that data by ID are updated automatically.
-
-```ts showLineNumbers copy
-import { useRegistry } from "@/hooks/useRegistry";
-
-const resp = await fetch('/api/some-endpoint');
-const data = await resp.json();
-
-useRegistry.getState().parse(data);
-```
-
-To make this automatic, we'll create a custom fetcher that calls the `parse` method for each response, as described in the [next article](./fetcher).
-
----
-
-Page: https://vovk.dev/realtime-ui/fetcher
-
-# Setting up the `fetcher`
-
-The next piece of the puzzle is to create a `fetcher` function that the application will use to request data from the server. You can find more details about it in the [imports](https://vovk.dev/imports#fetcher) article.
-
-![User HTTP Fetcher Flow](https://vovk.dev/diagrams/user_http_fetcher_flow.svg)
-
-The fetcher is going to implement a `transformResponse` function that processes all incoming data by passing it to the registry’s `parse` method. 
-
-In the simplest form, when we expect JSON responses only, the function looks like this:
-
-```ts showLineNumbers copy filename="src/lib/fetcher.ts"
-import { createFetcher } from "vovk";
-import { useRegistry } from "@/hooks/useRegistry";
-
-export const fetcher = createFetcher({
-  transformResponse: (data) => {
-    const state = useRegistry.getState();
-    state.parse(data);
-    return data;
-  },
-});
-```
-
-On each RPC method call, the `transformResponse` function is invoked with the response data, which is then passed to the registry’s `parse` method.
-
-```ts showLineNumbers copy
-import { UserRPC } from "vovk-client";
-
-const users = await UserRPC.getUsers(); // transformResponse is called internally
-```
-
-This also works with React Query, where `useQuery` doesn't require to read the `data` property anymore:
-
-```ts showLineNumbers copy
-import { useQuery } from "@tanstack/react-query";
-import { UserRPC } from "vovk-client";
-
-// ...
-useQuery({
-  queryKey: UserRPC.getUsers.queryKey(),
-  queryFn: () => UserRPC.getUsers(),
-})
-// ...
-const users = useRegistry(
-  useShallow((state) => userIds.map((id) => state.user[id])),
-);
-```
-
-Because our app also supports [JSONLines](https://vovk.dev/jsonlines) responses for streaming data, we’re going to enhance the function a bit with another `if` check.
-
-It’s also useful to have an option to bypass the registry for specific requests, so we’re going to add a `bypassRegistry` option to the fetcher config. It’s declared as a `createFetcher` generic parameter and used as an option in the second argument of `transformResponse`. It can be used as follows: `await UserRPC.getUsers({ bypassRegistry: true }){:ts}`. You can extend this options object over time if needed.
-
-```ts showLineNumbers copy filename="src/lib/fetcher.ts" repository="finom/realtime-kanban"
-import { createFetcher, HttpStatus } from 'vovk';
-import useRegistry from '@/hooks/useRegistry';
-
-export const fetcher = createFetcher<{ bypassRegistry?: boolean }>({
-  transformResponse: async (data, { bypassRegistry }) => {
-    if (bypassRegistry) {
-      return data;
-    }
-    const state = useRegistry.getState();
-    if (
-      data &&
-      typeof data === 'object' &&
-      Symbol.asyncIterator in data &&
-      'onIterate' in data &&
-      typeof data.onIterate === 'function'
-    ) {
-      data.onIterate(state.parse); // handle each item in the async iterable
-      return data;
-    }
-
-    state.parse(data); // parse regular JSON data
-    return data;
-  },
-  onError: (error) => {
-    if (error.statusCode === HttpStatus.UNAUTHORIZED) {
-      document.location.href = '/login';
-    }
-  },
-});
-```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/lib/fetcher.ts)*
-
-Declare the fetcher in the [config](https://vovk.dev/config). It replaces the default `fetcher` imported by the generated [client](https://vovk.dev/typescript).
-
-```ts showLineNumbers copy filename="vovk.config.mjs"
-// @ts-check
-/** @type {import('vovk').VovkConfig} */
-const config = {
-  outputConfig: {
-    imports: {
-      // ...
-      fetcher: './src/lib/fetcher.ts',
-    },
-  },
-};
-
-export default config;
-```
-
-That’s it. From now on, each request is processed by the registry’s `parse` method, and manual response handling is not required.
+Each time data is received from any source — whether from `useQuery`, a streaming JSONLines connection, or an AI tool call — it flows through the registry's `parse` method, and all components that reference that data by ID are updated automatically.
 
 ---
 
@@ -690,7 +776,7 @@ The services implement the actual business logic for each procedure, including d
   - Deletion operations return the `__isDeleted` property to help the frontend reconcile state properly for soft deletions (see the [State](./state) page). The property is added by a Prisma client extension when `DatabaseService.prisma.xxx.delete` methods are invoked.
   - To trigger database events on task deletions, tasks are deleted explicitly, even though `ON DELETE CASCADE` is configured at the database level.
 - Creations and updates are followed by `EmbeddingService.generateEntityEmbedding` calls, and the search endpoints use `EmbeddingService.vectorSearch` to perform vector search using OpenAI embeddings and pgvector. For details, see the [Embeddings](./embeddings) article.
-- The controller procedures use [req.vovk](https://vovk.dev/req-vovk) to access request data such as `params`, `query`, and `body`, because we want to call these methods directly from code (not only through HTTP requests) via the [fn](https://vovk.dev/fn) interface for SSR/PPR and AI tool execution.
+- The controller procedures use [req.vovk](https://vovk.dev/req-vovk) to access request data such as `params`, `query`, and `body`, because we want to call these methods directly from code (not only through HTTP requests) via the [fn](https://vovk.dev/fn) interface for SSR/PPR, server actions, and AI tool execution.
 
 ```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/realtime-kanban"
 import { TaskSchema, UserSchema } from '@schemas/index';
@@ -1128,7 +1214,7 @@ Page: https://vovk.dev/realtime-ui/polling
 
 # Realtime Database Polling
 
-[State normalization](./state), a custom [fetcher](./fetcher), and the corresponding backend implementation keep the UI updated while the user interacts with the app by making HTTP requests. The implementation also covers AI features such as [Text Chat AI](./text-ai) and [Voice AI](./voice-ai), explained in later articles. The rule of thumb is that data should always be processed by the entity registry.
+[State normalization](./state) and the corresponding backend implementation keep the UI updated while the user interacts with the app by making HTTP requests. The implementation also covers AI features such as [Text Chat AI](./text-ai) and [Voice AI](./voice-ai), explained in later articles. The rule of thumb is that data should always be processed by the entity registry.
 
 But what if the database is changed by other users or third-party services? How do we keep the UI in sync with backend data in real time? One way is to implement database polling powered by [JSONLines](https://vovk.dev/jsonlines). The server sends updates to clients whenever the database changes, and the client reconnects automatically when the connection is closed.
 
@@ -1532,7 +1618,7 @@ export default class DatabasePollController {
 
 ## Client-side logic
 
-On the client side (for example, in a React component), call `DatabasePollRPC.poll()` to receive a stream of database events. As with any [JSONLines](https://vovk.dev/jsonlines) RPC method, it returns an async iterable that you can consume in a `for await` loop. Because the server may close the connection or a network error may occur, wrap the logic in a retry loop. Since the [fetcher](https://vovk.dev/imports#fetcher) is already [configured](./fetcher), the loop body can be empty—you do not need to handle data manually.
+On the client side (for example, in a React component), call `DatabasePollRPC.poll()` to receive a stream of database events. As with any [JSONLines](https://vovk.dev/jsonlines) RPC method, it returns an async iterable that you can consume in a `for await` loop. Because the server may close the connection or a network error may occur, wrap the logic in a retry loop. Since the [fetcher](https://vovk.dev/imports#fetcher) is already [configured](./state#setting-up-the-fetcher), the loop body can be empty—you do not need to handle data manually.
 
 The frontend code, besides the polling logic, also includes an on/off toggle persisted to `localStorage`, so users can enable or disable polling as needed.
 
@@ -1816,9 +1902,10 @@ The key part of the code is the `useParseSDKToolCallOutputs` hook, which extract
 ```ts showLineNumbers copy filename="src/hooks/useParseSDKToolCallOutputs.ts" repository="finom/realtime-kanban" {26}
 import type { ToolUIPart, UIMessage } from 'ai';
 import { useEffect, useRef } from 'react';
-import useRegistry from '@/hooks/useRegistry';
+import { useRegistryStore } from '@/hooks/useRegistry';
 
 export default function useParseSDKToolCallOutputs(messages: UIMessage[]) {
+  const store = useRegistryStore();
   const parsedToolCallIdsSetRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -1839,9 +1926,9 @@ export default function useParseSDKToolCallOutputs(messages: UIMessage[]) {
     });
 
     if (partsToParse.length) {
-      useRegistry.getState().parse(partsToParse.map((part) => part.output));
+      store.getState().parse(partsToParse.map((part) => part.output));
     }
-  }, [messages]);
+  }, [messages, store]);
 }
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useParseSDKToolCallOutputs.ts)*
@@ -1890,7 +1977,7 @@ export default class RealtimeController {
     body: z.object({ sdp: z.string() }),
     output: z.object({ sdp: z.string() }),
   }).handle(async ({ vovk }) => {
-    const voice = vovk.query().voice;
+    const { voice } = vovk.query();
     const { sdp: sdpOffer } = await vovk.body();
     const sessionConfig = JSON.stringify({
       type: 'realtime',
