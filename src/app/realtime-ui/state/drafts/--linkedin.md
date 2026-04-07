@@ -8,9 +8,9 @@ This is the most crucial piece of front-end knowledge I have — and not enough 
 
 Entity-driven state normalization is the single pattern that has made me one of the most efficient React developers on the teams I've worked with. The idea is simple: instead of letting the same entity live in multiple places across your component tree, you store it once in a flat registry keyed by ID. Every component reads from the same source. Update it once, everything re-renders.
 
-Most developers hit this problem and reach for workarounds — lifting state, duplicating fetch calls, writing manual sync logic between slices. None of it scales. The actual fix is eliminating the duplication entirely.
+I first learned this on a Redux project years ago — normalizr, createEntityAdapter, the full setup. It worked, but the boilerplate was heavy. When I moved to Zustand I rebuilt the same principle with zero schema definitions and minimal code. I've used it in every project since.
 
-I built that with Zustand — a flat registry that recursively walks any API response, extracts entities by their id + entityType, and merges them into a centralized store. Automatic. No manual updates.
+The registry recursively walks any API response, extracts entities by their id + entityType, and merges them into a centralized store. Automatic. No manual updates.
 
 But the part I'm proudest of came from a late-night debugging session. I needed soft deletions that wouldn't crash components still referencing a deleted entity. I remembered a JS feature I'd known about for years but never had a real use for: enumerable: false on property descriptors.
 

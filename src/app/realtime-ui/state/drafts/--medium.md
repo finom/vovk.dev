@@ -30,7 +30,7 @@ I wanted the same principle -- flat dictionaries keyed by ID, single source of t
 
 ## Convention Over Configuration
 
-Here is the contract I settled on: every entity from the API carries two fields -- `id` and `entityType`.
+Here is the contract: every entity from the API carries two fields -- `id` and `entityType`. At this case it's just tasks and users for a simple kanban board.
 
 ```ts
 enum EntityType {
