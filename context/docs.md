@@ -4,8 +4,8 @@ description: "Full documentation for the Vovk.ts framework, excluding the Realti
 see_also:
   label: "Realtime UI Context"
   url: https://vovk.dev/context/realtime-ui.md
-chars: 366205
-est_tokens: 91552
+chars: 365756
+est_tokens: 91439
 ---
 
 Page: https://vovk.dev
@@ -8634,7 +8634,8 @@ The original package.json is used to populate metadata (`repository`, `homepage`
     "git-tag": "git add . && git commit -m \"chore: release v$(node -p \"require('./package.json').version\")\" && git tag v$(node -p \"require('./package.json').version\")",
     "check-uncommitted": "git diff --quiet && git diff --cached --quiet || (echo '❌ Uncommitted changes!' && exit 1)",
     "postversion": "vovk generate && vovk bundle && npm run publish:node && npm run publish:rust && npm run publish:python && npm run git-tag",
-    "patch": "npm run check-uncommitted && npm version patch --no-git-tag-version"
+    "patch": "npm run check-uncommitted && npm version patch --no-git-tag-version",
+    "prepare": "husky"
   },
   "license": "MIT",
   "repository": {
@@ -8672,6 +8673,7 @@ The original package.json is used to populate metadata (`repository`, `homepage`
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "husky": "^9.1.7",
     "postcss": "^8",
     "tailwindcss": "^4.2.1",
     "tsdown": "^0.19.0",
@@ -9330,30 +9332,7 @@ Source: test scripts in the vovk-perf-test repository.
 Example controller (N = 1) used in the request-overhead tests:
 
 ```ts showLineNumbers copy filename="src/modules/one/a/AController.ts" repository="finom/vovk-perf-test"
-import { get, operation, post, prefix, procedure } from "vovk";
-import z from "zod";
-
-@prefix("a")
-export default class AController {
-  @operation({
-    summary: "Get A",
-  })
-  @get()
-  static getA = procedure().handle(() => {
-    return { get: true };
-  });
-
-  @operation({
-    summary: "Create A",
-  })
-  @post("{id}")
-  static createA = procedure({
-    disableServerSideValidation: ["params"],
-    params: z.object({ id: z.string() }),
-  }).handle((_req, { id }) => {
-    return { post: true, id };
-  });
-}
+404: Not Found
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-perf-test/blob/main/src/modules/one/a/AController.ts)*
 
