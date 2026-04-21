@@ -4,8 +4,8 @@ description: "Full documentation for the Vovk.ts framework, excluding the Realti
 see_also:
   label: "Realtime UI Context"
   url: https://vovk.dev/context/realtime-ui.md
-chars: 365756
-est_tokens: 91439
+chars: 366281
+est_tokens: 91571
 ---
 
 Page: https://vovk.dev
@@ -829,6 +829,10 @@ This builds six JSON files:
 - [/static-params/b/page1.json](https://examples.vovk.dev/api/static/static-params/b/page1.json)
 - [/static-params/b/page2.json](https://examples.vovk.dev/api/static/static-params/b/page2.json)
 - [/static-params/b/page3.json](https://examples.vovk.dev/api/static/static-params/b/page3.json)
+
+## Real-world example: static-klines
+
+[static-klines](https://github.com/finom/static-klines) is a Vovk.ts static segment that pre-renders historical Binance Spot candles into ~17,000 plain JSON files on GitHub Pages. The whole API ships as static assets with no runtime — no rate limits, no server compute, infinitely cacheable — and auto-generated TypeScript and Python clients are published from the same Zod schemas the server uses. It's a practical illustration of `controllersToStaticParams` scaled to a full dataset.
 
 ---
 
