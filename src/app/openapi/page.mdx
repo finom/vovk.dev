@@ -110,6 +110,14 @@ export default class OpenApiController {
 }
 ```
 
+If you prefer to skip Vovk entirely for the spec endpoint, a plain Next.js route handler works just as well. This avoids registering a controller and keeps the docs route outside the generated schema:
+
+```ts showLineNumbers copy filename="src/app/openapi.json/route.ts"
+import { openapi } from 'vovk-client/openapi';
+
+export const GET = () => Response.json(openapi);
+```
+
 On the client side, you can use any OpenAPI documentation generator. [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react) is a recommended choice as Vovk.ts generates code snippets for the generated RPC modules.
 
 ```ts showLineNumbers copy
