@@ -18,14 +18,8 @@
   <a href="https://vovk.dev/performance">Performance</a>
 </p>
 
-<p align="center">
-  <a href="https://github.com/finom/vovk.dev/actions/workflows/nextjs.yml">
-    <img alt="Deploy Next.js site to Pages" src="https://github.com/finom/vovk.dev/actions/workflows/nextjs.yml/badge.svg">
-  </a>
-</p>
-
 ---
 
-## vovk.dev
+## vovk.dev [![Deploy Next.js site to Pages](https://github.com/finom/vovk.dev/actions/workflows/nextjs.yml/badge.svg)](https://github.com/finom/vovk.dev/actions/workflows/nextjs.yml)
 
 The [Vovk.ts](https://vovk.dev) documentation. To run locally install dependencies and run `npm run dev`. Feel free to open a PR/issue in case of typos or wrong phrasing.
