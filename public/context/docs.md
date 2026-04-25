@@ -4,8 +4,8 @@ description: "Full documentation for the Vovk.ts framework, excluding the Realti
 see_also:
   label: "Realtime UI Context"
   url: https://vovk.dev/context/realtime-ui.md
-chars: 366205
-est_tokens: 91552
+chars: 367524
+est_tokens: 91881
 ---
 
 Page: https://vovk.dev
@@ -829,6 +829,10 @@ This builds six JSON files:
 - [/static-params/b/page1.json](https://examples.vovk.dev/api/static/static-params/b/page1.json)
 - [/static-params/b/page2.json](https://examples.vovk.dev/api/static/static-params/b/page2.json)
 - [/static-params/b/page3.json](https://examples.vovk.dev/api/static/static-params/b/page3.json)
+
+## Real-world example: static-klines
+
+[static-klines](https://github.com/finom/static-klines) is a Vovk.ts static segment that pre-renders historical Binance Spot candles into ~17,000 plain JSON files on GitHub Pages. The whole API ships as static assets with no runtime — no rate limits, no server compute, infinitely cacheable — and auto-generated TypeScript and Python clients are published from the same Zod schemas the server uses. It's a practical illustration of `controllersToStaticParams` scaled to a full dataset.
 
 ---
 
@@ -2895,6 +2899,14 @@ export default class OpenApiController {
 }
 ```
 
+If you prefer to skip Vovk entirely for the spec endpoint, a plain Next.js route handler works just as well. This avoids registering a controller and keeps the docs route outside the generated schema:
+
+```ts showLineNumbers copy filename="src/app/openapi.json/route.ts"
+import { openapi } from 'vovk-client/openapi';
+
+export const GET = () => Response.json(openapi);
+```
+
 On the client side, you can use any OpenAPI documentation generator. [Scalar](https://www.npmjs.com/package/@scalar/api-reference-react) is a recommended choice as Vovk.ts generates code snippets for the generated RPC modules.
 
 ```ts showLineNumbers copy
@@ -4438,6 +4450,10 @@ The TypeScript RPC client is generated from the following templates:
 - [readme](https://vovk.dev/templates#readme), [packageJson](https://vovk.dev/templates#packagejson) - `README.md` with RPC documentation and `package.json` suitable for publishing the generated library as an NPM package.
 
 For more information, see the [client templates documentation](https://vovk.dev/templates).
+
+## Roadmap/bugs
+
+- 🐞 `init.signal` passed to an RPC call is overwritten by an internally created `AbortController`, so `AbortSignal`-based cancellation of regular RPC calls is not supported out of the box. Streaming responses remain cancellable via `stream.abortController.abort()`; for non-streaming calls, a custom [fetcher](https://vovk.dev/imports#fetcher) can wire a user-provided signal into `prepareRequestInit`.
 
 ---
 
