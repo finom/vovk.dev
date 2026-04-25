@@ -18,6 +18,12 @@
   <a href="https://vovk.dev/performance">Performance</a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/finom/vovk.dev/actions/workflows/nextjs.yml">
+    <img alt="Deploy Next.js site to Pages" src="https://github.com/finom/vovk.dev/actions/workflows/nextjs.yml/badge.svg">
+  </a>
+</p>
+
 ---
 
 ## vovk.dev
