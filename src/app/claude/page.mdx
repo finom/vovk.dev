@@ -6,6 +6,25 @@ The official **Claude Code plugin for Vovk.ts** ships topic-based skills that te
 
 The plugin lives in the same monorepo as Vovk.ts itself, at <a href="https://github.com/finom/vovk/tree/main/packages/claude-plugin">packages/claude-plugin</a>, and is source-verified against the framework on every release.
 
+## Why Vovk.ts pairs well with AI-assisted coding
+
+Vovk.ts is a fully-fledged back-end framework for Next.js. Plenty of options exist on the market; Vovk's edge for AI-assisted workflows comes from a few specific choices:
+
+- **Plain REST with end-to-end types.** Backend handler types flow to the client without manual sync. `curl` and any HTTP client still work — nothing is locked behind a custom protocol.
+- **OpenAPI native.** A spec is auto-generated from procedures, [Scalar](https://scalar.com) docs are auto-mounted, and [mixins](/mixins) import third-party APIs as typed modules with the same calling convention.
+- **Multitenancy baked in.** The [`multitenant()`](/multitenant) proxy plus segment-per-tenant lets a single Next.js app host many tenants on subdomains.
+- **AI-ready.** Every procedure can be invoked three ways from a single definition: as an HTTP endpoint, as a [local function](/fn) (`.fn()` for SSR / server components / server actions), or as an [AI tool](/tools) via `deriveTools`. No duplication.
+- **Authorization as a decorator.** Write the auth check once with [`createDecorator`](/decorator), then stack it on any procedure.
+
+Most importantly, the framework maintains a solid **mental model for AI-assisted coding**:
+
+- Logic groups under `src/modules/<name>/` — `Controller` plus `Service` per module, not scattered across `lib/`.
+- The Controller defines procedures (decorated). The Service holds business logic (a plain class). Clean separation between *what the endpoint is* and *what it does*.
+- The convention is methods on a service class, not loose helper functions. Fewer files; predictable layout.
+- The same `procedure().handle()` powers the HTTP endpoint, the SSR call, and the AI tool. One [single source of truth](/inference) — less for the model to reconcile.
+
+The result is fewer files and a self-explanatory architecture. Cursor, Claude, or any AI assistant finds the right file on the first try, edits don't ripple, and there's no glue layer to invent between *your API* and *your AI tools* — they're the same code.
+
 ## Install
 
 <Steps>
