@@ -17,6 +17,11 @@ const meta: MetaRecord = {
   index: 'About Vovk.ts',
   'quick-install': 'Quick Start',
   'manual-install': 'Manual Install',
+  claude: (
+    <>
+      <span className="text-[#cc785c]">*</span> Claude Plugin
+    </>
+  ),
   '#segment': separator('Segment'),
   segment: 'Segment Overview',
   'static-segment': 'Static Segment',
