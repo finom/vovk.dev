@@ -53,7 +53,7 @@ Run `init` command in an existing Next.js project to get started.
 npx vovk-cli@latest init
 ```
 
-> Requires Node.js 22+ and Next.js 15+. &nbsp; [Quick Start](/quick-install) · [Manual Install](/manual-install) · [GitHub](https://github.com/finom/vovk)
+> Requires Node.js 22+ and Next.js 15+. &nbsp; [Quick Start](/quick-install) · [Manual Install](/manual-install) · [Claude Plugin](/claude) · [GitHub](https://github.com/finom/vovk)
 
 ---
 
@@ -243,6 +243,22 @@ See [Generate Command](/generate) · [Bundle Command](/bundle) · [Python Client
 | **`vovk-rust`** | Rust client generation (experimental) | [![NPM Version](https://img.shields.io/npm/v/vovk-rust)](https://www.npmjs.com/package/vovk-rust) | dev (optional) |
 
 See [Packages](/packages).
+
+---
+
+## Claude Plugin
+
+The official **Claude Code plugin** ships 14 topic-based skills that teach the coding agent how to use Vovk.ts when you describe what you want to build. Skills load only when relevant — typing *"scaffold a tenant"* loads the multitenant skill, *"stream chat tokens"* loads JSON Lines.
+
+Install (inside Claude Code):
+
+```
+/plugin marketplace add finom/vovk
+/plugin install vovk@vovk
+/reload-plugins
+```
+
+See [Claude Plugin](/claude) for the full skill list, the AI mind model behind the framework, and why the pairing works.
 
 ---
 
