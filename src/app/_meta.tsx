@@ -18,9 +18,12 @@ const meta: MetaRecord = {
   'quick-install': 'Quick Start',
   'manual-install': 'Manual Install',
   claude: (
-    <>
-      <span className="text-[#cc785c]">*</span> Claude Plugin
-    </>
+    <span className="inline-flex items-center gap-1.5">
+      <span aria-hidden className="text-[#cc785c] text-2xl leading-none translate-y-[2px]">
+        *
+      </span>
+      Claude Plugin
+    </span>
   ),
   '#segment': separator('Segment'),
   segment: 'Segment Overview',
