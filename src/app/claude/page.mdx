@@ -6,6 +6,18 @@ The official **Claude Code plugin for Vovk.ts** ships topic-based skills that te
 
 The plugin lives in the same monorepo as Vovk.ts itself, at <a href="https://github.com/finom/vovk/tree/main/packages/claude-plugin">packages/claude-plugin</a>, and is source-verified against the framework on every release.
 
+## Why Vovk.ts is built for AI-assisted coding
+
+Vovk.ts's structure *is* the prompt — the AI mind model is built into the framework:
+
+- **Logic groups under `src/modules/<name>/`** — Controller + Service per feature, not scattered across `lib/`.
+- **Controller / Service split** — Controllers define procedures (decorated). Services hold business logic (plain classes). Clean separation between *what the endpoint is* and *what it does*.
+- **Methods on a service class, not loose helpers** — fewer files, predictable layout. The assistant finds the right file on the first try.
+- **Single source of truth** — same `procedure().handle()` powers the HTTP endpoint, the [SSR call](/fn) (`.fn()`), and the [AI tool](/tools) (`deriveTools`). No duplication. Less for the model to reconcile.
+- **Plain REST under the hood** — `curl` works. `fetch` works. Types flow end-to-end without locking you into a custom protocol.
+- **[Multitenancy](/multitenant) baked in** — `multitenant()` proxy + segment-per-tenant; one Next.js app hosts many tenants on subdomains without re-architecting.
+- **[OpenAPI native](/openapi), AI tools native** — schema generated from procedures, Scalar docs auto-mounted, every procedure can become an LLM tool with one line.
+
 ## Why use the plugin?
 
 Without it, asking Claude to *"scaffold a Vovk procedure with Zod validation"* tends to go one of two ways: the model hallucinates (training data is months stale and Vovk's API has moved on), or it fetches `vovk.dev` mid-task — slow, hits rate limits, and the wrong page often loads first.
@@ -13,12 +25,9 @@ Without it, asking Claude to *"scaffold a Vovk procedure with Zod validation"* t
 With the plugin, the framework's idioms are loaded as topic-scoped skills the agent already understands:
 
 - **Topic-scoped, not all-or-nothing.** Skills load only when relevant — *"stream chat tokens"* pulls in JSON Lines; *"scaffold a tenant"* pulls in multitenant. Claude doesn't drown in thousands of lines of docs to answer a focused question.
-- **Source-verified.** Every technical claim is pinned to a file path and line number in `packages/vovk/`. Skills are regenerated against source on every release, so they don't lag the framework.
 - **Self-contained.** A directive at the top of every skill tells the agent *don't fetch vovk.dev mid-task* — the plugin is the source of truth. Works offline; predictable cost; no rate-limit surprises.
 - **Cross-skill handoffs.** Skills know to escalate. The mixins skill points at the tools skill for LLM exposure; the procedure skill points at jsonlines for streaming. The agent loads the right context, not adjacent context.
-- **Token-efficient prose.** Skill markdown uses a terse fragment style — articles, filler, and hedging dropped while every code block, file path, line-number pin, and cross-reference is preserved verbatim. Roughly 10% fewer tokens per skill load with no loss of substance.
-
-The framework underneath is built for this kind of pairing: plain REST with end-to-end types, [OpenAPI native](/openapi), [multitenancy baked in](/multitenant), and procedures that double as [AI tools](/tools) via `deriveTools`. Logic groups under `src/modules/<name>/` (Controller plus Service per module — not scattered across `lib/`), and the same `procedure().handle()` powers the HTTP endpoint, the [SSR call](/fn), and the AI tool — one [single source of truth](/inference). Fewer files, predictable layout, less for the model to reconcile.
+- **Caveman-optimized prose.** Skill markdown uses a terse fragment style — articles, filler, and hedging dropped while every code block, file path, and cross-reference is preserved verbatim. ~10% fewer tokens per skill load with no loss of substance.
 
 ## Install
 
