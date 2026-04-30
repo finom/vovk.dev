@@ -49,14 +49,15 @@ For a local checkout (development), substitute the path: `claude plugin marketpl
 
 ### Verify
 
-In Claude Code, run `/plugin` — the **Installed** tab should list `vovk`. Skills are namespaced; typing `/vovk:` (with the trailing colon) lists all 14 skills available to the agent. In other agents, the skill files appear under that agent's skill directory (e.g. `.cursor/skills/`).
+In Claude Code, run `/plugin` — the **Installed** tab should list `vovk`. Skills are namespaced; typing `/vovk:` (with the trailing colon) lists all 15 skills available to the agent. In other agents, the skill files appear under that agent's skill directory (e.g. `.cursor/skills/`).
 
 ## Skills
 
 The plugin ships fourteen topic-based skills covering every layer of Vovk.ts:
 
 - **`vovk:init`** — initialize Vovk.ts in a Next.js App Router project, or scaffold a fresh Next.js app and run `vovk init` on top.
-- **`vovk:common`** — framework fundamentals: packages, `vovk.config.mjs`, type inference helpers (`VovkBody`, `VovkOutput`, …), short API reference.
+- **`vovk:base`** — foundational rules loaded alongside any other vovk:* skill: commit policy for `.vovk-schema/`, runtime requirements, template names, `_schema_` endpoint, brief API + type-inference surface (`VovkBody`, `VovkOutput`, …).
+- **`vovk:config`** — `vovk.config.{mjs,js,ts,cjs}` shape, every config key + default (`rootEntry`, `schemaOutDir`, `composedClient`, `segmentedClient`, `clientTemplateDefs`, `outputConfig`, `bundle`, …), `tsconfig.json` setup, and the `decorate()` alternative for projects without `experimentalDecorators`.
 - **`vovk:segment`** — segments (root, named, static), `initSegment`, segment priority, `generateStaticParams`.
 - **`vovk:multitenant`** — multi-tenant routing via subdomains: `multitenant()` proxy, `overrides` shape, per-tenant segments and frontend pages, wildcard DNS.
 - **`vovk:procedure`** — procedures, validation (Zod / Valibot / ArkType), controllers, HTTP decorators, `req.vovk`, error handling, content types, `.fn()` for SSR / server components / server actions.
