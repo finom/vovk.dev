@@ -4,7 +4,7 @@ import { Steps, Callout, Tabs } from 'nextra/components';
 
 The official **Claude Code plugin for Vovk.ts** ships topic-based skills that teach the coding agent how to use the framework when you describe what you want to build. Skills load only when relevant — typing "scaffold a new tenant" pulls in the multitenant skill, "stream chat tokens" pulls in JSON Lines, and so on.
 
-The plugin lives in the same monorepo as Vovk.ts itself, at <a href="https://github.com/finom/vovk/tree/main/packages/claude-plugin">packages/claude-plugin</a>, and ships alongside the framework on every release.
+The plugin lives in the same repo as Vovk.ts itself — <a href="https://github.com/finom/vovk/tree/main/skills">skills at the repo root</a> — and ships alongside the framework on every release.
 
 ## Why Vovk.ts is built for AI-assisted coding
 
@@ -45,7 +45,7 @@ Pick your agent. One command. Done.
 
 `finom/vovk` resolves to the GitHub repo's `.claude-plugin/marketplace.json`. The plugin name is `vovk`; the marketplace name is also `vovk` — `vovk@vovk` is `<plugin-name>@<marketplace-name>`, the symmetry is coincidence.
 
-For a local checkout (development), substitute the path: `claude plugin marketplace add /path/to/vovk` (point at the repo root, not at `packages/claude-plugin/`).
+For a local checkout (development), substitute the path: `claude plugin marketplace add /path/to/vovk` (point at the repo root).
 
 ### Verify
 
@@ -89,5 +89,5 @@ If a skill produces wrong code or contradicts itself, that's a plugin bug — op
 
 **More info:**
 
-- [Plugin source](https://github.com/finom/vovk/tree/main/packages/claude-plugin)
+- [Skills source](https://github.com/finom/vovk/tree/main/skills)
 - [Claude Code docs — Plugins](https://docs.claude.com/en/docs/claude-code/plugins)
