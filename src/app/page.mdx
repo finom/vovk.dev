@@ -45,7 +45,7 @@ Next.js API layer for SaaS — from MVP to enterprise scale. Multi-tenant routin
 
 <CodeOrbit />
 
-Vovk.ts adds a structured API layer on top of Next.js App Router Route Handlers. Define a procedure once — same code runs locally for SSR, mounts as an HTTP endpoint when you add a decorator, and exposes as an LLM tool via `deriveTools`. The framework emits schema artifacts that generate type-safe clients, OpenAPI docs, and AI tool definitions. No separate contract layer to maintain.
+Vovk.ts adds a structured API layer on top of Next.js App Router Route Handlers. The unit is the **procedure** — a typed function paired with its schema. From that single source, Vovk derives the HTTP endpoint, the local `.fn()` call, the typed RPC client, the OpenAPI document, and the AI tool with `execute`. No separate contract layer, no glue code.
 
 Run `init` command in an existing Next.js project to get started.
 
@@ -134,6 +134,21 @@ Annotate with `@operation` and the same procedure exposes as an LLM tool — pas
 const { tools } = deriveTools({ modules: { UserRPC, TaskController } });
 // [{ name, description, parameters, execute }, ...]
 ```
+
+---
+
+## What one procedure becomes
+
+Function plus schema is a complete unit. From that pair Vovk derives:
+
+- the **Next.js Route Handler** — add an HTTP decorator and the same procedure mounts as an endpoint
+- the **local `.fn()` callable** — same call shape as the RPC client; use it in SSR, server components, and server actions
+- the **typed RPC client module** — `fetch`-powered, generated from the emitted schema
+- the **OpenAPI 3.x document** — derived from the same schema, no parallel spec to maintain
+- the **LLM tool** with `name`, `description`, `parameters`, and `execute` — via `deriveTools`
+- a generated **`README.md`** — client library documentation rendered from the procedure surface
+
+One source, six destinations. The sections below cover each in detail.
 
 ---
 
