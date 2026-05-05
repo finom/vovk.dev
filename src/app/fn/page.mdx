@@ -1,6 +1,6 @@
 # Local Procedure Call (LPC)
 
-Every procedure created with the [procedure](/procedure) function can be used outside an HTTP request context as a regular function. It exposes an `fn` method that calls the handler directly, partially simulating the signature of an RPC method.
+Every procedure created with the [procedure](/procedure#procedure) function is callable as a regular function via its `fn` property. The call signature is `{ params, query, body }` — the same shape as the generated RPC client, which mirrors `fn` (not the other way around).
 
 Let's say you have the following controller class:
 
@@ -26,7 +26,7 @@ export default class UserController {
 }
 ```
 
-When it's compiled to an RPC module, the HTTP request can be performed like this:
+When the controller is mounted in a [segment](/segment), the same procedure is also reachable over HTTP through the generated RPC client — same call shape:
 
 ```ts showLineNumbers copy
 import { UserRPC } from 'vovk-client';
@@ -40,7 +40,7 @@ const user = await UserRPC.getUser({
 console.log('User:', user);
 ```
 
-But the `fn` method allows you to call the procedures directly, in the current evaluation context, without performing an HTTP request:
+Calling the procedure with `fn` runs it in the current evaluation context — no HTTP, no network, full validation:
 
 ```ts showLineNumbers copy
 import UserController from '@/modules/user/UserController';

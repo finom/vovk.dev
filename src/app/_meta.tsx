@@ -31,6 +31,7 @@ const meta: MetaRecord = {
 
   '#procedure': separator('Controller & Procedure'),
   procedure: 'Controller & Procedure',
+  service: 'Service',
   'req-vovk': 'Enhanced Request Object',
   fn: 'Local Procedure Call (LPC)',
   response: 'Response & Errors',

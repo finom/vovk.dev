@@ -45,7 +45,7 @@ Next.js API layer for SaaS — from MVP to enterprise scale. Multi-tenant routin
 
 <CodeOrbit />
 
-Vovk.ts adds a structured API layer on top of Next.js App Router Route Handlers. Define endpoints once — as controllers with decorators — and the framework emits schema artifacts that generate type-safe clients, OpenAPI docs, and AI tool definitions. No separate contract layer to maintain.
+Vovk.ts adds a structured API layer on top of Next.js App Router Route Handlers. Define a procedure once — same code runs locally for SSR, mounts as an HTTP endpoint when you add a decorator, and exposes as an LLM tool via `deriveTools`. The framework emits schema artifacts that generate type-safe clients, OpenAPI docs, and AI tool definitions. No separate contract layer to maintain.
 
 Run `init` command in an existing Next.js project to get started.
 
@@ -59,18 +59,34 @@ npx vovk-cli@latest init
 
 ## What it looks like
 
-A controller is a class with HTTP-method decorators on static methods — a real Next.js Route Handler under the hood:
+A procedure is a typed, validated callable. Define inputs and output with [`procedure`](/procedure) — params, query, body — and call it directly on the server for SSR, server components, or server actions:
 
 ```ts
 export default class UserController {
-  @get('{id}')
-  static async getUser(req: NextRequest, { id }: { id: string }) {
-    // ...
+  static getUser = procedure({
+    params: z.object({ id: z.string().uuid() }),
+    output: z.object({ id: z.string(), name: z.string() }),
+  }).handle(async (req, { id }) => {
+    return UserService.getUser(id);
+  });
+}
+```
+
+```ts
+const user = await UserController.getUser.fn({ params: { id: '123' } });
+```
+
+Services hold business logic separately. Plain classes, no decorators:
+
+```ts
+export default class UserService {
+  static async getUser(id: VovkParams<typeof UserController.getUser>['id']) {
+    return prisma.user.findUnique({ where: { id } });
   }
 }
 ```
 
-Wrap it with [`procedure`](/procedure) to validate and type params, query, and body in-place:
+Add an HTTP decorator and the same procedure becomes a Next.js Route Handler — call shape unchanged:
 
 ```ts
 export default class UserController {
@@ -84,17 +100,7 @@ export default class UserController {
 }
 ```
 
-Services hold business logic separately. No decorators, just plain classes:
-
-```ts
-export default class UserService {
-  static async getUser(id: VovkParams<typeof UserController.getUser>['id']) {
-    return prisma.user.findUnique({ where: { id } });
-  }
-}
-```
-
-Codegen reads the emitted schema and produces a `fetch`-powered client with matching types:
+Codegen reads the emitted schema and produces a `fetch`-powered client that mirrors the `.fn()` signature:
 
 ```ts
 import { UserRPC } from 'vovk-client';
@@ -102,13 +108,7 @@ import { UserRPC } from 'vovk-client';
 const user = await UserRPC.getUser({ params: { id: '123' } });
 ```
 
-Procedures can run directly on the server for SSR/PPR and server actions, skipping the HTTP round-trip:
-
-```ts
-const user = await UserController.getUser.fn({ params: { id: '123' } });
-```
-
-Endpoints can yield JSON Lines for real-time streaming:
+Procedures can yield JSON Lines for real-time streaming:
 
 ```ts
 export default class StreamController {
@@ -128,7 +128,7 @@ for await (const { message } of stream) {
 }
 ```
 
-Controllers and generated modules can be exposed as AI tools:
+Annotate with `@operation` and the same procedure exposes as an LLM tool — pass controllers (in-process) or RPC modules (HTTP) to `deriveTools`:
 
 ```ts
 const { tools } = deriveTools({ modules: { UserRPC, TaskController } });
@@ -217,11 +217,11 @@ Each tool has `name`, `description`, `parameters` (JSON Schema), and an `execute
 
 ### Streaming
 
-Endpoints can yield JSON Lines for real-time responses. See [JSON Lines](/jsonlines).
+Procedures can yield JSON Lines for real-time responses. See [JSON Lines](/jsonlines).
 
 ### Local procedure calls
 
-Procedures can run directly on the server for SSR/PPR and server actions, skipping the HTTP round-trip. See [Calling Procedures Locally](/fn).
+Procedures call directly on the server with `.fn()` — same call shape as the generated HTTP client. Use them in SSR/PPR, server components, and server actions. See [Calling Procedures Locally](/fn).
 
 ### Docs and publishing
 
@@ -278,8 +278,8 @@ Browse more snippets on the [Random Examples](https://examples.vovk.dev) site.
 
 | Term | Meaning |
 |------|---------|
-| **Controller** | Class with endpoint definitions via decorators on `static` methods |
-| **Procedure** | A handler optionally wrapped by [`procedure`](/procedure) for validation |
+| **Controller** | Class that groups procedures as `static` members; HTTP decorators expose them as endpoints |
+| **Procedure** | A typed, validated callable created with [`procedure`](/procedure). Call it locally with `.fn()`, expose it over HTTP with a decorator, or derive it as an LLM tool |
 | **Segment** | A routed back-end slice, compiled independently into its own function |
 | **RPC module** | Generated client module mirroring a controller |
 | **API module** | Generated module from a controller or an OpenAPI schema |
