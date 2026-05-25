@@ -5,6 +5,13 @@ const meta = {
       breadcrumb: true,
     },
   },
+  'backend-framework-comparison': {
+    title: 'TypeScript Backend Frameworks Compared',
+    theme: {
+      sidebar: false,
+      breadcrumb: true,
+    },
+  },
   'architectural-trade-offs': {
     title: 'Architectural Trade-offs in Vovk.ts',
     theme: {
