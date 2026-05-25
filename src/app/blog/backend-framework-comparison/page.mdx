@@ -1,6 +1,6 @@
 ---
 title: "TypeScript Backend Frameworks Compared: REST Semantics, Validation, Next.js, RPC, LLM Tools, and Local Call"
-description: "A six-axis comparison of ~30 TypeScript backend frameworks — REST URL semantics, Next.js compatibility, validation library, typed RPC client, LLM tool derivation, and validated local call. Verified against npm and official docs."
+description: "A six-axis comparison of ~30 TypeScript backend frameworks — REST URL semantics, Next.js compatibility, validation library, typed RPC client, LLM tool derivation, and validated local call."
 date: "May 11, 2026"
 ---
 
@@ -11,8 +11,6 @@ date: "May 11, 2026"
 The TypeScript backend ecosystem has fragmented into ~30 frameworks competing for the same problem space. This article evaluates them on six concrete axes that matter for production systems: **REST URL semantics**, **Next.js compatibility**, **validation library**, **typed RPC client**, **LLM tool derivation**, and **validated in-process call**.
 
 This is not an exhaustive feature list — it's a focused comparison of one specific design pattern: the *single-source-of-truth procedure* thesis, where one typed declaration auto-derives an HTTP endpoint, a typed client, an LLM tool, and an in-process call. Vovk.ts is built around this thesis. The natural question is: which other frameworks deliver on the same promise, and where does each draw the line?
-
-All version numbers and code examples were verified against official documentation and npm on **2026-05-11**, and re-verified on **2026-05-25** (no structural claims changed; affected version bumps reflected in the metadata block at the end).
 
 ---
 
@@ -78,13 +76,13 @@ Framework names link to their detailed breakdown below.
 | [**Next.js raw Route Handlers**](#nextjs-raw-route-handlers) | ✅ Native | ✅ Native | ❌ BYO | ❌ | ❌ | ⚠️ forge `Request` |
 | [**Tier C frameworks**](#tier-c-frameworks) | — | — | — | — | — | — |
 
-A note on the LLM-tool column: none of the four 4/4 SSOT frameworks (Vovk, Nestia, oRPC, Igniter.js) ships an end-to-end MCP server transport. Vovk's `deriveTools()` produces tool objects with a `ToModelOutput.MCP` formatter; the transport is delegated to `mcp-handler`. oRPC's `@orpc/ai-sdk` produces ai-sdk tool definitions; MCP server requires `@modelcontextprotocol/sdk` directly. Nestia's `@agentica` runtime is comprehensive but again does not bundle an MCP HTTP transport. **Only Igniter.js packages its own MCP server end-to-end via `@igniter-js/adapter-mcp-server`** — strictly more first-party than the others on this sub-feature.
+On the LLM-tool column: none of the four 4/4 SSOT frameworks (Vovk, Nestia, oRPC, Igniter.js) ships an end-to-end MCP server transport. Vovk's `deriveTools()` produces tool objects with a `ToModelOutput.MCP` formatter; the transport is delegated to `mcp-handler`. oRPC's `@orpc/ai-sdk` produces ai-sdk tool definitions; MCP server requires `@modelcontextprotocol/sdk` directly. Nestia's `@agentica` runtime is comprehensive but again does not bundle an MCP HTTP transport. **Only Igniter.js packages its own MCP server end-to-end via `@igniter-js/adapter-mcp-server`**.
 
 ---
 
 ## Beyond the six axes: where the Tier S frameworks differentiate
 
-The six axes were chosen for a tight, defensible comparison. But several secondary capabilities meaningfully differentiate the four frameworks that hit 4/4 SSOT. This table tries to be honest about where each leads and where each lags:
+Several secondary capabilities meaningfully differentiate the four frameworks that hit 4/4 SSOT:
 
 | Bonus axis | Vovk.ts | Nestia | oRPC | Igniter.js |
 |---|---|---|---|---|
@@ -102,7 +100,7 @@ Vovk leads on four of these (multi-language clients, schema persistence, segment
 
 ## Which framework when
 
-The rubric stays abstract by design; this section commits to recommendations. If your project matches one of these descriptions, that's the framework to start with.
+If your project matches one of these descriptions, that's the framework to start with.
 
 | You're building... | Pick |
 |---|---|
@@ -116,15 +114,13 @@ The rubric stays abstract by design; this section commits to recommendations. If
 | Want backend as a separate platform (own runtime, own CI) | **Encore.ts** or **Convex** |
 | Want the strongest contract-first REST + Zod story without a typed local call | **ts-rest** |
 
-This isn't exhaustive — the per-framework breakdowns below cover the trade-offs each pick implies. But if you came looking for one-line guidance, that's the matrix.
-
 ---
 
 ## Tier S — 4/4 SSOT (one declaration → all four artifacts)
 
 ### Vovk.ts
 
-**Verified version**: `vovk@3.2.2` (npm 2026-05-11). Requires Next.js 15+, Node 22+. Source: [vovk.dev](https://vovk.dev).
+**Version**: `vovk@3.2.2`. Requires Next.js 15+, Node 22+. Source: [vovk.dev](https://vovk.dev).
 
 #### REST semantics
 
@@ -229,7 +225,7 @@ Beyond the six-axis rubric, Vovk ships a few capabilities that other Tier S fram
 - **[Static segments](/static-segment).** Compile-time-generated JSON for content that doesn't change at runtime (OpenAPI specs, historical data). Served as a static file.
 - **`decorate()` escape hatch.** `decorate(get('{id}'), procedure(...))` produces identical runtime and types without requiring `experimentalDecorators` in `tsconfig.json` — for projects that can't enable the legacy TS decorator flag.
 
-Streaming (JSON Lines via `iteration` validator) is a first-class procedure-level capability, but oRPC has parity via its [Event Iterator](https://orpc.dev/docs/event-iterator) (SSE) — so it's listed in the bonus axes table above rather than claimed as a Vovk-specific lead.
+Streaming (JSON Lines via `iteration` validator) is a first-class procedure-level capability; oRPC has parity via its [Event Iterator](https://orpc.dev/docs/event-iterator) (SSE).
 
 #### Verdict
 
@@ -250,7 +246,7 @@ Constraints inherited from the Next.js Route Handler substrate — not Vovk choi
 
 ### Nestia
 
-**Verified version**: `@nestia/core@11.2.0`. Built on NestJS 11. Requires `typia` compile-time transformer. Source: [nestia.io](https://nestia.io).
+**Version**: `@nestia/core@11.2.0`. Built on NestJS 11. Requires `typia` compile-time transformer. Source: [nestia.io](https://nestia.io).
 
 #### REST semantics
 
@@ -327,7 +323,7 @@ if (output.success) {
 
 ### oRPC
 
-**Verified versions**: `@orpc/server@1.14.2`, `@orpc/client@1.14.2`, `@orpc/openapi@1.14.2`, `@orpc/ai-sdk@1.14.2` (npm 2026-05-11). Runtime-agnostic. Source: [orpc.dev](https://orpc.dev).
+**Versions**: `@orpc/server@1.14.2`, `@orpc/client@1.14.2`, `@orpc/openapi@1.14.2`, `@orpc/ai-sdk@1.14.2`. Runtime-agnostic. Source: [orpc.dev](https://orpc.dev).
 
 #### REST semantics
 
@@ -464,7 +460,7 @@ export const ping = os
 
 ### Igniter.js
 
-**Verified versions**: `@igniter-js/core@0.3.40`, `@igniter-js/adapter-mcp-server@0.3.7` (npm 2026-05-11). **Pre-1.0** — moving fast, ecosystem is thin. Source: [igniterjs.com](https://igniterjs.com).
+**Versions**: `@igniter-js/core@0.3.40`, `@igniter-js/adapter-mcp-server@0.3.7`. **Pre-1.0** — moving fast, ecosystem is thin. Source: [igniterjs.com](https://igniterjs.com).
 
 #### REST semantics
 
@@ -520,7 +516,7 @@ Per the package README: "The adapter will automatically expose all of your Ignit
 
 ### Effect Platform
 
-**Verified versions**: `@effect/platform@0.96.1`, `@effect/ai@0.35.0`. Source: [effect.website](https://effect.website).
+**Versions**: `@effect/platform@0.96.1`, `@effect/ai@0.35.0`. Source: [effect.website](https://effect.website).
 
 #### REST semantics
 
@@ -554,7 +550,7 @@ Native via `HttpApi` / `HttpApiGroup` / `HttpApiEndpoint`. Method + path + path-
 
 ### Encore.ts
 
-**Verified version**: `encore.dev@1.57.1`. Source: [encore.dev/docs/ts](https://encore.dev/docs/ts).
+**Version**: `encore.dev@1.57.1`. Source: [encore.dev/docs/ts](https://encore.dev/docs/ts).
 
 #### REST semantics
 
@@ -678,7 +674,7 @@ const item = await app.service('users').get(1);
 
 ### Elysia
 
-**Verified version**: `elysia@1.4.28`. **Optimized for Bun, also runs on Node.js.** Source: [elysiajs.com](https://elysiajs.com).
+**Version**: `elysia@1.4.28`. **Optimized for Bun, also runs on Node.js.** Source: [elysiajs.com](https://elysiajs.com).
 
 #### REST semantics
 
@@ -736,7 +732,7 @@ const { data, error } = await app.users({ id: '1' }).get();
 
 ### TanStack Start
 
-**Verified version**: `@tanstack/react-start@1.167.65` (v1 stable since March 2026). Source: [tanstack.com/start](https://tanstack.com/start).
+**Version**: `@tanstack/react-start@1.167.65` (v1 stable since March 2026). Source: [tanstack.com/start](https://tanstack.com/start).
 
 #### REST semantics
 
@@ -796,7 +792,7 @@ function UserForm() {
 
 ### tRPC
 
-**Verified versions**: `@trpc/server@11.17.0`, `trpc-to-openapi@3.2.0` (community fork). Official `@trpc/openapi@11.17-alpha` exists. Source: [trpc.io](https://trpc.io).
+**Versions**: `@trpc/server@11.17.0`, `trpc-to-openapi@3.2.0` (community fork). Official `@trpc/openapi@11.17-alpha` exists. Source: [trpc.io](https://trpc.io).
 
 #### REST semantics
 
@@ -880,7 +876,7 @@ Note: the docs warn that `createCaller` "should not be used to call procedures f
 
 ### ts-rest
 
-**Verified version**: `@ts-rest/core@3.52.1`. Source: [ts-rest.com](https://ts-rest.com).
+**Version**: `@ts-rest/core@3.52.1`. Source: [ts-rest.com](https://ts-rest.com).
 
 #### REST semantics
 
@@ -953,7 +949,7 @@ const result = await client.getPosts({
 
 ### Hono
 
-**Verified versions**: `hono@4.12.18`, `@hono/mcp@0.2.5`. Source: [hono.dev](https://hono.dev).
+**Versions**: `hono@4.12.18`, `@hono/mcp@0.2.5`. Source: [hono.dev](https://hono.dev).
 
 #### REST semantics
 
@@ -1037,7 +1033,7 @@ if (res.ok) {
 
 ### NestJS
 
-**Verified version**: `@nestjs/core@11.1.19` (vanilla NestJS, without Nestia). Source: [docs.nestjs.com](https://docs.nestjs.com).
+**Version**: `@nestjs/core@11.1.19` (vanilla NestJS, without Nestia). Source: [docs.nestjs.com](https://docs.nestjs.com).
 
 #### REST semantics
 
@@ -1165,7 +1161,7 @@ The `body` shape is inferred from your VineJS validator. *Source: [docs.adonisjs
 
 ### Fastify
 
-**Verified version**: `fastify@5.8.5`. Source: [fastify.dev](https://fastify.dev).
+**Version**: `fastify@5.8.5`. Source: [fastify.dev](https://fastify.dev).
 
 #### REST semantics
 
@@ -1226,7 +1222,7 @@ fastify.get('/users/:id', {
 
 ### next-safe-action
 
-**Verified version**: `next-safe-action@8.5.2`. Source: [next-safe-action.dev](https://next-safe-action.dev).
+**Version**: `next-safe-action@8.5.2`. Source: [next-safe-action.dev](https://next-safe-action.dev).
 
 #### REST semantics
 
@@ -1279,7 +1275,7 @@ const result = await loginUser({ username, password });
 
 ### zsa
 
-**Verified version**: `zsa@0.6.0`. Source: zsa.vercel.app.
+**Version**: `zsa@0.6.0`. Source: zsa.vercel.app.
 
 Similar shape to next-safe-action: RSC RPC (not REST), Zod-only validation, React-hook client, direct call works (validated), no LLM tool derivation.
 
@@ -1289,7 +1285,7 @@ Similar shape to next-safe-action: RSC RPC (not REST), Zod-only validation, Reac
 
 ### mcp-handler
 
-**Verified version**: `mcp-handler@1.1.0`. Source: [github.com/vercel/mcp-adapter](https://github.com/vercel/mcp-adapter).
+**Version**: `mcp-handler@1.1.0`. Source: [github.com/vercel/mcp-adapter](https://github.com/vercel/mcp-adapter).
 
 This is **not a framework** — it's Vercel's MCP HTTP Streamable transport adapter for Next.js. You manually register tools against an `McpServer` instance from `@modelcontextprotocol/sdk`:
 
@@ -1449,15 +1445,7 @@ Frameworks that accept any Standard Schema implementation (Vovk, oRPC, tRPC, ts-
 
 ## Methodology
 
-This comparison is authored by the maintainer of [Vovk.ts](https://vovk.dev). The six-axis rubric was fixed before per-framework analysis began, and every claim about every other framework is sourced inline against that framework's official docs or npm. If you find a Vovk-vs-competitor claim that doesn't hold against the linked source, the article is wrong — please open an issue.
-
-All data verified against:
-
-- **npm registry** — versions snapshotted on 2026-05-11, re-verified on 2026-05-25
-- **Official documentation pages** — linked inline per framework
-- **Package READMEs** on GitHub where docs were unavailable
-
-Code examples are quoted verbatim from each framework's docs or transposed minimally for consistency across the article. We did not reproduce examples we couldn't verify against current docs — if a section is missing in our notes, we said so rather than fabricate.
+This comparison is authored by the maintainer of [Vovk.ts](https://vovk.dev). The six-axis rubric was fixed before per-framework analysis began, and every claim about every other framework is sourced inline against that framework's official docs, npm, or package README. If you find a Vovk-vs-competitor claim that doesn't hold against the linked source, the article is wrong — please open an issue.
 
 Column rubric:
 
