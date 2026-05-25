@@ -5,8 +5,16 @@ description: 'Blog'
 
 import BlogIndexArticle from '../../components/BlogIndexArticle';
 
+import { metadata as comparisonMetadata } from './backend-framework-comparison/page.mdx';
 import { metadata as tradeOffsMetadata } from './architectural-trade-offs/page.mdx';
 import { metadata as v3Metadata } from './announcement/page.mdx';
+
+<BlogIndexArticle
+  title={comparisonMetadata.title}
+  description={comparisonMetadata.description}
+  date={comparisonMetadata.date}
+  href="/blog/backend-framework-comparison"
+/>
 
 <div className="hidden">
 <BlogIndexArticle
