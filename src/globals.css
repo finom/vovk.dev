@@ -210,6 +210,9 @@ html {
 .sticky-comparison table {
   max-height: 80vh;
   overflow: auto;
+  /* Opaque: where the widened bleed overlaps the right-hand TOC, the table
+     covers it instead of the TOC bleeding through the transparent cells. */
+  background-color: var(--background);
 }
 .sticky-comparison thead th {
   position: sticky;
@@ -230,4 +233,8 @@ html {
 */
 .nextra-bleed:has(> .sticky-comparison) {
   margin-inline: max(-196px, calc(-50vw + 50%));
+  /* Sit above the TOC (z-auto) but below the sticky navbar (z-30), so the
+     widened table covers the TOC on overlap without ever hiding the top nav. */
+  position: relative;
+  z-index: 10;
 }
