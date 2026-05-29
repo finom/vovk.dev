@@ -213,8 +213,21 @@ html {
 }
 .sticky-comparison thead th {
   position: sticky;
-  top: 0;
+  /* Pin 1px higher so the header's opaque body covers the collapsed-border
+     seam — otherwise a sliver of the scrolled row bleeds above the header. */
+  top: -1px;
   z-index: 1;
   background-color: var(--background);
   box-shadow: inset 0 -1px 0 var(--border);
+}
+
+/*
+  Push this table's bleed ~100px further out on each side than Nextra's default
+  (-mx-24 ≈ 96px at 2xl). max() clamps to the viewport edge — calc(-50vw + 50%)
+  is the full-bleed margin — so narrow screens stop at the edge instead of
+  forcing a page-level horizontal scrollbar. Scoped via :has() to the single
+  bleed wrapping the comparison table.
+*/
+.nextra-bleed:has(> .sticky-comparison) {
+  margin-inline: max(-196px, calc(-50vw + 50%));
 }
