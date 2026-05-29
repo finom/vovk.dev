@@ -31,18 +31,13 @@ const { tools } = deriveTools({
 
 const handler = createMcpHandler(
   (server) => {
-    tools.forEach(({ title, name, execute, description, inputSchemas }) => {
-      server.registerTool(
-        name,
-        {
-          title,
-          description,
-          inputSchema: inputSchemas as Partial<
-            Record<'body' | 'query' | 'params', z.ZodTypeAny>
-          >,
-        },
-        execute,
-      );
+    tools.forEach(({ title, name, execute, description, inputSchema }) => {
+      // `inputSchema` is a single merged Standard Schema; mcp-handler wants a Zod
+      // raw shape, so convert its JSON Schema back to Zod and take the object shape.
+      const shape = inputSchema
+        ? (z.fromJSONSchema(inputSchema['~standard'].jsonSchema.input({ target: 'draft-2020-12' })) as z.ZodObject).shape
+        : {};
+      server.registerTool(name, { title, description, inputSchema: shape }, execute);
     });
   },
   {},
