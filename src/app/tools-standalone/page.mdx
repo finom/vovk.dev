@@ -48,9 +48,9 @@ const { tools: derivedTools } = deriveTools({
 const allTools = [...derivedTools, sumNumbers];
 ```
 
-The `sumNumbers` tool can now be used like any other derived tool with `name`, `description`, `parameters`, and `execute` function, but also mirrors `inputSchema` and `outputSchema`.
+The `sumNumbers` tool can now be used like any other derived tool, exposing the same `name`, `description`, `parameters`, `execute`, `inputSchema`, and `outputSchema`.
 
-Note that a derived tool includes `inputSchemas` as a record of procedure input, while standalone tool provides `inputSchema`.
+Both standalone and derived tools expose a merged `inputSchema` (a single Standard Schema), so they can be consumed the same way.
 
 ---
 
