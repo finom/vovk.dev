@@ -156,7 +156,7 @@ Note that `mcpOutput` metadata key can also override other MCP output properties
 
 With [mcp-handler](https://www.npmjs.com/package/mcp-handler) package, you can create an MCP-compatible API route that is going to control the back-end functionality exposed to MCP clients.
 
-By writing this documentation, **mcp-handler** supports Zod schemas only, so `inputSchemas`, provided by the tool, needs to be casted as `z.ZodTypeAny` in order to satisfy TypeScript. If another validation library is used, you can convert `parameters.properties` to Zod schemas manually using [`z.fromJSONSchema()`](https://zod.dev/json-schema?id=zfromjsonschema).
+By writing this documentation, **mcp-handler** supports Zod schemas only. The tool's merged `inputSchema` is a single Standard Schema, so we convert its JSON Schema back to a Zod object with [`z.fromJSONSchema()`](https://zod.dev/json-schema?id=zfromjsonschema) and pass its `.shape` — the `body`/`query`/`params` slots — to `registerTool`.
 
 ```ts showLineNumbers copy filename="src/app/api/mcp/route.ts"
 import { createMcpHandler } from "mcp-handler";
@@ -171,18 +171,13 @@ const { tools } = deriveTools({
 
 const handler = createMcpHandler(
   (server) => {
-    tools.forEach(({ title, name, execute, description, inputSchemas }) => {
-      server.registerTool(
-        name,
-        {
-          title,
-          description,
-          inputSchema: inputSchemas as Partial<
-            Record<"body" | "query" | "params", z.ZodTypeAny>
-          >,
-        },
-        execute,
-      );
+    tools.forEach(({ title, name, execute, description, inputSchema }) => {
+      // `inputSchema` is a single merged Standard Schema; mcp-handler wants a Zod
+      // raw shape, so convert its JSON Schema back to Zod and take the object shape.
+      const shape = inputSchema
+        ? (z.fromJSONSchema(inputSchema["~standard"].jsonSchema.input({ target: "draft-2020-12" })) as z.ZodObject).shape
+        : {};
+      server.registerTool(name, { title, description, inputSchema: shape }, execute);
     });
   },
   {},

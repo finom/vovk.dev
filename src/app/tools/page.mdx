@@ -34,7 +34,9 @@ Additional properties available on each tool:
 - `type: "function"{:ts}` - always set to `"function"`.
 - `title?: string{:ts}` - optional title for the tool. Used mainly for MCPs, derived from OpenAPI `summary` or `x-tool.title` if available.
 - `outputSchema?: StandardSchemaV1 & StandardJSONSchemaV1{:ts}` - equals to the procedure's `output` schema, when available.
-- `inputSchemas: Partial<Record<'query' | 'body' | 'params', StandardSchemaV1 & StandardJSONSchemaV1>>{:ts}` - key-value schemas of procedure's `body`, `query`, and `params`, when available.
+- `inputSchema?: StandardSchemaV1 & StandardJSONSchemaV1{:ts}` - a single merged Standard Schema of the procedure's `body`, `query`, and `params`, when available. The canonical input schema — the same field `createTool` produces.
+
+> `inputSchema` is a standalone Standard Schema: it validates the top-level `{ body, query, params }` object itself (shape, required slots, unknown keys) and delegates each slot's value validation — and its JSON Schema conversion — to your original library schemas (Zod, Valibot, ArkType).
 
 ## `deriveTools` Options
 
