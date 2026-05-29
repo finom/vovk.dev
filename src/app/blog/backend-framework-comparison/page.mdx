@@ -53,6 +53,7 @@ Calling a procedure in-process, without HTTP, with full input validation. **✅ 
 Framework names link to their detailed breakdown below.
 
 <Bleed>
+<div className="sticky-comparison">
 
 | Framework | REST semantics | Next.js (App Router) | Validation | Typed RPC client | LLM tool | Local call |
 |---|---|---|---|---|---|---|
@@ -80,6 +81,7 @@ Framework names link to their detailed breakdown below.
 | [**Next.js raw Route Handlers**](#nextjs-raw-route-handlers) | ✅ Native | ✅ Native | ❌ BYO | ❌ | ❌ | ⚠️ forge `Request` |
 | [**Tier C frameworks**](#tier-c-frameworks) | — | — | — | — | — | — |
 
+</div>
 </Bleed>
 
 On the LLM-tool column: none of the four 4/4 SSOT frameworks (Vovk, Nestia, oRPC, Igniter.js) ships an end-to-end MCP server transport. Vovk's `deriveTools()` produces tool objects with a `ToModelOutput.MCP` formatter; the transport is delegated to `mcp-handler`. oRPC's `@orpc/ai-sdk` produces ai-sdk tool definitions; MCP server requires `@modelcontextprotocol/sdk` directly. Nestia's `@agentica` runtime is comprehensive but again does not bundle an MCP HTTP transport. **Only Igniter.js packages its own MCP server end-to-end via `@igniter-js/adapter-mcp-server`**.

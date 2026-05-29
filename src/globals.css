@@ -199,3 +199,22 @@ html {
     @apply bg-background text-foreground;
   }
 }
+
+/*
+  Blog comparison master table: full width via Nextra <Bleed>, with a sticky
+  header row while scrolling its long body. Nextra renders the <table> itself
+  as the scroll container (display:block; overflow-x:auto), so a max-height +
+  sticky <th> sticks the header within the table's own viewport. Scoped via
+  .sticky-comparison so other tables on the site are unaffected.
+*/
+.sticky-comparison table {
+  max-height: 80vh;
+  overflow: auto;
+}
+.sticky-comparison thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--background);
+  box-shadow: inset 0 -1px 0 var(--border);
+}
