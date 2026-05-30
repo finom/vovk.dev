@@ -32,12 +32,15 @@ const { tools } = deriveTools({
 const handler = createMcpHandler(
   (server) => {
     tools.forEach(({ title, name, execute, description, inputSchema }) => {
-      // `inputSchema` is a single merged Standard Schema; mcp-handler wants a Zod
-      // raw shape, so convert its JSON Schema back to Zod and take the object shape.
-      const shape = inputSchema
-        ? (z.fromJSONSchema(inputSchema['~standard'].jsonSchema.input({ target: 'draft-2020-12' })) as z.ZodObject).shape
-        : {};
-      server.registerTool(name, { title, description, inputSchema: shape }, execute);
+      // Vovk's merged `inputSchema` also carries the original per-slot Zod schemas
+      // (`body`/`query`/`params`); registerTool accepts a Zod raw shape, so drop the
+      // `~standard` marker and hand it those slots directly.
+      const { '~standard': _std, ...shape } = (inputSchema ?? {}) as unknown as Record<string, z.ZodTypeAny>;
+      server.registerTool(
+        name,
+        { title, description, inputSchema: inputSchema ? shape : undefined },
+        execute,
+      );
     });
   },
   {},
