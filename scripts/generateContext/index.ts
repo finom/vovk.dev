@@ -142,7 +142,7 @@ async function main() {
   for (const [key, value] of Object.entries(rootMeta)) {
     if (shouldSkip(key, value)) continue;
 
-    // Realtime UI sub-section goes to its own file
+    // Realtime Kanban sub-section goes to its own file
     if (key === 'realtime-ui') {
       // The realtime-ui index page
       const pagePath = path.join(APP_DIR, key, 'page.mdx');
@@ -181,14 +181,14 @@ async function main() {
 
   const docsOutput = buildFile(
     'Vovk.ts Documentation Context',
-    'Full documentation for the Vovk.ts framework, excluding the Realtime UI tutorial.',
-    'Realtime UI Context',
+    'Full documentation for the Vovk.ts framework, excluding the Realtime Kanban tutorial.',
+    'Realtime Kanban Context',
     REALTIME_UI_URL,
     docsPages
   );
   const realtimeOutput = buildFile(
-    'Vovk.ts Realtime UI Context',
-    'Tutorial and reference for building real-time UIs with Vovk.ts.',
+    'Vovk.ts Realtime Kanban Context',
+    'Walkthrough of the Realtime Kanban example app — a live-updating UI with Vovk.ts and AI features.',
     'Vovk.ts Docs Context',
     DOCS_URL,
     realtimeUiPages

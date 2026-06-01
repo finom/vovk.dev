@@ -88,7 +88,7 @@ type TaskId = BrandedId<'task'>;
 
 Either way, your entity interfaces then use the branded type for `id` instead of bare `string`, making it a compile-time error to mix up IDs across entity types.
 
-> In the Realtime UI project, `EntityType` is imported from `@prisma/client` and the entity types (including branded IDs) are generated via a Zod generator, as described in the [Database](./database) article.
+> In the Realtime Kanban project, `EntityType` is imported from `@prisma/client` and the entity types (including branded IDs) are generated via a Zod generator, as described in the [Database](./database) article.
 
 ## Setting up the fetcher
 
