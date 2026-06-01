@@ -4,7 +4,7 @@ const separator = (title: string) => ({ type: 'separator', title });
 
 const meta = {
   '#getting-started': separator('Getting Started'),
-  overview: 'Realtime UI Overview',
+  overview: 'Realtime Kanban Overview',
   run: 'Run Locally with Docker Compose',
   deploy: 'Deploy to Vercel',
   '#client': separator('Front-end Setup'),

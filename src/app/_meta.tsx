@@ -4,7 +4,7 @@ const separator = (title: string) => ({ type: 'separator', title });
 
 const meta: MetaRecord = {
   'realtime-ui-link': {
-    title: '🤖 Realtime UI',
+    title: '🤖 Realtime Kanban',
     href: '/realtime-ui',
     type: 'page',
   },
@@ -78,7 +78,7 @@ const meta: MetaRecord = {
   'hello-world': '"Hello World!"',
   multitenant: 'Multitenancy Tutorial',
   'realtime-ui': {
-    title: '🤖 Realtime UI',
+    title: '🤖 Realtime Kanban',
     theme: {
       collapsed: true,
       copyPage: true,
