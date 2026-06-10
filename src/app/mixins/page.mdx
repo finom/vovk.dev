@@ -193,6 +193,8 @@ Define a mixin as a pseudo-[segment](/segment) in `outputConfig.segments` by set
 - `getModuleName`: a string or function to name generated API modules. The string can be any custom string for hard-coded module names.
 - `getMethodName`: a string or function to generate method names. Supported strings: `camel-case-operation-id` (converts `operationId` like `get_users` to `getUsers`), or `auto` (generates from `operationId` or from HTTP method + path if `operationId` is unsuitable or missing).
 - `apiRoot` (optional): the API root URL, overridable per call via the `apiRoot` option. Required if the OAS document has no `servers` property.
+- `filterOperations` (optional): a predicate that keeps only the operations it returns `true` for. See [Filter Operations and Prune Components](#filter-operations-and-prune-components).
+- `pruneComponents` (optional, default `false`): removes components the kept operations don't reference from the generated schema. See [Filter Operations and Prune Components](#filter-operations-and-prune-components).
 
 Petstore example with a remote URL and a local fallback:
 
@@ -314,6 +316,42 @@ const config = {
 
 export default config;
 ```
+
+### Filter Operations and Prune Components
+
+Large specs produce large clients: every operation becomes a method, and the entire `components` dictionary is carried in the generated schema. Stripe's spec yields 534 methods and 1693 components — megabytes of generated JSON for an app that may call a handful of endpoints. Two options cut it down:
+
+- `filterOperations`: only operations the predicate returns `true` for are generated. It receives the same object as the naming functions (`operationObject`, `method`, `path`, `openAPIObject`) and runs before them, so a filtered-out operation produces no method, types, or validation schemas. Omit it to keep all operations.
+- `pruneComponents` (default `false`): removes every component the kept operations don't reference, directly or transitively, from the segment schema. Don't enable it if you import `Mixins.<Segment>.<Component>` types for components no kept operation uses — they are removed along with their schemas.
+
+```ts showLineNumbers copy filename="vovk.config.js"
+// @ts-check
+/** @type {import('vovk').VovkConfig} */
+const config = {
+  outputConfig: {
+    segments: {
+      stripe: {
+        openAPIMixin: {
+          source: {
+            url: 'https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.sdk.json',
+            fallback: './.openapi-cache/stripe.json',
+          },
+          apiRoot: 'https://api.stripe.com',
+          getModuleName: 'StripeAPI',
+          getMethodName: 'camel-case-operation-id',
+          filterOperations: ({ method, path }) =>
+            method === 'GET' &&
+            /^\/v1\/(invoices|customers|subscriptions|charges|refunds|disputes|balance_transactions|prices)$/.test(path),
+          pruneComponents: true,
+        },
+      },
+    },
+  },
+};
+export default config;
+```
+
+For this Stripe subset, the segment schema drops from ~8.4 MB (534 operations, 1693 components) to ~1.2 MB (8 operations, 863 components — Stripe's core objects reference each other heavily, so that's the transitive floor).
 
 ### Customize Fetcher
 
