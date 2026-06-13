@@ -4,8 +4,8 @@ description: "Full documentation for the Vovk.ts framework, excluding the Realti
 see_also:
   label: "Realtime Kanban Context"
   url: https://vovk.dev/context/realtime-ui.md
-chars: 382077
-est_tokens: 95520
+chars: 382186
+est_tokens: 95547
 ---
 
 Page: https://vovk.dev
@@ -872,11 +872,13 @@ const nextConfig = {
 module.exports = nextConfig;
 ```
 
-All you need to do is implement `generateStaticParams` and return `controllersToStaticParams` with your controller list.
+Export `dynamic = 'force-static'` so Next.js pre-renders the route handler at build time, implement `generateStaticParams`, and return `controllersToStaticParams` with your controller list.
 
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 // ...
 export type Controllers = typeof controllers;
+
+export const dynamic = 'force-static';
 
 export function generateStaticParams() {
   return controllersToStaticParams(controllers);
