@@ -1,5 +1,5 @@
 import { getGithubFiles } from 'vovk-examples';
-import GithubCode from './GithubCode';
+import GithubCode from './github-code';
 
 interface Props {
   paths: string[];

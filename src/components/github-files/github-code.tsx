@@ -1,6 +1,6 @@
-import GithubTabs from './GithubTabs';
+import GithubTabs from './github-tabs';
 import type { GithubFile } from '@/types';
-import CodeBlock from './CodeBlock';
+import CodeBlock from './code-block';
 import { useId } from 'react';
 import Link from 'next/link';
 

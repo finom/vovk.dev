@@ -1,5 +1,5 @@
 import { controllersToStaticParams, initSegment } from 'vovk';
-import V3SchemaController from '../../../../modules/schema/V3SchemaController';
+import V3SchemaController from '../../../../modules/schema/v3-schema-controller';
 
 const controllers = { V3SchemaRPC: V3SchemaController };
 

@@ -1,5 +1,5 @@
 import { controllersToStaticParams, initSegment } from 'vovk';
-import HelloController from '../../../modules/hello/HelloController';
+import HelloController from '../../../modules/hello/hello-controller';
 
 const controllers = { HelloRPC: HelloController };
 
