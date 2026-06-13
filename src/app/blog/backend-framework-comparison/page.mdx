@@ -248,7 +248,7 @@ Trade-offs that are *Vovk-specific* (you wouldn't hit these by writing raw Route
 - **`deriveTools` tool-count ceiling.** Very large APIs hit per-conversation LLM tool-list limits. The roadmap includes a vector-search-gated `router` option to scale this; today you expose a subset of procedures or split agents per domain.
 - **Python/Rust clients are experimental** (🧪). Stable for typical CRUD; expect rough edges on advanced patterns until they leave 🧪.
 
-Constraints inherited from the Next.js Route Handler substrate — not Vovk choices, but worth knowing if you're picking the stack: no WebSockets / persistent connections (use `next-ws` or an external service), no first-party MCP server transport (use `mcp-handler` — the Next.js-canonical pattern; oRPC and Nestia delegate identically), shared cold start with page renders within a segment, no GraphQL on the same handler surface. Detailed in [Architectural Trade-offs](/blog/architectural-trade-offs).
+Constraints inherited from the Next.js Route Handler substrate — not Vovk choices, but worth knowing if you're picking the stack: no WebSockets / persistent connections (use `next-ws` or an external service), no first-party MCP server transport (use `mcp-handler` — the Next.js-canonical pattern; oRPC and Nestia delegate identically), shared cold start with page renders within a segment, no GraphQL on the same handler surface.
 
 ---
 

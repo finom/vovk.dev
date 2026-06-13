@@ -85,10 +85,6 @@ const meta: MetaRecord = {
     },
   },
   '#etc': separator('Deep Dive'),
-  'architectural-trade-offs-link': {
-    title: 'Architectural Trade-offs (blog post)',
-    href: '/blog/architectural-trade-offs',
-  },
   testing: 'Testing',
   performance: 'Route Performance Overhead',
   packages: 'Packages',
