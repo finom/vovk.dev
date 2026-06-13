@@ -4,10 +4,10 @@ Every procedure created with the [procedure](/procedure#procedure) function is c
 
 Let's say you have the following controller class:
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { z } from 'zod';
 import { procedure, prefix, get, operation } from 'vovk';
-import UserService from './UserService';
+import UserService from './user-service';
 
 @prefix('users')
 export default class UserController {
@@ -43,7 +43,7 @@ console.log('User:', user);
 Calling the procedure with `fn` runs it in the current evaluation context — no HTTP, no network, full validation:
 
 ```ts showLineNumbers copy
-import UserController from '@/modules/user/UserController';
+import UserController from '@/modules/user/user-controller';
 
 const user = await UserController.getUser.fn({
   params: { id: '69' },
@@ -61,7 +61,7 @@ There are several core use cases for local procedures:
 **For SSR, SSG, PPR, and server actions**: You can use the method in a server component:
 
 ```tsx showLineNumbers copy filename="src/app/user/page.tsx"
-import UserController from '@/modules/user/UserController';
+import UserController from '@/modules/user/user-controller';
 
 export default async function UserPage() {
   const user = await UserController.getUser.fn({
@@ -77,7 +77,7 @@ export default async function UserPage() {
 **For Next.js server actions**: You can use `fn` inside a server action to call the procedure directly from a form submission. Make sure the procedure has `contentType` set to `'multipart/form-data'` to accept `FormData` as the body:
 
 ```tsx showLineNumbers copy filename="src/app/user/create/page.tsx"
-import UserController from '@/modules/user/UserController';
+import UserController from '@/modules/user/user-controller';
 
 export default function CreateUserPage() {
   async function handleCreate(body: FormData) {
@@ -184,7 +184,7 @@ const myDecorator = createDecorator(async ({ vovk }, next) => {
 
 An HTTP decorator such as `@get`, `@post`, etc., is not required for a local procedure to work. The only requirement is to use the `procedure` function to create the procedure.
 
-```ts showLineNumbers copy filename="src/modules/user/UserProcedures.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-procedures.ts"
 import { z } from 'zod';
 import { procedure } from 'vovk';
 
@@ -206,9 +206,9 @@ UserProcedures.updateUser.fn({
 
 When a static class is implemented this way, it behaves like a "validated service", which can be attached to the controller later or used as a standalone collection of validated functions.
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts" {7}
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts" {7}
 import { prefix, post } from 'vovk';
-import UserProcedures from './UserProcedures';
+import UserProcedures from './user-procedures';
 
 @prefix('users')
 export default class UserController {

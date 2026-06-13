@@ -1,5 +1,5 @@
 import { Tabs } from 'nextra/components';
-import GithubFiles from '@/components/GithubFiles';
+import GithubFiles from '@/components/github-files';
 import { PollExample } from '@/components/vovk-examples';
 
 # Realtime Database Polling
@@ -39,11 +39,11 @@ Because we use [Prisma](https://www.prisma.io/) as our ORM, we can use [Prisma E
 > - All write operations must select the `updatedAt` field for change detection to work properly.
 > - The list of supported write operations is limited to `create`, `update`, `upsert`, and `delete` for simplicity. Read operations are passed through as-is. For more complex operations, additional handling or abstraction is required.
 
-```ts showLineNumbers copy filename="src/modules/database/DatabaseService.ts" repository="finom/realtime-kanban" {20,124}
+```ts showLineNumbers copy filename="src/modules/database/database-service.ts" repository="finom/realtime-kanban" {20,124}
 import { PrismaNeon } from '@prisma/adapter-neon';
 import { PrismaClient } from '@prisma/client';
 import type { BaseEntity } from '@/types';
-import DatabaseEventsService, { type DBChange } from './DatabaseEventsService';
+import DatabaseEventsService, { type DBChange } from './database-events-service';
 import './neon-local'; // Setup Neon for local development
 
 export default class DatabaseService {
@@ -175,7 +175,7 @@ export default class DatabaseService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/database-service.ts)*
 
 - The `getClient` method calls `DatabaseEventsService.beginEmitting(){:ts}` to start emitting events. The `beginEmitting` function runs a `setInterval` that connects to Redis and periodically checks for new events. When a new event is found, it emits it via [mitt](https://npmjs.com/package/mitt).
 - `prisma.$extends` hooks into some of the Prisma model operations, determines whether an operation modifies data, and if so calls `await DatabaseEventsService.createChanges([change]){:ts}` to persist a change entry in Redis. The change captures creates, updates, and deletions:
@@ -200,7 +200,7 @@ Operations like `find...` and `count` do not trigger changes and are passed thro
 
 In addition to `beginEmitting` and `createChanges`, `DatabaseEventsService` provides a `connect` method and an `emitter` (a `mitt` instance). These are used by the polling service (`DatabasePollService`, discussed next) to be notified about new events.
 
-```ts showLineNumbers copy filename="src/modules/database/DatabaseEventsService.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/database/database-events-service.ts" repository="finom/realtime-kanban"
 import type { EntityType } from '@prisma/client';
 import mitt from 'mitt';
 import { createClient } from 'redis';
@@ -285,7 +285,7 @@ export default class DatabaseEventsService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseEventsService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/database-events-service.ts)*
 
 ## Polling controller and service
 
@@ -293,12 +293,12 @@ With Redis change entries and the change emitter in place, we can implement a po
 
 <Tabs items={['DatabasePollService.ts', 'DatabasePollController.ts']}>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/database/DatabasePollService.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/database/database-poll-service.ts" repository="finom/realtime-kanban"
 import { forEach, groupBy } from 'lodash';
 import type { JSONLinesResponder, VovkIteration } from 'vovk';
-import DatabaseEventsService, { type DBChange } from './DatabaseEventsService';
-import type DatabasePollController from './DatabasePollController';
-import DatabaseService from './DatabaseService';
+import DatabaseEventsService, { type DBChange } from './database-events-service';
+import type DatabasePollController from './database-poll-controller';
+import DatabaseService from './database-service';
 
 export default class PollService {
   static poll(
@@ -361,10 +361,10 @@ export default class PollService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/database-poll-service.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/database/DatabasePollController.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/database/database-poll-controller.ts" repository="finom/realtime-kanban"
 import { EntityType } from '@prisma/client';
 import { TaskSchema, UserSchema } from '@schemas/index';
 import {
@@ -375,8 +375,8 @@ import {
   type VovkIteration,
 } from 'vovk';
 import { z } from 'zod';
-import { sessionGuard } from '@/decorators/sessionGuard';
-import DatabasePollService from './DatabasePollService';
+import { sessionGuard } from '@/decorators/session-guard';
+import DatabasePollService from './database-poll-service';
 
 @prefix('poll')
 export default class DatabasePollController {
@@ -408,7 +408,7 @@ export default class DatabasePollController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/database-poll-controller.ts)*
 
 </Tabs.Tab>
 </Tabs>
@@ -424,7 +424,7 @@ The frontend code, besides the polling logic, also includes an on/off toggle per
   
 Here’s the `useDatabasePolling` hook that implements the described logic, returning the `[isPollingEnabled, setIsPollingEnabled, hasError]` state tuple:
 
-```ts showLineNumbers copy filename="src/hooks/useDatabasePolling.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/hooks/use-database-polling.ts" repository="finom/realtime-kanban"
 import { useEffect, useRef, useState } from 'react';
 import { DatabasePollRPC } from 'vovk-client';
 
@@ -491,7 +491,7 @@ export default function useDatabasePolling(initialValue = false) {
   return [isPollingEnabled, setIsPollingEnabled, hasError] as const;
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useDatabasePolling.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/use-database-polling.ts)*
 
 Usage:
 

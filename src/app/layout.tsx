@@ -3,7 +3,7 @@ import { Banner, Head } from 'nextra/components';
 import { getPageMap } from 'nextra/page-map';
 import 'nextra-theme-docs/style.css';
 import '@/globals.css';
-import VovkLogo from '@/components/VovkLogo';
+import VovkLogo from '@/components/vovk-logo';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {

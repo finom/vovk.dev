@@ -57,9 +57,9 @@ export default class StreamController {
 
 When used with a service, the iterable can be delegated using the `yield*` syntax:
 
-```ts showLineNumbers copy filename="src/modules/stream/StreamController.ts"
+```ts showLineNumbers copy filename="src/modules/stream/stream-controller.ts"
 import { procedure, prefix, post, type VovkIteration } from 'vovk';
-import StreamService from './StreamService';
+import StreamService from './stream-service';
 
 @prefix('stream')
 export default class StreamController {
@@ -75,9 +75,9 @@ export default class StreamController {
 }
 ```
 
-```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts"
+```ts showLineNumbers copy filename="src/modules/stream/stream-service.ts"
 import type { VovkIteration } from 'vovk';
-import type { StreamController } from './StreamController';
+import type { StreamController } from './stream-controller';
 
 export default class StreamService {
   static async *getJSONLines() {
@@ -134,7 +134,7 @@ console.log('All messages:', await stream.asPromise());
 
 Create a procedure that delegates iterable output from OpenAI's streaming chat completions:
 
-```ts showLineNumbers copy filename="src/modules/llm/LlmController.ts"
+```ts showLineNumbers copy filename="src/modules/llm/llm-controller.ts"
 import { post, prefix, operation, type VovkRequest } from 'vovk';
 import OpenAI from 'openai';
 
@@ -203,9 +203,9 @@ The responder instance provides the following members:
 
 With `JSONLinesResponder` a service method is implemented as a regular function (not a generator) that accepts a `JSONLinesResponder` instance as a pointer to send messages manually.
 
-```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts"
+```ts showLineNumbers copy filename="src/modules/stream/stream-service.ts"
 import type { JSONLinesResponder, VovkIteration } from 'vovk';
-import type StreamController from './StreamController';
+import type StreamController from './stream-controller';
 
 export type Token = VovkIteration<typeof StreamController.streamTokens>
 
@@ -229,7 +229,7 @@ The controller class returns an instance of `JSONLinesResponder`, and the stream
 
 ```ts showLineNumbers copy
 import { prefix, get, JSONLinesResponder, type VovkRequest } from 'vovk';
-import StreamService, { type Token } from './StreamService';
+import StreamService, { type Token } from './stream-service';
 
 @prefix('stream')
 export default class StreamController {

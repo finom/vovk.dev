@@ -1,4 +1,4 @@
-import AppAlike from './AppAlike';
+import AppAlike from './app-alike';
 
 # Entity-driven state normalization with Zustand registry
 
@@ -127,7 +127,7 @@ export default config;
 
 The registry hook is built on Zustand. It defines a `Registry` interface describing the shape of the state — entity maps keyed by `EntityType` and a `parse` method — and exports a `RegistryProvider`, a `useRegistry` selector hook, and a `useRegistryStore` hook for imperative access.
 
-```ts showLineNumbers copy filename="src/hooks/useRegistry.tsx" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/hooks/use-registry.tsx" repository="finom/realtime-kanban"
 'use client';
 import { EntityType } from '@prisma/client';
 import type { TaskType } from '@schemas/models/Task.schema';
@@ -267,7 +267,7 @@ export function useRegistry<T>(selector: (state: Registry) => T): T {
   return useStore(useRegistryStore(), selector);
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useRegistry.tsx)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/use-registry.tsx)*
 
 Let's break this down piece by piece.
 
@@ -448,7 +448,7 @@ export default async function Home() {
 
 Components are clean — they select from the registry and fire a `useQuery` to refresh the data on the client:
 
-```tsx showLineNumbers copy filename="src/components/UserList.tsx"
+```tsx showLineNumbers copy filename="src/components/user-list.tsx"
 const UserList = () => {
   const users = useRegistry(useShallow((state) => Object.values(state.user)));
 

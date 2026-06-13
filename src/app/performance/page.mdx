@@ -1,4 +1,4 @@
-import { ColdStartChart } from "./ColdStartChart.tsx";
+import { ColdStartChart } from "./cold-start-chart.tsx";
 
 # Next.js API Route Performance Overhead
 
@@ -54,8 +54,8 @@ Source: test scripts in the vovk-perf-test repository.
 
 Example controller (N = 1) used in the request-overhead tests:
 
-```ts showLineNumbers copy filename="src/modules/one/a/AController.ts" repository="finom/vovk-perf-test"
-import { get, operation, post, prefix, procedure } from "vovk";
+```ts showLineNumbers copy filename="src/modules/one/a/a-controller.ts" repository="finom/vovk-perf-test"
+import { procedure, prefix, get, post, operation } from "vovk";
 import z from "zod";
 
 @prefix("a")
@@ -80,7 +80,7 @@ export default class AController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-perf-test/blob/main/src/modules/one/a/AController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-perf-test/blob/main/src/modules/one/a/a-controller.ts)*
 
 ### Methodology (short)
 

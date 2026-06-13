@@ -10,10 +10,10 @@ Since we're going to use WebRTC, audio data is sent and received directly betwee
 
 On the backend, we're going to create a session endpoint implemented using the official OpenAI article [Realtime API with WebRTC](https://platform.openai.com/docs/guides/realtime-webrtc). The endpoint accepts the SDP offer from the client and a voice-selection query parameter, then returns the SDP answer from the OpenAI Realtime API.
 
-```ts showLineNumbers copy filename="src/modules/realtime/RealtimeController.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/realtime/realtime-controller.ts" repository="finom/realtime-kanban"
 import { HttpException, HttpStatus, post, prefix, procedure } from 'vovk';
 import { z } from 'zod';
-import { sessionGuard } from '@/decorators/sessionGuard';
+import { sessionGuard } from '@/decorators/session-guard';
 
 @prefix('realtime')
 export default class RealtimeController {
@@ -58,7 +58,7 @@ export default class RealtimeController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/realtime/RealtimeController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/realtime/realtime-controller.ts)*
 
 ## Frontend Setup
 
@@ -75,7 +75,7 @@ The crucial parts of the hook are:
 
 The `onmessage` handler also takes care of sending the `response.create` message to make the Realtime API respond, unless the tool execution result contains the `__preventResponseCreate` flag set to `true`, returned from the tool’s `execute` function.
 
-```ts showLineNumbers copy filename="src/hooks/useWebRTCAudioSession.ts" repository="finom/realtime-kanban" {87-132}
+```ts showLineNumbers copy filename="src/hooks/use-web-rtc-audio-session.ts" repository="finom/realtime-kanban" {87-132}
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { VovkTool } from 'vovk';
@@ -260,7 +260,7 @@ export default function useWebRTCAudioSession(
   };
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useWebRTCAudioSession.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/use-web-rtc-audio-session.ts)*
 
 ### Client-side Tools
 
@@ -270,18 +270,18 @@ Since the component is mounted in [layout.tsx](https://github.com/finom/realtime
 
 The client-side tool execution functions are located in the [lib/tools](https://github.com/finom/realtime-kanban/tree/main/src/lib/tools) folder for better organization.
 
-```ts showLineNumbers copy filename="src/components/RealTimeDemo.tsx" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/components/real-time-demo.tsx" repository="finom/realtime-kanban"
 'use client';
 import { useRouter } from 'next/navigation';
 import { createTool, deriveTools } from 'vovk';
 import { TaskRPC, UserRPC } from 'vovk-client';
 import z from 'zod';
-import useWebRTCAudioSession from '@/hooks/useWebRTCAudioSession';
-import { getCurrentTime } from '@/lib/tools/getCurrentTime';
-import { getVisiblePageSection } from '@/lib/tools/getVisiblePageSection';
-import { partyMode } from '@/lib/tools/partyMode';
+import useWebRTCAudioSession from '@/hooks/use-web-rtc-audio-session';
+import { getCurrentTime } from '@/lib/tools/get-current-time';
+import { getVisiblePageSection } from '@/lib/tools/get-visible-page-section';
+import { partyMode } from '@/lib/tools/party-mode';
 import { scroll } from '@/lib/tools/scroll';
-import Floaty from './Floaty';
+import Floaty from './floaty';
 import { useMemo } from 'react';
 
 const RealTimeDemo = () => {
@@ -376,7 +376,7 @@ const RealTimeDemo = () => {
 
 export default RealTimeDemo;
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/components/RealTimeDemo.tsx)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/components/real-time-demo.tsx)*
 
 The code for the `Floaty` component is not shown here for brevity, but you can find it [in the repository](https://github.com/finom/realtime-kanban/blob/main/src/components/Floaty.tsx).
 

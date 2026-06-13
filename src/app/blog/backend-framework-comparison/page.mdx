@@ -134,7 +134,7 @@ If your project matches one of these descriptions, that's the framework to start
 
 Procedures decorated with `@get('{id}')`, `@post()`, `@put()`, `@patch()`, `@del()` mount as RESTful endpoints with path-param syntax.
 
-```ts filename="src/modules/user/UserController.ts"
+```ts filename="src/modules/user/user-controller.ts"
 import { procedure, prefix, get } from 'vovk';
 import { z } from 'zod';
 
@@ -162,7 +162,7 @@ Native. Vovk targets Next.js App Router exclusively — controllers mount into [
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
-import UserController from '@/modules/user/UserController';
+import UserController from '@/modules/user/user-controller';
 
 const controllers = { UserRPC: UserController };
 export type Controllers = typeof controllers;
@@ -197,7 +197,7 @@ Native, first-party. `deriveTools()` converts any controller or RPC module into 
 
 ```ts
 import { deriveTools } from 'vovk';
-import UserController from '@/modules/user/UserController';
+import UserController from '@/modules/user/user-controller';
 
 const { tools, toolsByName } = deriveTools({ modules: { UserController } });
 // tools: [{ name, description, parameters, execute }, ...]
@@ -248,7 +248,7 @@ Trade-offs that are *Vovk-specific* (you wouldn't hit these by writing raw Route
 - **`deriveTools` tool-count ceiling.** Very large APIs hit per-conversation LLM tool-list limits. The roadmap includes a vector-search-gated `router` option to scale this; today you expose a subset of procedures or split agents per domain.
 - **Python/Rust clients are experimental** (🧪). Stable for typical CRUD; expect rough edges on advanced patterns until they leave 🧪.
 
-Constraints inherited from the Next.js Route Handler substrate — not Vovk choices, but worth knowing if you're picking the stack: no WebSockets / persistent connections (use `next-ws` or an external service), no first-party MCP server transport (use `mcp-handler` — the Next.js-canonical pattern; oRPC and Nestia delegate identically), shared cold start with page renders within a segment, no GraphQL on the same handler surface. Detailed in [Architectural Trade-offs](/blog/architectural-trade-offs).
+Constraints inherited from the Next.js Route Handler substrate — not Vovk choices, but worth knowing if you're picking the stack: no WebSockets / persistent connections (use `next-ws` or an external service), no first-party MCP server transport (use `mcp-handler` — the Next.js-canonical pattern; oRPC and Nestia delegate identically), shared cold start with page renders within a segment, no GraphQL on the same handler surface.
 
 ---
 

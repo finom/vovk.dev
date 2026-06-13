@@ -48,7 +48,7 @@ export default async function Home() {
 
 It also exports the `isLoggedIn` function, which is used by the `sessionGuard` [decorator](/decorator) to check if the user is logged in when invoking procedures.
 
-```ts showLineNumbers copy filename="src/decorators/sessionGuard.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/decorators/session-guard.ts" repository="finom/realtime-kanban"
 import { createDecorator, HttpException, HttpStatus } from 'vovk';
 import { isLoggedIn } from '@/lib/dal';
 
@@ -59,6 +59,6 @@ export const sessionGuard = createDecorator(async (req, next) => {
   return next();
 });
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/decorators/sessionGuard.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/decorators/session-guard.ts)*
 
 The `sessionGuard` decorator is applied to all procedures. The `typeof req.url !== 'undefined'{:ts}` check is required to distinguish between HTTP requests and [`fn`](/fn) invocations.

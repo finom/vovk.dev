@@ -137,9 +137,9 @@ This is required only if you want to use decorators in your controllers and proc
 
 ## Create a controller
 
-Create **HelloController.ts** in **/src/modules/hello/** with a class of the same name.
+Create **hello-controller.ts** in **/src/modules/hello/** with a `HelloController` class.
 
-```ts showLineNumbers copy filename="src/modules/hello/HelloController.ts"
+```ts showLineNumbers copy filename="src/modules/hello/hello-controller.ts"
 import { get, prefix } from 'vovk';
 
 @prefix('greetings') // prefix is optional
@@ -163,7 +163,7 @@ In the code below, `HelloRPC` is the name of the generated RPC module, and `Hell
 
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
-import HelloController from '../../../modules/hello/HelloController';
+import HelloController from '../../../modules/hello/hello-controller';
 
 const controllers = { HelloRPC: HelloController };
 

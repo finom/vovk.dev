@@ -122,7 +122,7 @@ const config = {
 export default config;
 ```
 
-`npx vovk new controller state user` creates **UserController.ts** and **UserState.ts** in **/src/modules/user** and updates the root segment with the new controller.
+`npx vovk new controller state user` creates **user-controller.ts** and **user-state.ts** in **/src/modules/user** and updates the root segment with the new controller.
 
 ### Built-in Module Templates
 
@@ -192,7 +192,7 @@ Here is an example of a module template for an Arktype-based controller and serv
 }; %>
 ---
 outDir: <%= t.defaultOutDir %>
-fileName: <%= vars.ModuleName + '.ts' %>
+fileName: <%= t['the-thing'] + '-controller.ts' %>
 sourceName: <%= vars.ModuleName %>
 compiledName: <%= t.TheThing + 'RPC' %>
 ---
@@ -200,7 +200,7 @@ compiledName: <%= t.TheThing + 'RPC' %>
 import { procedure, prefix, get, put, post, del, operation } from 'vovk';
 import { type } from 'arktype';
 <% if(t.withService) { %>
-import <%= vars.ServiceName %> from './<%= vars.ServiceName %><%= t.nodeNextResolutionExt.ts %>';
+import <%= vars.ServiceName %> from './<%= t['the-thing'] %>-service<%= t.nodeNextResolutionExt.ts %>';
 <% } %>
 
 @prefix('<%= t['the-things'] %>')
@@ -290,12 +290,12 @@ export default class <%= vars.ModuleName %> {
 }; %>
 ---
 outDir: <%= t.defaultOutDir %>
-fileName: <%= vars.ServiceName + '.ts' %>
+fileName: <%= t['the-thing'] + '-service.ts' %>
 sourceName: <%= vars.ServiceName %>
 ---
 
 import type { VovkBody, VovkParams } from 'vovk';
-import type <%= vars.ControllerName %> from './<%= vars.ControllerName %><%= t.nodeNextResolutionExt.ts %>';
+import type <%= vars.ControllerName %> from './<%= t['the-thing'] %>-controller<%= t.nodeNextResolutionExt.ts %>';
 
 export default class <%= vars.ServiceName %> {
   static get<%= t.TheThings %> = () => {
@@ -327,7 +327,6 @@ export default class <%= vars.ServiceName %> {
     return { message: `TODO: delete <%= t.theThing %>`, id };
   };
 }
-
 ```
 *[The code above is fetched from GitHub repository.](https://github.com/finom/vovk/blob/main/packages/vovk-cli/module-templates/type/service.ts.ejs)*
 
@@ -341,15 +340,15 @@ When you run:
 npx vovk new controller service userCart
 ```
 
-It creates **UserCartController.ts** and **UserCartService.ts** in **/src/modules/userCart/** and updates the root segment with the new controller.
+It creates **user-cart-controller.ts** and **user-cart-service.ts** in **/src/modules/user-cart/** and updates the root segment with the new controller.
 
 <Tabs items={['UserCartController.ts', 'UserCartService.ts', 'route.ts']}>
 <Tabs.Tab>
 
-```ts showLineNumbers copy filename="src/modules/userCart/UserCartController.ts"
+```ts showLineNumbers copy filename="src/modules/user-cart/user-cart-controller.ts"
 import { procedure, prefix, get, put, post, del, operation } from 'vovk';
 import { type } from 'arktype';
-import UserCartService from './UserCartService.ts';
+import UserCartService from './user-cart-service.ts';
 
 @prefix('user-carts')
 export default class UserCartController {
@@ -404,9 +403,9 @@ export default class UserCartController {
 </Tabs.Tab>
 
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/userCart/UserCartService.ts"
+```ts showLineNumbers copy filename="src/modules/user-cart/user-cart-service.ts"
 import type { VovkBody, VovkParams } from 'vovk';
-import type UserCartController from './UserCartController.ts';
+import type UserCartController from './user-cart-controller.ts';
 
 export default class UserCartService {
   static getUserCarts = () => {
@@ -445,7 +444,7 @@ The updated segment file:
 
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
-import UserCartController from '../../../modules/userCart/UserCartController.ts';
+import UserCartController from '../../../modules/user-cart/user-cart-controller.ts';
 const controllers = {
   UserCartRPC: UserCartController,
 };

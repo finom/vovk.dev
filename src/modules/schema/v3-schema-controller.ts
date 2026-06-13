@@ -1,5 +1,5 @@
 import { get, prefix } from 'vovk';
-import V3SchemaService from './V3SchemaService';
+import V3SchemaService from './v3-schema-service';
 
 @prefix('v3')
 export default class V3SchemaController {

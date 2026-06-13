@@ -5,7 +5,7 @@ You can customize the generated TypeScript client by replacing imports of lower-
 By default, when **vovk-ajv** (described below) is used for client-side validation, an `index.js` file generating the `UserRPC` module might look like:
 
 ```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.js"
-import { createRPC } from 'vovk/createRPC';
+import { createRPC } from 'vovk/create-rpc';
 import { schema } from './schema.js';
 
 export const UserRPC = createRPC(schema, '', 'UserRPC', import('vovk/fetcher'), {
@@ -22,7 +22,7 @@ const config = {
   outputConfig: {
     imports: {
       fetcher: './src/lib/fetcher',
-      validateOnClient: './src/lib/validateOnClient',
+      validateOnClient: './src/lib/validate-on-client',
     },
   },
 };
@@ -32,10 +32,10 @@ export default config;
 The generated `index.js` uses these imports and resolves relative paths:
 
 ```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.js"
-import { createRPC } from 'vovk/createRPC';
+import { createRPC } from 'vovk/create-rpc';
 
 export const UserRPC = createRPC(schema, '', 'UserRPC', import('../../src/lib/fetcher'), {
-  validateOnClient: import('../../src/lib/validateOnClient'),
+  validateOnClient: import('../../src/lib/validate-on-client'),
   apiRoot: 'http://localhost:3000/api',
 });
 ```
@@ -49,14 +49,14 @@ const config = {
     imports: {
       // applied to all segments
       fetcher: './src/lib/fetcher',
-      validateOnClient: './src/lib/validateOnClient',
+      validateOnClient: './src/lib/validate-on-client',
     },
     segments: {
       admin: {
         imports: {
           // applied only to "admin" segment
-          fetcher: './src/lib/adminFetcher',
-          validateOnClient: './src/lib/adminValidateOnClient',
+          fetcher: './src/lib/admin-fetcher',
+          validateOnClient: './src/lib/admin-validate-on-client',
         },
       },
     },
@@ -179,7 +179,7 @@ unsubError();
 
 `validateOnClient` defines how client-side validation is performed for RPC/API method input (`params`, `query`, `body`). Create it via `createValidateOnClient` from `vovk`. It accepts a `validate` function that receives the input data, the JSON schema, and metadata, and returns validated data or throws on failure. Validation runs only when both input and schema are provided.
 
-```ts showLineNumbers copy filename="./src/lib/validateOnClient.ts"
+```ts showLineNumbers copy filename="./src/lib/validate-on-client.ts"
 import { validateData } from 'some-json-validation-library';
 import { createValidateOnClient, HttpException, HttpStatus } from 'vovk';
 
