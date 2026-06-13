@@ -150,7 +150,7 @@ Each controller belongs to a single segment. If you want to reuse a controller i
 
 ```ts showLineNumbers copy
 import { prefix, cloneControllerMetadata } from 'vovk';
-import UserController from './UserController';
+import UserController from './user-controller';
 
 @cloneControllerMetadata()
 @prefix('v2')
@@ -365,7 +365,7 @@ The function accepts the following options:
 ```ts showLineNumbers copy
 import { deriveTools } from 'vovk';
 import { UserRPC } from 'vovk-client';
-import TaskController from '@/modules/task/TaskController';
+import TaskController from '@/modules/task/task-controller';
 
 const { tools, toolsByName } = deriveTools({
   meta: { hello: 'world' },
@@ -436,7 +436,7 @@ Documented built-ins:
 
 Creates the `validateOnClient` function, which controls how client-side validation is performed for RPC methods (globally or per segment). `createValidateOnClient` accepts a `validate` function that receives input data, the validation schema, and additional options, and returns the validated data or throws an error if validation fails.
 
-```ts showLineNumbers copy filename="./src/lib/validateOnClient.ts"
+```ts showLineNumbers copy filename="./src/lib/validate-on-client.ts"
 import { validateData } from 'validation-library';
 import { createValidateOnClient, HttpException, HttpStatus } from 'vovk';
 
@@ -547,7 +547,7 @@ Combined input type that extracts `params`, `query`, and `body` from a procedure
 
 ```ts showLineNumbers copy
 import type { VovkInput } from 'vovk';
-import type UserController from './UserController';
+import type UserController from './user-controller';
 
 type Input = VovkInput<typeof UserController.createUser>;
 // { params: VovkParams<...>; query: VovkQuery<...>; body: VovkBody<...> }

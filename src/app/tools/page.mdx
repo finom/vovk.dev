@@ -6,10 +6,10 @@ Controllers as well as generated RPC/API modules can be converted into AI tools 
 - RPC modules generated from controllers for HTTP calls or be used on front-end or other environments that support `fetch`.
 - Third-party OpenAPI-based modules (called [OpenAPI mixins](/mixins) in this documentation), enabling to combine back-end functionality with external APIs in a single agent.
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { deriveTools } from 'vovk';
 import { TaskRPC, PetstoreAPI } from 'vovk-client';
-import UserController from '@/modules/user/UserController';
+import UserController from '@/modules/user/user-controller';
 
 const { tools, toolsByName } = deriveTools({
   modules: {
@@ -54,7 +54,7 @@ The `deriveTools` function accepts an options object with the following properti
 
 By default, tool description is derived from OpenAPI `summary` and `description` fields and the tool name is generated in the form of `${moduleName}_${handlerName}`. You can override these values and add tool-specific attributes using `x-tool` custom attributes in the `@operation` decorator.
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { prefix, get, operation } from 'vovk';
 
 @prefix('user')
@@ -75,7 +75,7 @@ export default class UserController {
 
 `@operation` also provides `tool` property that defines tool-specific attributes for `deriveTools` function. It's set under `x-tool` key in the OpenAPI operation object and created for cleaner syntax.
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { prefix, get, operation } from 'vovk';
 
 @prefix('user')
@@ -113,7 +113,7 @@ To include only certain procedures from a module (besides using `hidden` attribu
 import { deriveTools } from 'vovk';
 import { PostRPC } from 'vovk-client';
 import { pick, omit } from 'lodash';
-import UserController from '../user/UserController';
+import UserController from '../user/user-controller';
 
 const { tools } = deriveTools({
   modules: {
@@ -159,9 +159,9 @@ First, create an empty controller. The command will also update the root `route.
 npx vovk new controller aiSdk --empty
 ```
 
-Paste the following into the newly created `src/modules/ai-sdk/AiSdkController.ts`, adjusting imports as needed:
+Paste the following into the newly created `src/modules/ai-sdk/ai-sdk-controller.ts`, adjusting imports as needed:
 
-```ts showLineNumbers copy filename="src/modules/ai-sdk/AiSdkController.ts" {22-24, 26-35}
+```ts showLineNumbers copy filename="src/modules/ai-sdk/ai-sdk-controller.ts" {22-24, 26-35}
 import {
   deriveTools,
   post,
@@ -176,7 +176,7 @@ import {
   type UIMessage,
 } from 'ai';
 import { openai } from '@ai-sdk/openai';
-import UserController from '@/modules/user/UserController';
+import UserController from '@/modules/user/user-controller';
 
 @prefix('ai-sdk')
 export default class AiSdkController {

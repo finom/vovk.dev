@@ -72,10 +72,10 @@ The service method infers parameter types from the procedure, returning the serv
 
 <Tabs items={['UserController.ts', 'UserService.ts', 'route.ts']}>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/vovk-hello-world"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts" repository="finom/vovk-hello-world"
 import { operation, post, prefix, procedure } from 'vovk';
 import { z } from 'zod';
-import UserService from './UserService';
+import UserService from './user-service';
 
 @prefix('users')
 export default class UserController {
@@ -145,12 +145,12 @@ export default class UserController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/user-controller.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/user/UserService.ts" repository="finom/vovk-hello-world"
+```ts showLineNumbers copy filename="src/modules/user/user-service.ts" repository="finom/vovk-hello-world"
 import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from 'vovk';
-import type UserController from './UserController';
+import type UserController from './user-controller';
 
 export default class UserService {
   static updateUser = (
@@ -171,14 +171,14 @@ export default class UserService {
   };
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/user-service.ts)*
 
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"  
 import { initSegment } from 'vovk';
-import StreamController from '../../../modules/stream/StreamController';
-import UserController from '../../../modules/user/UserController';
+import StreamController from '../../../modules/stream/stream-controller';
+import UserController from '../../../modules/user/user-controller';
 
 export const runtime = 'edge';
 
@@ -205,10 +205,10 @@ export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
 
 <Tabs items={['StreamController.ts', 'StreamService.ts', 'route.ts']}>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/stream/StreamController.ts" repository="finom/vovk-hello-world"
+```ts showLineNumbers copy filename="src/modules/stream/stream-controller.ts" repository="finom/vovk-hello-world"
 import { get, operation, prefix, procedure } from 'vovk';
 import { z } from 'zod';
-import StreamService from './StreamService';
+import StreamService from './stream-service';
 
 @prefix('streams')
 export default class StreamController {
@@ -231,12 +231,12 @@ export default class StreamController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/stream-controller.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts" repository="finom/vovk-hello-world"
+```ts showLineNumbers copy filename="src/modules/stream/stream-service.ts" repository="finom/vovk-hello-world"
 import type { VovkIteration } from 'vovk';
-import type StreamController from './StreamController';
+import type StreamController from './stream-controller';
 
 export default class StreamService {
   static async *streamTokens() {
@@ -252,14 +252,14 @@ export default class StreamService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/stream-service.ts)*
 
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"  
 import { initSegment } from 'vovk';
-import StreamController from '../../../modules/stream/StreamController';
-import UserController from '../../../modules/user/UserController';
+import StreamController from '../../../modules/stream/stream-controller';
+import UserController from '../../../modules/user/user-controller';
 
 export const runtime = 'edge';
 
@@ -286,11 +286,11 @@ The demo uses [@tanstack/react-query](https://www.npmjs.com/package/@tanstack/re
 
 <Tabs items={['index.tsx', 'UserFormDemo.tsx', 'StreamDemo.tsx']}>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/components/Demo/index.tsx" repository="finom/vovk-hello-world"
+```ts showLineNumbers copy filename="src/components/demo/index.tsx" repository="finom/vovk-hello-world"
 'use client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import StreamDemo from './StreamDemo';
-import UserFormDemo from './UserFormDemo';
+import StreamDemo from './stream-demo';
+import UserFormDemo from './user-form-demo';
 
 const queryClient = new QueryClient();
 
@@ -311,10 +311,10 @@ const Demo = () => {
 
 export default Demo;
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/Demo/index.tsx)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/demo/index.tsx)*
 </Tabs.Tab>
 <Tabs.Tab>
-```tsx showLineNumbers copy filename="src/components/Demo/UserFormDemo.tsx" repository="finom/vovk-hello-world"
+```tsx showLineNumbers copy filename="src/components/demo/user-form-demo.tsx" repository="finom/vovk-hello-world"
 'use client';
 import { useMutation } from '@tanstack/react-query';
 import type React from 'react';
@@ -449,10 +449,10 @@ const UserFormDemo = () => {
 
 export default UserFormDemo;
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/Demo/UserFormDemo.tsx)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/demo/user-form-demo.tsx)*
 </Tabs.Tab>
 <Tabs.Tab>
-```tsx showLineNumbers copy filename="src/components/Demo/StreamDemo.tsx" repository="finom/vovk-hello-world"
+```tsx showLineNumbers copy filename="src/components/demo/stream-demo.tsx" repository="finom/vovk-hello-world"
 'use client';
 import {
   experimental_streamedQuery as streamedQuery,
@@ -480,7 +480,7 @@ const StreamDemo = () => {
 };
 export default StreamDemo;
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/Demo/StreamDemo.tsx)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/components/demo/stream-demo.tsx)*
 </Tabs.Tab>
 </Tabs>
 
@@ -636,9 +636,10 @@ The original package.json is used to populate metadata (`repository`, `homepage`
     "publish:rust": "cargo publish --manifest-path dist_rust/Cargo.toml --allow-dirty",
     "publish:python": "python3 -m build ./dist_python --wheel --sdist && python3 -m twine upload ./dist_python/dist/*",
     "git-tag": "git add . && git commit -m \"chore: release v$(node -p \"require('./package.json').version\")\" && git tag v$(node -p \"require('./package.json').version\")",
-    "check-uncommitted": "git diff --quiet && git diff --cached --quiet || (echo '❌ Uncommitted changes!' && exit 1)",
+    "check-uncommitted": "git diff --quiet && git diff --cached --quiet || (echo '\u274c Uncommitted changes!' && exit 1)",
     "postversion": "vovk generate && vovk bundle && npm run publish:node && npm run publish:rust && npm run publish:python && npm run git-tag",
-    "patch": "npm run check-uncommitted && npm version patch --no-git-tag-version"
+    "patch": "npm run check-uncommitted && npm version patch --no-git-tag-version",
+    "prepare": "husky"
   },
   "license": "MIT",
   "repository": {
@@ -665,8 +666,8 @@ The original package.json is used to populate metadata (`repository`, `homepage`
     "next": "^16.1.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "vovk": "^3.0.0",
-    "vovk-ajv": "^0.0.2",
+    "vovk": "^3.7.0",
+    "vovk-ajv": "^0.1.0",
     "vovk-client": "^1.0.0",
     "zod": "^4.3.6"
   },
@@ -676,14 +677,15 @@ The original package.json is used to populate metadata (`repository`, `homepage`
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "husky": "^9.1.7",
     "postcss": "^8",
     "tailwindcss": "^4.2.1",
     "tsdown": "^0.19.0",
     "typescript": "^5",
-    "vovk-cli": "^0.0.1",
+    "vovk-cli": "^0.2.0",
     "vovk-hello-world": "^0.0.88",
-    "vovk-python": "^0.0.1",
-    "vovk-rust": "^0.0.1"
+    "vovk-python": "^0.0.2",
+    "vovk-rust": "^0.0.3"
   }
 }
 ```
@@ -697,7 +699,7 @@ The [OpenAPI specification](https://hello-world.vovk.dev/api/static/openapi.json
 
 <Tabs items={['OpenApiController.ts', 'route.ts']}>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/static/openapi/OpenApiController.ts" repository="finom/vovk-hello-world"
+```ts showLineNumbers copy filename="src/modules/static/openapi/openapi-controller.ts" repository="finom/vovk-hello-world"
 import { get, operation } from 'vovk';
 import { openapi } from 'vovk-client/openapi';
 
@@ -710,12 +712,12 @@ export default class OpenApiController {
   static getSpec = () => openapi;
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/static/openapi/OpenApiController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/static/openapi/openapi-controller.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/app/api/static/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"  
 import { controllersToStaticParams, initSegment } from 'vovk';
-import OpenApiController from '../../../../modules/static/openapi/OpenApiController';
+import OpenApiController from '../../../../modules/static/openapi/openapi-controller';
 
 const controllers = {
   OpenApiRPC: OpenApiController,
