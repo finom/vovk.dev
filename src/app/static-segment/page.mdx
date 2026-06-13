@@ -15,11 +15,13 @@ const nextConfig = {
 module.exports = nextConfig;
 ```
 
-All you need to do is implement `generateStaticParams` and return `controllersToStaticParams` with your controller list.
+Export `dynamic = 'force-static'` so Next.js pre-renders the route handler at build time, implement `generateStaticParams`, and return `controllersToStaticParams` with your controller list.
 
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 // ...
 export type Controllers = typeof controllers;
+
+export const dynamic = 'force-static';
 
 export function generateStaticParams() {
   return controllersToStaticParams(controllers);
