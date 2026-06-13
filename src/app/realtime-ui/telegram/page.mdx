@@ -67,7 +67,7 @@ We’re going to create a new segment called `bots` that contains a `TelegramCon
 
 ```ts showLineNumbers copy filename="src/app/api/bots/[[...vovk]]/route.ts" repository="finom/realtime-kanban"
 import { initSegment } from 'vovk';
-import TelegramController from '../../../../modules/telegram/TelegramController';
+import TelegramController from '../../../../modules/telegram/telegram-controller';
 
 const controllers = {
   TelegramBot: TelegramController,
@@ -85,9 +85,9 @@ export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
 
 The `TelegramController` class contains a single `handle` procedure, implementing the `/api/bots/telegram/bot` endpoint, which is called by the Telegram webhook for each incoming message.
 
-```ts showLineNumbers copy filename="src/modules/telegram/TelegramController.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/telegram/telegram-controller.ts" repository="finom/realtime-kanban"
 import { post, prefix } from 'vovk';
-import TelegramService from './TelegramService';
+import TelegramService from './telegram-service';
 
 @prefix('telegram')
 export default class TelegramController {
@@ -95,13 +95,13 @@ export default class TelegramController {
   static handle = TelegramService.handle.bind(TelegramService);
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/telegram/TelegramController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/telegram/telegram-controller.ts)*
 
 ## Service
 
 The `TelegramService` class contains the main logic for handling incoming messages, generating AI responses with the Vercel AI SDK, updating the database via derived tools, and sending text or voice messages back to the user.
 
-```ts showLineNumbers copy filename="src/modules/telegram/TelegramService.ts"
+```ts showLineNumbers copy filename="src/modules/telegram/telegram-service.ts"
 // ...
 export default class TelegramService {
   // ...

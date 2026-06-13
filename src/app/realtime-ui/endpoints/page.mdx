@@ -49,13 +49,13 @@ The services implement the actual business logic for each procedure, including d
 
 <Tabs items={['UserController.ts', 'UserService.ts', 'TaskController.ts', 'TaskService.ts']}>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts" repository="finom/realtime-kanban"
 import { TaskSchema, UserSchema } from '@schemas/index';
 import { del, get, operation, post, prefix, procedure, put } from 'vovk';
 import { z } from 'zod';
 import { BASE_FIELDS } from '@/constants';
-import { sessionGuard } from '@/decorators/sessionGuard';
-import UserService from './UserService';
+import { sessionGuard } from '@/decorators/session-guard';
+import UserService from './user-service';
 
 @prefix('users')
 export default class UserController {
@@ -132,18 +132,18 @@ export default class UserController {
   }).handle(async ({ vovk }) => UserService.deleteUser(vovk.params().id));
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/user-controller.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/user/UserService.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/user/user-service.ts" repository="finom/realtime-kanban"
 import { EntityType } from '@prisma/client';
 import type { TaskType } from '@schemas/models/Task.schema';
 import type { UserType } from '@schemas/models/User.schema';
 import type { VovkBody, VovkOutput, VovkParams } from 'vovk';
-import DatabaseService from '../database/DatabaseService';
-import EmbeddingService from '../embedding/EmbeddingService';
-import TaskService from '../task/TaskService';
-import type UserController from './UserController';
+import DatabaseService from '../database/database-service';
+import EmbeddingService from '../embedding/embedding-service';
+import TaskService from '../task/task-service';
+import type UserController from './user-controller';
 
 export default class UserService {
   static getUsers = () =>
@@ -212,16 +212,16 @@ export default class UserService {
   };
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/user-service.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/task/TaskController.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/task/task-controller.ts" repository="finom/realtime-kanban"
 import { TaskSchema, UserSchema } from '@schemas/index';
 import { del, get, operation, post, prefix, procedure, put } from 'vovk';
 import { z } from 'zod';
 import { BASE_FIELDS } from '@/constants';
-import { sessionGuard } from '@/decorators/sessionGuard';
-import TaskService from './TaskService';
+import { sessionGuard } from '@/decorators/session-guard';
+import TaskService from './task-service';
 
 @prefix('tasks')
 export default class TaskController {
@@ -309,17 +309,17 @@ export default class TaskController {
   }).handle(async ({ vovk }) => TaskService.deleteTask(vovk.params().id));
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/TaskController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/task-controller.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/task/TaskService.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/task/task-service.ts" repository="finom/realtime-kanban"
 import { EntityType } from '@prisma/client';
 import type { TaskType } from '@schemas/models/Task.schema';
 import type { UserType } from '@schemas/models/User.schema';
 import type { VovkBody, VovkOutput, VovkParams } from 'vovk';
-import DatabaseService from '../database/DatabaseService';
-import EmbeddingService from '../embedding/EmbeddingService';
-import type TaskController from './TaskController';
+import DatabaseService from '../database/database-service';
+import EmbeddingService from '../embedding/embedding-service';
+import type TaskController from './task-controller';
 
 export default class TaskService {
   static getTasks = () =>
@@ -370,6 +370,6 @@ export default class TaskService {
     }) as unknown as Promise<VovkOutput<typeof TaskController.deleteTask>>;
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/TaskService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/task-service.ts)*
 </Tabs.Tab>
 </Tabs>

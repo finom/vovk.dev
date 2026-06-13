@@ -14,7 +14,7 @@ For the backend setup, we need to create a procedure powered by the AI SDK, addi
 
 Because the procedures already follow the [rules of locally called procedures](/fn#rules)—their handlers use only the `vovk` property of the request, for example `async ({ vovk }) => UserService.createUser(await vovk.body()){:ts}` (see the [API Endpoints](./endpoints) page)—we can use the `deriveTools` function to create AI tools from the controllers and call them in the current backend context without performing HTTP requests.
 
-```ts showLineNumbers copy filename="src/modules/ai/AiSdkController.ts" repository="finom/realtime-kanban"  {26-31,37-46}
+```ts showLineNumbers copy filename="src/modules/ai/ai-sdk-controller.ts" repository="finom/realtime-kanban"  {26-31,37-46}
 import { openai } from '@ai-sdk/openai';
 import {
   convertToModelMessages,
@@ -25,9 +25,9 @@ import {
   type UIMessage,
 } from 'ai';
 import { deriveTools, operation, post, prefix, type VovkRequest } from 'vovk';
-import { sessionGuard } from '@/decorators/sessionGuard';
-import TaskController from '../task/TaskController';
-import UserController from '../user/UserController';
+import { sessionGuard } from '@/decorators/session-guard';
+import TaskController from '../task/task-controller';
+import UserController from '../user/user-controller';
 
 @prefix('ai-sdk')
 export default class AiSdkController {
@@ -72,7 +72,7 @@ export default class AiSdkController {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/ai/AiSdkController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/ai/ai-sdk-controller.ts)*
 
 The resulting endpoint is served at `/api/ai-sdk/tools`.
 
@@ -80,7 +80,7 @@ The resulting endpoint is served at `/api/ai-sdk/tools`.
 
 On the frontend we’re going to use the AI SDK, represented by the [ai](https://www.npmjs.com/package/ai) and [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) packages, as well as the [AI Elements](https://ai-sdk.dev/elements/) library. AI Elements provides pre-built React components for building AI-powered user interfaces, built on top of [shadcn/ui](https://ui.shadcn.com/).
 
-```tsx showLineNumbers copy filename="src/components/ExpandableChatDemo.tsx"  {27}
+```tsx showLineNumbers copy filename="src/components/expandable-chat-demo.tsx"  {27}
 'use client';
 // ...
 import { useChat } from '@ai-sdk/react';
@@ -88,8 +88,8 @@ import { useState } from 'react';
 import { DefaultChatTransport } from 'ai';
 import { AiSdkRPC } from 'vovk-client';
 import { Conversation, ConversationContent, ConversationEmptyState } from '@/components/ai-elements/conversation';
-import { useRegistry } from '@/hooks/useRegistry';
-import useParseSDKToolCallOutputs from '@/hooks/useParseSDKToolCallOutputs';
+import { useRegistry } from '@/hooks/use-registry';
+import useParseSDKToolCallOutputs from '@/hooks/use-parse-sdk-tool-call-outputs';
 
 export function ExpandableChatDemo() {
   const [input, setInput] = useState('');
@@ -123,10 +123,10 @@ export function ExpandableChatDemo() {
 
 The key part of the code is the `useParseSDKToolCallOutputs` hook, which extracts tool call outputs from assistant messages and passes them to the registry’s `parse` method. The registry processes the results and triggers UI updates accordingly. The hook also ensures that each tool call output is parsed only once by keeping track of parsed tool call IDs in a `Set`.
 
-```ts showLineNumbers copy filename="src/hooks/useParseSDKToolCallOutputs.ts" repository="finom/realtime-kanban" {26}
+```ts showLineNumbers copy filename="src/hooks/use-parse-sdk-tool-call-outputs.ts" repository="finom/realtime-kanban" {26}
 import type { ToolUIPart, UIMessage } from 'ai';
 import { useEffect, useRef } from 'react';
-import { useRegistryStore } from '@/hooks/useRegistry';
+import { useRegistryStore } from '@/hooks/use-registry';
 
 export default function useParseSDKToolCallOutputs(messages: UIMessage[]) {
   const store = useRegistryStore();
@@ -155,7 +155,7 @@ export default function useParseSDKToolCallOutputs(messages: UIMessage[]) {
   }, [messages, store]);
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useParseSDKToolCallOutputs.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/use-parse-sdk-tool-call-outputs.ts)*
 
 Without optimizations, the code can be reduced to this small snippet:
 

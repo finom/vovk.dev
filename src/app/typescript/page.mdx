@@ -2,7 +2,7 @@
 
 Controllers and its procedures implemented as static methods compile to so-called RPC modules that share the same structure but have different argument signatures. For example, given the controller below:
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { z } from 'zod';
 import { procedure, prefix, post, operation } from 'vovk';
 
@@ -74,7 +74,7 @@ Behind the scenes the RPC module is created by an internal function `createRPC` 
 
 ```ts showLineNumbers copy
 import type { VovkFetcher } from "vovk/fetcher";
-import { createRPC } from "vovk/createRPC";
+import { createRPC } from "vovk/create-rpc";
 import { schema } from "./schema";
 
 import type { Controllers as Controllers0 } from "../../app/api/[[...vovk]]/route.ts";
@@ -245,7 +245,7 @@ const updatedUser = await UserRPC.updateUser<SomeType>(/* ... */);
 
 ## Async Iterable
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { get } from 'vovk';
 export default class UserController {
   @get()

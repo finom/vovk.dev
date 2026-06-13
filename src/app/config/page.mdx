@@ -62,7 +62,7 @@ The root entry point for API routes. By default it is `api`, so routes are serve
 <a name="rootsegmentmodulesdirname" />
 ### `rootSegmentModulesDirName = ''`
 
-Used exclusively by [vovk new](/new) when multiple segments are present. If set to a non-empty string, root-segment modules are created inside a folder with this name. For example, if it’s `"root"`, then running `vovk new controller user` will create **src/modules/root/user/UserController.ts** instead of **src/modules/user/UserController.ts** (the root of [modulesDir](#modulesdir)).
+Used exclusively by [vovk new](/new) when multiple segments are present. If set to a non-empty string, root-segment modules are created inside a folder with this name. For example, if it’s `"root"`, then running `vovk new controller user` will create **src/modules/root/user/user-controller.ts** instead of **src/modules/user/user-controller.ts** (the root of [modulesDir](#modulesdir)).
 
 <a name="loglevel" />
 ### `logLevel = 'info'`
@@ -188,7 +188,7 @@ const config = {
       'type MyType': './src/types',
       'MyClass, myFunction': './src/utils',
       'MyComponent as RenamedComponent': './src/components',
-      'default as MyDefault': './src/defaultExport',
+      'default as MyDefault': './src/default-export',
     },
   },
 };
@@ -200,7 +200,7 @@ Will be compiled to:
 export { type MyType } from './src/types';
 export { MyClass, myFunction } from './src/utils';
 export { MyComponent as RenamedComponent } from './src/components';
-export { default as MyDefault } from './src/defaultExport';
+export { default as MyDefault } from './src/default-export';
 ```
 
 ```ts showLineNumbers copy

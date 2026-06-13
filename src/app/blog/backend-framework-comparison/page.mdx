@@ -134,7 +134,7 @@ If your project matches one of these descriptions, that's the framework to start
 
 Procedures decorated with `@get('{id}')`, `@post()`, `@put()`, `@patch()`, `@del()` mount as RESTful endpoints with path-param syntax.
 
-```ts filename="src/modules/user/UserController.ts"
+```ts filename="src/modules/user/user-controller.ts"
 import { procedure, prefix, get } from 'vovk';
 import { z } from 'zod';
 
@@ -162,7 +162,7 @@ Native. Vovk targets Next.js App Router exclusively — controllers mount into [
 
 ```ts filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
-import UserController from '@/modules/user/UserController';
+import UserController from '@/modules/user/user-controller';
 
 const controllers = { UserRPC: UserController };
 export type Controllers = typeof controllers;
@@ -197,7 +197,7 @@ Native, first-party. `deriveTools()` converts any controller or RPC module into 
 
 ```ts
 import { deriveTools } from 'vovk';
-import UserController from '@/modules/user/UserController';
+import UserController from '@/modules/user/user-controller';
 
 const { tools, toolsByName } = deriveTools({ modules: { UserController } });
 // tools: [{ name, description, parameters, execute }, ...]

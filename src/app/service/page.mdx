@@ -6,10 +6,10 @@ Like controllers, services are often written as static classes with static metho
 
 Let's say you have the following controller class:
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts" {22}
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts" {22}
 import { z } from 'zod';
 import { procedure, prefix, post, operation } from 'vovk';
-import UserService from './UserService';
+import UserService from './user-service';
 
 @prefix('users')
 export default class UserController {
@@ -35,9 +35,9 @@ export default class UserController {
 
 The `handle` method returns the result of `UserService.updateUser`. That method, in turn, infers its types from the procedure, making the validation models (Zod schemas in this case) the single source of truth for input and output types, with no need to define separate types, thanks to the legendary [Anders Hejlsberg](https://github.com/ahejlsberg) for the fix in [#58616](https://github.com/microsoft/TypeScript/issues/58616)—without this TypeScript change, Vovk.ts would not be possible.
 
-```ts showLineNumbers copy filename="src/modules/user/UserService.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-service.ts"
 import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from 'vovk';
-import type UserController from './UserController';
+import type UserController from './user-controller';
 
 export default class UserService {
   static updateUser(

@@ -12,7 +12,7 @@ A **procedure** is one such member: a single endpoint definition, typically deco
 
 Pick the bare style for simple cases; reach for `procedure()` whenever you want validation or a transport-agnostic callable.
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { put, prefix } from 'vovk';
 
 @prefix('users') // optional prefix for all routes in this controller
@@ -29,7 +29,7 @@ The class itself is initialized in a [segment route](/segment) by adding it to t
 
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts"
 import { initSegment } from 'vovk';
-import UserController from '../../../modules/user/UserController';
+import UserController from '../../../modules/user/user-controller';
 
 const controllers = {
   UserRPC: UserController,
@@ -58,7 +58,7 @@ For more information, see [TypeScript Client](/typescript).
 > [!TIP]
 > 
 > In order to create a root endpoint for a [segment](/segment), use no prefix and an empty path (or an empty string) in the HTTP decorator.
-> ```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+> ```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 > import { get } from 'vovk';
 > 
 > export default class UserController {
@@ -73,7 +73,7 @@ For more information, see [TypeScript Client](/typescript).
 
 All HTTP decorators provide an `.auto` method that generates the endpoint name from the method name, making the handler definition more RPC‑like.
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { prefix, put } from 'vovk';
 
 @prefix('users')
@@ -90,7 +90,7 @@ export default class UserController {
 
 A procedure can access any Next.js APIs, such as cookies, headers, and so on via `next` package imports. See Next.js [documentation](https://nextjs.org/docs/app/api-reference/functions/headers) for details.
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { put, prefix } from 'vovk';
 import { cookies, headers } from 'next/headers';
 
@@ -113,7 +113,7 @@ Alternatively, use `req.headers` from the [Web Request API](https://developer.mo
 
 `VovkRequest` mirrors the `NextRequest` type by adding generics for request body (`json` method) and query (`searchParams` property) parameters. This allows you to define the expected types for these parts of the request, enabling type-safe access within procedure.
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { put, prefix, type VovkRequest } from 'vovk';
 import type { User } from '../../types';
 
@@ -142,7 +142,7 @@ The `procedure` function turns a static method into a **typed, validated callabl
 
 It returns an object with a `.handle()` method that accepts the actual async handler. The handler receives a type-enhanced request as `VovkRequest<TBody, TQuery, TParams>{:ts}` and the validated `params: TParams{:ts}` value as the second argument.
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { procedure, prefix, put } from 'vovk';
 import { z } from 'zod';
 
@@ -174,7 +174,7 @@ A procedure created with `procedure()` does not need an HTTP decorator to work. 
 
 If you prefer not to use decorators, you can define procedures using the `decorate` function. `decorate` returns an object with a `.handle()` method for the handler. The controller prefix is defined as a `static prefix` property. This produces the same result as decorators in terms of functionality, types, and generated RPC modules.
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { decorate, procedure, put, operation } from 'vovk';
 import { z } from 'zod';
 

@@ -14,7 +14,7 @@ The `EmbeddingService` class implements the logic of generating embeddings and p
 
 Both methods are entity-type agnostic and work with both `user` and `task` entity types.
 
-```ts showLineNumbers copy filename="src/modules/embedding/EmbeddingService.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/embedding/embedding-service.ts" repository="finom/realtime-kanban"
 import { openai } from '@ai-sdk/openai';
 import { Prisma } from '@prisma/client';
 import type { EntityType } from '@schemas/index';
@@ -23,7 +23,7 @@ import type { UserType } from '@schemas/models/User.schema';
 import { embed } from 'ai';
 import { capitalize, omit } from 'lodash';
 import { BASE_KEYS } from '@/constants';
-import DatabaseService from '../database/DatabaseService';
+import DatabaseService from '../database/database-service';
 
 export default class EmbeddingService {
   static async generateEmbedding(value: string): Promise<number[]> {
@@ -103,4 +103,4 @@ export default class EmbeddingService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/embedding/EmbeddingService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/embedding/embedding-service.ts)*

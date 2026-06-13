@@ -101,10 +101,10 @@ A controller like this:
 
 <Tabs items={['UserController.ts', 'UserService.ts', 'route.ts']}>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/vovk-hello-world"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts" repository="finom/vovk-hello-world"
 import { operation, post, prefix, procedure } from 'vovk';
 import { z } from 'zod';
-import UserService from './UserService';
+import UserService from './user-service';
 
 @prefix('users')
 export default class UserController {
@@ -174,12 +174,12 @@ export default class UserController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/user-controller.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/user/UserService.ts" repository="finom/vovk-hello-world"
+```ts showLineNumbers copy filename="src/modules/user/user-service.ts" repository="finom/vovk-hello-world"
 import type { VovkBody, VovkOutput, VovkParams, VovkQuery } from 'vovk';
-import type UserController from './UserController';
+import type UserController from './user-controller';
 
 export default class UserService {
   static updateUser = (
@@ -200,14 +200,14 @@ export default class UserService {
   };
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/UserService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/user/user-service.ts)*
 
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"
 import { initSegment } from 'vovk';
-import StreamController from '../../../modules/stream/StreamController';
-import UserController from '../../../modules/user/UserController';
+import StreamController from '../../../modules/stream/stream-controller';
+import UserController from '../../../modules/user/user-controller';
 
 export const runtime = 'edge';
 
@@ -341,10 +341,10 @@ A controller like this:
 
 <Tabs items={['StreamController.ts', 'StreamService.ts', 'route.ts']}>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/stream/StreamController.ts" repository="finom/vovk-hello-world"
+```ts showLineNumbers copy filename="src/modules/stream/stream-controller.ts" repository="finom/vovk-hello-world"
 import { get, operation, prefix, procedure } from 'vovk';
 import { z } from 'zod';
-import StreamService from './StreamService';
+import StreamService from './stream-service';
 
 @prefix('streams')
 export default class StreamController {
@@ -367,12 +367,12 @@ export default class StreamController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/stream-controller.ts)*
 </Tabs.Tab>
 <Tabs.Tab>
-```ts showLineNumbers copy filename="src/modules/stream/StreamService.ts" repository="finom/vovk-hello-world"
+```ts showLineNumbers copy filename="src/modules/stream/stream-service.ts" repository="finom/vovk-hello-world"
 import type { VovkIteration } from 'vovk';
-import type StreamController from './StreamController';
+import type StreamController from './stream-controller';
 
 export default class StreamService {
   static async *streamTokens() {
@@ -388,14 +388,14 @@ export default class StreamService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/StreamService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/vovk-hello-world/blob/main/src/modules/stream/stream-service.ts)*
 
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts showLineNumbers copy filename="src/app/api/[[...vovk]]/route.ts" repository="finom/vovk-hello-world"
 import { initSegment } from 'vovk';
-import StreamController from '../../../modules/stream/StreamController';
-import UserController from '../../../modules/user/UserController';
+import StreamController from '../../../modules/stream/stream-controller';
+import UserController from '../../../modules/user/user-controller';
 
 export const runtime = 'edge';
 

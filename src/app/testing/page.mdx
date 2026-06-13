@@ -10,7 +10,7 @@ Any test runner works (Vitest, Jest, Node.js test runner, etc.). Examples below 
 
 Given a controller:
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts"
 import { z } from 'zod';
 import { procedure, get, post, prefix } from 'vovk';
 
@@ -38,9 +38,9 @@ export default class UserController {
 
 Test it directly:
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.test.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.test.ts"
 import { describe, it, expect } from 'vitest';
-import UserController from './UserController';
+import UserController from './user-controller';
 
 describe('UserController', () => {
   it('gets a user by ID', async () => {
@@ -69,10 +69,10 @@ The trade-off is that `.fn()` bypasses `proxy.js` (previously `middleware.js` in
 
 Since procedures validate input, you can test that invalid data is rejected:
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.test.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.test.ts"
 import { describe, it, expect } from 'vitest';
 import { HttpException } from 'vovk';
-import UserController from './UserController';
+import UserController from './user-controller';
 
 describe('UserController validation', () => {
   it('rejects invalid body', async () => {
@@ -89,7 +89,7 @@ describe('UserController validation', () => {
 
 For end-to-end tests that go through the HTTP layer, use the generated [RPC modules](/typescript) against a running dev server:
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.e2e.test.ts"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.e2e.test.ts"
 import { describe, it, expect } from 'vitest';
 import { UserRPC } from 'vovk-client';
 

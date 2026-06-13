@@ -27,8 +27,8 @@ Server-side inference:
 
 ```ts showLineNumbers copy
 import type { VovkBody, VovkQuery, VovkParams, VovkInput, VovkOutput, VovkIteration, VovkReturnType, VovkYieldType } from 'vovk';
-import type UserController from './UserController';
-import type StreamController from './StreamController';
+import type UserController from './user-controller';
+import type StreamController from './stream-controller';
 
 // infer input
 type Body = VovkBody<typeof UserController.updateUser>;
@@ -118,7 +118,7 @@ type Params = VovkParams<typeof UserRPC.updateUser>; // { param: string }
 
 ```ts showLineNumbers copy
 import type { VovkBody, VovkQuery, VovkParams } from 'vovk';
-import type UserController from './UserController';
+import type UserController from './user-controller';
 
 type Body = VovkBody<typeof UserController.updateUser>; // { email: string }
 type Query = VovkQuery<typeof UserController.updateUser>; // { id: string }
@@ -131,7 +131,7 @@ type Params = VovkParams<typeof UserController.updateUser>; // { param: string }
 
 ```ts showLineNumbers copy
 import type { VovkInput } from 'vovk';
-import type UserController from './UserController';
+import type UserController from './user-controller';
 
 type Input = VovkInput<typeof UserController.updateUser>;
 // { params: { param: string }; query: { id: string }; body: { email: string } }
@@ -194,8 +194,8 @@ type Iteration = VovkIteration<typeof StreamRPC.streamItems>; // { item: boolean
 
 ```ts showLineNumbers copy
 import type { VovkOutput, VovkIteration } from 'vovk';
-import type UserController from './UserController';
-import type StreamController from './StreamController';
+import type UserController from './user-controller';
+import type StreamController from './stream-controller';
 
 type Output = VovkOutput<typeof UserController.updateUser>; // { success: boolean }
 type Iteration = VovkIteration<typeof StreamController.streamItems>; // { item: boolean }
@@ -234,8 +234,8 @@ type Yield = VovkYieldType<typeof StreamRPC.streamItems>; // { item: boolean }
 
 ```ts showLineNumbers copy
 import type { VovkReturnType, VovkYieldType } from 'vovk';
-import type UserController from './UserController';
-import type StreamController from './StreamController';
+import type UserController from './user-controller';
+import type StreamController from './stream-controller';
 
 type Return = VovkReturnType<typeof UserController.updateUser>; // { success: boolean }
 type Yield = VovkYieldType<typeof StreamController.streamItems>; // { item: boolean }

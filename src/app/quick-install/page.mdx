@@ -38,16 +38,16 @@ npx vovk new segment
 
 ### Generate a controller and a service
 
-This command scaffolds **UserController.ts** and **UserService.ts** from built-in (customizable) templates under **./src/modules/user/** and updates the segment’s **route.ts**:
+This command scaffolds **user-controller.ts** and **user-service.ts** from built-in (customizable) templates under **./src/modules/user/** and updates the segment’s **route.ts**:
 
 ```bash npm2yarn copy
 npx vovk new controller service user
 ```
 
-```ts filename="src/modules/user/UserController.ts"
+```ts filename="src/modules/user/user-controller.ts"
 import { procedure, prefix, get, put, post, del, operation } from 'vovk';
 import { z } from 'zod';
-import UserService from './UserService';
+import UserService from './user-service';
 
 @prefix('users')
 export default class UserController {

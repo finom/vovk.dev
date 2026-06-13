@@ -1,19 +1,19 @@
 ---
-title: "Vovk.ts Realtime UI Context"
-description: "Tutorial and reference for building real-time UIs with Vovk.ts."
+title: "Vovk.ts Realtime Kanban Context"
+description: "Walkthrough of the Realtime Kanban example app — a live-updating UI with Vovk.ts and AI features."
 see_also:
   label: "Vovk.ts Docs Context"
   url: https://vovk.dev/context/docs.md
-chars: 109276
-est_tokens: 27319
+chars: 109784
+est_tokens: 27446
 ---
 
 Page: https://vovk.dev/realtime-ui
 
 # Realtime Kanban — AI-native UI updates with Vovk.ts
 
-**Realtime UI** is a streaming-first architecture for Next.js that keeps the UI in perfect sync with the back-end using only JSON Lines and Vovk.ts.
-This series walks through **Realtime Kanban** — the reference app that implements it — showing how users, bots, AI agents, and MCP clients can all update the board in real time with almost zero extra code.
+**Realtime Kanban** is an example app that keeps a Next.js UI in sync with the back end and layers in a grab-bag of AI features — an MCP server, OpenAI function calling, a voice interface, embeddings, and a Telegram bot.
+This series walks through how it's built, showing how users, bots, AI agents, and MCP clients can all update the same board in real time with very little extra code. It's a worked example to learn from and copy, not a framework or a prescribed architecture — take the parts you need.
 
 AI-friendly context for all articles in this series is available [here](https://vovk.dev/context/realtime-ui.md).
 
@@ -41,11 +41,9 @@ Video: https://vovk.dev/video/kanban_text_chat.mp4
 
 Page: https://vovk.dev/realtime-ui/overview
 
-# Realtime UI Overview
+# Realtime Kanban Overview
 
-YouTube: https://www.youtube.com/embed/lQ-F6U_1niw
-
-This series walks through **Realtime Kanban**, a full‑stack reference app that demonstrates a **Realtime UI** architecture. The app behaves like a standard web application, but it’s also designed to be operated by **AI agents** via text or voice, and by **MCP clients**—including navigation and workflow automation—while keeping both front‑end and back‑end code short and easy to follow.
+This series walks through **Realtime Kanban**, a full‑stack example app that shows one way to keep a Next.js UI live-updating with Vovk.ts. The app behaves like a standard web application, but it’s also designed to be operated by **AI agents** via text or voice, and by **MCP clients**—including navigation and workflow automation—while keeping both front‑end and back‑end code short and easy to follow.
 
 ![Realtime Kanban Screenshot](https://vovk.dev/screenshots/kanban-dark.png)
 ![Realtime Kanban Screenshot](https://vovk.dev/screenshots/kanban-light.png)
@@ -230,7 +228,7 @@ type TaskId = BrandedId<'task'>;
 
 Either way, your entity interfaces then use the branded type for `id` instead of bare `string`, making it a compile-time error to mix up IDs across entity types.
 
-> In the Realtime UI project, `EntityType` is imported from `@prisma/client` and the entity types (including branded IDs) are generated via a Zod generator, as described in the [Database](./database) article.
+> In the Realtime Kanban project, `EntityType` is imported from `@prisma/client` and the entity types (including branded IDs) are generated via a Zod generator, as described in the [Database](./database) article.
 
 ## Setting up the fetcher
 
@@ -269,7 +267,7 @@ export default config;
 
 The registry hook is built on Zustand. It defines a `Registry` interface describing the shape of the state — entity maps keyed by `EntityType` and a `parse` method — and exports a `RegistryProvider`, a `useRegistry` selector hook, and a `useRegistryStore` hook for imperative access.
 
-```ts showLineNumbers copy filename="src/hooks/useRegistry.tsx" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/hooks/use-registry.tsx" repository="finom/realtime-kanban"
 'use client';
 import { EntityType } from '@prisma/client';
 import type { TaskType } from '@schemas/models/Task.schema';
@@ -409,7 +407,7 @@ export function useRegistry<T>(selector: (state: Registry) => T): T {
   return useStore(useRegistryStore(), selector);
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useRegistry.tsx)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/use-registry.tsx)*
 
 Let's break this down piece by piece.
 
@@ -590,7 +588,7 @@ export default async function Home() {
 
 Components are clean — they select from the registry and fire a `useQuery` to refresh the data on the client:
 
-```tsx showLineNumbers copy filename="src/components/UserList.tsx"
+```tsx showLineNumbers copy filename="src/components/user-list.tsx"
 const UserList = () => {
   const users = useRegistry(useShallow((state) => Object.values(state.user)));
 
@@ -778,13 +776,13 @@ The services implement the actual business logic for each procedure, including d
 - Creations and updates are followed by `EmbeddingService.generateEntityEmbedding` calls, and the search endpoints use `EmbeddingService.vectorSearch` to perform vector search using OpenAI embeddings and pgvector. For details, see the [Embeddings](./embeddings) article.
 - The controller procedures use [req.vovk](https://vovk.dev/req-vovk) to access request data such as `params`, `query`, and `body`, because we want to call these methods directly from code (not only through HTTP requests) via the [fn](https://vovk.dev/fn) interface for SSR/PPR, server actions, and AI tool execution.
 
-```ts showLineNumbers copy filename="src/modules/user/UserController.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/user/user-controller.ts" repository="finom/realtime-kanban"
 import { TaskSchema, UserSchema } from '@schemas/index';
 import { del, get, operation, post, prefix, procedure, put } from 'vovk';
 import { z } from 'zod';
 import { BASE_FIELDS } from '@/constants';
-import { sessionGuard } from '@/decorators/sessionGuard';
-import UserService from './UserService';
+import { sessionGuard } from '@/decorators/session-guard';
+import UserService from './user-service';
 
 @prefix('users')
 export default class UserController {
@@ -861,17 +859,17 @@ export default class UserController {
   }).handle(async ({ vovk }) => UserService.deleteUser(vovk.params().id));
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/user-controller.ts)*
 
-```ts showLineNumbers copy filename="src/modules/user/UserService.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/user/user-service.ts" repository="finom/realtime-kanban"
 import { EntityType } from '@prisma/client';
 import type { TaskType } from '@schemas/models/Task.schema';
 import type { UserType } from '@schemas/models/User.schema';
 import type { VovkBody, VovkOutput, VovkParams } from 'vovk';
-import DatabaseService from '../database/DatabaseService';
-import EmbeddingService from '../embedding/EmbeddingService';
-import TaskService from '../task/TaskService';
-import type UserController from './UserController';
+import DatabaseService from '../database/database-service';
+import EmbeddingService from '../embedding/embedding-service';
+import TaskService from '../task/task-service';
+import type UserController from './user-controller';
 
 export default class UserService {
   static getUsers = () =>
@@ -940,15 +938,15 @@ export default class UserService {
   };
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/UserService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/user/user-service.ts)*
 
-```ts showLineNumbers copy filename="src/modules/task/TaskController.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/task/task-controller.ts" repository="finom/realtime-kanban"
 import { TaskSchema, UserSchema } from '@schemas/index';
 import { del, get, operation, post, prefix, procedure, put } from 'vovk';
 import { z } from 'zod';
 import { BASE_FIELDS } from '@/constants';
-import { sessionGuard } from '@/decorators/sessionGuard';
-import TaskService from './TaskService';
+import { sessionGuard } from '@/decorators/session-guard';
+import TaskService from './task-service';
 
 @prefix('tasks')
 export default class TaskController {
@@ -1036,16 +1034,16 @@ export default class TaskController {
   }).handle(async ({ vovk }) => TaskService.deleteTask(vovk.params().id));
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/TaskController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/task-controller.ts)*
 
-```ts showLineNumbers copy filename="src/modules/task/TaskService.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/task/task-service.ts" repository="finom/realtime-kanban"
 import { EntityType } from '@prisma/client';
 import type { TaskType } from '@schemas/models/Task.schema';
 import type { UserType } from '@schemas/models/User.schema';
 import type { VovkBody, VovkOutput, VovkParams } from 'vovk';
-import DatabaseService from '../database/DatabaseService';
-import EmbeddingService from '../embedding/EmbeddingService';
-import type TaskController from './TaskController';
+import DatabaseService from '../database/database-service';
+import EmbeddingService from '../embedding/embedding-service';
+import type TaskController from './task-controller';
 
 export default class TaskService {
   static getTasks = () =>
@@ -1096,7 +1094,7 @@ export default class TaskService {
     }) as unknown as Promise<VovkOutput<typeof TaskController.deleteTask>>;
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/TaskService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/task/task-service.ts)*
 
 ---
 
@@ -1117,7 +1115,7 @@ The `EmbeddingService` class implements the logic of generating embeddings and p
 
 Both methods are entity-type agnostic and work with both `user` and `task` entity types.
 
-```ts showLineNumbers copy filename="src/modules/embedding/EmbeddingService.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/embedding/embedding-service.ts" repository="finom/realtime-kanban"
 import { openai } from '@ai-sdk/openai';
 import { Prisma } from '@prisma/client';
 import type { EntityType } from '@schemas/index';
@@ -1126,7 +1124,7 @@ import type { UserType } from '@schemas/models/User.schema';
 import { embed } from 'ai';
 import { capitalize, omit } from 'lodash';
 import { BASE_KEYS } from '@/constants';
-import DatabaseService from '../database/DatabaseService';
+import DatabaseService from '../database/database-service';
 
 export default class EmbeddingService {
   static async generateEmbedding(value: string): Promise<number[]> {
@@ -1206,7 +1204,7 @@ export default class EmbeddingService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/embedding/EmbeddingService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/embedding/embedding-service.ts)*
 
 ---
 
@@ -1245,11 +1243,11 @@ Because we use [Prisma](https://www.prisma.io/) as our ORM, we can use [Prisma E
 > - All write operations must select the `updatedAt` field for change detection to work properly.
 > - The list of supported write operations is limited to `create`, `update`, `upsert`, and `delete` for simplicity. Read operations are passed through as-is. For more complex operations, additional handling or abstraction is required.
 
-```ts showLineNumbers copy filename="src/modules/database/DatabaseService.ts" repository="finom/realtime-kanban" {20,124}
+```ts showLineNumbers copy filename="src/modules/database/database-service.ts" repository="finom/realtime-kanban" {20,124}
 import { PrismaNeon } from '@prisma/adapter-neon';
 import { PrismaClient } from '@prisma/client';
 import type { BaseEntity } from '@/types';
-import DatabaseEventsService, { type DBChange } from './DatabaseEventsService';
+import DatabaseEventsService, { type DBChange } from './database-events-service';
 import './neon-local'; // Setup Neon for local development
 
 export default class DatabaseService {
@@ -1381,7 +1379,7 @@ export default class DatabaseService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/database-service.ts)*
 
 - The `getClient` method calls `DatabaseEventsService.beginEmitting(){:ts}` to start emitting events. The `beginEmitting` function runs a `setInterval` that connects to Redis and periodically checks for new events. When a new event is found, it emits it via [mitt](https://npmjs.com/package/mitt).
 - `prisma.$extends` hooks into some of the Prisma model operations, determines whether an operation modifies data, and if so calls `await DatabaseEventsService.createChanges([change]){:ts}` to persist a change entry in Redis. The change captures creates, updates, and deletions:
@@ -1406,7 +1404,7 @@ Operations like `find...` and `count` do not trigger changes and are passed thro
 
 In addition to `beginEmitting` and `createChanges`, `DatabaseEventsService` provides a `connect` method and an `emitter` (a `mitt` instance). These are used by the polling service (`DatabasePollService`, discussed next) to be notified about new events.
 
-```ts showLineNumbers copy filename="src/modules/database/DatabaseEventsService.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/database/database-events-service.ts" repository="finom/realtime-kanban"
 import type { EntityType } from '@prisma/client';
 import mitt from 'mitt';
 import { createClient } from 'redis';
@@ -1491,18 +1489,18 @@ export default class DatabaseEventsService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabaseEventsService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/database-events-service.ts)*
 
 ## Polling controller and service
 
 With Redis change entries and the change emitter in place, we can implement a polling endpoint that streams updates to clients in real time. The `DatabasePollController` exposes a single [JSONLines](https://vovk.dev/jsonlines) endpoint, and `DatabasePollService` uses a [JSONLinesResponder](https://vovk.dev/jsonlines#jsonlinesresponder) instance (received from the controller) to send data to clients. The service closes the connection safely after 30 seconds, so clients should reconnect.
 
-```ts showLineNumbers copy filename="src/modules/database/DatabasePollService.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/database/database-poll-service.ts" repository="finom/realtime-kanban"
 import { forEach, groupBy } from 'lodash';
 import type { JSONLinesResponder, VovkIteration } from 'vovk';
-import DatabaseEventsService, { type DBChange } from './DatabaseEventsService';
-import type DatabasePollController from './DatabasePollController';
-import DatabaseService from './DatabaseService';
+import DatabaseEventsService, { type DBChange } from './database-events-service';
+import type DatabasePollController from './database-poll-controller';
+import DatabaseService from './database-service';
 
 export default class PollService {
   static poll(
@@ -1565,9 +1563,9 @@ export default class PollService {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollService.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/database-poll-service.ts)*
 
-```ts showLineNumbers copy filename="src/modules/database/DatabasePollController.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/database/database-poll-controller.ts" repository="finom/realtime-kanban"
 import { EntityType } from '@prisma/client';
 import { TaskSchema, UserSchema } from '@schemas/index';
 import {
@@ -1578,8 +1576,8 @@ import {
   type VovkIteration,
 } from 'vovk';
 import { z } from 'zod';
-import { sessionGuard } from '@/decorators/sessionGuard';
-import DatabasePollService from './DatabasePollService';
+import { sessionGuard } from '@/decorators/session-guard';
+import DatabasePollService from './database-poll-service';
 
 @prefix('poll')
 export default class DatabasePollController {
@@ -1611,7 +1609,7 @@ export default class DatabasePollController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/DatabasePollController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/database/database-poll-controller.ts)*
 
 - When a `delete` DB change is emitted via `DatabaseEventsService.emitter`, the service sends an event with `id`, `entityType`, and `__isDeleted: true`. The frontend uses `__isDeleted` to hide the entity by making it non-enumerable in the registry.
 - When an `update` or `create` change is emitted, the service fetches the full entity from Postgres (since Redis stores only metadata) and sends it to clients.
@@ -1624,7 +1622,7 @@ The frontend code, besides the polling logic, also includes an on/off toggle per
 
 Here’s the `useDatabasePolling` hook that implements the described logic, returning the `[isPollingEnabled, setIsPollingEnabled, hasError]` state tuple:
 
-```ts showLineNumbers copy filename="src/hooks/useDatabasePolling.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/hooks/use-database-polling.ts" repository="finom/realtime-kanban"
 import { useEffect, useRef, useState } from 'react';
 import { DatabasePollRPC } from 'vovk-client';
 
@@ -1691,7 +1689,7 @@ export default function useDatabasePolling(initialValue = false) {
   return [isPollingEnabled, setIsPollingEnabled, hasError] as const;
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useDatabasePolling.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/use-database-polling.ts)*
 
 Usage:
 
@@ -1755,7 +1753,7 @@ export default async function Home() {
 
 It also exports the `isLoggedIn` function, which is used by the `sessionGuard` [decorator](https://vovk.dev/decorator) to check if the user is logged in when invoking procedures.
 
-```ts showLineNumbers copy filename="src/decorators/sessionGuard.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/decorators/session-guard.ts" repository="finom/realtime-kanban"
 import { createDecorator, HttpException, HttpStatus } from 'vovk';
 import { isLoggedIn } from '@/lib/dal';
 
@@ -1766,7 +1764,7 @@ export const sessionGuard = createDecorator(async (req, next) => {
   return next();
 });
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/decorators/sessionGuard.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/decorators/session-guard.ts)*
 
 The `sessionGuard` decorator is applied to all procedures. The `typeof req.url !== 'undefined'{:ts}` check is required to distinguish between HTTP requests and [`fn`](https://vovk.dev/fn) invocations.
 
@@ -1790,7 +1788,7 @@ For the backend setup, we need to create a procedure powered by the AI SDK, addi
 
 Because the procedures already follow the [rules of locally called procedures](https://vovk.dev/fn#rules)—their handlers use only the `vovk` property of the request, for example `async ({ vovk }) => UserService.createUser(await vovk.body()){:ts}` (see the [API Endpoints](./endpoints) page)—we can use the `deriveTools` function to create AI tools from the controllers and call them in the current backend context without performing HTTP requests.
 
-```ts showLineNumbers copy filename="src/modules/ai/AiSdkController.ts" repository="finom/realtime-kanban"  {26-31,37-46}
+```ts showLineNumbers copy filename="src/modules/ai/ai-sdk-controller.ts" repository="finom/realtime-kanban"  {26-31,37-46}
 import { openai } from '@ai-sdk/openai';
 import {
   convertToModelMessages,
@@ -1801,9 +1799,9 @@ import {
   type UIMessage,
 } from 'ai';
 import { deriveTools, operation, post, prefix, type VovkRequest } from 'vovk';
-import { sessionGuard } from '@/decorators/sessionGuard';
-import TaskController from '../task/TaskController';
-import UserController from '../user/UserController';
+import { sessionGuard } from '@/decorators/session-guard';
+import TaskController from '../task/task-controller';
+import UserController from '../user/user-controller';
 
 @prefix('ai-sdk')
 export default class AiSdkController {
@@ -1848,7 +1846,7 @@ export default class AiSdkController {
   }
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/ai/AiSdkController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/ai/ai-sdk-controller.ts)*
 
 The resulting endpoint is served at `/api/ai-sdk/tools`.
 
@@ -1856,7 +1854,7 @@ The resulting endpoint is served at `/api/ai-sdk/tools`.
 
 On the frontend we’re going to use the AI SDK, represented by the [ai](https://www.npmjs.com/package/ai) and [@ai-sdk/react](https://www.npmjs.com/package/@ai-sdk/react) packages, as well as the [AI Elements](https://ai-sdk.dev/elements/) library. AI Elements provides pre-built React components for building AI-powered user interfaces, built on top of [shadcn/ui](https://ui.shadcn.com/).
 
-```tsx showLineNumbers copy filename="src/components/ExpandableChatDemo.tsx"  {27}
+```tsx showLineNumbers copy filename="src/components/expandable-chat-demo.tsx"  {27}
 'use client';
 // ...
 import { useChat } from '@ai-sdk/react';
@@ -1864,8 +1862,8 @@ import { useState } from 'react';
 import { DefaultChatTransport } from 'ai';
 import { AiSdkRPC } from 'vovk-client';
 import { Conversation, ConversationContent, ConversationEmptyState } from '@/components/ai-elements/conversation';
-import { useRegistry } from '@/hooks/useRegistry';
-import useParseSDKToolCallOutputs from '@/hooks/useParseSDKToolCallOutputs';
+import { useRegistry } from '@/hooks/use-registry';
+import useParseSDKToolCallOutputs from '@/hooks/use-parse-sdk-tool-call-outputs';
 
 export function ExpandableChatDemo() {
   const [input, setInput] = useState('');
@@ -1899,10 +1897,10 @@ export function ExpandableChatDemo() {
 
 The key part of the code is the `useParseSDKToolCallOutputs` hook, which extracts tool call outputs from assistant messages and passes them to the registry’s `parse` method. The registry processes the results and triggers UI updates accordingly. The hook also ensures that each tool call output is parsed only once by keeping track of parsed tool call IDs in a `Set`.
 
-```ts showLineNumbers copy filename="src/hooks/useParseSDKToolCallOutputs.ts" repository="finom/realtime-kanban" {26}
+```ts showLineNumbers copy filename="src/hooks/use-parse-sdk-tool-call-outputs.ts" repository="finom/realtime-kanban" {26}
 import type { ToolUIPart, UIMessage } from 'ai';
 import { useEffect, useRef } from 'react';
-import { useRegistryStore } from '@/hooks/useRegistry';
+import { useRegistryStore } from '@/hooks/use-registry';
 
 export default function useParseSDKToolCallOutputs(messages: UIMessage[]) {
   const store = useRegistryStore();
@@ -1931,7 +1929,7 @@ export default function useParseSDKToolCallOutputs(messages: UIMessage[]) {
   }, [messages, store]);
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useParseSDKToolCallOutputs.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/use-parse-sdk-tool-call-outputs.ts)*
 
 Without optimizations, the code can be reduced to this small snippet:
 
@@ -1961,10 +1959,10 @@ Since we're going to use WebRTC, audio data is sent and received directly betwee
 
 On the backend, we're going to create a session endpoint implemented using the official OpenAI article [Realtime API with WebRTC](https://platform.openai.com/docs/guides/realtime-webrtc). The endpoint accepts the SDP offer from the client and a voice-selection query parameter, then returns the SDP answer from the OpenAI Realtime API.
 
-```ts showLineNumbers copy filename="src/modules/realtime/RealtimeController.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/realtime/realtime-controller.ts" repository="finom/realtime-kanban"
 import { HttpException, HttpStatus, post, prefix, procedure } from 'vovk';
 import { z } from 'zod';
-import { sessionGuard } from '@/decorators/sessionGuard';
+import { sessionGuard } from '@/decorators/session-guard';
 
 @prefix('realtime')
 export default class RealtimeController {
@@ -2009,7 +2007,7 @@ export default class RealtimeController {
   });
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/realtime/RealtimeController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/realtime/realtime-controller.ts)*
 
 ## Frontend Setup
 
@@ -2026,7 +2024,7 @@ The crucial parts of the hook are:
 
 The `onmessage` handler also takes care of sending the `response.create` message to make the Realtime API respond, unless the tool execution result contains the `__preventResponseCreate` flag set to `true`, returned from the tool’s `execute` function.
 
-```ts showLineNumbers copy filename="src/hooks/useWebRTCAudioSession.ts" repository="finom/realtime-kanban" {87-132}
+```ts showLineNumbers copy filename="src/hooks/use-web-rtc-audio-session.ts" repository="finom/realtime-kanban" {87-132}
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { VovkTool } from 'vovk';
@@ -2211,7 +2209,7 @@ export default function useWebRTCAudioSession(
   };
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/useWebRTCAudioSession.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/hooks/use-web-rtc-audio-session.ts)*
 
 ### Client-side Tools
 
@@ -2221,18 +2219,18 @@ Since the component is mounted in [layout.tsx](https://github.com/finom/realtime
 
 The client-side tool execution functions are located in the [lib/tools](https://github.com/finom/realtime-kanban/tree/main/src/lib/tools) folder for better organization.
 
-```ts showLineNumbers copy filename="src/components/RealTimeDemo.tsx" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/components/real-time-demo.tsx" repository="finom/realtime-kanban"
 'use client';
 import { useRouter } from 'next/navigation';
 import { createTool, deriveTools } from 'vovk';
 import { TaskRPC, UserRPC } from 'vovk-client';
 import z from 'zod';
-import useWebRTCAudioSession from '@/hooks/useWebRTCAudioSession';
-import { getCurrentTime } from '@/lib/tools/getCurrentTime';
-import { getVisiblePageSection } from '@/lib/tools/getVisiblePageSection';
-import { partyMode } from '@/lib/tools/partyMode';
+import useWebRTCAudioSession from '@/hooks/use-web-rtc-audio-session';
+import { getCurrentTime } from '@/lib/tools/get-current-time';
+import { getVisiblePageSection } from '@/lib/tools/get-visible-page-section';
+import { partyMode } from '@/lib/tools/party-mode';
 import { scroll } from '@/lib/tools/scroll';
-import Floaty from './Floaty';
+import Floaty from './floaty';
 import { useMemo } from 'react';
 
 const RealTimeDemo = () => {
@@ -2327,7 +2325,7 @@ const RealTimeDemo = () => {
 
 export default RealTimeDemo;
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/components/RealTimeDemo.tsx)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/components/real-time-demo.tsx)*
 
 The code for the `Floaty` component is not shown here for brevity, but you can find it [in the repository](https://github.com/finom/realtime-kanban/blob/main/src/components/Floaty.tsx).
 
@@ -2353,8 +2351,8 @@ The tools, as usual, are derived from the controllers using the `deriveTools` fu
 import { createMcpHandler } from 'mcp-handler';
 import { deriveTools, ToModelOutput } from 'vovk';
 import type z from 'zod';
-import TaskController from '@/modules/task/TaskController';
-import UserController from '@/modules/user/UserController';
+import TaskController from '@/modules/task/task-controller';
+import UserController from '@/modules/user/user-controller';
 
 const { tools } = deriveTools({
   modules: {
@@ -2368,16 +2366,14 @@ const { tools } = deriveTools({
 
 const handler = createMcpHandler(
   (server) => {
-    tools.forEach(({ title, name, execute, description, inputSchemas }) => {
+    tools.forEach(({ title, name, execute, description, inputSchema }) => {
+      // Vovk's merged `inputSchema` also carries the original per-slot Zod schemas
+      // (`body`/`query`/`params`); registerTool accepts a Zod raw shape, so drop the
+      // `~standard` marker and hand it those slots directly.
+      const { '~standard': _std, ...shape } = (inputSchema ?? {}) as unknown as Record<string, z.ZodTypeAny>;
       server.registerTool(
         name,
-        {
-          title,
-          description,
-          inputSchema: inputSchemas as Partial<
-            Record<'body' | 'query' | 'params', z.ZodTypeAny>
-          >,
-        },
+        { title, description, inputSchema: inputSchema ? shape : undefined },
         execute,
       );
     });
@@ -2491,7 +2487,7 @@ We’re going to create a new segment called `bots` that contains a `TelegramCon
 
 ```ts showLineNumbers copy filename="src/app/api/bots/[[...vovk]]/route.ts" repository="finom/realtime-kanban"
 import { initSegment } from 'vovk';
-import TelegramController from '../../../../modules/telegram/TelegramController';
+import TelegramController from '../../../../modules/telegram/telegram-controller';
 
 const controllers = {
   TelegramBot: TelegramController,
@@ -2509,9 +2505,9 @@ export const { GET, POST, PATCH, PUT, HEAD, OPTIONS, DELETE } = initSegment({
 
 The `TelegramController` class contains a single `handle` procedure, implementing the `/api/bots/telegram/bot` endpoint, which is called by the Telegram webhook for each incoming message.
 
-```ts showLineNumbers copy filename="src/modules/telegram/TelegramController.ts" repository="finom/realtime-kanban"
+```ts showLineNumbers copy filename="src/modules/telegram/telegram-controller.ts" repository="finom/realtime-kanban"
 import { post, prefix } from 'vovk';
-import TelegramService from './TelegramService';
+import TelegramService from './telegram-service';
 
 @prefix('telegram')
 export default class TelegramController {
@@ -2519,13 +2515,13 @@ export default class TelegramController {
   static handle = TelegramService.handle.bind(TelegramService);
 }
 ```
-*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/telegram/TelegramController.ts)*
+*[The code above is fetched from GitHub repository.](https://github.com/finom/realtime-kanban/blob/main/src/modules/telegram/telegram-controller.ts)*
 
 ## Service
 
 The `TelegramService` class contains the main logic for handling incoming messages, generating AI responses with the Vercel AI SDK, updating the database via derived tools, and sending text or voice messages back to the user.
 
-```ts showLineNumbers copy filename="src/modules/telegram/TelegramService.ts"
+```ts showLineNumbers copy filename="src/modules/telegram/telegram-service.ts"
 // ...
 export default class TelegramService {
   // ...
