@@ -271,3 +271,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
+
+/*
+  Nextra's footer uses Tailwind's cool gray text (text-gray-600 / dark:text-gray-400),
+  which reads cold against the warm cream / charcoal palette. Re-tint the footer's
+  inherited text to the warm muted token so it matches the rest of the site; links
+  keep their own accent color. !important wins over Nextra's prefixed utilities
+  without coupling to their internal class names.
+*/
+footer {
+  color: var(--muted-foreground) !important;
+}
