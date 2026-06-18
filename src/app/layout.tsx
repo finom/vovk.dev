@@ -4,7 +4,16 @@ import { getPageMap } from 'nextra/page-map';
 import 'nextra-theme-docs/style.css';
 import '@/globals.css';
 import VovkLogo from '@/components/vovk-logo';
+import { Inter, Fraunces, JetBrains_Mono } from 'next/font/google';
 import type { Metadata } from 'next';
+
+// Warm, editorial type system: a clean grotesque for body/UI, a soft serif for
+// display headings, and a crisp mono for code. Exposed as CSS variables so the
+// Nextra theme (--x-font-sans / --x-font-mono) and our heading styles in
+// globals.css can pick them up.
+const fontSans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const fontDisplay = Fraunces({ subsets: ['latin'], variable: '--font-display', display: 'swap' });
+const fontMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vovk.dev'),
@@ -85,12 +94,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       dir="ltr"
       // Suggested by `next-themes` package https://github.com/pacocoursey/next-themes#with-app
       suppressHydrationWarning
+      className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable}`}
     >
       <Head
-      // ... Your additional head options
-      >
-        {/* Your additional tags should be passed as `children` of `<Head>` element */}
-      </Head>
+        // Warm clay accent (replaces Nextra's default blue) plus cream / warm
+        // charcoal page backgrounds, matched to the oklch palette in globals.css.
+        color={{
+          hue: { light: 18, dark: 20 },
+          saturation: { light: 55, dark: 60 },
+          lightness: { light: 50, dark: 62 },
+        }}
+        backgroundColor={{ light: '#f5f3ec', dark: '#1e1d1b' }}
+      />
       <body>
         <Layout
          /* banner={
