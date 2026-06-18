@@ -69,13 +69,6 @@ const footer = (
       <Link href="https://github.com/finom" className="ml-1">
         Andrey Gubanov
       </Link>
-      <div className="text-xs opacity-60">
-        Logo by{' '}
-        <Link href="https://icooon-mono.com/license/" target="_blank">
-          Icooon Mono
-        </Link>{' '}
-        (temporary, pending custom design)
-      </div>
     </div>
     <div className="flex gap-4 items-center">
       <Link href="https://github.com/sponsors/finom" target="_blank" className="block">
