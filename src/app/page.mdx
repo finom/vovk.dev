@@ -103,7 +103,7 @@ export default class UserController {
 Codegen reads the emitted schema and produces a `fetch`-powered client that mirrors the `.fn()` signature:
 
 ```ts
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 const user = await UserRPC.getUser({ params: { id: '123' } });
 ```
@@ -131,8 +131,8 @@ for await (const { message } of stream) {
 Annotate with `@operation` and the same procedure exposes as an LLM tool — pass controllers (in-process) or RPC modules (HTTP) to `deriveTools`:
 
 ```ts
-const { tools } = deriveTools({ modules: { UserRPC, TaskController } });
-// [{ name, description, parameters, execute }, ...]
+const tools = deriveTools({ modules: { UserRPC, TaskController } });
+// [{ name, description, inputSchema, execute, ... }, ...]
 ```
 
 ---
@@ -196,7 +196,7 @@ Vovk.ts works with any library that implements [Standard Schema](https://standar
 Third-party OpenAPI 3.x schemas can be converted into modules that share the same calling convention as your own endpoints — then used through the same client and tooling pipeline:
 
 ```ts
-import { PetstoreAPI } from 'vovk-client';
+import { PetstoreAPI } from '@/client';
 
 const pet = await PetstoreAPI.getPetById({ params: { petId: 1 } });
 ```
@@ -222,10 +222,10 @@ export default class TaskController {
 
 ```ts
 import { deriveTools } from 'vovk';
-import { TaskRPC, PetstoreAPI } from 'vovk-client';
+import { TaskRPC, PetstoreAPI } from '@/client';
 
-const { tools } = deriveTools({ modules: { TaskRPC, PetstoreAPI } });
-// [{ name, description, parameters, execute }, ...]
+const tools = deriveTools({ modules: { TaskRPC, PetstoreAPI } });
+// [{ name, description, inputSchema, execute, ... }, ...]
 ```
 
 Each tool has `name`, `description`, `parameters` (JSON Schema), and an `execute` function. See [Deriving AI Tools](/tools).
@@ -252,7 +252,6 @@ See [Generate Command](/generate) · [Bundle Command](/bundle) · [Python Client
 |---------|------|--------|---------|
 | **`vovk`** | Runtime — decorators, `procedure`, routing, `deriveTools` | [![NPM Version](https://img.shields.io/npm/v/vovk)](https://www.npmjs.com/package/vovk) | production |
 | **`vovk-cli`** | Toolchain — codegen, mixins, docs, bundling | [![NPM Version](https://img.shields.io/npm/v/vovk-cli)](https://www.npmjs.com/package/vovk-cli) | dev |
-| **`vovk-client`** | Re-exported composed client | [![NPM Version](https://img.shields.io/npm/v/vovk-client)](https://www.npmjs.com/package/vovk-client) | production (optional) |
 | **`vovk-ajv`** | Client-side validation with AJV | [![NPM Version](https://img.shields.io/npm/v/vovk-ajv)](https://www.npmjs.com/package/vovk-ajv) | production (optional) |
 | **`vovk-python`** | Python client generation (experimental) | [![NPM Version](https://img.shields.io/npm/v/vovk-python)](https://www.npmjs.com/package/vovk-python) | dev (optional) |
 | **`vovk-rust`** | Rust client generation (experimental) | [![NPM Version](https://img.shields.io/npm/v/vovk-rust)](https://www.npmjs.com/package/vovk-rust) | dev (optional) |

@@ -96,9 +96,9 @@ When the Vovk CLI reads these files, it builds a single object with `segments` a
 The schema is available as the `schema` export.
 
 ```ts showLineNumbers copy
-import { schema } from 'vovk-client';
+import { schema } from '@/client';
 // or
-import { schema } from 'vovk-client/schema'; // exports only the schema object (no RPC modules)
+import { schema } from '@/client/schema'; // exports only the schema object (no RPC modules)
 
 import type { VovkSchema, VovkSegmentSchema } from 'vovk';
 
@@ -136,7 +136,7 @@ Example of a segment schema file:
   // Segment name, for the root segment it's an empty string
   "segmentName": "foo",
   // List of controllers as key-value pairs for fast access
-  // Key is a name of the variable that's going to be exported from "vovk-client"
+  // Key is a name of the variable that's going to be exported from "@/client"
   // Value is controller information
   "controllers": {
     "HelloRPC": {

@@ -14,14 +14,13 @@ npx create-next-app my-app --ts --app --src-dir
 cd my-app
 ```
 
-## Install vovk, vovk-client and vovk-cli
+## Install vovk and vovk-cli
 
 - `vovk` is the core/runtime library.
-- `vovk-client` re-exports the generated TypeScript client (optional). 
 - `vovk-cli` is the command-line interface for Vovk.ts (development dependency). 
 
 ```sh npm2yarn copy
-npm i vovk vovk-client
+npm i vovk
 ```
 
 ```sh npm2yarn copy
@@ -190,12 +189,12 @@ Navigate to [http://localhost:3000/api/greetings/greeting](http://localhost:3000
 
 ## Create a React component
 
-Once the client is generated, you can import it from **vovk-client**.
+Once the client is generated to `src/client`, you can import it as **@/client** (or with a relative path if your project doesn't define the `@/*` alias).
 
 ```ts showLineNumbers copy filename="src/app/page.tsx"
 'use client';
 import { useState } from 'react';
-import { HelloRPC } from 'vovk-client';
+import { HelloRPC } from '@/client';
 import type { VovkReturnType } from 'vovk';
 
 export default function MyComponent() {

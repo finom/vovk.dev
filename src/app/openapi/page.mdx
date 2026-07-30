@@ -91,7 +91,7 @@ const config = {
 The generated RPC client exports an `openapi` object from `openapi` module that contains the full back-end specification for the [composed client](/composed). When using the [segmented client](/segmented), each [segment](/segment) also exports its own specification.
 
 ```ts showLineNumbers copy
-import { openapi } from 'vovk-client/openapi'; // composed client
+import { openapi } from '@/client/openapi'; // composed client
 ```
 
 ```ts showLineNumbers copy
@@ -102,7 +102,7 @@ You can use the specification directly as a variable or expose it via a static s
 
 ```ts showLineNumbers copy filename="src/modules/static/openapi/openapi-controller.ts"
 import { get, operation } from 'vovk';
-import { openapi } from 'vovk-client/openapi';
+import { openapi } from '@/client/openapi';
 
 export default class OpenApiController {
   @get('openapi.json')
@@ -113,7 +113,7 @@ export default class OpenApiController {
 If you prefer to skip Vovk entirely for the spec endpoint, a plain Next.js route handler works just as well. This avoids registering a controller and keeps the docs route outside the generated schema:
 
 ```ts showLineNumbers copy filename="src/app/openapi.json/route.ts"
-import { openapi } from 'vovk-client/openapi';
+import { openapi } from '@/client/openapi';
 
 export const GET = () => Response.json(openapi);
 ```

@@ -495,7 +495,7 @@ The app is [configured](/config) to:
   - Python and Rust clients: use `https://hello-world.vovk.dev`.
   - TypeScript Bundle: use `https://hello-world.vovk.dev`.
   - Composed TypeScript client:
-    - In development: use `http://localhost:PORT` (so Node.js via **vovk-client** can call locally).
+    - In development: use `http://localhost:PORT` (so Node.js via the generated **@/client** can call locally).
     - In production: use an empty origin (requests are relative to the current origin).
   - Segmented client: use an empty origin (requests are relative to the current origin).
 
@@ -695,7 +695,7 @@ The original package.json is used to populate metadata (`repository`, `homepage`
 
 ## OpenAPI Specification
 
-The [OpenAPI specification](https://hello-world.vovk.dev/api/static/openapi.json) is served by a `GET` endpoint returning the generated spec (`openapi` from `vovk-client/openapi`).
+The [OpenAPI specification](https://hello-world.vovk.dev/api/static/openapi.json) is served by a `GET` endpoint returning the generated spec (`openapi` from `@/client/openapi`).
 
 <Tabs items={['OpenApiController.ts', 'route.ts']}>
 <Tabs.Tab>

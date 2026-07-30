@@ -314,7 +314,7 @@ console.log(schema.segments[''].controllers.UserRPC.handlers.getUser.validation.
 console.log(UserRPC.getUser.schema.validation.params);
 ```
 
-Note that the `openapi` object that is usually available from **vovk-client/openapi** is not bundled, as it would significantly increase the package size. The `schema` module that is usually available from **vovk-client/schema** is also omitted to keep the bundling flow simple by using only a single entry point.
+Note that the `openapi` object that is usually available from **@/client/openapi** is not bundled, as it would significantly increase the package size. The `schema` module that is usually available from **@/client/schema** is also omitted to keep the bundling flow simple by using only a single entry point.
 
 ---
 
@@ -324,7 +324,7 @@ The bundled methods can be used as [AI tools](/tools) that will invoke the corre
 import { UserRPC } from 'my-api-bundle';
 import { deriveTools } from 'vovk';
 
-const { tools } = deriveTools({
+const tools = deriveTools({
   modules: { UserRPC },
 });
 ```

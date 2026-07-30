@@ -43,7 +43,7 @@ export const { GET, POST, PUT, DELETE } = initSegment({ controllers });
 The key of this object defines the name of the resulting RPC module variable used by the client side:
 
 ```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 // performs PUT /api/users/69?notify=push
 const updatedUser = await UserRPC.updateUser({

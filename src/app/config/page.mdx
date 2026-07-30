@@ -144,7 +144,7 @@ export default config;
 If `"libs"` is present in [exposeConfigKeys](#exposeConfigKeys), it is emitted to `.vovk-schema/_meta.json` and can be accessed in multiple ways:
 
 ```ts showLineNumbers copy
-import { schema, UserRPC } from 'vovk-client';
+import { schema, UserRPC } from '@/client';
 
 console.log(schema.meta.config.libs.ajv.options.strict);
 console.log(UserRPC.updateUser.fullSchema.meta.config.libs.ajv.target);
@@ -204,7 +204,7 @@ export { default as MyDefault } from './src/default-export';
 ```
 
 ```ts showLineNumbers copy
-import { type MyType, MyClass, myFunction, RenamedComponent, MyDefault } from 'vovk-client';
+import { type MyType, MyClass, myFunction, RenamedComponent, MyDefault } from '@/client';
 ```
 
 When the [segmented](/segmented) client is used, top-level `outputConfig.reExports` are applied to the root segment code.

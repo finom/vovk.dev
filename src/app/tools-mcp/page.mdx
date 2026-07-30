@@ -4,7 +4,7 @@
 [Derived tools](/tools) can be used as MCP tools with `ToModelOutput.MCP` formatter. It formats the tool output to meet [MCP tool specification](https://modelcontextprotocol.io/specification/2025-11-25/server/tools), supporting the folowing types of outputs: `text`, `image`, `audio`, alongside with meta information, described with `annotations` object.
 
 ```ts
-const { tools } = deriveTools({
+const tools = deriveTools({
   modules: { UserController },
   toModelOutput: ToModelOutput.MCP,
 });
@@ -164,7 +164,7 @@ import { deriveTools, ToModelOutput } from "vovk";
 import z from "zod";
 import UserController from "@/modules/user/user-controller";
 
-const { tools } = deriveTools({
+const tools = deriveTools({
   modules: { UserController },
   toModelOutput: ToModelOutput.MCP,
 });
@@ -185,6 +185,30 @@ const handler = createMcpHandler(
 );
 
 export { handler as GET, handler as POST };
+```
+
+## Standalone Tools with `withFormattedOutput`
+
+`ToModelOutput.MCP` is compatible with the `withFormattedOutput` helper from the [standard-tool](https://www.npmjs.com/package/standard-tool) package: both operate on a result-or-`Error` value. Wrap a [standalone tool](/tools#standalone-tools) with it, passing `null` as the request argument, and its `execute` produces the same MCP output shape as derived tools, so it can be registered on the same MCP server:
+
+```ts showLineNumbers copy
+import { standardTool, withFormattedOutput } from 'standard-tool';
+import { ToModelOutput } from 'vovk';
+import { z } from 'zod';
+
+const sumNumbers = standardTool({
+  name: 'sum_numbers',
+  description: 'Returns the sum of two numbers provided as input.',
+  inputSchema: z.object({ a: z.number(), b: z.number() }),
+  outputSchema: z.number(),
+  execute({ a, b }) {
+    return a + b;
+  },
+});
+
+const sumNumbersMCP = withFormattedOutput(sumNumbers, (result) =>
+  ToModelOutput.MCP(result, sumNumbers, null)
+);
 ```
 
 ---

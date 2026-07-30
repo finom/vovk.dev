@@ -176,7 +176,7 @@ static async updateUser(/* ... */) {
 Errors are rethrown on the [client side](/typescript) with the same interface.
 
 ```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 import { HttpException } from 'vovk';
 
 // ...
@@ -287,7 +287,7 @@ export default class ProxyController {
 On the client, the return type is inferred as expected.
 
 ```ts showLineNumbers copy
-import { ProxyRPC } from 'vovk-client';
+import { ProxyRPC } from '@/client';
 
 // ...
 const { greeting } = await ProxyRPC.getHello();
@@ -296,7 +296,7 @@ const { greeting } = await ProxyRPC.getHello();
 Alternatively, you can define the response type at the client method and keep the server return type as `Response`.
 
 ```ts showLineNumbers copy
-import { ProxyRPC } from 'vovk-client';
+import { ProxyRPC } from '@/client';
 
 // ...
 const { greeting } = await ProxyRPC.getHello<{ greeting: string }>();
@@ -318,7 +318,7 @@ export default class ProxyController {
 ```
 
 ```ts showLineNumbers copy
-import { ProxyRPC } from 'vovk-client';
+import { ProxyRPC } from '@/client';
 
 // ...
 const response = await ProxyRPC.getPdf();

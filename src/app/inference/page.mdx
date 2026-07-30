@@ -6,7 +6,7 @@ Client-side inference:
 
 ```ts showLineNumbers copy
 import type { VovkBody, VovkQuery, VovkParams, VovkInput, VovkOutput, VovkIteration, VovkReturnType, VovkYieldType } from 'vovk';
-import { UserRPC, StreamRPC } from 'vovk-client';
+import { UserRPC, StreamRPC } from '@/client';
 
 // infer input
 type Body = VovkBody<typeof UserRPC.updateUser>;
@@ -96,7 +96,7 @@ export default class UserController {
 All three cases result the same RPC method:
 
 ```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 await UserRPC.updateUser({
   params: { param: 'value' },
@@ -109,7 +109,7 @@ And they allow to infer input types identically:
 
 ```ts showLineNumbers copy
 import type { VovkBody, VovkQuery, VovkParams } from 'vovk';
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 type Body = VovkBody<typeof UserRPC.updateUser>; // { email: string }
 type Query = VovkQuery<typeof UserRPC.updateUser>; // { id: string }
@@ -141,7 +141,7 @@ It works the same way with RPC modules:
 
 ```ts showLineNumbers copy
 import type { VovkInput } from 'vovk';
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 type Input = VovkInput<typeof UserRPC.updateUser>;
 // { params: { param: string }; query: { id: string }; body: { email: string } }
@@ -186,7 +186,7 @@ export default class StreamController {
 
 ```ts showLineNumbers copy
 import type { VovkOutput, VovkIteration } from 'vovk';
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 type Output = VovkOutput<typeof UserRPC.updateUser>; // { success: boolean }
 type Iteration = VovkIteration<typeof StreamRPC.streamItems>; // { item: boolean }
@@ -226,7 +226,7 @@ export default class StreamController {
 
 ```ts showLineNumbers copy
 import type { VovkReturnType, VovkYieldType } from 'vovk';
-import { UserRPC, StreamRPC } from 'vovk-client';
+import { UserRPC, StreamRPC } from '@/client';
 
 type Return = VovkReturnType<typeof UserRPC.updateUser>; // { success: boolean }
 type Yield = VovkYieldType<typeof StreamRPC.streamItems>; // { item: boolean }

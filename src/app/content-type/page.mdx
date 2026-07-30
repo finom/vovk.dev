@@ -70,7 +70,7 @@ export default class UserController {
 The RPC method's `body` type is inferred as `TBody | FormData | Blob{:ts}`, where `TBody` is the type inferred from the validation schema (an object is converted to `FormData` on the client side, based on the content type).
 
 ```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 const formData = new FormData();
 formData.append('email', 'user@example.com');
@@ -186,7 +186,7 @@ export default class UserController {
 ```
 
 ```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 const file = document.querySelector('input[type="file"]').files[0];
 

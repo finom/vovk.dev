@@ -5,6 +5,13 @@ const meta = {
       breadcrumb: true,
     },
   },
+  v4: {
+    title: 'Vovk.ts v4: Standard Tools and an In-Project Client',
+    theme: {
+      sidebar: false,
+      breadcrumb: true,
+    },
+  },
   'backend-framework-comparison': {
     title: 'TypeScript Backend Frameworks Compared',
     theme: {
