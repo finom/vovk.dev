@@ -176,13 +176,13 @@ const config = {
 
 > [!IMPORTANT]
 >
-> As tsdown is still a relatively new bundler, its API may introduce breaking changes between minor versions. The configuration below has been tested and validated with **tsdown@0.19.0**. If you encounter issues after upgrading, please pin this version until compatibility with newer releases is confirmed.
+> The tsdown API may introduce breaking changes between minor versions. The configuration below has been tested and validated with **tsdown@0.22.14**. If you encounter issues after upgrading, please pin this version until compatibility with newer releases is confirmed.
 
 
 Install `tsdown` as a development dependency:
 
 ```sh npm2yarn copy
-npm install --save-dev tsdown@0.19.0
+npm install --save-dev tsdown@0.22.14
 ```
 
 Add the following `build` function to the `bundle` object in the [config](/config) file:
@@ -204,14 +204,14 @@ const config = {
         platform: 'neutral',
         outExtensions: () => ({ js: '.js', dts: '.d.ts' }),
         outputOptions: {
-          inlineDynamicImports: true,
+          codeSplitting: false,
         },
         inputOptions: {
           resolve: {
             mainFields: ['module', 'main'],
           },
         },
-        noExternal: ['!next/**'],
+        deps: { alwaysBundle: ['!next/**'] },
       });
     },
     // ...
@@ -250,14 +250,14 @@ const config = {
         platform: 'neutral',
         outExtensions: () => ({ js: '.js', dts: '.d.ts' }),
         outputOptions: {
-          inlineDynamicImports: true,
+          codeSplitting: false,
         },
         inputOptions: {
           resolve: {
             mainFields: ['module', 'main'],
           },
         },
-        noExternal: ['!next/**'],
+        deps: { alwaysBundle: ['!next/**'] },
       });
     },
     outputConfig: {
