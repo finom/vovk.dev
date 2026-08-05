@@ -1,7 +1,4 @@
 import Nextra from 'nextra';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
 
 const withNextra = Nextra({
   search: {
