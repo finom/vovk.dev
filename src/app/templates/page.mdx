@@ -157,6 +157,12 @@ Renders the `openapi.json` file that contains the OpenAPI schema. Can be used se
 
 - `templatePath` is `vovk-cli/client-templates/openapiJson/`.
 
+To emit just the `openapi.json` file, without generating a client:
+
+```sh npm2yarn copy
+npx vovk generate --from openapiJson --out ./public
+```
+
 ### `readme`
 
 Renders the `README.md` file that contains the generated [TypeScript](/typescript) client documentation. It's rendered from data provided in the `package.json` file, whose properties can be overridden in the `bundle`, `composedClient`, or `segmentedClient` options in the [config](/config) file, at the root level or on the template definition level. Each method is documented as code, providing self-documented code examples for each RPC method that can be copied directly to your codebase.
