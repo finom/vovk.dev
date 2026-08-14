@@ -10,7 +10,7 @@ Vovk.ts v4 is a breaking release with two themes: LLM tools now follow an open c
 
 ## Tools follow the standard-tool convention
 
-- [deriveTools](/tools) returns an array of tools implementing the `StandardToolV0` interface from [standard-tool](https://standard-tool.js.org/): `name`, `title`, `description`, `inputSchema`, `outputSchema`, `execute`. Tools derived from RPC modules and [OpenAPI mixins](/mixins) also carry schemas, reconstructed from the generated JSON Schemas.
+- [deriveTools](/tools) returns an array of tools implementing the `StandardToolV0` interface from [standard-tool](https://standard-tool.js.org/): `name`, `title`, `description`, `inputSchema`, `outputSchema`, `meta`, `execute`. Tools derived from RPC modules and [OpenAPI mixins](/mixins) also carry schemas, reconstructed from the generated JSON Schemas.
 - Removed: `createTool` (use the [standard-tool](https://www.npmjs.com/package/standard-tool) package or plain objects of the same shape), the `VovkTool` type, the `toolsByName` return value, and the legacy `parameters`, `type` and `inputSchemas` tool fields.
 
 ## The client is generated into your project

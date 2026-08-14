@@ -212,8 +212,9 @@ Example of a segment schema file:
             "x-tool": { 
               "name": "getHello", // custom name for an AI tool
               "title": "Get Hello", // custom title for an AI tool
-              "description": "Hello world" // custom description for an AI tool
-              "hidden": false // whether to hide the tool from AI tool generation
+              "description": "Hello world", // custom description for an AI tool
+              "hidden": false, // whether to hide the tool from AI tool generation
+              "meta": { "category": "greetings" } // static data copied to the derived tool
             } 
           },
           // Custom data that can be defined by a custom decorator
