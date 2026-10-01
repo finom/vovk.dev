@@ -149,7 +149,7 @@ To summarize:
 [The TypeScript client](/typescript) can send custom metadata to the server in the `x-meta` header as a JSON string.
 
 ```ts showLineNumbers copy {5}
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 const user = await UserRPC.getUser({
   params: { id: '123' },

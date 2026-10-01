@@ -91,7 +91,7 @@ For end-to-end tests that go through the HTTP layer, use the generated [RPC modu
 
 ```ts showLineNumbers copy filename="src/modules/user/user-controller.e2e.test.ts"
 import { describe, it, expect } from 'vitest';
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 describe('UserController E2E', () => {
   it('gets a user via HTTP', async () => {

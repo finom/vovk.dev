@@ -48,7 +48,7 @@ export default class UserController {
 It compiles to the following RPC module with `updateUser` method, which accepts `body`, `params`, and `query` as a three-part input.
 
 ```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 const updatedUser = await UserRPC.updateUser({
   body: { name: 'John Doe', age: 30, email: 'john@example.com' },
@@ -201,7 +201,7 @@ Overrides the `validateOnClient` setting from [imports](/imports#validateonclien
 An RPC module can be wrapped with default options using the `withDefaults` method. It returns a new RPC module with the specified deeply-merged defaults applied to every method call.
 
 ```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 const WithDefaultsUserRPC = UserRPC.withDefaults({
   apiRoot: 'https://api.example.com/v1',
@@ -234,7 +234,7 @@ await UserRPC.updateUser({
 If type inference cannot determine the return type, you can specify it explicitly—no need to cast to `unknown` first.
 
 ```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 import type { SomeType } from '../types';
 
 // ...
@@ -258,7 +258,7 @@ export default class UserController {
 If the handler returns an async iterable, the client casts the method to a [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator) to enable [JSON Lines](/jsonlines) streaming.
 
 ```ts showLineNumbers copy
-import { StreamRPC } from 'vovk-client';
+import { StreamRPC } from '@/client';
 
 using stream = await StreamRPC.getJSONLines();
 
@@ -289,7 +289,7 @@ This design also allows you to create [LLM tools](/tools) that can use the schem
 Every RPC method exposes a type-safe `getURL` utility that returns the URL for the method, including serialized `params` and `query`.
 
 ```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 const url = UserRPC.updateUser.getURL({
   params: { id: '69' },
@@ -320,7 +320,7 @@ Every RPC method exposes a `queryKey` utility that returns a globally unique key
 
 ```ts showLineNumbers copy
 import { useQuery } from '@tanstack/react-query';
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 const MyComponent = () => {
   const query = useQuery({
@@ -349,7 +349,7 @@ Streamed responses can utilize [`streamedQuery`](https://tanstack.com/query/late
 
 ```ts showLineNumbers copy
 import { useQuery, experimental_streamedQuery as streamedQuery } from '@tanstack/react-query';
-import { JSONLinesRPC } from 'vovk-client';
+import { JSONLinesRPC } from '@/client';
 
 const JSONLinesComponent = () => {
   const query = useQuery({
@@ -371,7 +371,7 @@ Mutations work with RPC module methods as expected.
 
 ```ts showLineNumbers copy
 import { useMutation } from '@tanstack/react-query';
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 const MyComponent = () => {
   const mutation = useMutation({
@@ -401,14 +401,14 @@ const MyComponent = () => {
 The generated client also exposes `openapi` and `schema` exports in corresponding modules for accessing the OpenAPI spec and the Vovk Schema, respectively.
 
 ```ts showLineNumbers copy
-import { openapi } from 'vovk-client/openapi';
-import { schema } from 'vovk-client/schema';
+import { openapi } from '@/client/openapi';
+import { schema } from '@/client/schema';
 ```
 
 The `schema` object can also be exported from the main module.
 
 ```ts showLineNumbers copy
-import { schema } from 'vovk-client';
+import { schema } from '@/client';
 ```
 
 This also works with the [segmented client](/segmented); in that case, both `openapi` and `schema` include data only for the selected segment:
@@ -423,8 +423,7 @@ import { schema } from '@/client/admin/index.ts';
 
 The TypeScript RPC client is generated from the following templates:
 
-- [js](/templates#js) - compiled ESM modules with TypeScript definitions; used by default in the [composed client](/composed);
-- [ts](/templates#ts) - uncompiled TypeScript module with type definitions; used by default in the [segmented client](/segmented);
+- [ts](/templates#ts) - uncompiled TypeScript module with type definitions; used by default in both the [composed client](/composed) and the [segmented client](/segmented);
 - [mixins](/templates#mixins) - `.d.ts` types and `.json` files generated when [OpenAPI mixins](/mixins) are used;
 - [readme](/templates#readme), [packageJson](/templates#packagejson) - `README.md` with RPC documentation and `package.json` suitable for publishing the generated library as an NPM package.
 

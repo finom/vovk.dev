@@ -7,6 +7,14 @@ import BlogIndexArticle from '../../components/blog-index-article';
 
 import { metadata as comparisonMetadata } from './backend-framework-comparison/page.mdx';
 import { metadata as v3Metadata } from './announcement/page.mdx';
+import { metadata as v4Metadata } from './v4/page.mdx';
+
+<BlogIndexArticle
+  title={v4Metadata.title}
+  description={v4Metadata.description}
+  date={v4Metadata.date}
+  href="/blog/v4"
+/>
 
 <BlogIndexArticle
   title={comparisonMetadata.title}

@@ -100,7 +100,7 @@ export default class StreamService {
 On the client side, the JSON Lines output can be consumed using [disposable](https://github.com/tc39/proposal-explicit-resource-management) [async iterators](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator), to process each line as it arrives:
 
 ```ts showLineNumbers copy
-import { StreamRPC } from 'vovk-client';
+import { StreamRPC } from '@/client';
 
 using stream = await StreamRPC.getJSONLines();
 

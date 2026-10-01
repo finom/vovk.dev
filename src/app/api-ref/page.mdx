@@ -352,80 +352,38 @@ For more information, see the [multitenant](/multitenant) guide.
 
 ### `deriveTools`
 
-Utility that turns RPC modules or controllers into AI tools based on the input schemas of their methods.
+Utility that turns RPC modules or controllers into AI tools that satisfy the [standard-tool](https://standard-tool.js.org/) convention (`StandardToolV0` interface).
 
 The function accepts the following options:
 
 - `modules: Record<string, object>{:ts}` – key-value object where keys are module names and values are objects with methods. Each method should have a `schema: VovkHandlerSchema` property and either `isRPC: true` (for RPC modules) or the [fn](/fn) function (for controllers).
-- `onExecute?: (result: unknown) => void | Promise<void>{:ts}` – called after each tool execution. Receives the result and an object with additional details.
-- `onError?: (e: Error) => void | Promise<void>{:ts}` – called when an error is thrown during tool execution.
+- `onExecute?: (result: unknown, tool: StandardToolV0) => void | Promise<void>{:ts}` – called after each tool execution.
+- `onError?: (e: Error, tool: StandardToolV0) => void | Promise<void>{:ts}` – called when an error is thrown during tool execution.
 - `toModelOutput` – function that formats the tool result into a model-friendly output.
 - `meta?: Record<string, any>{:ts}` – data attached as the `meta` property of each function (controller handler or RPC method).
 
 ```ts showLineNumbers copy
 import { deriveTools } from 'vovk';
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 import TaskController from '@/modules/task/task-controller';
 
-const { tools, toolsByName } = deriveTools({
+const tools = deriveTools({
   meta: { hello: 'world' },
   modules: {
     UserRPC,
     TaskController,
   },
-  resultFormatter: (result) => `Result: ${JSON.stringify(result, null, 2)}`,
-  onExecute: (result, { moduleName, handlerName, body, query, params }) =>
-    console.log(`${moduleName}.${handlerName} executed with`, {
-      body,
-      query,
-      params,
-      result,
-    }),
+  toModelOutput: (result) => `Result: ${JSON.stringify(result, null, 2)}`,
+  onExecute: (result, { name }) => console.log(`${name} executed`, result),
   onError: (e) => console.error('Error', e),
 });
 ```
 
 For more details, see the [Deriving AI Tools](/tools) guide.
 
-### `createTool`
-
-Utility for defining standalone (non-derived) tools by implementing the `VovkTool` shape with optional input/output schemas and optional model-output formatting.
-
-Options:
-
-- `name: string` — tool name.
-- `title?: string` — optional title (primarily for MCP).
-- `description: string`.
-- `toModelOutput?: ToModelOutputFn<...>` — custom formatter or a built-in formatter from `ToModelOutput`.
-- `inputSchema?: StandardSchemaV1 & StandardJSONSchemaV1`.
-- `outputSchema?: StandardSchemaV1 & StandardJSONSchemaV1`.
-- `execute: (input) => Promise<output> | output`.
-
-Example:
-
-```ts showLineNumbers copy
-import { createTool, ToModelOutput } from 'vovk';
-import { z } from 'zod';
-
-const sumNumbers = createTool({
-  name: 'sum_numbers',
-  title: 'Get Sum of two Numbers',
-  description: 'Returns the sum of two numbers provided as input.',
-  toModelOutput: ToModelOutput.MCP,
-  inputSchema: z.object({
-    a: z.number().description('The first number to sum.'),
-    b: z.number().description('The second number to sum.'),
-  }),
-  outputSchema: z.number().description('The sum of the two numbers.'),
-  execute({ a, b }) {
-    return a + b;
-  },
-});
-```
-
 ### `ToModelOutput`
 
-Collection of built-in `toModelOutput` formatters used by `deriveTools`/`createTool` to shape tool results for LLMs.
+Collection of built-in `toModelOutput` formatters used by `deriveTools` to shape tool results for LLMs.
 
 Documented built-ins:
 
@@ -532,7 +490,7 @@ Universal input inference helpers for both RPC methods and controller procedures
 
 ```ts showLineNumbers copy
 import type { VovkBody, VovkQuery, VovkParams } from 'vovk';
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 type Body = VovkBody<typeof UserRPC.updateUser>;
 type Query = VovkQuery<typeof UserRPC.updateUser>;
@@ -564,7 +522,7 @@ Output helpers for validated procedures:
 
 ```ts showLineNumbers copy
 import type { VovkOutput, VovkIteration } from 'vovk';
-import { UserRPC, StreamRPC } from 'vovk-client';
+import { UserRPC, StreamRPC } from '@/client';
 
 type Output = VovkOutput<typeof UserRPC.updateUser>;
 type Iteration = VovkIteration<typeof StreamRPC.streamItems>;
@@ -578,7 +536,7 @@ Lower-level helpers that infer the actual return/yield types of methods when you
 
 ```ts showLineNumbers copy
 import type { VovkReturnType, VovkYieldType } from 'vovk';
-import { UserRPC, StreamRPC } from 'vovk-client';
+import { UserRPC, StreamRPC } from '@/client';
 
 type Return = VovkReturnType<typeof UserRPC.updateUser>;
 type Yield = VovkYieldType<typeof StreamRPC.streamItems>;
@@ -687,9 +645,9 @@ See the [schema docs](/schema) for more details.
 
 The shape of the [config](/config) file.
 
-### `VovkTool`
+### `StandardToolV0`
 
-The shape of an LLM tool created by the [deriveTools](#createllmtools) function.
+The shape of an LLM tool returned by the [deriveTools](#derivetools) function, defined by the [standard-tool](https://standard-tool.js.org/) convention. Exported from `vovk/internal`.
 
 See the [Deriving AI Tools](/tools) documentation for more information.
 

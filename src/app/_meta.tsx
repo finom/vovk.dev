@@ -44,7 +44,6 @@ const meta: MetaRecord = {
   '#tools': separator('🤖 AI Tools'),
   tools: 'Deriving AI Tools from Procedures',
   'tools-mcp': 'MCP Formatting',
-  'tools-standalone': 'Standalone Tools',
 
   '#decorators': separator('Decorators'),
   'decorator-overview': 'Decorators Overview',

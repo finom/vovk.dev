@@ -2,11 +2,11 @@
 
 You can customize the generated TypeScript client by replacing imports of lower-level libraries. Do this via the `outputConfig.imports` object in the [config](/config) file, which can specify a [fetcher](#fetcher) and [validateOnClient](#validateonclient).
 
-By default, when **vovk-ajv** (described below) is used for client-side validation, an `index.js` file generating the `UserRPC` module might look like:
+By default, when **vovk-ajv** (described below) is used for client-side validation, the `index.ts` file generating the `UserRPC` module might look like:
 
-```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.js"
+```ts showLineNumbers copy filename="./src/client/index.ts"
 import { createRPC } from 'vovk/create-rpc';
-import { schema } from './schema.js';
+import { schema } from './schema';
 
 export const UserRPC = createRPC(schema, '', 'UserRPC', import('vovk/fetcher'), {
   validateOnClient: import('vovk-ajv'),
@@ -29,13 +29,13 @@ const config = {
 export default config;
 ```
 
-The generated `index.js` uses these imports and resolves relative paths:
+The generated `index.ts` uses these imports and resolves relative paths:
 
-```ts showLineNumbers copy filename="./node_modules/.vovk-client/index.js"
+```ts showLineNumbers copy filename="./src/client/index.ts"
 import { createRPC } from 'vovk/create-rpc';
 
-export const UserRPC = createRPC(schema, '', 'UserRPC', import('../../src/lib/fetcher'), {
-  validateOnClient: import('../../src/lib/validate-on-client'),
+export const UserRPC = createRPC(schema, '', 'UserRPC', import('../lib/fetcher'), {
+  validateOnClient: import('../lib/validate-on-client'),
   apiRoot: 'http://localhost:3000/api',
 });
 ```
@@ -76,7 +76,7 @@ The `fetcher` prepares handlers, performs client-side validation, issues HTTP re
 It can also process custom per-call options passed to RPC methods.
 
 ```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 const user = await UserRPC.updateUser({
   // ...
@@ -127,7 +127,7 @@ export const fetcher = createFetcher<{
 With this setup, all RPC module methods accept the desired options:
 
 ```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 await UserRPC.updateUser({
   params: { param: 'value' },

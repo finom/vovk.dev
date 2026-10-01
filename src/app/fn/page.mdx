@@ -29,7 +29,7 @@ export default class UserController {
 When the controller is mounted in a [segment](/segment), the same procedure is also reachable over HTTP through the generated RPC client — same call shape:
 
 ```ts showLineNumbers copy
-import { UserRPC } from 'vovk-client';
+import { UserRPC } from '@/client';
 
 const user = await UserRPC.getUser({
   params: { id: '69' },
@@ -99,7 +99,7 @@ export default function CreateUserPage() {
 ```ts showLineNumbers copy
 import { deriveTools } from 'vovk';
 
-const { tools } = deriveTools({
+const tools = deriveTools({
   modules: { UserController },
 });
 
