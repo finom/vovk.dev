@@ -1,3 +1,11 @@
+# vovk.dev has moved
+
+This repository is archived. The code now lives in the Vovk.ts repository:
+
+**https://github.com/finom/vovk/tree/main/docs**
+
+---
+
 <p align="center">
   <a href="https://vovk.dev">
     <picture>
